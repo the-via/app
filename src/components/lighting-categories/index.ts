@@ -1,0 +1,1 @@
+export {ColorCategory} from './color';

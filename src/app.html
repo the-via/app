@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>VIA</title>
+    <script>
+      (function() {
+        const {process} = window;
+        if (!process || process.env.NODE_ENV !== 'development') {
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = './dist/style.css';
+
+          // HACK: Writing the script path should be done with webpack but
+          // can't be done until dll script injection and script renaming
+          // is completed. Styles are injected via style-loader in
+          // development.
+          document.getElementsByTagName('head')[0].appendChild(link);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      const {process} = window;
+      const scripts = [];
+
+      // Dynamically insert the DLL script in development env in the
+      // renderer process
+      if (process && process.env.NODE_ENV === 'development') {
+        scripts.push('../dll/renderer.dev.dll.js');
+      }
+
+      // Dynamically insert the bundled app script in the renderer process
+      const port = (process && process.env.PORT) || 1212;
+      scripts.push(
+        process && process.env.NODE_ENV
+          ? 'http://localhost:' + port + '/dist/renderer.dev.js'
+          : './dist/renderer.prod.js'
+      );
+
+      document.write(
+        scripts
+          .map(script => `<script defer src="${script}"><\/script>`)
+          .join('')
+      );
+    </script>
+  </body>
+</html>

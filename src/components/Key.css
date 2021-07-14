@@ -1,0 +1,233 @@
+:root {
+  --base-width: 54px;
+}
+
+.outerKey {
+  background: #d8d8d8;
+  padding-top: 2px;
+  padding-bottom: 9px;
+  padding-left: 6px;
+  padding-right: 6px;
+  height: 54px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  display: inline-block;
+  margin-right: 2px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.selected {
+  box-shadow: inset #98ff91 0 0 1px 1px;
+}
+
+.keyContainer {
+  padding: 0 1px;
+  box-sizing: border-box;
+  display: inline-block;
+  transition: transform 0.2s ease-out;
+}
+
+.keyContainer:hover {
+  padding: 0 1px;
+  transform: translate3d(0, -1px, 0);
+  box-sizing: border-box;
+  display: inline-block;
+}
+
+.indent25U {
+  margin-left: calc(var(--base-width) * 0.25);
+}
+
+.indent50U {
+  margin-left: calc(var(--base-width) * 0.5);
+}
+
+.indent75U {
+  margin-left: calc(var(--base-width) * 0.75);
+}
+
+.indent100U {
+  margin-left: calc(var(--base-width) * 1);
+}
+
+.indent125U {
+  margin-left: calc(var(--base-width) * 1.25);
+}
+
+.indent150U {
+  margin-left: calc(var(--base-width) * 1.5);
+}
+
+.indent175U {
+  margin-left: calc(var(--base-width) * 1.75);
+}
+
+.indent200U {
+  margin-left: calc(var(--base-width) * 2);
+}
+
+.indent225U {
+  margin-left: calc(var(--base-width) * 2.25);
+}
+
+.indent275U {
+  margin-left: calc(var(--base-width) * 2.75);
+}
+
+.indent300U {
+  margin-left: calc(var(--base-width) * 3);
+}
+
+.indent325U {
+  margin-left: calc(var(--base-width) * 3.25);
+}
+
+.indent350U {
+  margin-left: calc(var(--base-width) * 3.5);
+}
+
+.indent375U {
+  margin-left: calc(var(--base-width) * 3.75);
+}
+
+.indent400U {
+  margin-left: calc(var(--base-width) * 4);
+}
+
+.indent425U {
+  margin-left: calc(var(--base-width) * 4.25);
+}
+
+.indent450U {
+  margin-left: calc(var(--base-width) * 4.5);
+}
+
+.indent475U {
+  margin-left: calc(var(--base-width) * 4.75);
+}
+
+.indent500U {
+  margin-left: calc(var(--base-width) * 5);
+}
+
+.indent1325U {
+  margin-left: calc(var(--base-width) * 13.25);
+}
+
+.indent1425U {
+  margin-left: calc(var(--base-width) * 14.25);
+}
+
+.vIndent25U {
+  margin-top: calc(var(--base-width) * 0.25);
+}
+
+.vIndent-25U {
+  margin-top: calc(var(--base-width) * -0.25);
+}
+
+.vIndent-50U {
+  margin-top: calc(var(--base-width) * -0.5);
+}
+
+.vIndent-75U {
+  margin-top: calc(var(--base-width) * -0.75);
+}
+
+.size100U {
+  width: calc(var(--base-width) * 1);
+}
+
+.size125U {
+  width: calc(var(--base-width) * 1.25);
+}
+
+.size150U {
+  width: calc(var(--base-width) * 1.5);
+}
+
+.size175U {
+  width: calc(var(--base-width) * 1.75);
+}
+
+.size200U {
+  width: calc(var(--base-width) * 2);
+}
+
+.size225U {
+  width: calc(var(--base-width) * 2.25);
+}
+
+.size250U {
+  width: calc(var(--base-width) * 2.5);
+}
+
+.size275U {
+  width: calc(var(--base-width) * 2.75);
+}
+
+.size300U {
+  width: calc(var(--base-width) * 3);
+}
+
+.size600U {
+  width: calc(var(--base-width) * 6);
+}
+
+.size625U {
+  width: calc(var(--base-width) * 6.25);
+}
+
+.size700U {
+  width: calc(var(--base-width) * 7);
+}
+
+.innerKeyContainer {
+  position: absolute;
+  padding-left: 5px;
+}
+
+.smallInnerKeyContainer {
+  position: absolute;
+  padding-left: 5px;
+}
+
+.smallInnerCenterKeyContainer {
+  position: absolute;
+  padding-left: 2px;
+  top: 10px;
+}
+
+.innerKey {
+  height: 100%;
+  margin: auto;
+  background: whitesmoke;
+  line-height: 20px;
+  box-sizing: border-box;
+  padding-top: 2px;
+  border-radius: 3px;
+}
+
+.empty {
+  background: #ececec;
+}
+
+.smallInnerKey {
+  height: 100%;
+  position: relative;
+  margin: auto;
+  background: whitesmoke;
+  line-height: 20px;
+  box-sizing: border-box;
+  border-radius: 3px;
+  font-size: 12px;
+  padding-top: 0;
+}
+
+.legend {
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #444444;
+  font-weight: bold;
+}

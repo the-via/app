@@ -1,17 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
+import * as React from 'react';
+import {render} from 'react-dom';
+import Root from './containers/Root';
+import {configureStore, history} from './redux/configureStore';
+import './app.global.css';
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
+const store = configureStore();
+
+render(
+  <Root store={store} history={history} />,
+  document.getElementById('root')
 );
-
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://snowpack.dev/concepts/hot-module-replacement
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}

@@ -1,0 +1,64 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.keycodesContainer {
+  overflow: auto;
+}
+
+.keycodes {
+  padding: 0 5px 5px 5px;
+  display: flex;
+  flex-flow: wrap;
+  margin: 0 auto;
+  max-width: 1000px;
+}
+
+.disabled {
+  cursor: not-allowed;
+  filter: opacity(50%);
+}
+
+.categories {
+  padding: 2px 3px;
+  white-space: nowrap;
+  height: 31px;
+  min-height: 31px;
+  text-align: center;
+}
+
+.category {
+  font-family: GothamRounded, sans-serif;
+  display: inline-block;
+  color: #a7a7a7;
+  font-size: 20px;
+  transition: 0.4s color ease-out;
+  padding: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+
+.selected {
+  color: #717070;
+}
+
+.keycodeDesc {
+  position: fixed;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  font-size: 14px;
+  padding: 5px;
+  height: 25px;
+  box-sizing: border-box;
+  opacity: 1;
+  transition: opacity 0.4s ease-out;
+}
+
+.keycodeDesc:empty {
+  opacity: 0;
+}
