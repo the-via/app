@@ -9,7 +9,7 @@ import {
   updateCustomMenuValue
 } from '../../../../redux/modules/keymap';
 import {connect} from 'react-redux';
-import {RootState} from 'app/redux';
+import {RootState} from '../../../../redux';
 import {bindActionCreators} from 'redux';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';

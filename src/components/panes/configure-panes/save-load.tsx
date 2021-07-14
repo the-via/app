@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {Component} from 'react';
 import styled from 'styled-components';
-import {writeFileSync} from 'fs';
-import {remote} from 'electron';
 import stringify from 'json-stringify-pretty-compact';
 import {RootState} from '../../../redux';
 import {saveMacros} from '../../../redux/modules/macros';
@@ -103,15 +101,16 @@ class SaveMenuComponent extends Component<Props, State> {
     const content = stringify(saveFile);
     const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
 
-    remote.dialog
-      .showSaveDialog({
-        defaultPath: `*/${defaultFilename}`,
-        filters: [{name: 'json', extensions: ['json']}]
-      })
-      .then(result => {
-        const fileName = result.filePath;
-        fileName && writeFileSync(fileName, content);
-      });
+    /// TODO: REPLACE
+//    remote.dialog
+//      .showSaveDialog({
+//        defaultPath: `*/${defaultFilename}`,
+//        filters: [{name: 'json', extensions: ['json']}]
+//      })
+//      .then(result => {
+//        const fileName = result.filePath;
+//        fileName && writeFileSync(fileName, content);
+//      });
   };
 
   loadLayout = file => {

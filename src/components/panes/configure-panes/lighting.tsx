@@ -10,7 +10,7 @@ import {
   getSelectedDefinition
 } from '../../../redux/modules/keymap';
 import {connect} from 'react-redux';
-import {RootState} from '../../redux';
+import {RootState} from '../../../redux';
 import {bindActionCreators} from 'redux';
 import {title, component} from '../../icons/lightbulb';
 import {GeneralPane} from './submenus/lighting/general';
