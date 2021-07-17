@@ -4226,11 +4226,12 @@ pathval@^1.1.1:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.1.tgz#8534e77a77ce7ac5a2512ea21e0fdb8fcf6c3d8d"
   integrity sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==
 
-"pelpi@git://github.com/the-via/pelpi.git#81640f93bea9850e2d338c7f6986f267776a85b1":
-  version "0.0.1"
-  resolved "git://github.com/the-via/pelpi.git#81640f93bea9850e2d338c7f6986f267776a85b1"
+"pelpi@git://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b":
+  version "0.0.2"
+  resolved "git://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b"
   dependencies:
     "@types/node" "^13.11.1"
+    chalk "^4.1.0"
     core-js "^3.4.1"
     husky "^3.1.0"
     invariant "^2.2.4"
