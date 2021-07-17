@@ -1,8 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
-
-import {basicKeyToByte} from '../../utils/key';
+import basicKeyToByte from '../../utils/key-to-byte.json5';
 import {anyKeycodeToString, advancedStringToKeycode} from '../../utils/advanced-keys';
 
 import TextInput from './text-input';

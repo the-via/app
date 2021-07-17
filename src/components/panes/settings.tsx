@@ -27,7 +27,7 @@ const DebugPane = styled(Pane)`
   grid-template-columns: 100vw;
 `;
 
-const version = require('../../../package.json').version;
+const version = '3';
 type Props = ReturnType<typeof mapDispatchToProps> &
   ReturnType<typeof mapStateToProps>;
 function Settings(props: Props) {

@@ -1,5 +1,7 @@
-export const HID = require('node-hid');
-export const usbDetect = require('usb-detection');
+import {HID} from '../shims/node-hid';
+import {usbDetect} from '../shims/usb-detection';
+export {HID} from '../shims/node-hid';
+export {usbDetect} from '../shims/usb-detection';
 
 export type Device = {
   productId: number;

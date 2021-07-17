@@ -34,7 +34,7 @@ const MenuItem = styled.button`
   }
 `;
 
-const {DEBUG_PROD, NODE_ENV} = process.env;
+const {DEBUG_PROD, NODE_ENV} = import.meta.env;
 const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 
 const mapStateToProps = ({settings}: RootState) => ({

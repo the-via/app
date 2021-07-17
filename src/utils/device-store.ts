@@ -1,5 +1,5 @@
 import {getTheme} from 'via-reader';
-const ElectronStore = require('electron-store');
+import {ElectronStore} from '../shims/electron-store';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;

@@ -24,7 +24,7 @@ const configureStore = (initialState?: any) => {
   });
 
   // Skip redux logs in console during the tests
-  if (process.env.NODE_ENV !== 'test') {
+  if (import.meta.env.NODE_ENV !== 'test') {
     middleware.push(logger);
   }
 

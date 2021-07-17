@@ -25,7 +25,7 @@
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
     "styled-components": "^5.3.0",
-    "typesafe-actions": "^5.1.0",
+    "typesafe-actions": "^4.4.2",
     "via-reader": "git://github.com/the-via/reader.git#953344d68096a875395a344b3bc36bb476fc0d8a"
   },
   "devDependencies": {
@@ -39,10 +39,12 @@
     "@types/react": "^17.0.4",
     "@types/react-dom": "^17.0.3",
     "@types/snowpack-env": "^2.3.3",
+    "@types/styled-components": "^5.1.11",
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7",
+    "snowpack-plugin-json5": "^1.0.0",
     "typescript": "^4.2.4"
   }
 }

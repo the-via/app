@@ -1,5 +1,5 @@
 import * as React from 'react';
-const fullKeyboardDefinition = require('../../utils/test-keyboard-definition.json');
+import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 const {useState, useEffect} = React;
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
@@ -9,7 +9,6 @@ import {bindActionCreators} from 'redux';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
 import {TestKeyboard, TestKeyState} from '../test-keyboard';
 import {
-  MusicalKeySlider,
   matrixKeycodes,
   getIndexByEvent
 } from '../inputs/musical-key-slider';
@@ -259,12 +258,6 @@ function Test(props: Props) {
                 </Detail>
               </ControlRow>
             ) : null}
-            <ControlRow>
-              <Label>Key sounds</Label>
-              <Detail>
-                <MusicalKeySlider />
-              </Detail>
-            </ControlRow>
           </Container>
         </OverflowCell>
       </Grid1Col>

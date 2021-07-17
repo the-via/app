@@ -2,7 +2,8 @@ import {Device, KeyboardDictionary} from '../types';
 import {canConnect} from './keyboard-api';
 import {scanDevices} from './usb-hid';
 
-const IS_OSX = require('os').platform() === 'darwin';
+//const IS_OSX = require('os').platform() === 'darwin';
+const IS_OSX = false;
 
 function isValidInterface(device: Device) {
   return IS_OSX ? isValidUsage(device) : isValidInterfaceNonOSX(device);

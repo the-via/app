@@ -1,40 +1,40 @@
 import * as React from 'react';
 import {AccentSlider} from './accent-slider';
-import {basicKeyToByte} from '../../utils/key';
-const SoundFont = require('soundfont-player');
-let drums;
-let square;
-let pipe;
-let ac;
-const callOnce = fn => {
-  let called = false;
-  return (...args: any[]) => {
-    if (!called) {
-      called = true;
-      fn(...args);
-    }
-  };
-};
-
-const loadInstruments = callOnce(() => {
-  ac = new AudioContext();
-  SoundFont.instrument(
-    new AudioContext(),
-    require('../../soundfont/acoustic_grand_piano-mp3.sfjs'),
-    {isSoundfontURL: () => true}
-  ).then(i => (drums = i));
-  SoundFont.instrument(
-    new AudioContext(),
-    require('../../soundfont/bright_acoustic_piano-mp3.sfjs'),
-    {isSoundfontURL: () => true}
-  ).then(i => (square = i));
-  SoundFont.instrument(
-    new AudioContext(),
-    require('../../soundfont/church_organ-mp3.sfjs'),
-    {isSoundfontURL: () => true}
-  ).then(i => (pipe = i));
-  console.info('Loading instruments');
-});
+import basicKeyToByte from '../../utils/key-to-byte.json5';
+//const SoundFont = require('soundfont-player');
+//let drums;
+//let square;
+//let pipe;
+//let ac;
+//const callOnce = fn => {
+//  let called = false;
+//  return (...args: any[]) => {
+//    if (!called) {
+//      called = true;
+//      fn(...args);
+//    }
+//  };
+//};
+//
+//const loadInstruments = callOnce(() => {
+//  ac = new AudioContext();
+//  SoundFont.instrument(
+//    new AudioContext(),
+//    require('../../soundfont/acoustic_grand_piano-mp3.sfjs'),
+//    {isSoundfontURL: () => true}
+//  ).then(i => (drums = i));
+//  SoundFont.instrument(
+//    new AudioContext(),
+//    require('../../soundfont/bright_acoustic_piano-mp3.sfjs'),
+//    {isSoundfontURL: () => true}
+//  ).then(i => (square = i));
+//  SoundFont.instrument(
+//    new AudioContext(),
+//    require('../../soundfont/church_organ-mp3.sfjs'),
+//    {isSoundfontURL: () => true}
+//  ).then(i => (pipe = i));
+//  console.info('Loading instruments');
+//});
 
 export const matrixKeycodes = [
   // Row 0
@@ -380,7 +380,7 @@ const keyHandler = e => {
 
 export function MusicalKeySlider(props) {
   React.useEffect(() => {
-    loadInstruments();
+    //loadInstruments();
     return () => {
       window.removeEventListener('keydown', keyHandler);
     };

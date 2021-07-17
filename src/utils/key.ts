@@ -1,3 +1,4 @@
+import basicKeyToByte from  './key-to-byte.json5';
 import {
   advancedKeycodeToString,
   advancedStringToKeycode
@@ -117,8 +118,7 @@ function getCodeForLayerByte(byte) {
   }
 }
 
-// Todo remove duplicates
-export const basicKeyToByte = require('./key-to-byte.json5');
+
 
 export const keycodesList = getKeycodes().reduce<IKeycode[]>(
   (p, n) => p.concat(n.keycodes),

@@ -1,5 +1,5 @@
 import * as React from 'react';
-const styles = require('./Home.css');
+import styles from './Home.module.css';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {getDevicesUsingDefinitions} from '../utils/hid-keyboards';
 import {usbDetect} from '../utils/usb-hid';

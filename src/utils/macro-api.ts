@@ -1,5 +1,6 @@
-import {basicKeyToByte, byteToKey, keycodesList} from './key';
+import {byteToKey, keycodesList} from './key';
 import {Device, KeyboardAPI} from './keyboard-api';
+import basicKeyToByte from './key-to-byte.json5';
 
 // Corresponds to 'magic codes' in qmk sendstring
 enum KeyAction {

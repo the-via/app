@@ -1,4 +1,5 @@
-import {basicKeyToByte, byteToKey} from './key';
+import basicKeyToByte from './key-to-byte.json5';
+import {byteToKey} from './key';
 
 const quantumRanges = {
   QK_MODS: 0x0100,

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Component} from 'react';
 import styled from 'styled-components';
-const styles = require('../../menus/keycode-menu.css');
+import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
 import KeycodeModal from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';

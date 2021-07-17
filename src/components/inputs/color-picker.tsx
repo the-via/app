@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Component} from 'react';
 import styled from 'styled-components';
-const styles = require('./color.css');
+import styles from './color.module.css';
 
 import {
   getRGBPrime,
