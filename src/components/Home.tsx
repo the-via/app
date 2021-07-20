@@ -105,7 +105,9 @@ class Home extends React.Component<Props, State> {
   homeElem = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
+    if (this.homeElem.current) {
     this.homeElem.current.focus();
+    }
     this.props.allowGlobalHotKeys();
     usbDetect.on('change', this.updateDevicesRepeat);
     usbDetect.on('remove', this.validateDevices);

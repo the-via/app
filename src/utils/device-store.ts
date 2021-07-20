@@ -1,5 +1,5 @@
 import {getTheme} from 'via-reader';
-import {ElectronStore} from '../shims/electron-store';
+import {Store} from '../shims/electron-store';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -15,7 +15,7 @@ const remoteDefaultData = {
   definitions: {},
   theme: getTheme()
 };
-const deviceStore = new ElectronStore({
+const deviceStore = new Store({
   defaults: {
     remoteData: remoteDefaultData,
     settings: {

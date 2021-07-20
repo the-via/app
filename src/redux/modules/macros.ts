@@ -1,19 +1,19 @@
-import {ThunkAction} from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
 import {
+  createStandardAction,
   ActionType,
   createReducer,
-  createStandardAction
 } from 'typesafe-actions';
 
-import {Device, KeyboardAPI} from '../../utils/keyboard-api';
-import {getMacroApi} from '../../utils/macro-api';
-import type {RootState} from '..';
+import { Device, KeyboardAPI } from '../../utils/keyboard-api';
+import { getMacroApi } from '../../utils/macro-api';
+import type { RootState } from '..';
 
 // Actions
 const actions = {
   loadMacrosSuccess: createStandardAction('via/macros/LOAD')<string[]>(),
   saveMacrosSuccess: createStandardAction('via/macros/SAVE')<string[]>(),
-  setMacrosNotSupported: createStandardAction('via/macros/NOT_SUPPORTED')()
+  setMacrosNotSupported: createStandardAction('via/macros/NOT_SUPPORTED')(),
 };
 
 type Actions = ActionType<typeof actions>;
@@ -23,7 +23,7 @@ type ThunkResult = ThunkAction<Promise<void>, RootState, undefined, Actions>;
 
 // TODO: don't need to pass device when we move that to redux
 export const loadMacros = (device: Device): ThunkResult => {
-  return async dispatch => {
+  return async (dispatch) => {
     const protocol = await new KeyboardAPI(device).getProtocolVersion();
     if (protocol < 8) {
       dispatch(actions.setMacrosNotSupported());
@@ -36,7 +36,7 @@ export const loadMacros = (device: Device): ThunkResult => {
 };
 
 export const saveMacros = (device: Device, macros: string[]): ThunkResult => {
-  return async dispatch => {
+  return async (dispatch) => {
     const macroApi = getMacroApi(device);
     await macroApi.writeMacroExpressions(macros);
     dispatch(actions.saveMacrosSuccess(macros));
@@ -51,7 +51,7 @@ export type State = Readonly<{
 
 const initialState: State = {
   expressions: [],
-  isFeatureSupported: true
+  isFeatureSupported: true,
 };
 
 // Reducer
@@ -60,12 +60,12 @@ export const macrosReducer = createReducer<State, Actions>(initialState)
     [actions.loadMacrosSuccess, actions.saveMacrosSuccess],
     (state, action) => ({
       ...state,
-      expressions: action.payload
-    })
+      expressions: action.payload,
+    }),
   )
-  .handleAction(actions.setMacrosNotSupported, state => {
+  .handleAction(actions.setMacrosNotSupported, (state) => {
     return {
       ...state,
-      isFeatureSupported: false
+      isFeatureSupported: false,
     };
   });

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 const {useState, useEffect} = React;
-import useResize from 'react-resize-observer-hook';
+import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {connect} from 'react-redux';
@@ -194,13 +194,13 @@ function Test(props: Props) {
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
   const flexRef = React.useRef(null);
-  useResize(
+  useResizeObserver(
     flexRef,
-    entry =>
+    ({contentRect}) =>
       flexRef.current &&
       setDimensions({
-        width: entry.width,
-        height: entry.height
+        width: contentRect.width,
+        height: contentRect.height
       })
   );
   const pressedKeys =
