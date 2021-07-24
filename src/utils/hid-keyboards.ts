@@ -1,4 +1,4 @@
-import {Device, KeyboardDictionary} from '../types';
+import type {Device, KeyboardDictionary} from '../types';
 import {canConnect} from './keyboard-api';
 import {scanDevices} from './usb-hid';
 
@@ -29,13 +29,13 @@ export function getVendorProductId(vendorId: number, productId: number) {
 
 function definitionExists(
   {productId, vendorId}: Device,
-  definitions: KeyboardDictionary
+  definitions: KeyboardDictionary,
 ) {
   return definitions[getVendorProductId(vendorId, productId)] !== undefined;
 }
 
 export function getDevicesUsingDefinitions(
-  definitions: KeyboardDictionary
+  definitions: KeyboardDictionary,
 ): Device[] {
   const usbDevices = scanDevices();
   return usbDevices.filter((device: Device) => {

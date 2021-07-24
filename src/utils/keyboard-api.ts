@@ -1,6 +1,5 @@
-import {LightingValue} from 'via-reader';
-
-import {MatrixInfo} from '../types';
+import type {LightingValue} from 'via-reader';
+import type {MatrixInfo} from '../types';
 import {logCommand} from './command-logger';
 import {initDevice} from './usb-hid';
 
@@ -40,7 +39,7 @@ const BACKLIGHT_CONFIG_SAVE = 0x09;
 export enum KeyboardValue {
   UPTIME = 0x01,
   LAYOUT_OPTIONS = 0x02,
-  SWITCH_MATRIX_STATE = 0x03
+  SWITCH_MATRIX_STATE = 0x03,
 }
 
 // RGB Backlight Value IDs
@@ -88,7 +87,7 @@ const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
 
 const shiftFrom16Bit = (value: number): [number, number] => [
   value >> 8,
-  value & 255
+  value & 255,
 ];
 
 const shiftBufferTo16Bit = (buffer: number[]): number[] => {
@@ -100,7 +99,7 @@ const shiftBufferTo16Bit = (buffer: number[]): number[] => {
 };
 
 const shiftBufferFrom16Bit = (buffer: number[]): number[] =>
-  buffer.map(shiftFrom16Bit).flatMap(value => value);
+  buffer.map(shiftFrom16Bit).flatMap((value) => value);
 
 export type Device = {
   productId: number;
@@ -188,7 +187,7 @@ export class KeyboardAPI {
     const buffer = await this.hidCommand(DYNAMIC_KEYMAP_GET_KEYCODE, [
       layer,
       row,
-      col
+      col,
     ]);
     return shiftTo16Bit([buffer[4], buffer[5]]);
   }
@@ -231,19 +230,19 @@ export class KeyboardAPI {
     // offset is 16bit. size is 8bit. data is 16bit keycode values, maximum 28 bytes.
     const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_BUFFER, [
       ...shiftFrom16Bit(offset),
-      size
+      size,
     ]);
     return [...res].slice(4, size + 4);
   }
 
   async fastReadRawMatrix(
     {rows, cols}: MatrixInfo,
-    layer: number
+    layer: number,
   ): Promise<number[]> {
     const length = rows * cols;
     const MAX_KEYCODES_PARTIAL = 14;
     const bufferList = new Array<number>(
-      Math.ceil(length / MAX_KEYCODES_PARTIAL)
+      Math.ceil(length / MAX_KEYCODES_PARTIAL),
     ).fill(0);
     const {res: promiseRes} = bufferList.reduce(
       ({res, remaining}: {res: Promise<number[]>[]; remaining: number}) =>
@@ -253,22 +252,22 @@ export class KeyboardAPI {
                 ...res,
                 this.getKeymapBuffer(
                   layer * length * 2 + 2 * (length - remaining),
-                  remaining * 2
-                )
+                  remaining * 2,
+                ),
               ],
-              remaining: 0
+              remaining: 0,
             }
           : {
               res: [
                 ...res,
                 this.getKeymapBuffer(
                   layer * length * 2 + 2 * (length - remaining),
-                  MAX_KEYCODES_PARTIAL * 2
-                )
+                  MAX_KEYCODES_PARTIAL * 2,
+                ),
               ],
-              remaining: remaining - MAX_KEYCODES_PARTIAL
+              remaining: remaining - MAX_KEYCODES_PARTIAL,
             },
-      {res: [], remaining: length}
+      {res: [], remaining: length},
     );
     const yieldedRes = await Promise.all(promiseRes);
     return yieldedRes.flatMap(shiftBufferTo16Bit);
@@ -276,7 +275,7 @@ export class KeyboardAPI {
 
   async slowReadRawMatrix(
     {rows, cols}: MatrixInfo,
-    layer: number
+    layer: number,
   ): Promise<number[]> {
     const length = rows * cols;
     const res = new Array(length)
@@ -287,7 +286,7 @@ export class KeyboardAPI {
 
   async writeRawMatrix(
     matrixInfo: MatrixInfo,
-    keymap: number[][]
+    keymap: number[][],
   ): Promise<void> {
     const version = await this.getProtocolVersion();
     if (version >= PROTOCOL_BETA) {
@@ -300,17 +299,17 @@ export class KeyboardAPI {
 
   async slowWriteRawMatrix(
     {cols}: MatrixInfo,
-    keymap: number[][]
+    keymap: number[][],
   ): Promise<void> {
     keymap.forEach(async (layer, layerIdx) =>
       layer.forEach(async (keycode, keyIdx) => {
         await this.setKey(layerIdx, ~~(keyIdx / cols), keyIdx % cols, keycode);
-      })
+      }),
     );
   }
 
   async fastWriteRawMatrix(keymap: number[][]): Promise<void> {
-    const data = keymap.flatMap(layer => layer.map(key => key));
+    const data = keymap.flatMap((layer) => layer.map((key) => key));
     const shiftedData = shiftBufferFrom16Bit(data);
     const bufferSize = 28;
     for (let offset = 0; offset < shiftedData.length; offset += bufferSize) {
@@ -318,14 +317,14 @@ export class KeyboardAPI {
       await this.hidCommand(DYNAMIC_KEYMAP_SET_BUFFER, [
         ...shiftFrom16Bit(offset),
         buffer.length,
-        ...buffer
+        ...buffer,
       ]);
     }
   }
 
   async getKeyboardValue(
     command: KeyboardValue,
-    resultLength = 1
+    resultLength = 1,
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(GET_KEYBOARD_VALUE, bytes);
@@ -348,7 +347,7 @@ export class KeyboardAPI {
 
   async getBacklightValue(
     command: LightingValue,
-    resultLength = 1
+    resultLength = 1,
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(BACKLIGHT_CONFIG_GET_VALUE, bytes);
@@ -370,7 +369,7 @@ export class KeyboardAPI {
     const bytes = [BACKLIGHT_BRIGHTNESS];
     const [, , brightness] = await this.hidCommand(
       BACKLIGHT_CONFIG_GET_VALUE,
-      bytes
+      bytes,
     );
     return brightness;
   }
@@ -379,7 +378,7 @@ export class KeyboardAPI {
     const bytes = [colorNumber === 1 ? BACKLIGHT_COLOR_1 : BACKLIGHT_COLOR_2];
     const [, , hue, sat] = await this.hidCommand(
       BACKLIGHT_CONFIG_GET_VALUE,
-      bytes
+      bytes,
     );
     return {hue, sat};
   }
@@ -388,7 +387,7 @@ export class KeyboardAPI {
     const bytes = [
       colorNumber === 1 ? BACKLIGHT_COLOR_1 : BACKLIGHT_COLOR_2,
       hue,
-      sat
+      sat,
     ];
     await this.hidCommand(BACKLIGHT_CONFIG_SET_VALUE, bytes);
   }
@@ -397,7 +396,7 @@ export class KeyboardAPI {
     const bytes = [BACKLIGHT_CUSTOM_COLOR, colorNumber];
     const [, , , hue, sat] = await this.hidCommand(
       BACKLIGHT_CONFIG_GET_VALUE,
-      bytes
+      bytes,
     );
     return {hue, sat};
   }
@@ -433,7 +432,7 @@ export class KeyboardAPI {
       layer,
       row,
       column,
-      ...shiftFrom16Bit(val)
+      ...shiftFrom16Bit(val),
     ]);
     return shiftTo16Bit([res[4], res[5]]);
   }
@@ -446,7 +445,7 @@ export class KeyboardAPI {
   // size is 16 bit
   async getMacroBufferSize() {
     const [, hi, lo] = await this.hidCommand(
-      DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE
+      DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE,
     );
     return shiftTo16Bit([hi, lo]);
   }
@@ -459,16 +458,10 @@ export class KeyboardAPI {
     const size = 28;
     const bytes = [];
     for (let offset = 0; offset < macroBufferSize; offset += 28) {
-      const [
-        ,
-        ,
-        ,
-        ,
-        ...buffer
-      ] = await this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [
-        ...shiftFrom16Bit(offset),
-        size
-      ]);
+      const [, , , , ...buffer] = await this.hidCommand(
+        DYNAMIC_KEYMAP_MACRO_GET_BUFFER,
+        [...shiftFrom16Bit(offset), size],
+      );
       bytes.push(...buffer);
     }
 
@@ -483,7 +476,7 @@ export class KeyboardAPI {
     const size = data.length;
     if (size > macroBufferSize) {
       throw new Error(
-        `Macro size (${size}) exceeds buffer size (${macroBufferSize})`
+        `Macro size (${size}) exceeds buffer size (${macroBufferSize})`,
       );
     }
 
@@ -497,7 +490,7 @@ export class KeyboardAPI {
       await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
         ...shiftFrom16Bit(lastOffset),
         1,
-        0xff
+        0xff,
       ]);
 
       // Can only write 28 bytes at a time
@@ -507,7 +500,7 @@ export class KeyboardAPI {
         await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
           ...shiftFrom16Bit(offset),
           buffer.length,
-          ...buffer
+          ...buffer,
         ]);
       }
     } finally {
@@ -515,7 +508,7 @@ export class KeyboardAPI {
       await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
         ...lastOffsetBytes,
         1,
-        0x00
+        0x00,
       ]);
     }
   }
@@ -538,12 +531,12 @@ export class KeyboardAPI {
         res,
         rej,
         args: () =>
-          new Promise(r =>
+          new Promise((r) =>
             setTimeout(() => {
               r();
               res();
-            }, time)
-          )
+            }, time),
+          ),
       });
       if (!this.commandQueueWrapper.isFlushing) {
         this.flushQueue();
@@ -556,7 +549,7 @@ export class KeyboardAPI {
       this.commandQueueWrapper.commandQueue.push({
         res,
         rej,
-        args: [this.kbAddr, command, bytes]
+        args: [this.kbAddr, command, bytes],
       });
       if (!this.commandQueueWrapper.isFlushing) {
         this.flushQueue();
@@ -594,7 +587,7 @@ export class KeyboardAPI {
   async _hidCommand(
     kbAddr: HIDAddress,
     command: Command,
-    bytes: Array<number> = []
+    bytes: Array<number> = [],
   ): Promise<any> {
     const commandBytes = [...[COMMAND_START, command], ...bytes];
     const paddedArray = new Array(33).fill(0);
@@ -619,7 +612,7 @@ export class KeyboardAPI {
       `Command for ${this.kbAddr}`,
       commandBytes,
       'Correct Resp:',
-      buffer
+      buffer,
     );
     return buffer;
   }
