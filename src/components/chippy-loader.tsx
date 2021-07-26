@@ -15,7 +15,7 @@ const LoaderContainer = styled.div`
   align-items: center;
 `;
 
-const CircleContainer = styled.div<{containerHeight: number, containerWidth: number, progress: number}>`
+const CircleContainer = styled.div<{containerHeight: number, containerWidth: number, progress: number | null}>`
   border-radius: 50%;
   background-color: var(--color_medium-grey);
   height: ${props => props.containerHeight}px;
@@ -42,14 +42,14 @@ const CircleContainer = styled.div<{containerHeight: number, containerWidth: num
     transition: transform 0.4s ease-out;
     transform: translate3d(
       0,
-      ${props => -props.progress * props.containerHeight}px,
+      ${props => -(props.progress || 0) * props.containerHeight}px,
       0
     );
   }
 `;
 
 type Props = {
-  progress: number;
+  progress: number | null;
   width?: number;
   height?: number;
 };

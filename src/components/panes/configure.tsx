@@ -101,7 +101,7 @@ function getRowsForKeyboard({
 function Loader(props: Props) {
   return (
     <>
-      <ChippyLoader progress={props.progress || 0} />
+      <ChippyLoader progress={props.progress || null} />
       <LoadingText isSearching={!props.selectedDefinition} />
     </>
   );
