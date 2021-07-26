@@ -13,7 +13,7 @@ const Switch = styled.label`
   width: 60px;
   height: 34px;
 `;
-const Slider = styled.span`
+const Slider = styled.span<{isChecked?: boolean}>`
   position: absolute;
   cursor: pointer;
   top: 0;

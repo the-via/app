@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Slider from 'rc-slider';
+import type {SliderProps} from 'rc-slider';
 import styled from 'styled-components';
 
 const Container = styled.span`
@@ -8,7 +9,7 @@ const Container = styled.span`
   width: 200px;
 `;
 
-export const AccentRange = props => (
+export const AccentRange: React.FC<SliderProps> = props => (
   <Container>
     <Slider
       {...props}

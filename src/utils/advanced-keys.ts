@@ -30,7 +30,7 @@ const quantumRanges = {
   QK_LAYER_MOD: 0x5900,
   QK_LAYER_MOD_MAX: 0x59ff,
   QK_MOD_TAP: 0x6000,
-  QK_MOD_TAP_MAX: 0x7fff
+  QK_MOD_TAP_MAX: 0x7fff,
 };
 
 const modCodes = {
@@ -42,7 +42,7 @@ const modCodes = {
   QK_RCTL: 0x1100,
   QK_RSFT: 0x1200,
   QK_RALT: 0x1400,
-  QK_RGUI: 0x1800
+  QK_RGUI: 0x1800,
 };
 
 const modMasks = {
@@ -55,7 +55,7 @@ const modMasks = {
   MOD_RALT: 0x0014,
   MOD_RGUI: 0x0018,
   MOD_HYPR: 0x000f,
-  MOD_MEH: 0x0007
+  MOD_MEH: 0x0007,
 };
 
 const ON_PRESS = 1;
@@ -70,7 +70,7 @@ const topLevelMacroToValue = {
   TO: quantumRanges.QK_TO, // TO(layer)
   TT: quantumRanges.QK_LAYER_TAP_TOGGLE, // TT(layer)
   MT: quantumRanges.QK_MOD_TAP, // MT(mod, kc)
-  OSM: quantumRanges.QK_ONE_SHOT_MOD //OSM(mod)
+  OSM: quantumRanges.QK_ONE_SHOT_MOD, //OSM(mod)
 };
 
 const modifierKeyToValue = {
@@ -98,17 +98,17 @@ const modifierKeyToValue = {
   LCAG: modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LGUI,
   MEH: modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT,
   HYPR:
-    modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT | modCodes.QK_LGUI
+    modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT | modCodes.QK_LGUI,
 };
 
 const modifierValuetoKey = Object.entries(modifierKeyToValue).reduce(
   (acc, [key, value]) => ({...acc, [value]: key}),
-  {}
+  {},
 );
 
 const topLevelValueToMacro = Object.entries(topLevelMacroToValue).reduce(
   (acc, [key, value]) => ({...acc, [value]: key}),
-  {}
+  {},
 );
 
 const valueToRange = Object.entries(quantumRanges)
@@ -121,7 +121,7 @@ const valueToRange = Object.entries(quantumRanges)
 // If it returns 0, it means validation failed
 export const advancedStringToKeycode = (inputString: string): number => {
   const upperString = inputString.toUpperCase();
-  const parts = upperString.split(/\(|\)/).map(part => part.trim());
+  const parts = upperString.split(/\(|\)/).map((part) => part.trim());
   if (Object.keys(topLevelMacroToValue).includes(parts[0])) {
     return parseTopLevelMacro(parts);
   } else if (Object.keys(modifierKeyToValue).includes(parts[0])) {
@@ -190,20 +190,20 @@ const modValueToString = (modMask: number): string => {
   const excluded = ['MOD_HYPR', 'MOD_MEH'];
   const qualifyingStrings = Object.entries(modMasks)
     .filter(
-      part => !excluded.includes(part[0]) && (part[1] & modMask) === part[1]
+      (part) => !excluded.includes(part[0]) && (part[1] & modMask) === part[1],
     )
-    .map(part => part[0]);
+    .map((part) => part[0]);
   return qualifyingStrings.join(' | ');
 };
 
 const topLevelModToString = (modNumber: number): string => {
   const keycode = byteToKey[modNumber & 0x00ff];
   const enabledMods = Object.entries(modifierValuetoKey)
-    .filter(part => {
+    .filter((part) => {
       const current = Number.parseInt(part[0]);
       return (current & modNumber) === current;
     })
-    .map(part => part[1]);
+    .map((part) => part[1]);
   return enabledMods.join('(') + '(' + keycode + ')'.repeat(enabledMods.length);
 };
 
@@ -220,13 +220,13 @@ const parseTopLevelMacro = (inputParts: string[]): number => {
     case 'OSL':
     case 'TT':
       layer = Number.parseInt(parameter);
-      if (layer === NaN || layer < 0) {
+      if (layer < 0) {
         return 0;
       }
       return topLevelMacroToValue[topLevelKey] | (layer & 0xff);
     case 'TO': //#define TO(layer) (QK_TO | (ON_PRESS << 0x4) | ((layer)&0xFF))
       layer = Number.parseInt(parameter);
-      if (layer === NaN || layer < 0) {
+      if (layer < 0) {
         return 0;
       }
       return (
@@ -239,23 +239,19 @@ const parseTopLevelMacro = (inputParts: string[]): number => {
       }
       return topLevelMacroToValue[topLevelKey] | (mods & 0xff);
     case 'LM': //#define LM(layer, mod) (QK_LAYER_MOD | (((layer)&0xF) << 4) | ((mod)&0xF))
-      [param1, param2] = parameter.split(',').map(s => s.trim());
+      [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
       mods = parseMods(param2);
-      if (layer === NaN || layer < 0 || mods === 0) {
+      if (layer < 0 || mods === 0) {
         return 0;
       }
       return (
         topLevelMacroToValue[topLevelKey] | ((layer & 0xf) << 4) | (mods & 0xff)
       );
     case 'LT': //#define LT(layer, kc) (QK_LAYER_TAP | (((layer)&0xF) << 8) | ((kc)&0xFF))
-      [param1, param2] = parameter.split(',').map(s => s.trim());
+      [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
-      if (
-        layer === NaN ||
-        layer < 0 ||
-        !basicKeyToByte.hasOwnProperty(param2)
-      ) {
+      if (layer < 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
       }
       return (
@@ -264,7 +260,7 @@ const parseTopLevelMacro = (inputParts: string[]): number => {
         basicKeyToByte[param2]
       );
     case 'MT': // #define MT(mod, kc) (QK_MOD_TAP | (((mod)&0x1F) << 8) | ((kc)&0xFF))
-      [param1, param2] = parameter.split(',').map(s => s.trim());
+      [param1, param2] = parameter.split(',').map((s) => s.trim());
       mods = parseMods(param1);
       if (mods === 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
@@ -280,7 +276,7 @@ const parseTopLevelMacro = (inputParts: string[]): number => {
 };
 
 const parseMods = (input: string): number => {
-  const parts = input.split('|').map(s => s.trim());
+  const parts = input.split('|').map((s) => s.trim());
   if (
     !parts.reduce((acc, part) => acc && modMasks.hasOwnProperty(part), true)
   ) {
@@ -290,7 +286,7 @@ const parseMods = (input: string): number => {
 };
 
 const parseModifierCode = (inputParts: string[]): number => {
-  const realParts = inputParts.filter(nonce => nonce.length !== 0);
+  const realParts = inputParts.filter((nonce) => nonce.length !== 0);
   const bytes = realParts.map((part, idx) => {
     if (idx === realParts.length - 1) {
       /* this must be a KC code */
@@ -302,7 +298,7 @@ const parseModifierCode = (inputParts: string[]): number => {
         : null;
     }
   });
-  if (bytes.find(e => e === null)) {
+  if (bytes.find((e) => e === null)) {
     return 0;
   }
   return bytes.reduce((acc, byte) => acc | byte, 0);

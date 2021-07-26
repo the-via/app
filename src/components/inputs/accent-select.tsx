@@ -1,7 +1,9 @@
 import * as React from 'react';
 import Select from 'react-select';
+import type {Props} from 'react-select';
+
 const customStyles = {
-  option: (provided, state) => {
+  option: (provided: any, state: any) => {
     return {
       ...provided,
       '&:hover': {
@@ -24,38 +26,38 @@ const customStyles = {
         : 'var(--color_accent)'
     };
   },
-  container: provided => ({
+  container: (provided: any) => ({
     ...provided,
     lineHeight: 'initial',
     flex: 1
   }),
-  input: provided => ({
+  input: (provided: any) => ({
     ...provided,
     color: 'var(--color_accent)',
     opacity: 0.5
   }),
-  singleValue: provided => ({
+  singleValue: (provided: any) => ({
     ...provided,
     color: 'var(--color_accent)'
   }),
-  dropdownIndicator: provided => ({
+  dropdownIndicator: (provided: any) => ({
     ...provided,
     color: 'var(--color_accent)'
   }),
-  indicatorSeparator: provided => ({
+  indicatorSeparator: (provided: any) => ({
     ...provided,
     backgroundColor: 'var(--color_accent)'
   }),
-  menuList: provided => ({
+  menuList: (provided: any) => ({
     ...provided,
     borderColor: 'var(--color_accent)',
     backgroundColor: 'var(--color_light-jet)'
   }),
-  placeholder: provided => ({
+  placeholder: (provided: any) => ({
     ...provided,
     color: 'var(--color_accent)'
   }),
-  valueContainer: provided => ({
+  valueContainer: (provided: any) => ({
     ...provided,
     ':active': {
       backgroundColor: 'var(--color_dark-grey)',
@@ -67,7 +69,7 @@ const customStyles = {
     color: 'var(--color_accent)',
     background: 'var(--color_light-jet)'
   }),
-  control: (provided, state) => {
+  control: (provided: any, state: any) => {
     const res = {
       ...provided,
       boxShadow: 'none',
@@ -88,6 +90,6 @@ const customStyles = {
   }
 };
 
-export const AccentSelect = props => (
+export const AccentSelect: React.FC<Props> = props => (
   <Select {...props} styles={customStyles} />
 );

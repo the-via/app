@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {AccentButton} from '../accent-button';
 import {KeycodeModal} from '../custom-keycode-modal';
-import {PelpiInput} from './input';
+import type {PelpiInput} from './input';
 
 export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = props => {
   const [showModal, setShowModal] = React.useState(false);
-  const [, setKeycode] = React.useState();
+  const [, setKeycode] = React.useState<number>();
 
   // FIXME: Is this even used?
   const onChange = React.useCallback(

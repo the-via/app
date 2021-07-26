@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {AccentSlider} from '../accent-slider';
-import {PelpiInput} from './input';
+import type {PelpiInput} from './input';
 
 export const PelpiToggleInput: React.FC<PelpiInput<{}>> = props => {
   const [, setInternalValue] = React.useState(0);

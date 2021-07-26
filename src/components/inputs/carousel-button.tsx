@@ -5,7 +5,7 @@ export enum Direction {
   Right
 }
 
-export const CarouselButton = styled.button`
+export const CarouselButton = styled.button<{direction: Direction}>`
   display: block;
   margin: 0;
   padding: 0;

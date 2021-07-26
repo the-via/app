@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-const AccentButtonElem = styled.div`
+const AccentButtonElem = styled.div<{disabled?: boolean}>`
   height: 40px;
   padding: 0 15px;
   line-height: 40px;
@@ -33,7 +33,12 @@ const AccentButtonElem = styled.div`
 `;
 const noop = () => {};
 
-export const AccentButton = props => (
+type AccentButtonProps = {
+  disabled?: boolean,
+  onClick: (...a: any[]) => void,
+};
+
+export const AccentButton: React.FC<AccentButtonProps> = props => (
   <AccentButtonElem
     {...props}
     onClick={props.disabled ? noop : props.onClick}

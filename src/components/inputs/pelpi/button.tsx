@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {AccentButton} from '../accent-button';
-import {PelpiInput} from './input';
+import type {PelpiInput} from './input';
 
 export const PelpiToggleInput: React.FC<PelpiInput<{
   label: string;

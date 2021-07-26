@@ -1,7 +1,7 @@
-import basicKeyToByte from  './key-to-byte.json5';
+import basicKeyToByte from './key-to-byte.json5';
 import {
   advancedKeycodeToString,
-  advancedStringToKeycode
+  advancedStringToKeycode,
 } from './advanced-keys';
 
 export interface IKeycode {
@@ -118,24 +118,22 @@ function getCodeForLayerByte(byte) {
   }
 }
 
-
-
 export const keycodesList = getKeycodes().reduce<IKeycode[]>(
   (p, n) => p.concat(n.keycodes),
-  []
+  [],
 );
 
 console.log(
   'correct list',
-  Object.keys(basicKeyToByte).filter(key =>
-    keycodesList.map(({code}) => code).includes(key)
-  )
+  Object.keys(basicKeyToByte).filter((key) =>
+    keycodesList.map(({code}) => code).includes(key),
+  ),
 );
 console.log(
   'missing list',
   Object.keys(basicKeyToByte).filter(
-    key => !keycodesList.map(({code}) => code).includes(key)
-  )
+    (key) => !keycodesList.map(({code}) => code).includes(key),
+  ),
 );
 
 export const byteToKey = Object.keys(basicKeyToByte).reduce((p, n) => {
@@ -171,7 +169,7 @@ export function keycodeInMaster(keycode) {
 function shorten(str) {
   return str
     .split(' ')
-    .map(word => word.slice(0, 1) + word.slice(1).replace(/[aeiou ]/gi, ''))
+    .map((word) => word.slice(0, 1) + word.slice(1).replace(/[aeiou ]/gi, ''))
     .join('');
 }
 
@@ -244,15 +242,6 @@ export function mapEvtToKeycode(evt) {
     }
     case 'KeyA': {
       return 'KC_A';
-    }
-    case 'KeyB': {
-      return 'KC_B';
-    }
-    case 'KeyC': {
-      return 'KC_C';
-    }
-    case 'KeyD': {
-      return 'KC_D';
     }
     case 'KeyB': {
       return 'KC_B';
@@ -600,7 +589,7 @@ export function mapEvtToKeycode(evt) {
 
 function isLayerKey(byte) {
   return [QK_DF, QK_MO, QK_OSL, QK_TG, QK_TO, QK_TT].some(
-    code => byte >= code && byte <= (code | 0xff)
+    (code) => byte >= code && byte <= (code | 0xff),
   );
 }
 
@@ -613,10 +602,10 @@ export function getKeycodeForByte(byte) {
 
 export function getOtherMenu(): IKeycodeMenu {
   const otherKeycodes = Object.keys(basicKeyToByte)
-    .filter(key => !keycodesList.map(({code}) => code).includes(key))
-    .map(code => ({
+    .filter((key) => !keycodesList.map(({code}) => code).includes(key))
+    .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
-      code: code
+      code: code,
     }));
   //const staticList = [
   //  {name: 'F13', code: 'KC_F13'},
@@ -635,7 +624,7 @@ export function getOtherMenu(): IKeycodeMenu {
 
   return {
     label: 'Other',
-    keycodes: [].concat(otherKeycodes)
+    keycodes: [].concat(otherKeycodes),
   };
 }
 
@@ -645,32 +634,32 @@ export function buildLayerMenu(): IKeycodeMenu {
       name: 'Fn1\n(Fn3)',
       code: 'FN_MO13',
       title: 'Hold = Layer 1, Hold with Fn2 = Layer 3',
-      shortName: 'Fn1(3)'
+      shortName: 'Fn1(3)',
     },
     {
       name: 'Fn2\n(Fn3)',
       code: 'FN_MO23',
       title: 'Hold = Layer 2, Hold with Fn1 = Layer 3',
-      shortName: 'Fn2(3)'
+      shortName: 'Fn2(3)',
     },
     {
       name: 'Space Fn1',
       code: 'SPC_FN1',
       title: 'Hold = Layer 1, Tap = Space',
-      shortName: 'Spc Fn1'
+      shortName: 'Spc Fn1',
     },
     {
       name: 'Space Fn2',
       code: 'SPC_FN2',
       title: 'Hold = Layer 2, Tap = Space',
-      shortName: 'Spc Fn2'
+      shortName: 'Spc Fn2',
     },
     {
       name: 'Space Fn3',
       code: 'SPC_FN3',
       title: 'Hold = Layer 3, Tap = Space',
-      shortName: 'Spc Fn3'
-    }
+      shortName: 'Spc Fn3',
+    },
   ];
 
   const menu: IKeycodeMenu = {
@@ -682,14 +671,14 @@ export function buildLayerMenu(): IKeycodeMenu {
         code: 'MO(layer)',
         type: 'layer',
         layer: 0,
-        title: 'Momentary turn layer on'
+        title: 'Momentary turn layer on',
       },
       {
         name: 'TG',
         code: 'TG(layer)',
         type: 'layer',
         layer: 0,
-        title: 'Toggle layer on/off'
+        title: 'Toggle layer on/off',
       },
       {
         name: 'TT',
@@ -697,22 +686,22 @@ export function buildLayerMenu(): IKeycodeMenu {
         type: 'layer',
         layer: 0,
         title:
-          "Normally acts like MO unless it's tapped multple times which toggles layer on"
+          "Normally acts like MO unless it's tapped multple times which toggles layer on",
       },
       {
         name: 'OSL',
         code: 'OSL(layer)',
         type: 'layer',
         layer: 0,
-        title: 'Switch to layer for one keypress'
+        title: 'Switch to layer for one keypress',
       },
       {
         name: 'TO',
         code: 'TO(layer)',
         type: 'layer',
         layer: 0,
-        title: 'Turn on layer when pressed'
-      }
+        title: 'Turn on layer when pressed',
+      },
       /* Users are not ready for this ;-)
       {
         name: 'DF',
@@ -722,7 +711,7 @@ export function buildLayerMenu(): IKeycodeMenu {
         title: 'Sets the default layer'
       }
       */
-    ]
+    ],
   };
 
   // Statically generate layer codes from 0-9 instead of making it an input
@@ -730,7 +719,7 @@ export function buildLayerMenu(): IKeycodeMenu {
     ...menu,
     keycodes: [
       ...hardCodedKeycodes,
-      ...menu.keycodes.flatMap(keycode => {
+      ...menu.keycodes.flatMap((keycode) => {
         let res = [];
         for (let idx = 0; idx < 10; idx++) {
           const newTitle = keycode.title.replace('layer', `layer ${idx}`);
@@ -738,12 +727,12 @@ export function buildLayerMenu(): IKeycodeMenu {
           const newName = keycode.name + `(${idx})`;
           res = [
             ...res,
-            {...keycode, name: newName, title: newTitle, code: newCode}
+            {...keycode, name: newName, title: newTitle, code: newCode},
           ];
         }
         return res;
-      })
-    ]
+      }),
+    ],
   };
 }
 
@@ -826,7 +815,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           code: 'KC_BSPC',
           keys: 'backspace',
           width: 2000,
-          shortName: 'Bksp'
+          shortName: 'Bksp',
         },
         {name: 'Insert', code: 'KC_INS', keys: 'insert', shortName: 'Ins'},
         {name: 'Del', code: 'KC_DEL', keys: 'delete'},
@@ -837,7 +826,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           name: 'Page Down',
           code: 'KC_PGDN',
           keys: 'pagedown',
-          shortName: 'PgDn'
+          shortName: 'PgDn',
         },
         {name: 'Num\nLock', code: 'KC_NLCK', keys: 'num', shortName: 'N.Lck'},
         {name: 'Caps Lock', code: 'KC_CAPS', keys: 'caps_lock', width: 1750},
@@ -856,7 +845,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           code: 'KC_P0',
           width: 2000,
           keys: 'num_0',
-          title: 'Numpad 0'
+          title: 'Numpad 0',
         },
         {name: '/', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad /'},
         {name: '*', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad *'},
@@ -867,14 +856,14 @@ export function getKeycodes(): IKeycodeMenu[] {
           name: 'Num\nEnter',
           code: 'KC_PENT',
           shortName: 'N.Ent',
-          title: 'Numpad Enter'
+          title: 'Numpad Enter',
         },
         {
           name: 'Left Shift',
           code: 'KC_LSFT',
           keys: 'shift',
           width: 2250,
-          shortName: 'LShft'
+          shortName: 'LShft',
         },
         {name: 'Right Shift', code: 'KC_RSFT', width: 2750, shortName: 'RShft'},
         {name: 'Left Ctrl', code: 'KC_LCTL', keys: 'ctrl', width: 1250},
@@ -884,7 +873,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           code: 'KC_LGUI',
           keys: 'cmd',
           width: 1250,
-          shortName: 'LWin'
+          shortName: 'LWin',
         },
         {name: 'Right Win', code: 'KC_RGUI', width: 1250, shortName: 'RWin'},
         {
@@ -892,7 +881,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           code: 'KC_LALT',
           keys: 'alt',
           width: 1250,
-          shortName: 'LAlt'
+          shortName: 'LAlt',
         },
         {name: 'Right Alt', code: 'KC_RALT', width: 1250, shortName: 'RAlt'},
         {name: 'Space', code: 'KC_SPC', keys: 'space', width: 6250},
@@ -900,8 +889,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Left', code: 'KC_LEFT', keys: 'left', shortName: '←'},
         {name: 'Down', code: 'KC_DOWN', keys: 'down', shortName: '↓'},
         {name: 'Up', code: 'KC_UP', keys: 'up', shortName: '↑'},
-        {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '→'}
-      ]
+        {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '→'},
+      ],
     },
     {
       label: 'Lighting',
@@ -920,8 +909,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'S1 -', code: 'S1_DEC', title: 'Color1 Sat -'},
         {name: 'S1 +', code: 'S1_INC', title: 'Color1 Sat +'},
         {name: 'S2 -', code: 'S2_DEC', title: 'Color2 Sat -'},
-        {name: 'S2 +', code: 'S2_INC', title: 'Color2 Sat +'}
-      ]
+        {name: 'S2 +', code: 'S2_INC', title: 'Color2 Sat +'},
+      ],
     },
     {
       label: 'Media',
@@ -937,8 +926,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Rewind', code: 'KC_MRWD', title: 'Rewind'},
         {name: 'Fast Forward', code: 'KC_MFFD', title: 'Fast Forward'},
         {name: 'Select', code: 'KC_MSEL', title: 'Media Select'},
-        {name: 'Eject', code: 'KC_EJCT', title: 'Media Eject'}
-      ]
+        {name: 'Eject', code: 'KC_EJCT', title: 'Media Eject'},
+      ],
     },
     {
       label: 'Macro',
@@ -959,8 +948,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'M12', code: 'MACRO12', title: 'Macro 12'},
         {name: 'M13', code: 'MACRO13', title: 'Macro 13'},
         {name: 'M14', code: 'MACRO14', title: 'Macro 14'},
-        {name: 'M15', code: 'MACRO15', title: 'Macro 15'}
-      ]
+        {name: 'M15', code: 'MACRO15', title: 'Macro 15'},
+      ],
     },
     buildLayerMenu(),
     {
@@ -980,124 +969,124 @@ export function getKeycodes(): IKeycodeMenu[] {
           name: 'Hyper',
           code: 'HYPR(kc)',
           type: 'container',
-          title: 'LCTL + LSFT + LALT + LGUI'
+          title: 'LCTL + LSFT + LALT + LGUI',
         },
         {
           name: 'Meh',
           code: 'MEH(kc)',
           type: 'container',
-          title: 'LCTL + LSFT + LALT'
+          title: 'LCTL + LSFT + LALT',
         },
         {
           name: 'LCAG',
           code: 'LCAG(kc)',
           type: 'container',
-          title: 'LCTL + LALT + LGUI'
+          title: 'LCTL + LALT + LGUI',
         },
         {
           name: 'ALTG',
           code: 'ALTG(kc)',
           type: 'container',
-          title: 'RCTL + RALT'
+          title: 'RCTL + RALT',
         },
         {
           name: 'SGUI',
           code: 'SCMD(kc)',
           type: 'container',
-          title: 'LGUI + LSFT'
+          title: 'LGUI + LSFT',
         },
         {name: 'LCA', code: 'LCA(kc)', type: 'container', title: 'LCTL + LALT'},
         {
           name: 'LSft_T',
           code: 'LSFT_T(kc)',
           type: 'container',
-          title: 'Shift when held, kc when tapped'
+          title: 'Shift when held, kc when tapped',
         },
         {
           name: 'LCtl_T',
           code: 'LCTL_T(kc)',
           type: 'container',
-          title: 'Control when held, kc when tapped'
+          title: 'Control when held, kc when tapped',
         },
         {
           name: 'LAlt_T',
           code: 'LALT_T(kc)',
           type: 'container',
-          title: 'Alt when held, kc when tapped'
+          title: 'Alt when held, kc when tapped',
         },
         {
           name: 'LGui_T',
           code: 'LGUI_T(kc)',
           type: 'container',
-          title: 'Gui when held, kc when tapped'
+          title: 'Gui when held, kc when tapped',
         },
         {
           name: 'RSft_T',
           code: 'RSFT_T(kc)',
           type: 'container',
-          title: 'Shift when held, kc when tapped'
+          title: 'Shift when held, kc when tapped',
         },
         {
           name: 'RCtl_T',
           code: 'RCTL_T(kc)',
           type: 'container',
-          title: 'Control when held, kc when tapped'
+          title: 'Control when held, kc when tapped',
         },
         {
           name: 'RAlt_T',
           code: 'RALT_T(kc)',
           type: 'container',
-          title: 'Alt when held, kc when tapped'
+          title: 'Alt when held, kc when tapped',
         },
         {
           name: 'RGui_T',
           code: 'RGUI_T(kc)',
           type: 'container',
-          title: 'Gui when held, kc when tapped'
+          title: 'Gui when held, kc when tapped',
         },
         {
           name: 'CS_T',
           code: 'C_S_T(kc)',
           type: 'container',
-          title: 'Control + Shift when held, kc when tapped'
+          title: 'Control + Shift when held, kc when tapped',
         },
         {
           name: 'All_T',
           code: 'ALL_T(kc)',
           type: 'container',
-          title: 'LCTL + LSFT + LALT + LGUI when held, kc when tapped'
+          title: 'LCTL + LSFT + LALT + LGUI when held, kc when tapped',
         },
         {
           name: 'Meh_T',
           code: 'MEH_T(kc)',
           type: 'container',
-          title: 'LCTL + LSFT + LALT when held, kc when tapped'
+          title: 'LCTL + LSFT + LALT when held, kc when tapped',
         },
         {
           name: 'LCAG_T',
           code: 'LCAG_T(kc)',
           type: 'container',
-          title: 'LCTL + LALT + LGUI when held, kc when tapped'
+          title: 'LCTL + LALT + LGUI when held, kc when tapped',
         },
         {
           name: 'RCAG_T',
           code: 'RCAG_T(kc)',
           type: 'container',
-          title: 'RCTL + RALT + RGUI when held, kc when tapped'
+          title: 'RCTL + RALT + RGUI when held, kc when tapped',
         },
         {
           name: 'SGUI_T',
           code: 'SCMD_T(kc)',
           type: 'container',
-          title: 'LGUI + LSFT when held, kc when tapped'
+          title: 'LGUI + LSFT when held, kc when tapped',
         },
         {
           name: 'LCA_T',
           code: 'LCA_T(kc)',
           type: 'container',
-          title: 'LCTL + LALT when held, kc when tapped'
-        }
-      ]
+          title: 'LCTL + LALT when held, kc when tapped',
+        },
+      ],
     },
     {
       label: 'Special',
@@ -1136,42 +1125,42 @@ export function getKeycodes(): IKeycodeMenu[] {
         {
           name: 'Esc `',
           code: 'KC_GESC',
-          title: 'Esc normally, but ` when Shift or Win is pressed'
+          title: 'Esc normally, but ` when Shift or Win is pressed',
         },
         {
           name: 'LS (',
           code: 'KC_LSPO',
-          title: 'Left Shift when held, ( when tapped'
+          title: 'Left Shift when held, ( when tapped',
         },
         {
           name: 'RS )',
           code: 'KC_RSPC',
-          title: 'Right Shift when held, ) when tapped'
+          title: 'Right Shift when held, ) when tapped',
         },
         {
           name: 'LC (',
           code: 'KC_LCPO',
-          title: 'Left Control when held, ( when tapped'
+          title: 'Left Control when held, ( when tapped',
         },
         {
           name: 'RC )',
           code: 'KC_RCPC',
-          title: 'Right Control when held, ) when tapped'
+          title: 'Right Control when held, ) when tapped',
         },
         {
           name: 'LA (',
           code: 'KC_LAPO',
-          title: 'Left Alt when held, ( when tapped'
+          title: 'Left Alt when held, ( when tapped',
         },
         {
           name: 'RA )',
           code: 'KC_RAPC',
-          title: 'Right Alt when held, ) when tapped'
+          title: 'Right Alt when held, ) when tapped',
         },
         {
           name: 'SftEnt',
           code: 'KC_SFTENT',
-          title: 'Right Shift when held, Enter when tapped'
+          title: 'Right Shift when held, Enter when tapped',
         },
         {name: 'Reset', code: 'RESET', title: 'Reset the keyboard'},
         {name: 'Debug', code: 'DEBUG', title: 'Toggle debug mode'},
@@ -1179,7 +1168,7 @@ export function getKeycodes(): IKeycodeMenu[] {
           name: 'Toggle NKRO',
           code: 'MAGIC_TOGGLE_NKRO',
           shortName: 'NKRO',
-          title: 'Toggle NKRO'
+          title: 'Toggle NKRO',
         },
         // I don't even think the locking stuff is enabled...
         {name: 'Locking Num Lock', code: 'KC_LNUM'},
@@ -1215,13 +1204,13 @@ export function getKeycodes(): IKeycodeMenu[] {
           name: 'Screen +',
           code: 'KC_BRIU',
           shortName: 'Scr +',
-          title: 'Screen Brightness Up'
+          title: 'Screen Brightness Up',
         },
         {
           name: 'Screen -',
           code: 'KC_BRID',
           shortName: 'Scr -',
-          title: 'Screen Brightness Down'
+          title: 'Screen Brightness Down',
         },
         {name: 'F13', code: 'KC_F13'},
         {name: 'F14', code: 'KC_F14'},
@@ -1267,8 +1256,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Music On', code: 'MU_ON'},
         {name: 'Music Off', code: 'MU_OFF'},
         {name: 'Music Toggle', code: 'MU_TOG'},
-        {name: 'Music Mode', code: 'MU_MOD'}
-      ]
+        {name: 'Music Mode', code: 'MU_MOD'},
+      ],
     },
     /* These are for controlling the original backlighting and bottom RGB. */
     {
@@ -1300,8 +1289,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'RGB Mode SN', code: 'RGB_M_SN', title: 'Snake'},
         {name: 'RGB Mode K', code: 'RGB_M_K', title: 'Knight'},
         {name: 'RGB Mode X', code: 'RGB_M_X', title: 'Xmas'},
-        {name: 'RGB Mode G', code: 'RGB_M_G', title: 'Gradient'}
-      ]
+        {name: 'RGB Mode G', code: 'RGB_M_G', title: 'Gradient'},
+      ],
     },
     /*
      These custom keycodes always exist and should be filtered out if necessary
@@ -1326,8 +1315,8 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'User12', code: 'USER12', title: 'Custom Keycode 12'},
         {name: 'User13', code: 'USER13', title: 'Custom Keycode 13'},
         {name: 'User14', code: 'USER14', title: 'Custom Keycode 14'},
-        {name: 'User15', code: 'USER15', title: 'Custom Keycode 15'}
-      ]
-    }
+        {name: 'User15', code: 'USER15', title: 'Custom Keycode 15'},
+      ],
+    },
   ];
 }

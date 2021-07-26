@@ -6,7 +6,8 @@ import {Component} from 'react';
 import {getSelectedDevice} from '../../../redux/modules/keymap';
 import {saveMacros} from '../../../redux/modules/macros';
 import {connect} from 'react-redux';
-import {RootState} from '../../../redux';
+import type {Dispatch} from 'redux';
+import type {RootState} from '../../../redux';
 import {bindActionCreators} from 'redux';
 import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
@@ -38,13 +39,9 @@ const MenuContainer = styled.div`
 `;
 
 export class MacroMenu extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedMacro: 0
-    };
-  }
-
+  state = {
+    selectedMacro: 0
+  };
   saveMacro = (macro: string) => {
     const {selectedKeyboard, macros, saveMacros} = this.props;
     const newMacros = macros.expressions.map((oldMacro, i) =>
@@ -95,7 +92,7 @@ const mapStateToProps = ({keymap, macros}: RootState) => ({
   macros
 });
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
       saveMacros: saveMacros
