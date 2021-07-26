@@ -74,7 +74,7 @@ function getRowsForKeyboard({
   selectedDefinition,
   showMacros,
   selectedProtocol
-}): typeof Rows {
+}: Props): typeof Rows {
   const {lighting, customFeatures, layouts} = selectedDefinition;
   const {supportedLightingValues} = getLightingDefinition(lighting);
   let titles: typeof Rows = [Keycode];
@@ -101,7 +101,7 @@ function getRowsForKeyboard({
 function Loader(props: Props) {
   return (
     <>
-      <ChippyLoader progress={props.progress} />
+      <ChippyLoader progress={props.progress || 0} />
       <LoadingText isSearching={!props.selectedDefinition} />
     </>
   );
@@ -124,7 +124,7 @@ function ConfigureGrid(props: Props) {
     height: 900
   });
   const flexRef = React.useRef(null);
-  /*
+  
   useResize(
     flexRef,
     entry =>
@@ -134,7 +134,7 @@ function ConfigureGrid(props: Props) {
         height: entry.height
       })
   );
-  */
+  
   return (
     <Grid>
       <MenuCell>

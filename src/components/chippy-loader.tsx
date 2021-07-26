@@ -15,14 +15,13 @@ const LoaderContainer = styled.div`
   align-items: center;
 `;
 
-const CircleContainer = styled.div`
+const CircleContainer = styled.div<{containerHeight: number, containerWidth: number, progress: number}>`
   border-radius: 50%;
   background-color: var(--color_medium-grey);
   height: ${props => props.containerHeight}px;
   width: ${props => props.containerWidth}px;
   position: relative;
   overflow: hidden;
-  padding: ${props => props.containerPadding}px;
   box-sizing: border-box;
 
   animation-duration: ${props => (props.progress === null ? 1.5 : 0)}s;

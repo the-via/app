@@ -6,13 +6,13 @@ import basicKeyToByte from './key-to-byte.json5';
 enum KeyAction {
   Tap = 1, // \x01
   Down = 2, // \x02
-  Up = 3 // \x03
+  Up = 3, // \x03
 }
 const MacroTerminator = 0;
 
 interface ValidationResult {
   isValid: boolean;
-  errorMessage: string;
+  errorMessage?: string;
 }
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
@@ -23,13 +23,13 @@ export function validateExpression(expression: string): ValidationResult {
     return {
       isValid: false,
       errorMessage:
-        "Looks like a keycode block - {} - is unclosed! Are you missing an '}'?"
+        "Looks like a keycode block - {} - is unclosed! Are you missing an '}'?",
     };
   }
 
   // Validate each block of keyactions
   const keycodeBlockRegex = /(?<!\\){(.*?)}/g;
-  let groups = [];
+  let groups: RegExpExecArray | null = null;
   while ((groups = keycodeBlockRegex.exec(expression))) {
     const csv = groups[1].replace(/\s+/g, ''); // Remove spaces
     // Empty action blocks {} can't be persisted
@@ -37,31 +37,32 @@ export function validateExpression(expression: string): ValidationResult {
       return {
         isValid: false,
         errorMessage:
-          "Sorry, I can't handle empty {}. Fill them up with keycodes or use \\{} to tell the macro to literally type {}"
+          "Sorry, I can't handle empty {}. Fill them up with keycodes or use \\{} to tell the macro to literally type {}",
       };
     }
 
     const invalidKeycodes = csv
       .split(',')
-      .filter(keycode => keycode.trim().length && !isMacroKeycode(keycode));
+      .filter((keycode) => keycode.trim().length && !isMacroKeycode(keycode));
     if (invalidKeycodes.length) {
       return {
         isValid: false,
         errorMessage: `Whoops! Invalid keycodes detected inside {}: ${invalidKeycodes.join(
-          ', '
-        )}`
+          ', ',
+        )}`,
       };
     }
   }
 
   return {
     isValid: true,
-    errorMessage: undefined
+    errorMessage: undefined,
   };
 }
 
 function isMacroKeycode(keycode: string): boolean {
-  return !!macroKeycodes[keycode.toUpperCase()];
+  const key = keycode.toUpperCase();
+  return !!(macroKeycodes as any)[key];
 }
 
 function getByte(keycode: string): number {
@@ -102,11 +103,11 @@ export class MacroAPI {
           break;
         case KeyAction.Tap: // Encode as {KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentExpression.push(`{${byteToKey[byte]}}`);
+          currentExpression.push(`{${(byteToKey as any)[byte]}}`);
           break;
         case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentChord.push(byteToKey[byte]);
+          currentChord.push((byteToKey as any)[byte]);
           break;
         case KeyAction.Up: // Seek to the last keyup and write the keydown stack
           while (bytes[i + 2] === KeyAction.Up && i < bytes.length) {
@@ -135,7 +136,7 @@ export class MacroAPI {
   }
 
   async writeMacroExpressions(expressions: string[]) {
-    const macroBytes = expressions.flatMap(expression => {
+    const macroBytes = expressions.flatMap((expression) => {
       const validationResult = validateExpression(expression);
       if (!validationResult.isValid) {
         throw validationResult.errorMessage;
@@ -153,12 +154,12 @@ export class MacroAPI {
           const keycodes = expression
             .substr(i + 1, keyActionEnd - i - 1)
             .split(',')
-            .map(keycode => keycode.trim())
-            .filter(keycode => keycode.length);
+            .map((keycode) => keycode.trim())
+            .filter((keycode) => keycode.length);
           switch (keycodes.length) {
             case 0:
               throw new Error(
-                'Syntax error: Keycodes expected within block. Use \\{} to define literal {}'
+                'Syntax error: Keycodes expected within block. Use \\{} to define literal {}',
               );
             case 1:
               bytes.push(KeyAction.Tap);
@@ -166,12 +167,12 @@ export class MacroAPI {
               break;
             default:
               // Keydowns
-              keycodes.forEach(keycode => {
+              keycodes.forEach((keycode) => {
                 bytes.push(KeyAction.Down);
                 bytes.push(getByte(keycode));
               });
               // Symmetrical Keyups
-              keycodes.reverse().forEach(keycode => {
+              keycodes.reverse().forEach((keycode) => {
                 bytes.push(KeyAction.Up);
                 bytes.push(getByte(keycode));
               });
@@ -389,8 +390,8 @@ const macroKeycodes = {
   KC_WWW_REFRESH: true,
   KC_WWW_FAVORITES: true,
   KC_MFFD: true,
-  KC_MRWD: true
+  KC_MRWD: true,
 };
 
 export const getMacroKeycodes = () =>
-  keycodesList.filter(keycode => !!macroKeycodes[keycode.code]);
+  keycodesList.filter((keycode) => !!(macroKeycodes as any)[keycode.code]);

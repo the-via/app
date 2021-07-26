@@ -9,14 +9,14 @@ const LS = {
   LAYOUT2D_COL_CONTINUE: 8,
   LAYOUT2D_COL_END: 9,
   LAYOUT2D_ROW_END: 10,
-  LAYOUT2D_END: 11
+  LAYOUT2D_END: 11,
 };
 
-function error(state, nextToken) {
+function error(state: any, nextToken: string) {
   console.error('Current State', state, 'Next: ', nextToken);
 }
 
-function tokenizer(state, next) {
+function tokenizer(state: any, next: string): any {
   const tnext = next.trim();
   const {prev, res} = state;
   // skip empty strings
@@ -41,8 +41,8 @@ function tokenizer(state, next) {
         res: {
           name,
           layout1D: [],
-          layout2D: []
-        }
+          layout2D: [],
+        },
       };
     }
   } else if (prev === LS.LAYOUT1D_START) {
@@ -59,9 +59,9 @@ function tokenizer(state, next) {
         {
           ...state,
           prev: LS.LAYOUT1D_END,
-          res: {...res, layout2D: [[]]}
+          res: {...res, layout2D: [[]]},
         },
-        tnext.slice(1)
+        tnext.slice(1),
       );
     } else if (commaIdx === length - 1) {
       const keycode = tnext.slice(0, length - 1);
@@ -69,7 +69,7 @@ function tokenizer(state, next) {
       return {
         ...state,
         prev: LS.LAYOUT1D_START,
-        res: {...res, layout1D: [...layout1D, keycode]}
+        res: {...res, layout1D: [...layout1D, keycode]},
       };
     } else if (parenIdx === length - 1) {
       const keycode = tnext.slice(0, length - 1);
@@ -77,7 +77,7 @@ function tokenizer(state, next) {
       return {
         ...state,
         prev: LS.LAYOUT1D_END,
-        res: {...res, layout1D: [...layout1D, keycode], layout2D: [[]]}
+        res: {...res, layout1D: [...layout1D, keycode], layout2D: [[]]},
       };
     } else if (parenIdx === -1 && commaIdx === -1) {
       const keycode = tnext;
@@ -85,7 +85,7 @@ function tokenizer(state, next) {
       return {
         ...state,
         prev: LS.LAYOUT1D_START,
-        res: {...res, layout1D: [...layout1D, keycode], layout2D: [[]]}
+        res: {...res, layout1D: [...layout1D, keycode], layout2D: [[]]},
       };
     }
   } else if (prev === LS.LAYOUT1D_END) {
@@ -93,9 +93,9 @@ function tokenizer(state, next) {
       return tokenizer(
         {
           ...state,
-          prev: LS.LAYOUT2D_START
+          prev: LS.LAYOUT2D_START,
         },
-        tnext.slice(1)
+        tnext.slice(1),
       );
     }
   } else if (prev === LS.LAYOUT2D_START) {
@@ -103,9 +103,9 @@ function tokenizer(state, next) {
       return tokenizer(
         {
           ...state,
-          prev: LS.LAYOUT2D_COL_START
+          prev: LS.LAYOUT2D_COL_START,
         },
-        tnext.slice(1)
+        tnext.slice(1),
       );
     }
   } else if (prev === LS.LAYOUT2D_COL_END) {
@@ -113,9 +113,9 @@ function tokenizer(state, next) {
       return tokenizer(
         {
           ...state,
-          prev: LS.LAYOUT2D_COL_END
+          prev: LS.LAYOUT2D_COL_END,
         },
-        tnext.slice(1)
+        tnext.slice(1),
       );
     } else if (tnext[0] === '}') {
       return state;
@@ -124,9 +124,9 @@ function tokenizer(state, next) {
         {
           ...state,
           prev: LS.LAYOUT2D_COL_START,
-          res: {...res, layout2D: [...res.layout2D, []]}
+          res: {...res, layout2D: [...res.layout2D, []]},
         },
-        tnext.slice(1)
+        tnext.slice(1),
       );
     }
   } else if (prev === LS.LAYOUT2D_COL_START) {
@@ -142,9 +142,9 @@ function tokenizer(state, next) {
         {
           ...state,
           prev: LS.LAYOUT2D_COL_END,
-          res: {...res, layout2D: [...layout2D]}
+          res: {...res, layout2D: [...layout2D]},
         },
-        tnext.slice(bracketIdx)
+        tnext.slice(bracketIdx),
       );
     } else if (bracketIdx > 0) {
       const {layout2D} = res;
@@ -154,9 +154,9 @@ function tokenizer(state, next) {
         {
           ...state,
           prev: LS.LAYOUT2D_COL_END,
-          res: {...res, layout2D: [...layout2D]}
+          res: {...res, layout2D: [...layout2D]},
         },
-        tnext.slice(bracketIdx)
+        tnext.slice(bracketIdx),
       );
     } else if (commaIdx !== -1) {
       const {layout2D} = res;
@@ -166,9 +166,9 @@ function tokenizer(state, next) {
         {
           ...state,
           prev: LS.LAYOUT2D_COL_START,
-          res: {...res, layout2D}
+          res: {...res, layout2D},
         },
-        tnext.slice(commaIdx)
+        tnext.slice(commaIdx),
       );
     } else if (bracketIdx === -1 && commaIdx === -1) {
       const {layout2D} = res;
@@ -177,7 +177,7 @@ function tokenizer(state, next) {
       return {
         ...state,
         prev: LS.LAYOUT2D_COL_START,
-        res: {...res, layout2D}
+        res: {...res, layout2D},
       };
     }
   }
@@ -192,14 +192,14 @@ export function parseLayout(layout: string) {
   const [rows, cols] = [layout2D.length, layout2D[0].length];
   const indexMap = Object.assign(
     {},
-    ...layout2D.map((arr, i) =>
+    ...layout2D.map((arr: number[], i: number) =>
       Object.assign(
         {},
-        ...arr.map((val, j) => ({
-          [val]: {col: j, row: i}
-        }))
-      )
-    )
+        ...arr.map((val: number, j: number) => ({
+          [val]: {col: j, row: i},
+        })),
+      ),
+    ),
   );
-  return {rows, cols, layout: layout1D.map(val => indexMap[val])};
+  return {rows, cols, layout: layout1D.map((val: number) => indexMap[val])};
 }

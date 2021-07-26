@@ -7,6 +7,7 @@
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.3",
     "@react-hook/resize-observer": "^1.2.2",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
     "connected-react-router": "^6.9.1",

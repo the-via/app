@@ -89,7 +89,7 @@ export const Detail = styled.span`
   align-items: center;
 `;
 
-export const Row = styled.div`
+export const Row = styled.div<{selected: boolean}>`
   cursor: pointer;
   white-space: nowrap;
   margin-bottom: 15px;

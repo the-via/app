@@ -22,7 +22,10 @@ export default {
   ],
   optimize: {
     /* Example: Bundle your final build: */
-    // "bundle": true,
+    "bundle": true,
+    minify: true,
+    target: 'es2018',
+
   },
   packageOptions: {
     /* ... */
