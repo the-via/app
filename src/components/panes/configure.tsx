@@ -5,7 +5,7 @@ import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
 import {Pane as DefaultPane} from './pane';
 import {connect} from 'react-redux';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import {
   actions,
   getLoadProgress,
@@ -124,6 +124,7 @@ function ConfigureGrid(props: Props) {
     height: 900
   });
   const flexRef = React.useRef(null);
+  /*
   useResize(
     flexRef,
     entry =>
@@ -133,6 +134,7 @@ function ConfigureGrid(props: Props) {
         height: entry.height
       })
   );
+  */
   return (
     <Grid>
       <MenuCell>
@@ -157,7 +159,7 @@ function ConfigureGrid(props: Props) {
           containerDimensions={dimensions}
           selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
         />
-        <ReactTooltip />
+        <ReactTooltip.default />
         <LayerControl />
         <Badge />
       </FlexCell>

@@ -1,7 +1,7 @@
 import type {LightingValue} from 'via-reader';
 import type {MatrixInfo} from '../types';
 import {logCommand} from './command-logger';
-import {initDevice} from './usb-hid';
+import {initAndConnectDevice} from './usb-hid';
 
 const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10];
 
@@ -147,7 +147,7 @@ export class KeyboardAPI {
     const {path} = device;
     this.kbAddr = path;
     if (!cache[path]) {
-      cache[path] = {device, hid: initDevice(device)};
+      cache[path] = {device, hid: initAndConnectDevice(device)};
     } else {
       cache[path] = {...cache[path], device};
     }
@@ -159,7 +159,10 @@ export class KeyboardAPI {
 
   refresh(kbAddr: HIDAddress) {
     this.kbAddr = kbAddr;
-    cache[kbAddr] = {...cache[kbAddr], hid: initDevice({path: kbAddr})};
+    cache[kbAddr] = {
+      ...cache[kbAddr],
+      hid: initAndConnectDevice({path: kbAddr}),
+    };
   }
 
   async getByteBuffer(): Promise<number[]> {
@@ -595,7 +598,7 @@ export class KeyboardAPI {
       paddedArray[idx] = val;
     });
     try {
-      this.getHID().write(paddedArray);
+      await this.getHID().write(paddedArray);
     } catch (ex) {
       console.log('Retrying...');
       this.refresh(kbAddr);

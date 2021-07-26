@@ -14,7 +14,7 @@ function isValidInterfaceNonOSX(device: Device) {
   return VALID_INTERFACE_IDS.includes(device.interface);
 }
 
-function isValidUsage({usage, usagePage}: Device) {
+function isValidUsage({usage = -1, usagePage = -1}: Device) {
   const VALID_USAGE_IDS = [0x0061];
   const VALID_USAGE_PAGE_IDS = [0xff60];
   return (
@@ -34,10 +34,10 @@ function definitionExists(
   return definitions[getVendorProductId(vendorId, productId)] !== undefined;
 }
 
-export function getDevicesUsingDefinitions(
+export async function getDevicesUsingDefinitions(
   definitions: KeyboardDictionary,
-): Device[] {
-  const usbDevices = scanDevices();
+): Promise<Device[]> {
+  const usbDevices = await scanDevices();
   return usbDevices.filter((device: Device) => {
     const validVendorProduct = definitionExists(device, definitions);
     const validInterface = isValidInterface(device);

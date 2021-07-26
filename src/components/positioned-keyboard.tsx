@@ -1,9 +1,9 @@
-import {RootState} from '../redux';
-import {KeyColor} from '../utils/themes';
+import type {RootState} from '../redux';
+import type {KeyColor} from '../utils/themes';
 import {connect} from 'react-redux';
 import styled from 'styled-components';
 import * as React from 'react';
-import * as partition from 'lodash.partition';
+import partition from 'lodash.partition';
 import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
@@ -21,7 +21,7 @@ import {
   isMacro,
   getShortNameForKeycode
 } from '../utils/key';
-import {VIADefinitionV2, VIAKey, KeyColorType} from 'via-reader';
+import type {VIADefinitionV2, VIAKey, KeyColorType} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 
 export const CSSVarObject = {

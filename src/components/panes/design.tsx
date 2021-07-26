@@ -112,9 +112,9 @@ function importDefinition(
 ) {
   const reader = new FileReader();
   reader.onload = async () => {
-    let res;
     try {
-      res = JSON.parse(reader.result.toString());
+      if (!reader.result) return;
+      const res = JSON.parse(reader.result.toString());
       const isValid = isKeyboardDefinitionV2(res) || isVIADefinitionV2(res);
       if (isValid) {
         setErrors([]);
@@ -122,7 +122,7 @@ function importDefinition(
           ? res
           : keyboardDefinitionV2ToVIADefinitionV2(res);
         props.loadDefinition(definition);
-        const keyboards = getDevicesUsingDefinitions(props.allDefinitions);
+        const keyboards = await getDevicesUsingDefinitions(props.allDefinitions);
         props.validateDevices(
           keyboards.filter(
             device =>
@@ -134,7 +134,7 @@ function importDefinition(
         props.reloadConnectedDevices();
       } else {
         setErrors(
-          (isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors).map(
+          (isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []).map(
             e => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`
           )
         );

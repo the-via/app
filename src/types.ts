@@ -1,4 +1,4 @@
-import {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2} from 'via-reader';
 
 export type HIDColor = {
   hue: number;
@@ -23,14 +23,14 @@ export type VendorProductId = number;
 export enum KeyColorType {
   Alpha = 'alpha',
   Mod = 'mod',
-  Accent = 'accent'
+  Accent = 'accent',
 }
 
 export enum LightingTypeDefinition {
   None = 'none',
   QMKLighting = 'qmk_backlight',
   WTRGBBacklight = 'wt_rgb_backlight',
-  WTMonoBacklight = 'wt_mono_backlight'
+  WTMonoBacklight = 'wt_mono_backlight',
 }
 
 export type KeyDefinition = {

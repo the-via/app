@@ -93,6 +93,7 @@ class Home extends React.Component<Props, State> {
     this.state = {
       selectedTitle: null
     };
+    /*
     this.updateDevicesRepeat = timeoutRepeater(
       () => {
         this.props.reloadConnectedDevices();
@@ -100,6 +101,7 @@ class Home extends React.Component<Props, State> {
       500,
       1
     );
+    */
   }
 
   homeElem = React.createRef<HTMLDivElement>();
@@ -114,7 +116,7 @@ class Home extends React.Component<Props, State> {
     timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
     this.props.loadDefinitions();
     this.props.reloadConnectedDevices();
-    this.updateDevicesRepeat();
+    //this.updateDevicesRepeat();
     this.enableKeyPressListener();
   }
 
