@@ -12,8 +12,12 @@ const ExtendedHID = {
     });
   },
   devices: async () => {
-    await ExtendedHID.requestDevices();
-    const devices = await navigator.hid.getDevices();
+    let devices = await navigator.hid.getDevices();
+    // TODO: This is a hack to avoid spamming the requestDevices popup
+    if (devices.length === 0) {
+      await ExtendedHID.requestDevices();
+      devices = await navigator.hid.getDevices();
+    }
     return devices.map((device) => {
       const HIDDevice = {
         _device: device,

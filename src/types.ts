@@ -18,6 +18,10 @@ export type Device = {
   path: string;
 };
 
+export type WebVIADevice = Device & {
+  _device: HIDDevice;
+};
+
 export type VendorProductId = number;
 
 export enum KeyColorType {
