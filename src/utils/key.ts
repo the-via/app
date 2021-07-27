@@ -3,6 +3,7 @@ import {
   advancedKeycodeToString,
   advancedStringToKeycode,
 } from './advanced-keys';
+import type {KeyboardEvent} from 'react';
 
 export interface IKeycode {
   name: string;
@@ -23,29 +24,29 @@ export interface IKeycodeMenu {
 }
 
 // Tests if label is an alpha
-export function isAlpha(label) {
+export function isAlpha(label: string) {
   return /[A-Za-z]/.test(label) && label.length === 1;
 }
 
 // Tests if label is a number
-export function isNumericOrShiftedSymbol(label) {
+export function isNumericOrShiftedSymbol(label: string) {
   const numbersTop = '!@#$%^&*()_+|~{}:"<>?1234567890'.split('');
   return label.length === 1 && numbersTop.includes(label[0]);
 }
 
 // Tests if label is a number
-export function isNumericSymbol(label) {
+export function isNumericSymbol(label: string) {
   const numbersTop = '!@#$%^&*()_+|~{}:"<>?'.split('');
   return label.length !== 1 && numbersTop.includes(label[0]);
 }
 
 // Tests if label is a macro
-export function isMacro(label) {
+export function isMacro(label: string) {
   return /^M\d+$/.test(label);
 }
 
 // Maps the byte value to the keycode
-export function getByteForCode(code) {
+export function getByteForCode(code: string) {
   const byte: number | undefined = basicKeyToByte[code];
   if (byte !== undefined) {
     return byte;
@@ -68,39 +69,43 @@ const QK_DF = 0x5200;
 const ON_PRESS = 1;
 //const ON_RELEASE = 2;
 
-function isLayerCode(code) {
+function isLayerCode(code: string) {
   return /([A-Za-z]+)\((\d+)\)/.test(code);
 }
 
-function getByteForLayerCode(keycode): number {
-  const [, code, layer] = keycode.match(/([A-Za-z]+)\((\d+)\)/);
-  const numLayer = parseInt(layer);
-  switch (code) {
-    case 'MO': {
-      return QK_MO | numLayer;
-    }
-    case 'TG': {
-      return QK_TG | numLayer;
-    }
-    case 'TO': {
-      return QK_TO | (ON_PRESS << 4) | (numLayer & 0x0f);
-    }
-    case 'TT': {
-      return QK_TT | numLayer;
-    }
-    case 'DF': {
-      return QK_DF | numLayer;
-    }
-    case 'OSL': {
-      return QK_OSL | numLayer;
-    }
-    default: {
-      throw 'Incorrect code';
+function getByteForLayerCode(keycode: string): number {
+  const keycodeMatch = keycode.match(/([A-Za-z]+)\((\d+)\)/);
+  if (keycodeMatch) {
+    const [, code, layer] = keycodeMatch;
+    const numLayer = parseInt(layer);
+    switch (code) {
+      case 'MO': {
+        return QK_MO | numLayer;
+      }
+      case 'TG': {
+        return QK_TG | numLayer;
+      }
+      case 'TO': {
+        return QK_TO | (ON_PRESS << 4) | (numLayer & 0x0f);
+      }
+      case 'TT': {
+        return QK_TT | numLayer;
+      }
+      case 'DF': {
+        return QK_DF | numLayer;
+      }
+      case 'OSL': {
+        return QK_OSL | numLayer;
+      }
+      default: {
+        throw new Error('Incorrect code');
+      }
     }
   }
+  throw new Error('No match found');
 }
 
-function getCodeForLayerByte(byte) {
+function getCodeForLayerByte(byte: number) {
   const layer = byte & 0xff;
   if (QK_MO <= byte && (QK_MO | 0xff) >= byte) {
     return `MO(${layer})`;
@@ -147,9 +152,9 @@ export const byteToKey = Object.keys(basicKeyToByte).reduce((p, n) => {
     return p;
   }
   return {...p, [key]: n};
-}, {});
+}, {} as {[key: number]: string});
 
-export function getCodeForByte(byte) {
+export function getCodeForByte(byte: number) {
   const keycode = byteToKey[byte];
   if (keycode) {
     return keycode;
@@ -162,26 +167,26 @@ export function getCodeForByte(byte) {
   }
 }
 
-export function keycodeInMaster(keycode) {
+export function keycodeInMaster(keycode: string) {
   return keycode in basicKeyToByte || isLayerCode(keycode);
 }
 
-function shorten(str) {
+function shorten(str: string) {
   return str
     .split(' ')
     .map((word) => word.slice(0, 1) + word.slice(1).replace(/[aeiou ]/gi, ''))
     .join('');
 }
 
-export function isUserKeycodeByte(byte) {
+export function isUserKeycodeByte(byte: number) {
   return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
 }
 
-export function getUserKeycodeIndex(byte) {
+export function getUserKeycodeIndex(byte: number) {
   return byte - basicKeyToByte.USER00;
 }
 
-export function getLabelForByte(byte, size = 100) {
+export function getLabelForByte(byte: number, size = 100) {
   const keycode = getCodeForByte(byte);
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
@@ -190,7 +195,7 @@ export function getLabelForByte(byte, size = 100) {
   return getShortNameForKeycode(basicKeycode, size);
 }
 
-export function getShortNameForKeycode(keycode, size = 100) {
+export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   const {code, name, shortName} = keycode;
   if (size <= 150 && shortName) {
     return shortName;
@@ -208,7 +213,7 @@ export function getShortNameForKeycode(keycode, size = 100) {
   return name;
 }
 
-export function mapEvtToKeycode(evt) {
+export function mapEvtToKeycode(evt: KeyboardEvent) {
   switch (evt.code) {
     case 'Digit1': {
       return 'KC_1';
@@ -587,13 +592,13 @@ export function mapEvtToKeycode(evt) {
   }
 }
 
-function isLayerKey(byte) {
+function isLayerKey(byte: number) {
   return [QK_DF, QK_MO, QK_OSL, QK_TG, QK_TO, QK_TT].some(
     (code) => byte >= code && byte <= (code | 0xff),
   );
 }
 
-export function getKeycodeForByte(byte) {
+export function getKeycodeForByte(byte: number) {
   const keycode = byteToKey[byte];
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   const advancedString = advancedKeycodeToString(byte);
@@ -601,30 +606,16 @@ export function getKeycodeForByte(byte) {
 }
 
 export function getOtherMenu(): IKeycodeMenu {
-  const otherKeycodes = Object.keys(basicKeyToByte)
+  const keycodes = Object.keys(basicKeyToByte)
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
       code: code,
     }));
-  //const staticList = [
-  //  {name: 'F13', code: 'KC_F13'},
-  //  {name: 'F14', code: 'KC_F14'},
-  //  {name: 'F15', code: 'KC_F15'},
-  //  {name: 'F16', code: 'KC_F16'},
-  //  {name: 'F17', code: 'KC_F17'},
-  //  {name: 'F18', code: 'KC_F18'},
-  //  {name: 'F19', code: 'KC_F19'},
-  //  {name: 'F20', code: 'KC_F20'},
-  //  {name: 'F21', code: 'KC_F21'},
-  //  {name: 'F22', code: 'KC_F22'},
-  //  {name: 'F23', code: 'KC_F23'},
-  //  {name: 'F24', code: 'KC_F24'}
-  //];
 
   return {
     label: 'Other',
-    keycodes: [].concat(otherKeycodes),
+    keycodes,
   };
 }
 
@@ -720,9 +711,12 @@ export function buildLayerMenu(): IKeycodeMenu {
     keycodes: [
       ...hardCodedKeycodes,
       ...menu.keycodes.flatMap((keycode) => {
-        let res = [];
+        let res: IKeycode[] = [];
         for (let idx = 0; idx < 10; idx++) {
-          const newTitle = keycode.title.replace('layer', `layer ${idx}`);
+          const newTitle = (keycode.title || '').replace(
+            'layer',
+            `layer ${idx}`,
+          );
           const newCode = keycode.code.replace('layer', `${idx}`);
           const newName = keycode.name + `(${idx})`;
           res = [
