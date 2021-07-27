@@ -5,10 +5,10 @@ import {AccentSlider} from '../../../../inputs/accent-slider';
 import {ErrorMessage} from '../../../../styled';
 import {
   getMacroKeycodes,
-  validateExpression
+  validateExpression,
 } from '../../../../../utils/macro-api';
-import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import {AccentButton} from '../../../../inputs/accent-button';
+import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -44,13 +44,13 @@ const DescriptionLabel = styled(Label)`
   padding-left: 5px;
 `;
 
-const Item = styled.div`
+const Item = styled.div<{selected?: boolean}>`
   box-sizing: border-box;
   min-width: 200px;
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
-  background-color: ${props =>
+  background-color: ${(props) =>
     !props.selected ? 'var(--color_light-jet)' : 'var(--color_dark-grey)'};
 
   &:hover {
@@ -58,12 +58,16 @@ const Item = styled.div`
   }
 `;
 
-const AutocompleteItem = ({selected, entity: {label, code}}) => (
+const AutocompleteItem: React.FC<{
+  selected: boolean;
+  entity: {label: string; code: string};
+}> = ({selected, entity: {label, code}}) => (
   <Item selected={selected}>
     <KeycodeLabel>{label}</KeycodeLabel> <Keycode>{code}</Keycode>
   </Item>
 );
-const AutocompleteLoading = () => <div>Loading</div>;
+
+const AutocompleteLoading: React.FC<{}> = () => <div>Loading</div>;
 const findKeycodes = (token: string) => {
   const uToken = token.toUpperCase();
   return getMacroKeycodes()
@@ -71,7 +75,7 @@ const findKeycodes = (token: string) => {
       title
         ? title.toUpperCase().indexOf(uToken) > -1
         : name.toUpperCase().indexOf(uToken) > -1 ||
-          code.toUpperCase().indexOf(uToken) > -1
+          code.toUpperCase().indexOf(uToken) > -1,
     )
     .slice(0, 10)
     .map(({name, code, title}) => {
@@ -105,7 +109,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-export const MacroDetailPane = props => {
+export const MacroDetailPane = (props) => {
   const enterToken = '{KC_ENT}';
   const currentMacro = props.macros.expressions[props.selectedMacro] || '';
   const textareaInitialValue = currentMacro
@@ -113,7 +117,7 @@ export const MacroDetailPane = props => {
     .replace(new RegExp(`${enterToken}$`), '');
   const [currentValue, setCurrentValue] = React.useState(textareaInitialValue);
   const [appendEnter, setAppendEnter] = React.useState(
-    currentMacro.trimRight().endsWith(enterToken)
+    currentMacro.trimRight().endsWith(enterToken),
   );
   const [errorMessage, setErrorMessage] = React.useState(undefined);
   const saveMacro = () => {
@@ -132,7 +136,7 @@ export const MacroDetailPane = props => {
       <AutoHeightRow>
         <ReactTextareaAutocomplete
           value={currentValue}
-          onChange={e => setCurrentValue(e.target.value)}
+          onChange={(e) => setCurrentValue(e.target.value)}
           loadingComponent={AutocompleteLoading}
           style={{
             fontSize: '16px',
@@ -140,26 +144,26 @@ export const MacroDetailPane = props => {
             width: '100%',
             height: '140px',
             resize: 'none',
-            borderColor: hasError ? '#d15e5e' : 'var(--color_medium-grey)'
+            borderColor: hasError ? '#d15e5e' : 'var(--color_medium-grey)',
           }}
           containerStyle={{
             border: 'none',
-            lineHeight: '20px'
+            lineHeight: '20px',
           }}
           itemStyle={{
             borderColor: 'var(--color_dark-grey)',
-            backgroundColor: 'var(-color_light-jet)'
+            backgroundColor: 'var(-color_light-jet)',
           }}
           dropdownStyle={{
             zIndex: 999,
-            backgroundColor: 'var(--color_light-jet)'
+            backgroundColor: 'var(--color_light-jet)',
           }}
           listStyle={{
             position: 'fixed',
             backgroundColor: 'var(--color_light-jet)',
             maxHeight: '210px',
             overflow: 'auto',
-            border: '1px solid var(--color_dark-grey)'
+            border: '1px solid var(--color_dark-grey)',
           }}
           minChar={0}
           textAreaComponent={TextArea}
@@ -169,18 +173,18 @@ export const MacroDetailPane = props => {
             '?': {
               dataProvider: findKeycodes,
               component: AutocompleteItem,
-              output: (item, trigger) => ({
+              output: (item) => ({
                 text: item.code,
-                caretPosition: 'end'
-              })
+                caretPosition: 'end',
+              }),
             },
             '{': {
               dataProvider: findKeycodes,
               component: AutocompleteItem,
               output: (item, trigger) => ({
                 text: `{${item.code},`,
-                caretPosition: 'end'
-              })
+                caretPosition: 'end',
+              }),
             },
             ',': {
               dataProvider: findKeycodes,
@@ -189,10 +193,10 @@ export const MacroDetailPane = props => {
                 console.log(trigger);
                 return {
                   text: `,${item.code},`,
-                  caretPosition: 'end'
+                  caretPosition: 'end',
                 };
-              }
-            }
+              },
+            },
           }}
         />
       </AutoHeightRow>
