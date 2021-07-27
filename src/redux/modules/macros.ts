@@ -1,13 +1,13 @@
-import type { ThunkAction } from 'redux-thunk';
+import type {ThunkAction} from 'redux-thunk';
 import {
   createStandardAction,
   ActionType,
   createReducer,
 } from 'typesafe-actions';
 
-import { Device, KeyboardAPI } from '../../utils/keyboard-api';
-import { getMacroApi } from '../../utils/macro-api';
-import type { RootState } from '..';
+import {Device, KeyboardAPI} from '../../utils/keyboard-api';
+import {getMacroApi} from '../../utils/macro-api';
+import type {RootState} from '..';
 
 // Actions
 const actions = {
@@ -29,8 +29,10 @@ export const loadMacros = (device: Device): ThunkResult => {
       dispatch(actions.setMacrosNotSupported());
     } else {
       const macroApi = getMacroApi(device);
-      const macros = await macroApi.readMacroExpressions();
-      dispatch(actions.loadMacrosSuccess(macros));
+      if (macroApi) {
+        const macros = await macroApi.readMacroExpressions();
+        dispatch(actions.loadMacrosSuccess(macros));
+      }
     }
   };
 };
@@ -38,8 +40,10 @@ export const loadMacros = (device: Device): ThunkResult => {
 export const saveMacros = (device: Device, macros: string[]): ThunkResult => {
   return async (dispatch) => {
     const macroApi = getMacroApi(device);
-    await macroApi.writeMacroExpressions(macros);
-    dispatch(actions.saveMacrosSuccess(macros));
+    if (macroApi) {
+      await macroApi.writeMacroExpressions(macros);
+      dispatch(actions.saveMacrosSuccess(macros));
+    }
   };
 };
 
