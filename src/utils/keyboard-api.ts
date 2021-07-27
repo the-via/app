@@ -167,7 +167,7 @@ export class KeyboardAPI {
 
   async getByteBuffer(): Promise<number[]> {
     return new Promise((resolve, reject) => {
-      this.getHID().read((err, data) => {
+      this.getHID().read((err: Error, data: number[]) => {
         if (err) {
           reject(err);
         } else {
@@ -223,6 +223,7 @@ export class KeyboardAPI {
     if (version === PROTOCOL_ALPHA) {
       return this.slowReadRawMatrix(matrix, layer);
     }
+    throw new Error('Unsupported protocol version');
   }
 
   async getKeymapBuffer(offset: number, size: number): Promise<number[]> {
@@ -537,7 +538,7 @@ export class KeyboardAPI {
           new Promise((r) =>
             setTimeout(() => {
               r();
-              res();
+              res(undefined);
             }, time),
           ),
       });
@@ -566,7 +567,8 @@ export class KeyboardAPI {
     }
     this.commandQueueWrapper.isFlushing = true;
     while (this.commandQueueWrapper.commandQueue.length !== 0) {
-      const {res, rej, args} = this.commandQueueWrapper.commandQueue.shift();
+      const {res, rej, args} =
+        this.commandQueueWrapper.commandQueue.shift() as CommandQueueEntry;
       // This allows us to queue promises in between hid commands, useful for timeouts
       if (typeof args === 'function') {
         await args();
