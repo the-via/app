@@ -1,11 +1,11 @@
-import {Component} from 'react';
-import {ParsedKLE} from './kle-parser';
+import type {Component} from 'react';
+import type {ParsedKLE} from './kle-parser';
 
 const enum LightingSupport {
   None,
   QMKLighting,
   WTRGBBacklight,
-  WTMonoBacklight
+  WTMonoBacklight,
 }
 
 export type CustomMenu = {title: string; component: typeof Component};

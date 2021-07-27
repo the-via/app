@@ -10,11 +10,11 @@ export const sizeOfChoices = (numChoices: number[]) =>
 export const packBits = (nums: LayoutOption[]) =>
   nums.reduce(
     (p, [choice, numChoices]) => (p << minBitSize(numChoices)) | choice,
-    0
+    0,
   ) >>> 0;
 
 export const numIntoBytes = (num32: number) =>
-  [num32 >> 24, num32 >> 16, num32 >> 8, num32].map(num => num & 0xff);
+  [num32 >> 24, num32 >> 16, num32 >> 8, num32].map((num) => num & 0xff);
 
 export const bytesIntoNum = (bytesArr: number[]) =>
   ((bytesArr[0] << 24) |
@@ -23,16 +23,16 @@ export const bytesIntoNum = (bytesArr: number[]) =>
     bytesArr[3]) >>>
   0;
 
-export const unpackBits = (choiceBits: number, nums: NumChoices[]) =>
+export const unpackBits = (choiceBits: number, nums: NumChoices[]): number[] =>
   nums.reverse().reduce(
     ({res, bits}, numChoices) => ({
       bits: bits >> minBitSize(numChoices),
-      res: [bits & ((1 << minBitSize(numChoices)) - 1), ...res]
+      res: [bits & ((1 << minBitSize(numChoices)) - 1), ...res],
     }),
-    {bits: choiceBits, res: []}
+    {bits: choiceBits, res: []} as {bits: number; res: number[]},
   ).res;
 
-export const minBitSize = num =>
+export const minBitSize = (num: number) =>
   1 +
   Array(maxBitSize)
     .fill(0)

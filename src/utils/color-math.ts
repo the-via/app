@@ -1,4 +1,8 @@
-export function getRGBPrime(hue, c, x) {
+export function getRGBPrime(
+  hue: number,
+  c: number,
+  x: number,
+): [number, number, number] {
   if (hue >= 0 && hue < 60) {
     return [c, x, 0];
   } else if (hue >= 60 && hue < 120) {
@@ -14,23 +18,26 @@ export function getRGBPrime(hue, c, x) {
   } else if (hue === 360) {
     return [c, x, 0];
   }
+  throw new Error('Invalid hue');
 }
 
-export function getRGB({hue, sat}) {
+export function getRGB({hue, sat}: {hue: number; sat: number}): string {
   sat = sat / 255;
   hue = Math.round(360 * hue) / 255;
   const c = sat;
   const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
   const m = 1 - c;
-  const [r, g, b] = getRGBPrime(hue, c, x).map(n => Math.round(255 * (m + n)));
+  const [r, g, b] = getRGBPrime(hue, c, x).map((n) =>
+    Math.round(255 * (m + n)),
+  );
   return `rgba(${r},${g},${b},1)`;
 }
 
-export function toDegrees(rad) {
+export function toDegrees(rad: number): number {
   return rad * (180 / Math.PI);
 }
 
-export function calcRadialHue(x, y) {
+export function calcRadialHue(x: number, y: number) {
   if (x < 200 && y < 200) {
     const nX = 200 - x;
     const nY = 200 - y;
@@ -54,7 +61,7 @@ export function calcRadialHue(x, y) {
   }
 }
 
-export function calcRadialMagnitude(x, y) {
+export function calcRadialMagnitude(x: number, y: number) {
   if (x < 200 && y < 200) {
     const nX = 200 - x;
     const nY = 200 - y;
