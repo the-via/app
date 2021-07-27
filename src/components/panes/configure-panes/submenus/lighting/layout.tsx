@@ -2,14 +2,14 @@ import * as React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {getLightingDefinition, LightingValue} from 'via-reader';
-
+import type {VIADefinitionV2} from 'via-reader';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
   LightingValue.BACKLIGHT_USE_ISO_ENTER,
   LightingValue.BACKLIGHT_USE_SPLIT_BACKSPACE,
   LightingValue.BACKLIGHT_USE_SPLIT_LEFT_SHIFT,
   LightingValue.BACKLIGHT_USE_SPLIT_RIGHT_SHIFT,
-  LightingValue.BACKLIGHT_DISABLE_HHKB_BLOCKER_LEDS
+  LightingValue.BACKLIGHT_DISABLE_HHKB_BLOCKER_LEDS,
 ];
 
 const BooleanControls: [LightingValue, string][] = [
@@ -20,17 +20,21 @@ const BooleanControls: [LightingValue, string][] = [
   [LightingValue.BACKLIGHT_USE_SPLIT_RIGHT_SHIFT, 'Use Split Right Shift LEDs'],
   [
     LightingValue.BACKLIGHT_DISABLE_HHKB_BLOCKER_LEDS,
-    'Disable HHKB Blocker LEDs'
-  ]
+    'Disable HHKB Blocker LEDs',
+  ],
 ];
 
-export const LayoutPane = props => {
+export const LayoutPane: React.FC<{
+  lightingData: any;
+  selectedDefinition: VIADefinitionV2;
+  updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
+}> = (props) => {
   const {selectedDefinition, updateBacklightValue, lightingData} = props;
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
   if (lightingDefinition.supportedLightingValues.length !== 0) {
     const controls = BooleanControls.filter(
-      control =>
-        lightingDefinition.supportedLightingValues.indexOf(control[0]) !== -1
+      (control) =>
+        lightingDefinition.supportedLightingValues.indexOf(control[0]) !== -1,
     );
 
     return (
@@ -41,7 +45,7 @@ export const LayoutPane = props => {
             <Detail>
               <AccentSlider
                 isChecked={!!lightingData[command][0]}
-                onChange={val => updateBacklightValue(command, +val)}
+                onChange={(val) => updateBacklightValue(command, +val)}
               />
             </Detail>
           </ControlRow>

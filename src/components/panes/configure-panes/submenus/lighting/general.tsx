@@ -4,19 +4,19 @@ import {ControlRow, Label, Detail} from '../../../grid';
 import {
   getLightingDefinition,
   LightingValue,
-  VIADefinitionV2
+  VIADefinitionV2,
 } from 'via-reader';
 import {LightingControl} from './lighting-control';
 
 const BacklightControls: [
   LightingValue,
   string,
-  {type: string} & Record<string, any>
+  {type: string} & Record<string, any>,
 ][] = [
   [
     LightingValue.BACKLIGHT_BRIGHTNESS,
     'Brightness',
-    {type: 'range', min: 0, max: 255}
+    {type: 'range', min: 0, max: 255},
   ],
   [
     LightingValue.BACKLIGHT_EFFECT,
@@ -25,26 +25,26 @@ const BacklightControls: [
       type: 'select',
       getOptions: (definition: VIADefinitionV2) =>
         getLightingDefinition(definition.lighting).effects.map(
-          ([label]) => label
-        )
-    }
+          ([label]) => label,
+        ),
+    },
   ],
   [
     LightingValue.BACKLIGHT_EFFECT_SPEED,
     'Effect Speed',
-    {type: 'range', min: 0, max: 3}
-  ]
+    {type: 'range', min: 0, max: 3},
+  ],
 ];
 
 const UnderglowControls: [
   LightingValue,
   string,
-  {type: string} & Record<string, any>
+  {type: string} & Record<string, any>,
 ][] = [
   [
     LightingValue.QMK_RGBLIGHT_BRIGHTNESS,
     'Underglow Brightness',
-    {type: 'range', min: 0, max: 255}
+    {type: 'range', min: 0, max: 255},
   ],
   [
     LightingValue.QMK_RGBLIGHT_EFFECT,
@@ -53,23 +53,28 @@ const UnderglowControls: [
       type: 'select',
       getOptions: (definition: VIADefinitionV2) =>
         getLightingDefinition(definition.lighting).underglowEffects.map(
-          ([label]) => label
-        )
-    }
+          ([label]) => label,
+        ),
+    },
   ],
   [
     LightingValue.QMK_RGBLIGHT_EFFECT_SPEED,
     'Underglow Effect Speed',
-    {type: 'range', min: 0, max: 3}
-  ]
+    {type: 'range', min: 0, max: 3},
+  ],
 ];
 
-export const GeneralPane = props => {
+export const GeneralPane: React.FC<{
+  lightingData: any;
+  selectedDefinition: VIADefinitionV2;
+  updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
+  updateCustomColor: (color: number, hue: number, sat: number) => void;
+}> = (props) => {
   const {
     lightingData,
     updateCustomColor,
     updateBacklightValue,
-    selectedDefinition
+    selectedDefinition,
   } = props;
 
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
@@ -77,7 +82,7 @@ export const GeneralPane = props => {
   if (lightingDefinition.supportedLightingValues.length !== 0) {
     const colorsNeededArr = lightingDefinition.effects.map(([_, num]) => num);
     const underglowColorsNeededArr = lightingDefinition.underglowEffects.map(
-      ([_, num]) => num
+      ([_, num]) => num,
     );
     const currentEffect = lightingData[LightingValue.BACKLIGHT_EFFECT];
     const currentUnderglowEffect =
@@ -93,7 +98,7 @@ export const GeneralPane = props => {
     return (
       <>
         {BacklightControls.filter(
-          control => supportedLightingValues.indexOf(control[0]) !== -1
+          (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: any) => (
           <LightingControl
             definition={props.selectedDefinition}
@@ -103,7 +108,7 @@ export const GeneralPane = props => {
           />
         ))}
         {UnderglowControls.filter(
-          control => supportedLightingValues.indexOf(control[0]) !== -1
+          (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: any) => (
           <LightingControl
             definition={props.selectedDefinition}
@@ -115,12 +120,13 @@ export const GeneralPane = props => {
         {new Array(colorsNeeded)
           .fill(1)
           .map((val, idx) => val + idx)
-          .map(val => {
+          .map((val) => {
             let color, setColor;
             if (showCustomColors) {
               [color, setColor] = [
                 lightingData.customColors[val - 1],
-                (hue, sat) => updateCustomColor(val - 1, hue, sat)
+                (hue: number, sat: number) =>
+                  updateCustomColor(val - 1, hue, sat),
               ];
             } else {
               const command =
@@ -129,7 +135,8 @@ export const GeneralPane = props => {
                   : LightingValue.BACKLIGHT_COLOR_2;
               [color, setColor] = [
                 {hue: lightingData[command][0], sat: lightingData[command][1]},
-                (hue, sat) => updateBacklightValue(command, hue, sat)
+                (hue: number, sat: number) =>
+                  updateBacklightValue(command, hue, sat),
               ];
             }
             return (
@@ -149,7 +156,7 @@ export const GeneralPane = props => {
             meta={[
               LightingValue.QMK_RGBLIGHT_COLOR,
               'Underglow Color',
-              {type: 'color'}
+              {type: 'color'},
             ]}
           />
         )}

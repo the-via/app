@@ -2,10 +2,10 @@ import * as React from 'react';
 import {Component} from 'react';
 import styled from 'styled-components';
 import stringify from 'json-stringify-pretty-compact';
-import {RootState} from '../../../redux';
+import type {RootState} from '../../../redux';
 import {saveMacros} from '../../../redux/modules/macros';
 import {bindActionCreators} from 'redux';
-import {connect} from 'react-redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {ErrorMessage, SuccessMessage} from '../../styled';
 import {AccentUploadButton} from '../../inputs/accent-upload-button';
 import {AccentButton} from '../../inputs/accent-button';
@@ -16,7 +16,7 @@ import {
   getSelectedDevice,
   getSelectedDefinition,
   reloadConnectedDevices,
-  getSelectedRawLayers
+  getSelectedRawLayers,
 } from '../../../redux/modules/keymap';
 import {getByteForCode, getCodeForByte} from '../../../utils/key';
 import {title, component} from '../../icons/save';
@@ -36,8 +36,8 @@ const isViaSaveFile = (obj: any): obj is ViaSaveFile =>
 type OwnProps = {};
 
 type State = {
-  errorMessage: string;
-  successMessage: string;
+  errorMessage?: string;
+  successMessage?: string;
 };
 
 const SaveLoadPane = styled(CenterPane)`
@@ -56,19 +56,19 @@ const mapStateToProps = (state: RootState) => ({
   macros: state.macros,
   rawLayers: getSelectedRawLayers(state.keymap),
   selectedDefinition: getSelectedDefinition(state.keymap),
-  selectedDevice: getSelectedDevice(state.keymap)
+  selectedDevice: getSelectedDevice(state.keymap),
 });
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = (dispatch) =>
   bindActionCreators(
     {
       saveMacros,
       saveRawKeymapToDevice,
       selectConnectedDevice,
       loadDefinition: actions.loadDefinition,
-      reloadConnectedDevices
+      reloadConnectedDevices,
     },
-    dispatch
+    dispatch,
   );
 
 type Props = OwnProps &
@@ -77,15 +77,10 @@ type Props = OwnProps &
 
 class SaveMenuComponent extends Component<Props, State> {
   input = React.createRef<HTMLInputElement>();
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      errorMessage: undefined,
-      successMessage: undefined
-    };
-  }
+  state = {
+    errorMessage: undefined,
+    successMessage: undefined,
+  };
 
   saveLayout = () => {
     const {selectedDefinition, rawLayers, macros} = this.props;
@@ -94,56 +89,52 @@ class SaveMenuComponent extends Component<Props, State> {
       name,
       vendorProductId,
       macros: [...macros.expressions],
-      layers: rawLayers.map(layer =>
-        layer.keymap.map(keyByte => getCodeForByte(keyByte))
-      )
+      layers: rawLayers.map((layer: {keymap: number[]}) =>
+        layer.keymap.map((keyByte: number) => getCodeForByte(keyByte)),
+      ),
     };
     const content = stringify(saveFile);
     const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
 
     /// TODO: REPLACE
-//    remote.dialog
-//      .showSaveDialog({
-//        defaultPath: `*/${defaultFilename}`,
-//        filters: [{name: 'json', extensions: ['json']}]
-//      })
-//      .then(result => {
-//        const fileName = result.filePath;
-//        fileName && writeFileSync(fileName, content);
-//      });
+    //    remote.dialog
+    //      .showSaveDialog({
+    //        defaultPath: `*/${defaultFilename}`,
+    //        filters: [{name: 'json', extensions: ['json']}]
+    //      })
+    //      .then(result => {
+    //        const fileName = result.filePath;
+    //        fileName && writeFileSync(fileName, content);
+    //      });
   };
 
-  loadLayout = file => {
-    const {
-      selectedDevice,
-      macros,
-      selectedDefinition,
-      saveRawKeymapToDevice
-    } = this.props;
+  loadLayout = (file: Blob) => {
+    const {selectedDevice, macros, selectedDefinition, saveRawKeymapToDevice} =
+      this.props;
     this.setState({errorMessage: undefined, successMessage: undefined});
     const reader = new FileReader();
 
     reader.onabort = () =>
       this.setState({
-        errorMessage: 'File reading was cancelled.'
+        errorMessage: 'File reading was cancelled.',
       });
     reader.onerror = () =>
       this.setState({
-        errorMessage: 'Failed to read file.'
+        errorMessage: 'Failed to read file.',
       });
 
     reader.onload = async () => {
-      const saveFile = JSON.parse(reader.result.toString());
+      const saveFile = JSON.parse((reader as any).result.toString());
       if (!isViaSaveFile(saveFile)) {
         this.setState({
-          errorMessage: 'Could not load file: invalid data.'
+          errorMessage: 'Could not load file: invalid data.',
         });
         return;
       }
 
       if (saveFile.vendorProductId !== selectedDefinition.vendorProductId) {
         this.setState({
-          errorMessage: `Could not import layout. This file was created for a different keyboard: ${saveFile.name}`
+          errorMessage: `Could not import layout. This file was created for a different keyboard: ${saveFile.name}`,
         });
         return;
       }
@@ -151,12 +142,12 @@ class SaveMenuComponent extends Component<Props, State> {
       if (
         saveFile.layers.findIndex(
           (layer, idx) =>
-            layer.length !== this.props.rawLayers[idx].keymap.length
+            layer.length !== this.props.rawLayers[idx].keymap.length,
         ) > -1
       ) {
         this.setState({
           errorMessage:
-            'Could not import layout: incorrect number of keys in one or more layers.'
+            'Could not import layout: incorrect number of keys in one or more layers.',
         });
         return;
       }
@@ -164,7 +155,8 @@ class SaveMenuComponent extends Component<Props, State> {
       if (macros.isFeatureSupported && saveFile.macros) {
         if (saveFile.macros.length !== macros.expressions.length) {
           this.setState({
-            errorMessage: 'Could not import layout: incorrect number of macros.'
+            errorMessage:
+              'Could not import layout: incorrect number of macros.',
           });
           return;
         }
@@ -172,14 +164,14 @@ class SaveMenuComponent extends Component<Props, State> {
         this.props.saveMacros(selectedDevice, saveFile.macros);
       }
 
-      const keymap: number[][] = saveFile.layers.map(layer =>
-        layer.map(key => getByteForCode(key))
+      const keymap: number[][] = saveFile.layers.map((layer) =>
+        layer.map((key) => getByteForCode(`${key}`)),
       );
 
       await saveRawKeymapToDevice(keymap, selectedDevice);
 
       this.setState({
-        successMessage: 'Successfully updated layout!'
+        successMessage: 'Successfully updated layout!',
       });
     };
 
@@ -223,5 +215,5 @@ export const Icon = component;
 export const Title = title;
 export const Pane = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(SaveMenuComponent);

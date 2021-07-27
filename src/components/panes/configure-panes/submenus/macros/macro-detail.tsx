@@ -9,6 +9,7 @@ import {
 } from '../../../../../utils/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
+import type {RootState} from '../../../../../redux';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -58,10 +59,7 @@ const Item = styled.div<{selected?: boolean}>`
   }
 `;
 
-const AutocompleteItem: React.FC<{
-  selected: boolean;
-  entity: {label: string; code: string};
-}> = ({selected, entity: {label, code}}) => (
+const AutocompleteItem: React.FC<any> = ({selected, entity: {label, code}}) => (
   <Item selected={selected}>
     <KeycodeLabel>{label}</KeycodeLabel> <Keycode>{code}</Keycode>
   </Item>
@@ -109,7 +107,12 @@ const TextArea = styled.textarea`
   }
 `;
 
-export const MacroDetailPane = (props) => {
+type Props = {
+  macros: RootState['macros'];
+  selectedMacro: number;
+  saveMacros: (macro: string) => void;
+};
+export const MacroDetailPane: React.FC<Props> = (props) => {
   const enterToken = '{KC_ENT}';
   const currentMacro = props.macros.expressions[props.selectedMacro] || '';
   const textareaInitialValue = currentMacro
@@ -119,7 +122,9 @@ export const MacroDetailPane = (props) => {
   const [appendEnter, setAppendEnter] = React.useState(
     currentMacro.trimRight().endsWith(enterToken),
   );
-  const [errorMessage, setErrorMessage] = React.useState(undefined);
+  const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
+    undefined,
+  );
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;
     const validationResult = validateExpression(value);
@@ -166,14 +171,14 @@ export const MacroDetailPane = (props) => {
             border: '1px solid var(--color_dark-grey)',
           }}
           minChar={0}
-          textAreaComponent={TextArea}
+          textAreaComponent={TextArea as any}
           movePopupAsYouType={true}
           placeholder={`Enter the macro you want M${props.selectedMacro} to execute...`}
           trigger={{
             '?': {
               dataProvider: findKeycodes,
               component: AutocompleteItem,
-              output: (item) => ({
+              output: (item: any) => ({
                 text: item.code,
                 caretPosition: 'end',
               }),
@@ -181,7 +186,7 @@ export const MacroDetailPane = (props) => {
             '{': {
               dataProvider: findKeycodes,
               component: AutocompleteItem,
-              output: (item, trigger) => ({
+              output: (item: any) => ({
                 text: `{${item.code},`,
                 caretPosition: 'end',
               }),
@@ -189,8 +194,7 @@ export const MacroDetailPane = (props) => {
             ',': {
               dataProvider: findKeycodes,
               component: AutocompleteItem,
-              output: (item, trigger) => {
-                console.log(trigger);
+              output: (item: any) => {
                 return {
                   text: `,${item.code},`,
                   caretPosition: 'end',

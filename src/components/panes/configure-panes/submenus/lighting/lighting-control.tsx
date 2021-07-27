@@ -3,11 +3,11 @@ import {AccentSlider} from '../../../../inputs/accent-slider';
 import {AccentSelect} from '../../../../inputs/accent-select';
 import {AccentRange} from '../../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../../grid';
-import {VIADefinitionV2, LightingValue} from 'via-reader';
-import {LightingData} from '../../../../../types';
+import type {VIADefinitionV2, LightingValue} from 'via-reader';
+import type {LightingData} from '../../../../../types';
 import {ArrayColorPicker} from '../../../../inputs/color-picker';
 type Props = {
-  lightingData: LightingData;
+  lightingData: LightingData & any;
   definition: VIADefinitionV2;
   updateBacklightValue: (command: LightingValue, ...args: number[]) => void;
 };
@@ -19,7 +19,7 @@ export type ControlMeta = [
     min: number;
     max: number;
     getOptions: (d: VIADefinitionV2) => string[];
-  }>
+  }>,
 ];
 type AdvancedControlProps = Props & {meta: ControlMeta};
 export const LightingControl = (props: AdvancedControlProps) => {
@@ -33,7 +33,9 @@ export const LightingControl = (props: AdvancedControlProps) => {
           <Detail>
             <AccentSlider
               isChecked={!!props.lightingData[command][0]}
-              onChange={val => props.updateBacklightValue(command, +val)}
+              onChange={(val: boolean) =>
+                props.updateBacklightValue(command, +val)
+              }
             />
           </Detail>
         </ControlRow>
@@ -48,7 +50,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
               max={meta.max}
               min={meta.min}
               defaultValue={props.lightingData[command][0]}
-              onChange={val => props.updateBacklightValue(command, val)}
+              onChange={(val) => props.updateBacklightValue(command, val)}
             />
           </Detail>
         </ControlRow>
@@ -68,9 +70,11 @@ export const LightingControl = (props: AdvancedControlProps) => {
         </ControlRow>
       );
     case 'select': {
-      const options = meta.getOptions(props.definition).map((label, value) => ({
+      const options = (
+        (meta as any).getOptions(props.definition) as string[]
+      ).map((label, value) => ({
         value,
-        label
+        label,
       }));
       return (
         <ControlRow>
@@ -78,12 +82,14 @@ export const LightingControl = (props: AdvancedControlProps) => {
           <Detail>
             <AccentSelect
               width={250}
-              onChange={option =>
-                props.updateBacklightValue(command, option.value)
-              }
-              options={options}
-              defaultValue={options.find(
-                p => props.lightingData[command][0] === p.value
+              onChange={(option) => {
+                if (option) {
+                  props.updateBacklightValue(command, +option.value);
+                }
+              }}
+              options={options as any}
+              defaultValue={(options as any).find(
+                (p: any) => props.lightingData[command][0] === p.value,
               )}
             />
           </Detail>
@@ -97,7 +103,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
           <Detail>
             <AccentSlider
               isChecked={props.lightingData[command][0] !== 255}
-              onChange={val => {
+              onChange={(val) => {
                 const args = val ? [254, 254] : [255, 255];
                 props.updateBacklightValue(command, ...args);
               }}
