@@ -1,7 +1,7 @@
 import {connectRouter} from 'connected-react-router';
-import {History} from 'history';
+import type {History} from 'history';
 import {combineReducers} from 'redux';
-import {StateType} from 'typesafe-actions';
+import type {StateType} from 'typesafe-actions';
 
 import {keymapReducer} from './modules/keymap';
 import {macrosReducer} from './modules/macros';
@@ -12,7 +12,7 @@ export default function createRootReducer(history: History) {
     router: connectRouter(history),
     macros: macrosReducer,
     keymap: keymapReducer,
-    settings: settingsReducer
+    settings: settingsReducer,
   });
 }
 

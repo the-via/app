@@ -4,7 +4,7 @@ import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
-import {connect} from 'react-redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
@@ -13,6 +13,9 @@ import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
   isKeyboardDefinitionV2
+} from 'via-reader';
+import type {
+  VIADefinitionV2
 } from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
@@ -24,7 +27,7 @@ import {
   reloadConnectedDevices,
   actions
 } from '../../redux/modules/keymap';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import {
   ControlRow,
   Label,
@@ -42,7 +45,7 @@ import {
 type Props = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = dispatch =>
   bindActionCreators(
     {
       loadDefinition: actions.loadDefinition,
@@ -145,18 +148,21 @@ function importDefinition(
   };
   reader.readAsBinaryString(file);
 }
-function onDrop(evt, props: Props, setErrors: (errors: string[]) => void) {
+function onDrop(evt: React.DragEvent<HTMLElement>, props: Props, setErrors: (errors: string[]) => void) {
   evt.preventDefault();
-  if (evt.dataTransfer.items) {
+  const {dataTransfer} = evt;
+  if (dataTransfer?.items) {
     // Use DataTransferItemList interface to access the file(s)
-    for (var i = 0; i < evt.dataTransfer.items.length; i++) {
+    for (var i = 0; i < dataTransfer.items.length; i++) {
       // If dropped items aren't files, reject them
       if (
-        evt.dataTransfer.items[i].kind === 'file' &&
-        evt.dataTransfer.items[i].type === 'application/json'
+        dataTransfer.items[i].kind === 'file' &&
+        dataTransfer.items[i].type === 'application/json'
       ) {
-        var file = evt.dataTransfer.items[i].getAsFile();
+        var file = dataTransfer.items[i].getAsFile();
+        if (file){
         importDefinition(props, file, setErrors);
+        }
       }
     }
   }
@@ -169,13 +175,13 @@ function DesignTab(props: Props) {
     []
   );
   const [showMatrix, setShowMatrix] = React.useState(false);
-  const [errors, setErrors] = React.useState([]);
+  const [errors, setErrors] = React.useState<string[]>([]);
   const [dimensions, setDimensions] = React.useState({
     width: 1280,
     height: 900
   });
 
-  const options = localDefinitions.map(([, definition], index) => ({
+  const options = localDefinitions.map(([, definition]: [string, VIADefinitionV2], index: number) => ({
     label: definition.name,
     value: index
   }));
@@ -245,7 +251,9 @@ function DesignTab(props: Props) {
                     // definition
                     setSelectedOptionKeys(() => []);
 
+                    if (option) {
                     setSelectedDefinition(+option.value);
+                    }
                   }}
                   value={options[selectedDefinitionIndex]}
                   options={options}
@@ -280,7 +288,8 @@ function DesignTab(props: Props) {
               {Object.values(localDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {Object.values(localDefinitions).map(([id, definition]) => (
+          {(Object.values(localDefinitions) as [string, VIADefinitionV2][]).map(([id, definition]) => {
+            return (
             <IndentedControlRow>
               <SubLabel>{definition.name}</SubLabel>
               <Detail>
@@ -289,8 +298,8 @@ function DesignTab(props: Props) {
                   .toString(16)
                   .toUpperCase()}
               </Detail>
-            </IndentedControlRow>
-          ))}
+            </IndentedControlRow>);
+          })}
         </Container>
       </OverflowCell>
     </DesignPane>

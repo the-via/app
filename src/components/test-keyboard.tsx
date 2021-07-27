@@ -13,7 +13,7 @@ import {
   RotationContainer,
   BlankKeyboardFrame
 } from './positioned-keyboard';
-import {VIAKey} from 'via-reader';
+import type {VIAKey} from 'via-reader';
 
 export enum TestKeyState {
   Initial,
@@ -56,11 +56,6 @@ const TestKey = React.memo(
     return (
       <RotationContainer selected={false} r={r} rx={rx} ry={ry}>
         <TestKeyContainer
-          keyState={keyState}
-          w={w}
-          h={h}
-          x={x}
-          y={y}
           onClick={onClick}
           id={id}
           style={getKeyContainerTransform({keyState, x, y, w, h})}
@@ -140,7 +135,7 @@ export const TestKeyboard = (props: any) => {
   );
 };
 
-const getKeyContainerTransform = ({keyState, x, y, w, h}) => ({
+const getKeyContainerTransform = ({keyState, x, y, w, h}: {keyState: TestKeyState; x: number; y: number; w: number; h: number}) => ({
   transform: `translate(${CSSVarObject.keyXPos * x}px, ${CSSVarObject.keyYPos *
     y +
     (keyState !== TestKeyState.KeyDown ? 0 : 1) * 2}px)`,

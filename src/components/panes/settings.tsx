@@ -2,10 +2,10 @@ import * as React from 'react';
 import {bindActionCreators} from 'redux';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {connect} from 'react-redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {ControlRow, Label, Detail, OverflowCell} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import {actions as SettingsActions} from '../../redux/modules/settings';
 import {ErrorMessage} from '../styled';
 
@@ -100,7 +100,7 @@ function mapStateToProps(state: RootState) {
     requireRestart: state.settings.requireRestart
   };
 }
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<any,any> = dispatch =>
   bindActionCreators(
     {
       toggleKeyRemappingViaKeyboard:

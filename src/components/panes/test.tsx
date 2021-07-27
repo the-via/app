@@ -4,7 +4,8 @@ const {useState, useEffect} = React;
 import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {connect} from 'react-redux';
+import {connect } from 'react-redux';
+import type {MapDispatchToPropsFunction} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
 import {TestKeyboard, TestKeyState} from '../test-keyboard';
@@ -23,7 +24,7 @@ import {
   getSelectedConnectedDevice
 } from '../../redux/modules/keymap';
 import {actions as SettingsActions} from '../../redux/modules/settings';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import {
   ControlRow,
   Label,
@@ -41,7 +42,7 @@ type ReduxDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type Props = ReduxState & ReduxDispatch;
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = dispatch => {
   return bindActionCreators(
     {
       setTestMatrixEnabled: SettingsActions.setTestMatrixEnabled
@@ -87,15 +88,15 @@ function Test(props: Props) {
     width: 1280,
     height: 900
   });
-  const [selectedKeys, setSelectedKeys] = useState({});
-  let flat = [];
+  const [selectedKeys, setSelectedKeys] = useState({} as {[key: string]: TestKeyState});
+  let flat = [] as number[];
 
   // If pressed key is our target key then set to true
-  function downHandler(evt) {
+  function downHandler(evt: KeyboardEvent) {
     evt.preventDefault();
     if (
       !startTest &&
-      selectedKeys[getIndexByEvent(evt)] !== TestKeyState.KeyDown
+      selectedKeys[getIndexByEvent(evt) ?? -1] !== TestKeyState.KeyDown
     ) {
       setSelectedKeys(selectedKeys => ({
         ...selectedKeys,
@@ -105,7 +106,7 @@ function Test(props: Props) {
   }
 
   // If released key is our target key then set to false
-  const upHandler = evt => {
+  const upHandler = (evt: KeyboardEvent) => {
     evt.preventDefault();
     if (
       !startTest &&
@@ -124,14 +125,14 @@ function Test(props: Props) {
       const {cols, rows} = selectedDefinition.matrix;
       const bytesPerRow = Math.ceil(cols / 8);
       try {
-        const newFlat = await api.getKeyboardValue(
+        const newFlat = (await api.getKeyboardValue(
           KeyboardValue.SWITCH_MATRIX_STATE,
           bytesPerRow * rows
-        );
+        )) as number[];
 
         const keysChanges =
           0 !==
-          newFlat.reduce((prev, val, byteIdx) => {
+          newFlat.reduce<number>((prev, val, byteIdx) => {
             return (prev + val) ^ (flat[byteIdx] || 0);
           }, 0);
         if (!keysChanges) {
@@ -164,7 +165,7 @@ function Test(props: Props) {
               ? [...selectedKeys]
               : Array(rows * cols).fill(TestKeyState.Initial)
           );
-          return newPressedKeys;
+          return newPressedKeys as any as  {[key: string]: TestKeyState};
         });
         flat = newFlat;
         await api.timeout(20);
@@ -176,7 +177,7 @@ function Test(props: Props) {
     }
   }
 
-  const onClickHandler = _ => {
+  const onClickHandler = () => {
     flat = [];
     setSelectedKeys({});
   };
@@ -207,8 +208,8 @@ function Test(props: Props) {
     !props.isTestMatrixEnabled || !props.keyDefinitions
       ? selectedKeys
       : props.keyDefinitions.map(
-          ({row, col}) =>
-            selectedKeys[row * props.selectedDefinition.matrix.cols + col]
+          ({row, col}: {row: number;col: number}) =>
+            selectedKeys[(row * props.selectedDefinition.matrix.cols + col) as keyof typeof selectedKeys]
         );
   const testDefinition = props.isTestMatrixEnabled
     ? props.selectedDefinition
@@ -248,7 +249,7 @@ function Test(props: Props) {
                       props.setTestMatrixEnabled(val);
 
                       if (val) {
-                        setSelectedKeys([]);
+                        setSelectedKeys({});
                         useMatrixTest();
                       } else {
                         setSelectedKeys({});

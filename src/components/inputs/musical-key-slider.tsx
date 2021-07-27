@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {AccentSlider} from './accent-slider';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
+let drums: any;
+let square: any;
+let pipe: any;
+let ac: any;
 //const SoundFont = require('soundfont-player');
-//let drums;
-//let square;
-//let pipe;
-//let ac;
 //const callOnce = fn => {
 //  let called = false;
 //  return (...args: any[]) => {
@@ -282,12 +282,13 @@ const evtToKeyByte = {
   NumpadSubtract: basicKeyToByte.KC_PMNS
 };
 
-export function getIndexByEvent(evt) {
+export function getIndexByEvent(evt: KeyboardEvent): number  {
   const code = evt.code;
-  const byte = evtToKeyByte[code] || evtToKeyByte[evt.key];
+  const byte = evtToKeyByte[code as keyof typeof evtToKeyByte]  || evtToKeyByte[evt.key as keyof typeof evtToKeyByte];
   if (byte) {
     return matrixKeycodes.indexOf(byte);
   }
+  return -1;
 }
 
 const codes = [
@@ -366,11 +367,11 @@ const codes = [
   123
 ];
 
-const keyHandler = e => {
+const keyHandler: (e: KeyboardEvent) => void = (e) => {
   e.preventDefault();
   const index = codes.indexOf(e.keyCode);
   if (index < 10 && index > -1) {
-    drums.play(38 + index);
+    (drums as any).play(38 + index);
   } else if (index >= 10) {
     square.play(25 + index, ac.currentTime, {duration: 0.25});
   } else {
@@ -378,7 +379,7 @@ const keyHandler = e => {
   }
 };
 
-export function MusicalKeySlider(props) {
+export function MusicalKeySlider(props: any) {
   React.useEffect(() => {
     //loadInstruments();
     return () => {

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {Store} from 'redux';
+import type {Store} from 'redux';
 import {Provider} from 'react-redux';
 import {ConnectedRouter} from 'connected-react-router';
-import {History} from 'history';
+import type {History} from 'history';
 import Routes from '../Routes';
 
 type Props = {

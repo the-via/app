@@ -18,9 +18,9 @@ import {
   getCustomDefinitions,
   getBaseDefinitions,
   getSelectedAPI,
-  getConnectedDevices
+  getConnectedDevices,
 } from '../../redux/modules/keymap';
-import {RootState} from '../../redux';
+import type {RootState} from '../../redux';
 import {
   ControlRow,
   Label,
@@ -28,10 +28,10 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  FlexCell
+  FlexCell,
 } from './grid';
 import Layouts from '../Layouts';
-import {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
 
 type KeyboardDefinitionEntry = [string, VIADefinitionV2];
@@ -54,7 +54,7 @@ const mapStateToProps = ({keymap}: RootState) => ({
   connectedDevices: getConnectedDevices(keymap),
   allDefinitions: Object.entries(getDefinitions(keymap)),
   remoteDefinitions: Object.entries(getBaseDefinitions(keymap)),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap))
+  localDefinitions: Object.entries(getCustomDefinitions(keymap)),
 });
 
 const Container = styled.div`
@@ -115,12 +115,12 @@ const ControlGroupHeader = styled.div`
 const TestControls = () => {
   const [isChecked, setIsChecked] = React.useState(true);
   const [rangeVal, setRangeVal] = React.useState(0);
-  const [colorVal, setColorVal] = React.useState([0, 0]);
+  const [colorVal, setColorVal] = React.useState<[number, number]>([0, 0]);
   const [selectionVal, setSelectionVal] = React.useState(0);
   const [keycode, setKeycode] = React.useState(0);
   const selectOptions = [
-    {label: 'Option 1', value: 0},
-    {label: 'Option 2', value: 1}
+    {label: 'Option 1', value: '0'},
+    {label: 'Option 2', value: '1'},
   ];
 
   return (
@@ -168,8 +168,8 @@ const TestControls = () => {
           <AccentSelect
             defaultValue={selectOptions[selectionVal]}
             options={selectOptions}
-            onChange={option => {
-              setSelectionVal(option.value);
+            onChange={(option) => {
+              option && setSelectionVal(+option.value);
             }}
           />
         </Detail>
@@ -184,34 +184,34 @@ function Debug(props: Props) {
     allDefinitions,
     connectedDevices,
     remoteDefinitions,
-    localDefinitions
+    localDefinitions,
   } = props;
   const [selectedDefinitionIndex, setSelectedDefinition] = React.useState(0);
   const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
-    []
+    [],
   );
-  const [selectedKey, setSelectedKey] = React.useState(0);
+  const [selectedKey, setSelectedKey] = React.useState<undefined | number>(0);
   const [showMatrix, setShowMatrix] = React.useState(false);
   const [dimensions, setDimensions] = React.useState({
     width: 1280,
-    height: 900
+    height: 900,
   });
 
   const options = allDefinitions.map(([, definition], index) => ({
     label: definition.name,
-    value: index
+    value: `${index}`,
   }));
   const entry = allDefinitions[selectedDefinitionIndex];
 
   const flexRef = React.useRef(null);
   useResize(
     flexRef,
-    entry =>
+    (entry) =>
       flexRef.current &&
       setDimensions({
         width: entry.width,
-        height: entry.height
-      })
+        height: entry.height,
+      }),
   );
 
   return (
@@ -242,7 +242,7 @@ function Debug(props: Props) {
               <Detail>
                 <AccentSlider
                   isChecked={showMatrix}
-                  onChange={val => setShowMatrix(val)}
+                  onChange={(val) => setShowMatrix(val)}
                 />
               </Detail>
             </ControlRow>
@@ -254,11 +254,15 @@ function Debug(props: Props) {
                     const {keys, optionKeys} = entry[1].layouts;
                     const selectedOptionKeys = optionKeys
                       ? Object.entries(optionKeys).flatMap(
-                          ([key, options]) => options[0]
+                          ([key, options]) => options[0],
                         )
                       : [];
                     const displayedKeys = [...keys, ...selectedOptionKeys];
-                    setSelectedKey(getNextKey(selectedKey, displayedKeys));
+                    if (selectedKey) {
+                      setSelectedKey(
+                        getNextKey(selectedKey, displayedKeys) ?? undefined,
+                      );
+                    }
                   }}
                 >
                   Next
@@ -266,23 +270,27 @@ function Debug(props: Props) {
               </Detail>
             </ControlRow>
           </ControlGroup>
-          <ControlGroup>
-            <ControlGroupHeader>Layout Testing</ControlGroupHeader>
-            <ControlRow>
-              <Label>Dummy Keyboard</Label>
-              <Detail>
-                <AccentSelect
-                  onChange={option => setSelectedDefinition(+option.value)}
-                  defaultValue={options[0]}
-                  options={options}
-                />
-              </Detail>
-            </ControlRow>
-          </ControlGroup>
+          {options && (
+            <ControlGroup>
+              <ControlGroupHeader>Layout Testing</ControlGroupHeader>
+              <ControlRow>
+                <Label>Dummy Keyboard</Label>
+                <Detail>
+                  <AccentSelect
+                    onChange={(option) =>
+                      option && setSelectedDefinition(+option.value)
+                    }
+                    defaultValue={options[0]}
+                    options={options}
+                  />
+                </Detail>
+              </ControlRow>
+            </ControlGroup>
+          )}
           {entry && (
             <Layouts
               definition={entry[1]}
-              onLayoutChange={newSelectedOptionKeys => {
+              onLayoutChange={(newSelectedOptionKeys) => {
                 setSelectedOptionKeys(newSelectedOptionKeys);
               }}
             />
@@ -324,16 +332,16 @@ function Debug(props: Props) {
                       const start = performance.now();
                       await Array(1000)
                         .fill(0)
-                        .map(_ =>
+                        .map((_) =>
                           api.getKeyboardValue(
                             KeyboardValue.SWITCH_MATRIX_STATE,
-                            20
-                          )
+                            20,
+                          ),
                         );
                       console.info(
                         '1000 commands in ',
                         performance.now() - start,
-                        'ms'
+                        'ms',
                       );
                     }}
                   >
@@ -349,13 +357,17 @@ function Debug(props: Props) {
               <Label>Connected Devices</Label>
               <Detail>{Object.values(connectedDevices).length} Devices</Detail>
             </ControlRow>
-            {Object.values(connectedDevices).map(device => (
+            {Object.values(connectedDevices).map((device) => (
               <IndentedControlRow key={device.device.path}>
                 <SubLabel>
                   {
-                    allDefinitions.find(
-                      ([id]) => id === device.vendorProductId.toString()
-                    )[1].name
+                    (
+                      (
+                        allDefinitions.find(
+                          ([id]) => id === device.vendorProductId.toString(),
+                        ) as KeyboardDefinitionEntry
+                      )[1] as VIADefinitionV2
+                    ).name
                   }
                 </SubLabel>
                 <Detail>
@@ -374,9 +386,7 @@ function Debug(props: Props) {
                 <SubLabel>{definition.name}</SubLabel>
                 <Detail>
                   0x
-                  {parseInt(id)
-                    .toString(16)
-                    .toUpperCase()}
+                  {parseInt(id).toString(16).toUpperCase()}
                 </Detail>
               </IndentedControlRow>
             ))}
@@ -393,9 +403,7 @@ function Debug(props: Props) {
                     <SubLabel>{definition.name}</SubLabel>
                     <Detail>
                       0x
-                      {parseInt(id)
-                        .toString(16)
-                        .toUpperCase()}
+                      {parseInt(id).toString(16).toUpperCase()}
                     </Detail>
                   </IndentedControlRow>
                 ))}

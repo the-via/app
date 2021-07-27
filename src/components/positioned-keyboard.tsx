@@ -9,7 +9,7 @@ import {
   getSelectedDefinition,
   getSelectedKeymap,
   getSelectedKey,
-  actions
+  actions,
 } from '../redux/modules/keymap';
 import {
   getLabelForByte,
@@ -19,10 +19,12 @@ import {
   isNumericSymbol,
   isNumericOrShiftedSymbol,
   isMacro,
-  getShortNameForKeycode
+  getShortNameForKeycode,
 } from '../utils/key';
+import type {IKeycode} from '../utils/key';
 import type {VIADefinitionV2, VIAKey, KeyColorType} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
+import type {MouseEventHandler} from 'react';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -30,14 +32,19 @@ export const CSSVarObject = {
   keyHeight: 54,
   keyYSpacing: 2,
   keyXPos: 52 + 2,
-  keyYPos: 54 + 2
+  keyYPos: 54 + 2,
 };
 
-const KeyboardFrame = styled.div`
-  pointer-events: ${props => (props.selectable ? 'all' : 'none')};
-  width: ${props =>
+const KeyboardFrame = styled.div<{
+  selectable: boolean;
+  width: number;
+  height: number;
+  containerDimensions: {width: number; height: number};
+}>`
+  pointer-events: ${(props) => (props.selectable ? 'all' : 'none')};
+  width: ${(props) =>
     CSSVarObject.keyXPos * props.width - CSSVarObject.keyXSpacing}px;
-  height: ${props =>
+  height: ${(props) =>
     CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing}px;
   background: var(--color_medium-grey);
   padding: 2px;
@@ -46,14 +53,14 @@ const KeyboardFrame = styled.div`
   padding: 5px;
   background: var(--color_light-jet);
   position: relative;
-  transform: ${props => {
+  transform: ${(props) => {
     if (props.containerDimensions) {
       const ratio = Math.min(
         1,
         props.containerDimensions.width /
           ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
             CSSVarObject.keyXSpacing +
-            30)
+            30),
       );
       return `scale(${ratio}, ${ratio})`;
     }
@@ -65,14 +72,14 @@ export const BlankKeyboardFrame = styled(KeyboardFrame)`
   padding: 5px;
   background: var(--color_light-jet);
   position: relative;
-  transform: ${props => {
+  transform: ${(props) => {
     if (props.containerDimensions) {
       const ratio = Math.min(
         1,
         props.containerDimensions.width /
           ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
             CSSVarObject.keyXSpacing +
-            20)
+            20),
       );
       return `scale(${ratio}, ${ratio})`;
     }
@@ -80,52 +87,58 @@ export const BlankKeyboardFrame = styled(KeyboardFrame)`
   }};
 `;
 
-export const KeyContainer = styled.div`
+export const KeyContainer = styled.div<{selected: boolean}>`
   position: absolute;
   box-sizing: border-box;
   transition: transform 0.2s ease-out;
   user-select: none;
-  transform: ${props =>
+  transform: ${(props) =>
     props.selected
       ? 'translate3d(0, -1px, 0) scale(0.99)'
       : 'translate3d(0,0,0)'};
   :hover {
-    transform: ${props =>
+    transform: ${(props) =>
       props.selected
         ? 'translate3d(0, -1px, 0) scale(0.99)'
         : 'translate3d(0,-1px,0)'};
   }
   animation-name: select-glow;
-  animation-duration: ${props => (props.selected ? 1.5 : 0)}s;
+  animation-duration: ${(props) => (props.selected ? 1.5 : 0)}s;
   animation-iteration-count: infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
 `;
 
-export const RotationContainer = styled.div`
+export const RotationContainer = styled.div<{
+  r: number;
+  rx: number;
+  ry: number;
+  selected?: boolean;
+}>`
   position: absolute;
-  ${props => (props.selected ? 'z-index:2;' : '')}
-  transform: ${props => `rotate(${props.r}deg)`};
-  transform-origin: ${props =>
-    `${CSSVarObject.keyXPos * props.rx}px ${CSSVarObject.keyYPos *
-      props.ry}px`};
+  ${(props) => (props.selected ? 'z-index:2;' : '')}
+  transform: ${(props) => `rotate(${props.r}deg)`};
+  transform-origin: ${(props) =>
+    `${CSSVarObject.keyXPos * props.rx}px ${
+      CSSVarObject.keyYPos * props.ry
+    }px`};
 `;
 
 export const BGKeyContainer = styled(KeyContainer)`
   transform: translate3d(0, -1px, 0) scale(0.99);
   :hover {
-    transform: ${props =>
+    transform: ${(props) =>
       props.selected
         ? 'translate3d(0,-1px,0) scale(0.99)'
         : 'translate3d(0,-1px,0)'};
   }
 `;
 
-const SmallInnerKey = styled.div`
+const SmallInnerKey = styled.div<{backgroundColor: string}>`
   height: 100%;
   position: relative;
   margin: auto;
-  background-color: ${props => props.backgroundColor};
+  background-color: ${(props) => props.backgroundColor};
   line-height: 20px;
   box-sizing: border-box;
   border-radius: 3px;
@@ -133,10 +146,10 @@ const SmallInnerKey = styled.div`
   padding-top: 0;
 `;
 
-const InnerKey = styled.div`
+const InnerKey = styled.div<{backgroundColor: string}>`
   height: 100%;
   margin: auto;
-  background-color: ${props => props.backgroundColor};
+  background-color: ${(props) => props.backgroundColor};
   line-height: 20px;
   box-sizing: border-box;
   border-radius: 3px;
@@ -158,9 +171,12 @@ const InnerKeyContainer = styled.div`
   width: 100%;
 `;
 
-export const OuterSecondaryKey = styled.div`
-  background-color: ${props => props.backgroundColor};
-  animation-duration: ${props => (props.selected ? 2 : 0)}s;
+export const OuterSecondaryKey = styled.div<{
+  selected?: boolean;
+  backgroundColor: string;
+}>`
+  background-color: ${(props) => props.backgroundColor};
+  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
   animation-iteration-count: infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
@@ -178,9 +194,12 @@ export const OuterSecondaryKey = styled.div`
   position: absolute;
 `;
 
-export const OuterKey = styled.div`
-  background-color: ${props => props.backgroundColor};
-  animation-duration: ${props => (props.selected ? 2 : 0)}s;
+export const OuterKey = styled.div<{
+  selected?: boolean;
+  backgroundColor: string;
+}>`
+  background-color: ${(props) => props.backgroundColor};
+  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
   animation-iteration-count: infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
@@ -199,7 +218,7 @@ export const OuterKey = styled.div`
 
 const Legend = styled.div`
   font-family: Arial, Helvetica, sans-serif;
-  color: ${props => props.color};
+  color: ${(props) => props.color};
   font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -216,29 +235,35 @@ export const getDarkenedColor = (color: string) => {
   const hb = Math.round(b * 0.8).toString(16);
   const res = `#${hr.padStart(2, '0')}${hg.padStart(2, '0')}${hb.padStart(
     2,
-    '0'
+    '0',
   )}`;
   return res;
 };
 
 export const getLegends = (
   labels: (string | void)[],
-  t: string
+  t: string,
 ): JSX.Element[] => {
-  return labels.map(label => (
+  return labels.map((label) => (
     <Legend key={label || ''} color={t}>
       {(label || '').length > 15 ? 'ADV' : label || ''}
     </Legend>
   ));
 };
 
-export const chooseInnerKey = props => {
+export const chooseInnerKey = (props: {
+  topLabel?: string;
+  centerLabel?: string;
+}) => {
   const {topLabel, centerLabel} = props;
   const isSmall = topLabel !== undefined || centerLabel !== undefined;
   return isSmall ? SmallInnerKey : InnerKey;
 };
 
-export const chooseInnerKeyContainer = props => {
+export const chooseInnerKeyContainer = (props: {
+  topLabel?: string;
+  centerLabel?: string;
+}) => {
   const {topLabel, centerLabel} = props;
   const isSmall = topLabel !== undefined || centerLabel !== undefined;
   return isSmall && centerLabel
@@ -248,18 +273,14 @@ export const chooseInnerKeyContainer = props => {
 const noop = (...args: any[]) => {};
 export const KeyBG = React.memo(
   ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0}: any) => {
-    const hasSecondKey = [h2, w2].every(i => i !== undefined);
+    const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
     return (
       <RotationContainer r={r} rx={rx} ry={ry}>
         <BGKeyContainer
           selected={true}
-          w={w + 2}
-          h={h + 2}
-          x={x - 1}
-          y={y - 1}
           style={{
-            ...getBGKeyContainerPosition({w, h, x, y})
+            ...getBGKeyContainerPosition({w, h, x, y}),
           }}
         >
           {hasSecondKey ? (
@@ -270,16 +291,16 @@ export const KeyBG = React.memo(
                   w: w2,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2
+                  h: h2,
                 })}
-              ></OuterSecondaryKey>
+              />
             </>
           ) : null}
           <OuterKey backgroundColor={backColor}></OuterKey>
         </BGKeyContainer>
       </RotationContainer>
     );
-  }
+  },
 );
 const Key = React.memo(
   ({
@@ -303,30 +324,26 @@ const Key = React.memo(
     bottomLabel = undefined,
     label = undefined,
     id,
-    onClick = noop
+    onClick = noop,
   }: any) => {
     const isSmall = topLabel !== undefined || centerLabel !== undefined;
     const ChosenInnerKeyContainer = chooseInnerKeyContainer({
       topLabel,
-      centerLabel
+      centerLabel,
     });
     const ChosenInnerKey = chooseInnerKey({topLabel, centerLabel});
     const legends = isSmall && !centerLabel ? [topLabel, bottomLabel] : [label];
     const tooltipData = getTooltipData({macroExpression, label});
-    const containerOnClick = evt => {
+    const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
       onClick(id);
     };
-    const hasSecondKey = [h2, w2].every(i => i !== undefined);
+    const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     return (
       <RotationContainer selected={selected} r={r} rx={rx} ry={ry}>
         <KeyContainer
           id={id}
           {...tooltipData}
-          w={w}
-          h={h}
-          x={x}
-          y={y}
           selected={selected}
           style={getKeyContainerPosition({w, h, x, y})}
           onClick={containerOnClick}
@@ -339,7 +356,7 @@ const Key = React.memo(
                   w: w2,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2
+                  h: h2,
                 })}
               >
                 <ChosenInnerKey
@@ -364,21 +381,28 @@ const Key = React.memo(
         </KeyContainer>
       </RotationContainer>
     );
-  }
+  },
 );
 
-export const getBGKeyContainerPosition = ({x, y, w, h}) => ({
+type KeyPosition = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+export const getBGKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   left: CSSVarObject.keyXPos * x - 1,
   top: CSSVarObject.keyYPos * y - 1,
   width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing + 2,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing + 2
+  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing + 2,
 });
 
-export const getKeyContainerPosition = ({x, y, w, h}) => ({
+export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   left: CSSVarObject.keyXPos * x,
   top: CSSVarObject.keyYPos * y,
   width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing
+  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
 });
 
 type ReduxProps = {
@@ -394,14 +418,14 @@ type OwnProps = {
   selectable: boolean;
   containerDimensions?: any;
   showMatrix?: boolean;
-  selectedOptionKeys?: number[]
+  selectedOptionKeys?: number[];
 };
 
 type PositionedKeyboardProps = OwnProps & ReduxProps;
 
 const getTooltipData = ({
   macroExpression,
-  label
+  label,
 }: {
   macroExpression?: string;
   label: string;
@@ -416,30 +440,27 @@ export const getLabel = (
   keycodeByte: number,
   width: number,
   macros: RootState['macros'],
-  selectedDefinition: VIADefinitionV2 | null
+  selectedDefinition: VIADefinitionV2 | null,
 ) => {
-  let label = null;
-  if (isUserKeycodeByte(keycodeByte) && selectedDefinition.customKeycodes) {
+  let label: string = '';
+  if (isUserKeycodeByte(keycodeByte) && selectedDefinition?.customKeycodes) {
     const userKeycodeIdx = getUserKeycodeIndex(keycodeByte);
     label = getShortNameForKeycode(
-      selectedDefinition.customKeycodes[userKeycodeIdx]
+      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
     );
   } else if (keycodeByte) {
-    label = getLabelForByte(keycodeByte, width * 100);
-  } else {
-    label = '';
+    label = getLabelForByte(keycodeByte, width * 100) ?? '';
   }
-
-  let macroExpression: string;
+  let macroExpression: string | undefined;
   if (isMacro(label)) {
-    macroExpression = macros.expressions[label.substring(1)];
+    macroExpression = macros.expressions[label.substring(1) as any];
   }
 
   if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {
     return (
       label && {
         label: label.toUpperCase(),
-        macroExpression
+        macroExpression,
       }
     );
   } else if (isNumericSymbol(label)) {
@@ -449,7 +470,7 @@ export const getLabel = (
       bottomLabel && {
         topLabel,
         bottomLabel,
-        macroExpression
+        macroExpression,
       }
     );
   } else {
@@ -457,7 +478,7 @@ export const getLabel = (
       label && {
         label,
         centerLabel: label,
-        macroExpression
+        macroExpression,
       }
     );
   }
@@ -481,9 +502,9 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
     selectable,
     updateSelectedKey,
     keys,
-    containerDimensions
+    containerDimensions,
   } = props;
-  if (!selectedDefinition) {
+  if (!selectedDefinition || !keys) {
     return null;
   }
   const {width, height} = selectedDefinition.layouts;
@@ -507,11 +528,11 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                     matrixKeycodes[index],
                     k.w,
                     macros,
-                    selectedDefinition
+                    selectedDefinition,
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
-                  onClick: selectable ? updateSelectedKey : noop
+                  onClick: selectable ? updateSelectedKey : noop,
                 }}
                 key={index}
                 id={index}
@@ -529,7 +550,7 @@ const mapStateToProps = (state: RootState) => ({
   keys: getSelectedKeyDefinitions(state.keymap),
   macros: state.macros,
   matrixKeycodes: getSelectedKeymap(state.keymap),
-  selectedKey: getSelectedKey(state.keymap)
+  selectedKey: getSelectedKey(state.keymap),
 });
 
 export const BlankPositionedKeyboard = (
@@ -538,7 +559,7 @@ export const BlankPositionedKeyboard = (
     selectedOptionKeys?: number[];
     containerDimensions: any;
     showMatrix?: boolean;
-  } & Pick<ReduxProps, 'selectedDefinition'>
+  } & Pick<ReduxProps, 'selectedDefinition'>,
 ) => (
   <BlankPositionedKeyboardComponent
     {...props}
@@ -556,7 +577,7 @@ export function calculatePointPosition({
   rx = 0,
   ry = 0,
   w = 0,
-  h = 0
+  h = 0,
 }: VIAKey) {
   // We express the radians in counter-clockwise form, translate the point by the origin, rotate it, then reverse the translation
   const rRadian = (r * (2 * Math.PI)) / 360;
@@ -583,9 +604,9 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
       },
       Array(rows)
         .fill(0)
-        .map(row => Array(cols).fill(0))
+        .map((row) => Array(cols).fill(0)),
     )
-    .map(arr => arr.sort((a, b) => a[0] - b[0]));
+    .map((arr) => arr.sort((a, b) => a[0] - b[0]));
   const colKeys = keys
     .reduce(
       (sumKeys, key) => {
@@ -594,9 +615,9 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
       },
       Array(cols)
         .fill(0)
-        .map(col => Array(rows).fill(0))
+        .map((col) => Array(rows).fill(0)),
     )
-    .map(arr => arr.sort((a, b) => a[1] - b[1]));
+    .map((arr) => arr.sort((a, b) => a[1] - b[1]));
   return {rowKeys, colKeys};
 };
 
@@ -660,17 +681,20 @@ const withinChain = (a: VIAKey, b: VIAKey) => {
   return yDiff < CSSVarObject.keyYPos * 0.9;
 };
 
-const getTraversalOrder = (arr: VIAKey[]) => {
+const getTraversalOrder = (arr: VIAKey[]): VIAKey[] => {
   const [car, ...cdr] = [...arr].sort(sortByYX);
   if (car === undefined) {
     return cdr;
   } else {
-    const [chain, rest] = partition([...arr], a => withinChain(car, a));
+    const [chain, rest] = partition([...arr], (a) => withinChain(car, a));
     return [...chain.sort(sortByX), ...getTraversalOrder(rest)];
   }
 };
 
-export const getNextKey = (currIndex: number, keys: VIAKey[]) => {
+export const getNextKey = (
+  currIndex: number,
+  keys: VIAKey[],
+): number | null => {
   const currKey = keys[currIndex];
   const sortedKeys = getTraversalOrder([...keys]);
   const sortedIndex = sortedKeys.indexOf(currKey);
@@ -688,7 +712,7 @@ const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
     selectable,
     selectedKey,
     selectedOptionKeys = [],
-    showMatrix = false
+    showMatrix = false,
   } = props;
   const pressedKeys = {};
 
@@ -704,7 +728,9 @@ const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
         const optionKey = parseInt(key);
 
         // If a selection option has been set for this optionKey, use that
-        return selectedOptionKeys[optionKey] ? options[selectedOptionKeys[optionKey]] : options[0];
+        return selectedOptionKeys[optionKey]
+          ? options[selectedOptionKeys[optionKey]]
+          : options[0];
       });
     } else {
       return [];
@@ -735,10 +761,10 @@ const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
                     matrixKeycodes[index],
                     k.w,
                     macros,
-                    selectedDefinition
+                    selectedDefinition,
                   ),
                   ...getColors(k.color),
-                  selected: pressedKeys[index]
+                  selected: (pressedKeys as any)[index],
                 }}
                 key={index}
                 id={index}
@@ -754,13 +780,17 @@ const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
   );
 };
 
-const Matrix = ({rowKeys, colKeys}) => (
+type MatrixProps = {
+  rowKeys: number[][][];
+  colKeys: number[][][];
+};
+const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
   <SVG>
-    {rowKeys.map(arr => (
-      <RowLine points={arr.map(point => (point || []).join(',')).join(' ')} />
+    {rowKeys.map((arr) => (
+      <RowLine points={arr.map((point) => (point || []).join(',')).join(' ')} />
     ))}
-    {colKeys.map(arr => (
-      <ColLine points={arr.map(point => (point || []).join(',')).join(' ')} />
+    {colKeys.map((arr) => (
+      <ColLine points={arr.map((point) => (point || []).join(',')).join(' ')} />
     ))}
   </SVG>
 );
@@ -786,5 +816,5 @@ const ColLine = styled.polyline`
 `;
 
 export const ConnectedPositionedKeyboard = connect(mapStateToProps, {
-  updateSelectedKey: actions.updateSelectedKey
+  updateSelectedKey: actions.updateSelectedKey,
 })(PositionedKeyboard);

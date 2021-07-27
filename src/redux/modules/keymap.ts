@@ -1,4 +1,4 @@
-import {ThunkAction} from 'redux-thunk';
+import type {ThunkAction} from 'redux-thunk';
 import {createSelector} from 'reselect';
 import {
   ActionType,
@@ -11,7 +11,7 @@ import {
   VIADefinitionV2,
 } from 'via-reader';
 
-import {Device, KeyboardDictionary} from '../../types';
+import type {Device, KeyboardDictionary} from '../../types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -173,29 +173,31 @@ export const updateLayoutOption = (
   return async (dispatch, getState) => {
     const state = getState().keymap;
     const {labels} = getSelectedDefinition(state).layouts;
-    const optionsNums = labels.map((layoutLabel) =>
-      Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
-    );
-    const api = getSelectedAPI(state);
-    const options = [...getSelectedLayoutOptions(state)];
-    options[index] = val;
+    if (labels) {
+      const optionsNums = labels.map((layoutLabel) =>
+        Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
+      );
+      const api = getSelectedAPI(state);
+      const options = [...getSelectedLayoutOptions(state)];
+      options[index] = val;
 
-    const bytes = numIntoBytes(
-      packBits(options.map((option, idx) => [option, optionsNums[idx]])),
-    );
+      const bytes = numIntoBytes(
+        packBits(options.map((option, idx) => [option, optionsNums[idx]])),
+      );
 
-    try {
-      await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
-    } catch {
-      console.warn('Setting layout option command not working');
+      try {
+        await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
+      } catch {
+        console.warn('Setting layout option command not working');
+      }
+
+      // Save Layout Options here
+      dispatch(
+        actions.updateLayoutOptions({
+          [path]: options,
+        }),
+      );
     }
-
-    // Save Layout Options here
-    dispatch(
-      actions.updateLayoutOptions({
-        [path]: options,
-      }),
-    );
   };
 };
 
@@ -204,7 +206,7 @@ export const updateLayoutOption = (
 export const reloadConnectedDevices = (): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
-    const selectedPath = getSelectedDevicePath(state);
+    const selectedPath = getSelectedDevicePath(state) as string;
     const devices = await getDevicesUsingDefinitions(getDefinitions(state));
     const protocolVersions = await Promise.all(
       devices.map((device) => new KeyboardAPI(device).getProtocolVersion()),
@@ -318,7 +320,7 @@ export const updateCustomColor = (
   return async (dispatch, getState) => {
     const state = getState().keymap;
     const oldLightingData = getSelectedLightingData(state);
-    const customColors = [...oldLightingData.customColors];
+    const customColors = [...(oldLightingData.customColors as HIDColor[])];
     customColors[idx] = {hue, sat};
     const lightingData = {
       ...oldLightingData,
@@ -355,7 +357,7 @@ const commandParamLengths = {
   [LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED]: 1,
 };
 
-const extractCommands = (menuOrControls) =>
+const extractCommands = (menuOrControls: any) =>
   'type' in menuOrControls
     ? [menuOrControls.content]
     : 'content' in menuOrControls
@@ -424,7 +426,10 @@ export const updateLightingData = (device: Device): ThunkResult => {
 
       const commandPromises = supportedLightingValues.map((command) => ({
         command,
-        promise: api.getBacklightValue(+command, commandParamLengths[command]),
+        promise: api.getBacklightValue(
+          +command,
+          commandParamLengths[command as keyof typeof commandParamLengths],
+        ),
       }));
       const commandPromisesRes = await Promise.all(
         commandPromises.map((c) => c.promise),
@@ -493,12 +498,12 @@ export const loadLayoutOptions = (): ThunkResult => {
     const {labels} = getSelectedDefinition(state).layouts;
     if (labels) {
       const api = getSelectedAPI(state);
-      const path = getSelectedDevicePath(state);
+      const path = getSelectedDevicePath(state) as string;
       try {
         const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
         const options = unpackBits(
           bytesIntoNum(res),
-          labels.map((layoutLabel) =>
+          labels.map((layoutLabel: string[] | string) =>
             Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
           ),
         );
@@ -518,7 +523,7 @@ export const loadLayoutOptions = (): ThunkResult => {
 export type State = {
   rawDeviceMap: Readonly<DeviceMap>;
   selectedDevicePath: string | null;
-  selectedVendorProductId: number;
+  selectedVendorProductId: number | null;
   selectedLayerIndex: number;
   numberOfLayers: number;
   connectedDevices: ConnectedDevices;
@@ -613,7 +618,7 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
     layoutOptionsMap: {
       ...state.layoutOptionsMap,
       ...action.payload,
-    },
+    } as any,
   }))
   .handleAction(actions.updateLighting, (state, action) => ({
     ...state,
@@ -656,14 +661,14 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
     ...state,
     customMenuDataMap: {
       ...state.customMenuDataMap,
-      [state.selectedDevicePath]: action.payload,
+      [state.selectedDevicePath as string]: action.payload,
     },
   }))
   .handleAction(actions.updateSelectedLightingData, (state, action) => ({
     ...state,
     lightingMap: {
       ...state.lightingMap,
-      [state.selectedDevicePath]: action.payload,
+      [state.selectedDevicePath as string]: action.payload,
     },
   }))
   .handleAction(actions.setLayer, (state, action) => {
@@ -699,17 +704,17 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
   .handleAction(actions.setKey, (state, action) => {
     const {keyIndex, value} = action.payload;
     const {selectedVendorProductId} = state;
-    const keymap = [...getSelectedRawLayer(state).keymap];
+    const keymap = [...(getSelectedRawLayer(state) as any).keymap];
     const {selectedLayerIndex} = state;
     const rawDeviceLayers = getSelectedRawLayers(state);
     const definitions = getDefinitions(state);
     const keys = getSelectedKeyDefinitions(state);
-    const definition = definitions[selectedVendorProductId];
+    const definition = definitions[selectedVendorProductId as number];
     const {
       matrix: {cols},
     } = definition;
     const {row, col} = keys[keyIndex];
-    const newRawLayers = [...rawDeviceLayers];
+    const newRawLayers = [...(rawDeviceLayers as Layer[])];
     keymap[row * cols + col] = value;
     newRawLayers[selectedLayerIndex] = {
       ...newRawLayers[selectedLayerIndex],
@@ -720,7 +725,7 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
       ...state,
       rawDeviceMap: {
         ...state.rawDeviceMap,
-        [state.selectedDevicePath]: newRawLayers,
+        [state.selectedDevicePath as string]: newRawLayers,
       },
     };
   })
@@ -745,15 +750,15 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
     ...state,
     rawDeviceMap: {
       ...state.rawDeviceMap,
-      [state.selectedDevicePath]: action.payload,
+      [state.selectedDevicePath as string]: action.payload,
     },
   }))
   .handleAction(actions.validateDevices, (state, action) => {
     // Filter current device data based on current connected devices
     const validatedDevices = action.payload.reduce(
       (acc, {path}) => {
-        acc.rawDeviceMap[path] = state.rawDeviceMap[path];
-        acc.lightingMap[path] = state.lightingMap[path];
+        (acc.rawDeviceMap as any)[path] = state.rawDeviceMap[path];
+        (acc.lightingMap as any)[path] = state.lightingMap[path];
         return acc;
       },
       {lightingMap: {}, rawDeviceMap: {}},
@@ -783,8 +788,9 @@ export const getCustomMenuDataMap = (state: State) => state.customMenuDataMap;
 export const getLightingMap = (state: State) => state.lightingMap;
 export const getNumberOfLayers = (state: State) => state.numberOfLayers;
 export const getSelectedVendorProductId = (state: State) =>
-  state.selectedVendorProductId;
-export const getSelectedDevicePath = (state: State) => state.selectedDevicePath;
+  state.selectedVendorProductId as number;
+export const getSelectedDevicePath = (state: State) =>
+  state.selectedDevicePath as string;
 export const getSelectedLayerIndex = (state: State) => state.selectedLayerIndex;
 
 export const getDefinitions = createSelector(
@@ -795,7 +801,7 @@ export const getDefinitions = createSelector(
 export const getSelectedConnectedDevice = createSelector(
   getConnectedDevices,
   getSelectedDevicePath,
-  (devices, path) => devices[path] && devices[path],
+  (devices, path) => devices[path as string] && devices[path],
 );
 export const getSelectedDevice = createSelector(
   getConnectedDevices,
@@ -838,7 +844,7 @@ export const getCustomMenus = createSelector(
       return [];
     }
 
-    const compileMenu = (partial, depth = 0, val, idx) =>
+    const compileMenu = (partial: string, depth = 0, val: any, idx: number) =>
       depth === 0
         ? val
         : {
@@ -846,7 +852,7 @@ export const getCustomMenus = createSelector(
             _id: `${partial}_${idx}`,
             content:
               val.label !== undefined
-                ? val.content.map((contentVal, contentIdx: number) =>
+                ? val.content.map((contentVal: any, contentIdx: number) =>
                     compileMenu(
                       `${partial}_${contentIdx}`,
                       depth - 1,
@@ -854,7 +860,7 @@ export const getCustomMenus = createSelector(
                       idx,
                     ),
                   )
-                : val.content.map((contentVal, contentIdx: number) =>
+                : val.content.map((contentVal: any, contentIdx: number) =>
                     compileMenu(
                       `${partial}_${contentIdx}`,
                       depth,
