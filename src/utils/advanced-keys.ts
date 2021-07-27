@@ -130,22 +130,25 @@ export const advancedStringToKeycode = (inputString: string): number => {
   return 0;
 };
 
-export const advancedKeycodeToString = (inputKeycode: number): string => {
+export const advancedKeycodeToString = (
+  inputKeycode: number,
+): string | null => {
   /* Find the range we are in first */
   let lastRange = null;
-  let lastValue;
+  let lastValue: number = -1;
   for (let [value, rangeName] of valueToRange) {
     if (inputKeycode < value) {
       break;
     }
     lastRange = rangeName;
-    lastValue = value;
+    lastValue = +value;
   }
   const topLevelModKeys = ['QK_MODS', 'QK_RMODS_MIN'];
-  if (topLevelModKeys.includes(lastRange)) {
+  if (topLevelModKeys.includes(lastRange as string)) {
     return topLevelModToString(inputKeycode);
   }
-  let humanReadable = topLevelValueToMacro[lastValue] + '(';
+  let humanReadable: string | null =
+    (topLevelValueToMacro as any)[lastValue] + '(';
   let remainder = inputKeycode & ~lastValue;
   let layer = 0;
   let keycode = '';
@@ -282,7 +285,10 @@ const parseMods = (input: string): number => {
   ) {
     return 0;
   }
-  return parts.reduce((acc, part) => acc | modMasks[part], 0);
+  return parts.reduce(
+    (acc, part) => acc | modMasks[part as keyof typeof modMasks],
+    0,
+  );
 };
 
 const parseModifierCode = (inputParts: string[]): number => {
@@ -294,7 +300,7 @@ const parseModifierCode = (inputParts: string[]): number => {
     } else {
       /* This must be a top level modifier */
       return modifierKeyToValue.hasOwnProperty(part)
-        ? modifierKeyToValue[part]
+        ? modifierKeyToValue[part as keyof typeof modifierKeyToValue]
         : null;
     }
   });
