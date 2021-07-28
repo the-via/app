@@ -9,14 +9,14 @@ import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
 import Layouts from '../Layouts';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faUpload} from '@fortawesome/free-solid-svg-icons';
 import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
-  isKeyboardDefinitionV2
+  isKeyboardDefinitionV2,
 } from 'via-reader';
-import type {
-  VIADefinitionV2
-} from 'via-reader';
+import type {VIADefinitionV2} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   getDefinitions,
@@ -25,7 +25,7 @@ import {
   getSelectedAPI,
   getConnectedDevices,
   reloadConnectedDevices,
-  actions
+  actions,
 } from '../../redux/modules/keymap';
 import type {RootState} from '../../redux';
 import {
@@ -35,25 +35,25 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  FlexCell
+  FlexCell,
 } from './grid';
 import {
   getDevicesUsingDefinitions,
-  getVendorProductId
+  getVendorProductId,
 } from '../../utils/hid-keyboards';
 
 type Props = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = (dispatch) =>
   bindActionCreators(
     {
       loadDefinition: actions.loadDefinition,
       validateDevices: actions.validateDevices,
       selectDevice: actions.selectDevice,
-      reloadConnectedDevices
+      reloadConnectedDevices,
     },
-    dispatch
+    dispatch,
   );
 
 const mapStateToProps = ({keymap}: RootState) => ({
@@ -61,7 +61,7 @@ const mapStateToProps = ({keymap}: RootState) => ({
   connectedDevices: getConnectedDevices(keymap),
   allDefinitions: getDefinitions(keymap),
   remoteDefinitions: Object.entries(getBaseDefinitions(keymap)),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap))
+  localDefinitions: Object.entries(getCustomDefinitions(keymap)),
 });
 
 const DesignErrorMessage = styled(ErrorMessage)`
@@ -97,8 +97,9 @@ const UploadIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  i {
+  svg {
     color: transparent;
+    stroke-width: 8px;
     animation-duration: 1.5s;
     animation-name: text-glow;
     animation-iteration-count: infinite;
@@ -111,7 +112,7 @@ const UploadIcon = styled.div`
 function importDefinition(
   props: Props,
   file: File,
-  setErrors: (errors: string[]) => void
+  setErrors: (errors: string[]) => void,
 ) {
   const reader = new FileReader();
   reader.onload = async () => {
@@ -125,21 +126,23 @@ function importDefinition(
           ? res
           : keyboardDefinitionV2ToVIADefinitionV2(res);
         props.loadDefinition(definition);
-        const keyboards = await getDevicesUsingDefinitions(props.allDefinitions);
+        const keyboards = await getDevicesUsingDefinitions(
+          props.allDefinitions,
+        );
         props.validateDevices(
           keyboards.filter(
-            device =>
+            (device) =>
               res.vendorProductId !==
-              getVendorProductId(device.vendorId, device.productId)
-          )
+              getVendorProductId(device.vendorId, device.productId),
+          ),
         );
         props.selectDevice(null);
         props.reloadConnectedDevices();
       } else {
         setErrors(
           (isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []).map(
-            e => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`
-          )
+            (e) => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
+          ),
         );
       }
     } catch (err) {
@@ -148,7 +151,11 @@ function importDefinition(
   };
   reader.readAsBinaryString(file);
 }
-function onDrop(evt: React.DragEvent<HTMLElement>, props: Props, setErrors: (errors: string[]) => void) {
+function onDrop(
+  evt: React.DragEvent<HTMLElement>,
+  props: Props,
+  setErrors: (errors: string[]) => void,
+) {
   evt.preventDefault();
   const {dataTransfer} = evt;
   if (dataTransfer?.items) {
@@ -160,8 +167,8 @@ function onDrop(evt: React.DragEvent<HTMLElement>, props: Props, setErrors: (err
         dataTransfer.items[i].type === 'application/json'
       ) {
         var file = dataTransfer.items[i].getAsFile();
-        if (file){
-        importDefinition(props, file, setErrors);
+        if (file) {
+          importDefinition(props, file, setErrors);
         }
       }
     }
@@ -172,35 +179,37 @@ function DesignTab(props: Props) {
   const {localDefinitions} = props;
   const [selectedDefinitionIndex, setSelectedDefinition] = React.useState(0);
   const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
-    []
+    [],
   );
   const [showMatrix, setShowMatrix] = React.useState(false);
   const [errors, setErrors] = React.useState<string[]>([]);
   const [dimensions, setDimensions] = React.useState({
     width: 1280,
-    height: 900
+    height: 900,
   });
 
-  const options = localDefinitions.map(([, definition]: [string, VIADefinitionV2], index: number) => ({
-    label: definition.name,
-    value: index
-  }));
+  const options = localDefinitions.map(
+    ([, definition]: [string, VIADefinitionV2], index: number) => ({
+      label: definition.name,
+      value: index,
+    }),
+  );
 
   const flexRef = React.useRef(null);
   useResize(
     flexRef,
-    entry =>
+    (entry) =>
       flexRef.current &&
       setDimensions({
         width: entry.width,
-        height: entry.height
-      })
+        height: entry.height,
+      }),
   );
   const entry = localDefinitions[selectedDefinitionIndex];
 
   return (
     <DesignPane
-      onDragOver={evt => {
+      onDragOver={(evt) => {
         evt.dataTransfer.effectAllowed = 'copyMove';
         evt.dataTransfer.dropEffect = 'none';
         evt.preventDefault();
@@ -217,15 +226,15 @@ function DesignTab(props: Props) {
           />
         ) : (
           <UploadIcon
-            onDrop={evt => onDrop(evt, props, setErrors)}
-            onDragOver={evt => {
+            onDrop={(evt) => onDrop(evt, props, setErrors)}
+            onDragOver={(evt) => {
               evt.dataTransfer.effectAllowed = 'copyMove';
               evt.dataTransfer.dropEffect = 'copy';
               evt.preventDefault();
               evt.stopPropagation();
             }}
           >
-            <i className="fas fa-upload"></i>
+            <FontAwesomeIcon icon={faUpload} />
           </UploadIcon>
         )}
       </FlexCell>
@@ -235,7 +244,7 @@ function DesignTab(props: Props) {
             <Label>Load Draft Definition</Label>
             <Detail>
               <AccentUploadButton
-                onLoad={file => importDefinition(props, file, setErrors)}
+                onLoad={(file) => importDefinition(props, file, setErrors)}
               >
                 Load
               </AccentUploadButton>
@@ -246,13 +255,13 @@ function DesignTab(props: Props) {
               <Label>Shown Keyboard Definition</Label>
               <Detail>
                 <AccentSelect
-                  onChange={option => {
+                  onChange={(option) => {
                     // Reset selected layouts when choosing a different
                     // definition
                     setSelectedOptionKeys(() => []);
 
                     if (option) {
-                    setSelectedDefinition(+option.value);
+                      setSelectedDefinition(+option.value);
                     }
                   }}
                   value={options[selectedDefinitionIndex]}
@@ -264,7 +273,7 @@ function DesignTab(props: Props) {
           {entry && (
             <Layouts
               definition={entry[1]}
-              onLayoutChange={newSelectedOptionKeys => {
+              onLayoutChange={(newSelectedOptionKeys) => {
                 setSelectedOptionKeys(newSelectedOptionKeys);
               }}
             />
@@ -277,7 +286,7 @@ function DesignTab(props: Props) {
               </Detail>
             </ControlRow>
           )}
-          {errors.map(error => (
+          {errors.map((error) => (
             <IndentedControlRow>
               <DesignErrorMessage>{error}</DesignErrorMessage>
             </IndentedControlRow>
@@ -288,18 +297,19 @@ function DesignTab(props: Props) {
               {Object.values(localDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {(Object.values(localDefinitions) as [string, VIADefinitionV2][]).map(([id, definition]) => {
-            return (
-            <IndentedControlRow>
-              <SubLabel>{definition.name}</SubLabel>
-              <Detail>
-                0x
-                {parseInt(id)
-                  .toString(16)
-                  .toUpperCase()}
-              </Detail>
-            </IndentedControlRow>);
-          })}
+          {(Object.values(localDefinitions) as [string, VIADefinitionV2][]).map(
+            ([id, definition]) => {
+              return (
+                <IndentedControlRow>
+                  <SubLabel>{definition.name}</SubLabel>
+                  <Detail>
+                    0x
+                    {parseInt(id).toString(16).toUpperCase()}
+                  </Detail>
+                </IndentedControlRow>
+              );
+            },
+          )}
         </Container>
       </OverflowCell>
     </DesignPane>
