@@ -3,7 +3,7 @@ import {Component} from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import {connect} from 'react-redux';
-import {RootState} from '../../../../../redux';
+import type {RootState} from '../../../../../redux';
 import {getSelectedAPI} from '../../../../../redux/modules/keymap';
 import {
   getEncoderModes,
@@ -13,14 +13,14 @@ import {
   getOLEDMode,
   setOLEDMode,
   getCustomEncoderConfig,
-  setCustomEncoderConfig
+  setCustomEncoderConfig,
 } from './api';
 import {EncoderModeToggle} from './encoder-mode-toggle';
 import {EncoderCustomConfig} from './encoder-custom-config';
-import {KeyboardAPI} from '../../../../../utils/keyboard-api';
+import type {KeyboardAPI} from '../../../../../utils/keyboard-api';
 
 const mapStateToProps = ({keymap, macros}: RootState) => ({
-  api: getSelectedAPI(keymap)
+  api: getSelectedAPI(keymap),
 });
 
 type EnabledEncoderModes = number;
@@ -70,7 +70,7 @@ const LabelText = styled.span`
 const OLED_OPTIONS = [
   {value: 0, label: 'Default'},
   {value: 1, label: 'Time'},
-  {value: 2, label: 'Off'}
+  {value: 2, label: 'Off'},
 ];
 
 type State = {
@@ -81,15 +81,16 @@ type State = {
 };
 
 export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      enabledModes: 0x1f,
-      defaultOLEDMode: 0,
-      currOLEDMode: 0,
-      encoderBehaviors: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    };
-  }
+  state = {
+    enabledModes: 0x1f,
+    defaultOLEDMode: 0,
+    currOLEDMode: 0,
+    encoderBehaviors: [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ] as EncoderBehavior[],
+  };
 
   componentDidMount() {
     this.fetchDataAndSet();
@@ -103,7 +104,7 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
       getOLEDMode(api),
       getCustomEncoderConfig(api, 0),
       getCustomEncoderConfig(api, 1),
-      getCustomEncoderConfig(api, 2)
+      getCustomEncoderConfig(api, 2),
     ];
     const [
       enabledModes,
@@ -111,13 +112,13 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
       currOLEDMode,
       encoder0,
       encoder1,
-      encoder2
+      encoder2,
     ] = await Promise.all(promises);
     this.setState({
       enabledModes,
       defaultOLEDMode,
       currOLEDMode,
-      encoderBehaviors: [encoder0, encoder1, encoder2]
+      encoderBehaviors: [encoder0, encoder1, encoder2],
     });
   };
 
@@ -130,7 +131,11 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
     }
   };
 
-  onEncoderCustomConfigChange = (encoderIdx, behavior, newValue) => {
+  onEncoderCustomConfigChange = (
+    encoderIdx: number,
+    behavior: number,
+    newValue: number,
+  ) => {
     const {api} = this.props;
     const newBehaviors = [...this.state.encoderBehaviors];
     newBehaviors[encoderIdx][behavior] = newValue;
@@ -160,12 +165,8 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
 
   render() {
     const {api} = this.props;
-    const {
-      enabledModes,
-      defaultOLEDMode,
-      currOLEDMode,
-      encoderBehaviors
-    } = this.state;
+    const {enabledModes, defaultOLEDMode, currOLEDMode, encoderBehaviors} =
+      this.state;
     if (api) {
       return (
         <MenuContainer>
@@ -183,8 +184,8 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
             </p>
             <OLEDSelectContainer>
               <Select
-                value={OLED_OPTIONS.find(e => e.value === defaultOLEDMode)}
-                onChange={this.onOLEDDefaultChange}
+                value={OLED_OPTIONS.find((e) => e.value === defaultOLEDMode)}
+                onChange={this.onOLEDDefaultChange as any}
                 options={OLED_OPTIONS}
               />
             </OLEDSelectContainer>
@@ -192,8 +193,8 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
             <p>Change your {"keyboard's"} current OLED mode</p>
             <OLEDSelectContainer>
               <Select
-                value={OLED_OPTIONS.find(e => e.value === currOLEDMode)}
-                onChange={this.onOLEDChange}
+                value={OLED_OPTIONS.find((e) => e.value === currOLEDMode)}
+                onChange={this.onOLEDChange as any}
                 options={OLED_OPTIONS}
                 menuPlacement="top"
               />

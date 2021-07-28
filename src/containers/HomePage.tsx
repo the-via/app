@@ -1,9 +1,5 @@
 import * as React from 'react';
-import {Component} from 'react';
 import {Home} from '../components/Home';
+import type {Props} from '../components/Home';
 
-export default class HomePage extends Component {
-  render() {
-    return <Home>{this.props.children}</Home>;
-  }
-}
+export const HomePage: React.FC<Props> = (props) => <Home {...props} />;

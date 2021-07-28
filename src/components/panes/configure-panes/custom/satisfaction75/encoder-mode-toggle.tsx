@@ -9,7 +9,7 @@ const MODES = {
   ENC_MODE_BACKLIGHT: 4,
   ENC_MODE_CUSTOM0: 5,
   ENC_MODE_CUSTOM1: 6,
-  ENC_MODE_CUSTOM2: 7
+  ENC_MODE_CUSTOM2: 7,
 };
 
 const MODE_LABELS = {
@@ -20,7 +20,7 @@ const MODE_LABELS = {
   ENC_MODE_BACKLIGHT: 'Backlight',
   ENC_MODE_CUSTOM0: 'Custom 0',
   ENC_MODE_CUSTOM1: 'Custom 1',
-  ENC_MODE_CUSTOM2: 'Custom 2'
+  ENC_MODE_CUSTOM2: 'Custom 2',
 };
 
 const CenteredColumnDiv = styled.div`
@@ -40,13 +40,13 @@ type Props = {
 };
 
 export class EncoderModeToggle extends React.Component<Props> {
-  handleInputChange = event => {
+  handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const {enabledModes, onChange} = this.props;
     const {
-      target: {checked: value, name}
+      target: {checked: value, name},
     } = event;
     /* eslint-disable no-bitwise */
-    const flagBit = 1 << MODES[name];
+    const flagBit = 1 << MODES[name as keyof typeof MODES];
     const newEnabledModes = value
       ? enabledModes | flagBit
       : enabledModes & ~flagBit;
@@ -64,16 +64,19 @@ export class EncoderModeToggle extends React.Component<Props> {
         <p>Only the selected encoder modes will be available on the keyboard</p>
         <ColumnDiv>
           {Object.entries(MODES).map(([key, value]) => (
-            <label key={value} htmlFor={MODE_LABELS[key]}>
+            <label
+              key={value}
+              htmlFor={MODE_LABELS[key as keyof typeof MODE_LABELS]}
+            >
               <input
                 name={key}
-                id={MODE_LABELS[key]}
+                id={MODE_LABELS[key as keyof typeof MODE_LABELS]}
                 type="checkbox"
                 checked={this.isChecked(value)}
                 onChange={this.handleInputChange}
                 key={value}
               />
-              {MODE_LABELS[key]}
+              {MODE_LABELS[key as keyof typeof MODE_LABELS]}
             </label>
           ))}
         </ColumnDiv>

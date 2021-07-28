@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {HashRouter as Router, Switch, Route} from 'react-router-dom';
 import UnconnectedGlobalMenu from './components/menus/global';
+import {HashRouter as Router, Switch, Route} from 'react-router-dom';
 import PANES from './utils/pane-config';
-import HomePage from './containers/HomePage';
+import {HomePage} from './containers/HomePage';
 
 export default () => {
   const RouteComponents = PANES.map((pane) => {

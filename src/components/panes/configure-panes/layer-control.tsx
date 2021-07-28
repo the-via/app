@@ -2,17 +2,17 @@ import * as React from 'react';
 import styled from 'styled-components';
 import {
   getSelectedLayerIndex,
-  getNumberOfLayers
+  getNumberOfLayers,
 } from '../../../redux/modules/keymap';
 import {actions} from '../../../redux/modules/keymap';
-import {RootState} from '../../../redux';
+import type {RootState} from '../../../redux';
 import {connect} from 'react-redux';
 
 type OwnProps = {};
 
 const mapStateToProps = (state: RootState) => ({
   numberOfLayers: getNumberOfLayers(state.keymap),
-  selectedLayerIndex: getSelectedLayerIndex(state.keymap)
+  selectedLayerIndex: getSelectedLayerIndex(state.keymap),
 });
 
 const mapDispatchToProps = {setLayer: actions.setLayer};
@@ -28,21 +28,21 @@ const Label = styled.label`
   color: var(--color_light-grey);
   margin-right: 8px;
 `;
-const LayerButton = styled.button`
+const LayerButton = styled.button<{selected?: boolean}>`
   outline: none;
   font-variant-numeric: tabular-nums;
   border: none;
-  background: ${props =>
+  background: ${(props) =>
     props.selected ? 'var(--color_light-grey)' : 'transparent'};
-  color: ${props =>
+  color: ${(props) =>
     props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
   cursor: pointer;
   font-size: 20px;
   &:hover {
     border: none;
-    background: ${props =>
+    background: ${(props) =>
       props.selected ? 'var(--color_light-grey)' : 'var(--color_dark-grey)'};
-    color: ${props =>
+    color: ${(props) =>
       props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
   }
 `;
@@ -66,7 +66,7 @@ export class LayerControlComponent extends React.Component<Props> {
     const Layers = new Array(numberOfLayers)
       .fill(0)
       .map((val, idx) => idx)
-      .map(layerLabel => (
+      .map((layerLabel) => (
         <LayerButton
           key={layerLabel}
           selected={layerLabel === selectedLayerIndex}
@@ -86,5 +86,5 @@ export class LayerControlComponent extends React.Component<Props> {
 
 export const LayerControl = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(LayerControlComponent);

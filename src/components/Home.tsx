@@ -72,7 +72,7 @@ const mapDispatchToProps: MapDispatchToPropsFunction<
 type OwnProps = {
   children: React.ReactNode;
 };
-type Props = OwnProps &
+export type Props = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
