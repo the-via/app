@@ -13,7 +13,7 @@ import {
   getSelectedProtocol,
   getCustomMenus,
 } from '../../redux/modules/keymap';
-import * as ReactTooltip from 'react-tooltip';
+import ReactTooltip from 'react-tooltip';
 import {CustomFeatures, getLightingDefinition} from 'via-reader';
 import {ConnectedPositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
@@ -161,7 +161,7 @@ function ConfigureGrid(props: Props) {
           containerDimensions={dimensions}
           selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
         />
-        <ReactTooltip.default />
+        <ReactTooltip />
         <LayerControl />
         <Badge />
       </FlexCell>

@@ -29,12 +29,14 @@
     "reselect": "^4.0.0",
     "styled-components": "^5.3.0",
     "typesafe-actions": "^4.4.2",
-    "via-reader": "git://github.com/the-via/reader.git#953344d68096a875395a344b3bc36bb476fc0d8a"
+    "via-reader": "git://github.com/the-via/reader.git#d17fbe3c04a4df8231d0fbe524047a512fb72c9d"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
     "@snowpack/plugin-react-refresh": "^2.5.0",
+    "@snowpack/plugin-run-script": "^2.3.0",
     "@snowpack/plugin-typescript": "^1.2.1",
+    "@snowpack/plugin-webpack": "^3.0.0",
     "@snowpack/web-test-runner-plugin": "^0.2.2",
     "@testing-library/react": "^11.2.6",
     "@types/chai": "^4.2.17",
