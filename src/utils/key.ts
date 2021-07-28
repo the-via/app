@@ -3,7 +3,6 @@ import {
   advancedKeycodeToString,
   advancedStringToKeycode,
 } from './advanced-keys';
-import type {KeyboardEvent} from 'react';
 
 export interface IKeycode {
   name: string;

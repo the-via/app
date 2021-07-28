@@ -5,22 +5,28 @@ import {ControlRow, OverflowCell, Label, Detail} from '../grid';
 import {AccentSlider} from '../../inputs/accent-slider';
 import {AccentSelect} from '../../inputs/accent-select';
 import {CenterPane} from '../pane';
-import {connect} from 'react-redux';
-import {RootState} from '../../../redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
+import type {RootState} from '../../../redux';
 import {bindActionCreators} from 'redux';
 import {
   getSelectedDefinition,
   getSelectedDevicePath,
   getSelectedLayoutOptions,
-  updateLayoutOption
+  updateLayoutOption,
 } from '../../../redux/modules/keymap';
 
-const LayoutControl = props => {
+const LayoutControl: React.FC<{
+  onChange: (val: any) => void;
+  meta: {labels: string[]; selectedOption: number};
+}> = (props) => {
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
   if (Array.isArray(labels)) {
     const [label, ...optionLabels] = labels;
-    const options = optionLabels.map((label, idx) => ({label, value: idx}));
+    const options = optionLabels.map((label, idx) => ({
+      label,
+      value: `${idx}`,
+    }));
     return (
       <ControlRow>
         <Label>{label}</Label>
@@ -29,7 +35,11 @@ const LayoutControl = props => {
             width={150}
             defaultValue={options[selectedOption]}
             options={options}
-            onChange={option => onChange(option.value)}
+            onChange={(option) => {
+              if (option) {
+                onChange(+option.value);
+              }
+            }}
           />
         </Detail>
       </ControlRow>
@@ -41,7 +51,7 @@ const LayoutControl = props => {
         <Detail>
           <AccentSlider
             isChecked={!!selectedOption}
-            onChange={val => onChange(+val)}
+            onChange={(val) => onChange(+val)}
           />
         </Detail>
       </ControlRow>
@@ -66,11 +76,13 @@ const Container = styled.div`
 const mapStateToProps = (state: RootState) => ({
   selectedDefinition: getSelectedDefinition(state.keymap),
   selectedDevicePath: getSelectedDevicePath(state.keymap),
-  selectedLayoutOptions: getSelectedLayoutOptions(state.keymap)
+  selectedLayoutOptions: getSelectedLayoutOptions(state.keymap),
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({updateLayoutOption}, dispatch);
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) => bindActionCreators({updateLayoutOption}, dispatch);
 
 type Props = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
@@ -83,11 +95,11 @@ const LayoutPane = (props: Props) => {
     <OverflowCell>
       <ContainerPane>
         <Container>
-          {labels.map((label, idx) => (
+          {labels.map((label: string, idx: number) => (
             <LayoutControl
               {...props}
               key={label}
-              onChange={val =>
+              onChange={(val) =>
                 props.updateLayoutOption(props.selectedDevicePath, idx, val)
               }
               meta={{labels: label, selectedOption: options[idx]}}

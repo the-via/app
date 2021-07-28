@@ -7,28 +7,29 @@ import {
   updateCustomColor,
   getSelectedLightingData,
   updateBacklightValue,
-  getSelectedDefinition
+  getSelectedDefinition,
+  actions,
 } from '../../../redux/modules/keymap';
-import {connect} from 'react-redux';
-import {RootState} from '../../../redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
+import type {RootState} from '../../../redux';
 import {bindActionCreators} from 'redux';
 import {title, component} from '../../icons/lightbulb';
 import {GeneralPane} from './submenus/lighting/general';
 import {LayoutConfigValues, LayoutPane} from './submenus/lighting/layout';
 import {
   AdvancedLightingValues,
-  AdvancedPane
+  AdvancedPane,
 } from './submenus/lighting/advanced';
 import {
   LightingValue,
   VIADefinitionV2,
-  getLightingDefinition
+  getLightingDefinition,
 } from 'via-reader';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
   Layout: {label: 'Layout', Menu: LayoutPane},
-  Advanced: {label: 'Advanced', Menu: AdvancedPane}
+  Advanced: {label: 'Advanced', Menu: AdvancedPane},
 };
 
 type HIDColor = {
@@ -62,7 +63,7 @@ type ReduxProps = {
 type Props = ReduxProps & OwnProps;
 
 type State = {
-  selectedCategory: {label: string; Menu: (props: Props) => JSX.Element};
+  selectedCategory: {label: string; Menu: React.FC<Props>};
 };
 
 const MenuContainer = styled.div`
@@ -70,14 +71,11 @@ const MenuContainer = styled.div`
 `;
 
 export class LightingMenu extends Component<Props, State> {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedCategory: Category.General
-    };
-  }
+  state = {
+    selectedCategory: Category.General,
+  };
 
-  renderSelectedCategory(category) {
+  renderSelectedCategory(category: typeof Category[keyof typeof Category]) {
     const {lightingData} = this.props;
 
     if (lightingData) {
@@ -93,22 +91,22 @@ export class LightingMenu extends Component<Props, State> {
     const {selectedDefinition} = this.props;
 
     const hasLayouts = LayoutConfigValues.some(
-      value =>
+      (value) =>
         getLightingDefinition(
-          selectedDefinition.lighting
-        ).supportedLightingValues.indexOf(value) !== -1
+          selectedDefinition.lighting,
+        ).supportedLightingValues.indexOf(value) !== -1,
     );
     const hasAdvanced = AdvancedLightingValues.some(
-      value =>
+      (value) =>
         getLightingDefinition(
-          selectedDefinition.lighting
-        ).supportedLightingValues.indexOf(value) !== -1
+          selectedDefinition.lighting,
+        ).supportedLightingValues.indexOf(value) !== -1,
     );
 
     return [
       Category.General,
       ...(hasLayouts ? [Category.Layout] : []),
-      ...(hasAdvanced ? [Category.Advanced] : [])
+      ...(hasAdvanced ? [Category.Advanced] : []),
     ];
   }
 
@@ -118,10 +116,10 @@ export class LightingMenu extends Component<Props, State> {
       <>
         <SubmenuCell>
           <MenuContainer>
-            {this.menus.map(menu => (
+            {this.menus.map((menu) => (
               <SubmenuRow
                 selected={this.state.selectedCategory === menu}
-                onClick={_ => this.setState({selectedCategory: menu})}
+                onClick={(_) => this.setState({selectedCategory: menu})}
                 key={menu.label}
               >
                 {menu.label}
@@ -143,16 +141,19 @@ export class LightingMenu extends Component<Props, State> {
 
 const mapStateToProps = (state: RootState) => ({
   selectedDefinition: getSelectedDefinition(state.keymap),
-  lightingData: getSelectedLightingData(state.keymap)
+  lightingData: getSelectedLightingData(state.keymap),
 });
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) =>
   bindActionCreators(
     {
       updateCustomColor,
-      updateBacklightValue
+      updateBacklightValue,
     },
-    dispatch
+    dispatch,
   );
 
 export const Icon = component;

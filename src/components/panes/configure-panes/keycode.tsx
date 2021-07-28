@@ -11,11 +11,11 @@ import {
   getKeycodes,
   getOtherMenu,
   IKeycode,
-  IKeycodeMenu
+  IKeycodeMenu,
 } from '../../../utils/key';
 import {ErrorMessage} from '../../styled';
-import {RootState} from '../../../redux';
-import {connect} from 'react-redux';
+import type {RootState} from '../../../redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {saveMacros} from '../../../redux/modules/macros';
 import {
   getSelectedKeymap,
@@ -24,7 +24,7 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
   updateKey,
-  actions
+  actions,
 } from '../../../redux/modules/keymap';
 import {bindActionCreators} from 'redux';
 import {KeycodeType, getLightingDefinition} from 'via-reader';
@@ -101,9 +101,10 @@ const Link = styled.a`
 
 const KeycodeCategories = getKeycodes()
   .concat(getOtherMenu())
-  .filter(menu => !['Other', 'Mod+_'].includes(menu.label));
+  .filter((menu) => !['Other', 'Mod+_'].includes(menu.label));
 
-const maybeFilter = (maybe, filter) => (maybe ? () => true : filter);
+const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
+  maybe ? () => true : filter;
 
 type OwnProps = {};
 
@@ -114,50 +115,49 @@ const mapStateToProps = ({keymap, macros, settings}: RootState) => ({
   selectedKeyboard: getSelectedDevice(keymap),
   selectedKey: getSelectedKey(keymap),
   matrixKeycodes: getSelectedKeymap(keymap),
-  macros
+  macros,
 });
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) =>
   bindActionCreators(
     {
       updateKey,
       updateSelectedKey: actions.updateSelectedKey,
       saveMacros: saveMacros,
       allowGlobalHotKeys: actions.allowGlobalHotKeys,
-      disableGlobalHotKeys: actions.disableGlobalHotKeys
+      disableGlobalHotKeys: actions.disableGlobalHotKeys,
     },
-    dispatch
+    dispatch,
   );
 
 type Props = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-type ComponentState = {
+type State = {
   selectedCategory: string;
-  mouseOverDesc: string;
+  mouseOverDesc: string | null;
   barrelRoll: boolean;
   showKeyTextInputModal: boolean;
   textKeyValue: number;
 };
 
-class KeycodeMenuComponent extends Component<Props, ComponentState> {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      selectedCategory: KeycodeCategories[0].label,
-      mouseOverDesc: null,
-      barrelRoll: false,
-      showKeyTextInputModal: false,
-      textKeyValue: 0
-    };
-  }
+class KeycodeMenuComponent extends Component<Props, State> {
+  state = {
+    selectedCategory: KeycodeCategories[0].label,
+    mouseOverDesc: null,
+    barrelRoll: false,
+    showKeyTextInputModal: false,
+    textKeyValue: 0,
+  };
 
   doABarrelRoll = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       ...prevState,
-      barrelRoll: true
+      barrelRoll: true,
     }));
   };
 
@@ -168,27 +168,27 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
     return KeycodeCategories.filter(
       maybeFilter(
         keycodes === KeycodeType.QMK,
-        ({label}) => label !== 'QMK Lighting'
-      )
+        ({label}) => label !== 'QMK Lighting',
+      ),
     )
       .filter(
         maybeFilter(
           keycodes === KeycodeType.WT,
-          ({label}) => label !== 'Lighting'
-        )
+          ({label}) => label !== 'Lighting',
+        ),
       )
       .filter(
         maybeFilter(
           typeof customKeycodes !== 'undefined',
-          ({label}) => label !== 'Custom'
-        )
+          ({label}) => label !== 'Custom',
+        ),
       );
   }
 
   saveMacro = (id: number, macro: string) => {
     const {selectedKeyboard, macros, saveMacros} = this.props;
-    const newMacros = macros.expressions.map((oldMacro, i) =>
-      i === id ? macro : oldMacro
+    const newMacros = (macros.expressions as string[]).map((oldMacro, i) =>
+      i === id ? macro : oldMacro,
     );
 
     saveMacros(selectedKeyboard, newMacros);
@@ -216,7 +216,7 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
         {this.enabledMenus.map(({label}) => (
           <SubmenuRow
             selected={label === selectedCategory}
-            onClick={_ => this.setState({selectedCategory: label})}
+            onClick={(_) => this.setState({selectedCategory: label})}
             key={label}
           >
             {label}
@@ -232,7 +232,7 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
     return (
       <KeycodeModal
         defaultValue={this.props.matrixKeycodes[this.props.selectedKey]}
-        onChange={value => this.setState({textKeyValue: value})}
+        onChange={(value) => this.setState({textKeyValue: value})}
         onExit={() => {
           this.props.allowGlobalHotKeys();
           this.setState({showKeyTextInputModal: false});
@@ -252,12 +252,12 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
       displayedKeys,
       selectedKey,
       updateSelectedKey,
-      updateKey
+      updateKey,
     } = this.props;
     if (selectedKey !== null) {
       updateKey(selectedKey, value);
       updateSelectedKey(
-        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys)
+        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys),
       );
     }
   };
@@ -276,21 +276,21 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
       <Keycode
         className={[
           !keycodeInMaster(code) && code != 'text' && styles.disabled,
-          styles.keycode
+          styles.keycode,
         ].join(' ')}
         key={code}
         onClick={() => this.handleClick(code, index)}
-        onMouseOver={_ => {
+        onMouseOver={(_) => {
           this.setState({
-            mouseOverDesc: title ? `${code}: ${title}` : code
+            mouseOverDesc: title ? `${code}: ${title}` : code,
           });
         }}
-        onMouseOut={_ => this.setState({mouseOverDesc: null})}
+        onMouseOut={(_) => this.setState({mouseOverDesc: null})}
       >
         <div className={styles.innerKeycode}>
           {this.state.barrelRoll && index < 11 ? (
             <img
-              src={require(`../../../images/_${index}.gif`)}
+              src={`../../../images/_${index}.gif`}
               style={{width: '100%'}}
             />
           ) : (
@@ -307,12 +307,12 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
         onClick={() =>
           this.props.selectedKey !== null && this.handleClick('text', 0)
         }
-        onMouseOver={_ => {
+        onMouseOver={(_) => {
           this.setState({
-            mouseOverDesc: `Enter any QMK Keycode`
+            mouseOverDesc: `Enter any QMK Keycode`,
           });
         }}
-        onMouseOut={_ => this.setState({mouseOverDesc: null})}
+        onMouseOut={(_) => this.setState({mouseOverDesc: null})}
       >
         Any
       </CustomKeycode>
@@ -321,7 +321,7 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
 
   renderSelectedCategory(keycodes: IKeycode[], selectedCategory: string) {
     const keycodeListItems = keycodes.map((keycode, i) =>
-      this.renderKeycode(keycode, i)
+      this.renderKeycode(keycode, i),
     );
     switch (selectedCategory) {
       case 'Macro': {
@@ -342,16 +342,16 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
         const {customKeycodes} = this.props.selectedDefinition;
         return (
           <KeycodeList>
-            {customKeycodes.map((keycode, idx) => {
+            {customKeycodes.map((keycode: IKeycode, idx: number) => {
               return this.renderKeycode(
                 {
                   ...keycode,
                   code: `USER${idx.toLocaleString('en-US', {
                     minimumIntegerDigits: 2,
-                    useGrouping: false
-                  })}`
+                    useGrouping: false,
+                  })}`,
                 },
-                idx
+                idx,
               );
             })}
           </KeycodeList>
@@ -365,9 +365,9 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
 
   render() {
     const {mouseOverDesc, showKeyTextInputModal} = this.state;
-    const selectedCategoryKeycodes: IKeycode[] = KeycodeCategories.find(
-      ({label}) => label === this.state.selectedCategory
-    ).keycodes;
+    const selectedCategoryKeycodes = KeycodeCategories.find(
+      ({label}) => label === this.state.selectedCategory,
+    )?.keycodes as IKeycode[];
 
     return (
       <>
@@ -376,7 +376,7 @@ class KeycodeMenuComponent extends Component<Props, ComponentState> {
           <KeycodeContainer>
             {this.renderSelectedCategory(
               selectedCategoryKeycodes,
-              this.state.selectedCategory
+              this.state.selectedCategory,
             )}
           </KeycodeContainer>
           <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
@@ -391,5 +391,5 @@ export const Icon = component;
 export const Title = title;
 export const Pane = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(KeycodeMenuComponent);

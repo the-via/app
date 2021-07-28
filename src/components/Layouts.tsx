@@ -1,23 +1,23 @@
 import * as React from 'react';
-import { VIADefinitionV2 } from 'via-reader';
-
 import {AccentSelect} from './inputs/accent-select';
 import {AccentSlider} from './inputs/accent-slider';
-
-import {
-  Detail,
-  IndentedControlRow,
-  Label,
-} from './panes/grid';
+import {Detail, IndentedControlRow, Label} from './panes/grid';
+import type {VIADefinitionV2} from 'via-reader';
 
 interface Props {
   definition: VIADefinitionV2;
   onLayoutChange: (newSelectedOptionKeys: number[]) => void;
-  RowComponent?: React.ComponentType
-};
+  RowComponent?: React.ComponentType;
+}
 
-function Layouts({ definition, onLayoutChange, RowComponent = IndentedControlRow }: Props): JSX.Element {
-  const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>([]);
+function Layouts({
+  definition,
+  onLayoutChange,
+  RowComponent = IndentedControlRow,
+}: Props): JSX.Element | null {
+  const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
+    [],
+  );
 
   React.useEffect(() => {
     setSelectedOptionKeys(() => []);
@@ -41,7 +41,7 @@ function Layouts({ definition, onLayoutChange, RowComponent = IndentedControlRow
 
       const selectElementOptions = options.map((option, optionIndex) => ({
         label: option,
-        value: optionKeys[optionIndex]
+        value: optionKeys[optionIndex],
       }));
 
       return (
@@ -50,47 +50,47 @@ function Layouts({ definition, onLayoutChange, RowComponent = IndentedControlRow
           <Detail>
             <AccentSelect
               onChange={(option) => {
-                const optionIndex = options.indexOf(option.label);
-
-                setSelectedOptionKeys(selectedOptions => {
-                  selectedOptions[layoutKey] = optionIndex;
-                  return [...selectedOptions];
-                });
+                if (option) {
+                  const optionIndex = options.indexOf(option.label);
+                  setSelectedOptionKeys((selectedOptions) => {
+                    selectedOptions[layoutKey] = optionIndex;
+                    return [...selectedOptions];
+                  });
+                }
               }}
               value={
-                selectedOptionKeys[layoutKey] ?
-                  selectElementOptions[selectedOptionKeys[layoutKey]] :
-                  selectElementOptions[0]
+                selectedOptionKeys[layoutKey]
+                  ? selectElementOptions[selectedOptionKeys[layoutKey]]
+                  : (selectElementOptions[0] as any)
               }
-              options={selectElementOptions}
+              options={selectElementOptions as any}
             />
           </Detail>
         </RowComponent>
       );
-    } if (typeof label === "string") {
+    }
+    if (typeof label === 'string') {
       return (
         <RowComponent key={label}>
           <Label>{label}</Label>
           <Detail>
-            <AccentSlider isChecked={Boolean(selectedOptionKeys[layoutKey])} onChange={isChecked => {
-              setSelectedOptionKeys(selectedOptions => {
-                selectedOptions[layoutKey] = Number(isChecked);
-                return [...selectedOptions];
-              });
-            }} />
+            <AccentSlider
+              isChecked={Boolean(selectedOptionKeys[layoutKey])}
+              onChange={(isChecked) => {
+                setSelectedOptionKeys((selectedOptions) => {
+                  selectedOptions[layoutKey] = Number(isChecked);
+                  return [...selectedOptions];
+                });
+              }}
+            />
           </Detail>
         </RowComponent>
       );
-    } 
-      return null;
-    
+    }
+    return null;
   });
 
-  return (
-    <>
-      { LayoutControls }
-    </>
-  );
-};
+  return <>{LayoutControls}</>;
+}
 
 export default Layouts;

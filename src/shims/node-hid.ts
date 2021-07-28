@@ -1,4 +1,11 @@
 import type {WebVIADevice} from '../types';
+const filterHIDDevices = (devices: HIDDevice[]) =>
+  devices.filter((device) =>
+    device.collections?.some(
+      (collection) =>
+        collection.usage === 0x61 && collection.usagePage === 0xff60,
+    ),
+  );
 const ExtendedHID = {
   _cache: {} as {[key: string]: any},
   requestDevices: async () => {
@@ -12,7 +19,7 @@ const ExtendedHID = {
     });
   },
   devices: async () => {
-    let devices = await navigator.hid.getDevices();
+    let devices = filterHIDDevices(await navigator.hid.getDevices());
     // TODO: This is a hack to avoid spamming the requestDevices popup
     if (devices.length === 0) {
       await ExtendedHID.requestDevices();

@@ -5,7 +5,7 @@ import PANES from './utils/pane-config';
 import HomePage from './containers/HomePage';
 
 export default () => {
-  const RouteComponents = PANES.map(pane => {
+  const RouteComponents = PANES.map((pane) => {
     return (
       <Route
         component={pane.component}

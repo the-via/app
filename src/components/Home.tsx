@@ -4,7 +4,7 @@ import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {getDevicesUsingDefinitions} from '../utils/hid-keyboards';
 import {usbDetect} from '../utils/usb-hid';
 import {Title} from './title-bar';
-import {connect} from 'react-redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {loadMacros} from '../redux/modules/macros';
 
@@ -25,9 +25,9 @@ import {
   getSelectedProtocol,
   getSelectedKeyDefinitions,
   getSelectedDevice,
-  getDefinitions
+  getDefinitions,
 } from '../redux/modules/keymap';
-import {RootState} from '../redux';
+import type {RootState} from '../redux';
 import {getLightingDefinition, LightingValue} from 'via-reader';
 import {getNextKey} from './positioned-keyboard';
 
@@ -45,9 +45,13 @@ const mapStateToProps = ({keymap, settings}: RootState) => ({
   displayedKeys: getSelectedKeyDefinitions(keymap),
   selectedAPI: getSelectedAPI(keymap),
   selectedVendorProductId: getSelectedVendorProductId(keymap),
-  selectedDefinition: getSelectedDefinition(keymap)
+  selectedDefinition: getSelectedDefinition(keymap),
 });
-const mapDispatchToProps = dispatch =>
+
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) =>
   bindActionCreators(
     {
       loadMacros,
@@ -60,9 +64,9 @@ const mapDispatchToProps = dispatch =>
       updateSelectedKey: actions.updateSelectedKey,
       loadDefinitions,
       selectConnectedDevice,
-      reloadConnectedDevices
+      reloadConnectedDevices,
     },
-    dispatch
+    dispatch,
   );
 
 type OwnProps = {
@@ -77,23 +81,25 @@ type State = {
   selectedTitle: string | null;
 };
 
-const timeoutRepeater = (fn, timeout, numToRepeat = 0) => () =>
-  setTimeout(() => {
-    fn();
-    if (numToRepeat > 0) {
-      timeoutRepeater(fn, timeout, numToRepeat - 1)();
-    }
-  }, timeout);
+const timeoutRepeater =
+  (fn: () => void, timeout: number, numToRepeat = 0) =>
+  () =>
+    setTimeout(() => {
+      fn();
+      if (numToRepeat > 0) {
+        timeoutRepeater(fn, timeout, numToRepeat - 1)();
+      }
+    }, timeout);
 
-class Home extends React.Component<Props, State> {
-  updateDevicesRepeat: () => void;
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedTitle: null
-    };
-    /*
+class HomeComponent extends React.Component<Props, State> {
+  updateDevicesRepeat: () => void = timeoutRepeater(
+    () => {
+      this.props.reloadConnectedDevices();
+    },
+    500,
+    1,
+  );
+  /*
     this.updateDevicesRepeat = timeoutRepeater(
       () => {
         this.props.reloadConnectedDevices();
@@ -102,13 +108,16 @@ class Home extends React.Component<Props, State> {
       1
     );
     */
-  }
+
+  state = {
+    selectedTitle: null,
+  };
 
   homeElem = React.createRef<HTMLDivElement>();
 
   componentDidMount() {
     if (this.homeElem.current) {
-    this.homeElem.current.focus();
+      this.homeElem.current.focus();
     }
     this.props.allowGlobalHotKeys();
     usbDetect.on('change', this.updateDevicesRepeat);
@@ -153,7 +162,10 @@ class Home extends React.Component<Props, State> {
       this.props.globalHotKeysAllowed &&
       this.props.selectedKey !== null
     ) {
-      this.updateSelectedKey(getByteForCode(mapEvtToKeycode(evt)));
+      const keycode = mapEvtToKeycode(evt);
+      if (keycode) {
+        this.updateSelectedKey(getByteForCode(keycode));
+      }
     }
   };
 
@@ -165,7 +177,7 @@ class Home extends React.Component<Props, State> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.selectedDevicePath !== this.props.selectedDevicePath) {
       this.setState({
-        selectedTitle: this.props.selectedDevicePath ? Title.KEYS : null
+        selectedTitle: this.props.selectedDevicePath ? Title.KEYS : null,
       });
       this.props.updateSelectedKey(null);
       this.toggleLights();
@@ -179,14 +191,14 @@ class Home extends React.Component<Props, State> {
       selectedKey,
       selectedDefinition,
       displayedKeys,
-      disableFastRemap
+      disableFastRemap,
     } = this.props;
 
     if (activeLayer !== null && selectedKey !== null && selectedDefinition) {
       // Redux
       updateKey(selectedKey, value);
       this.props.updateSelectedKey(
-        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys)
+        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys),
       );
     }
   };
@@ -202,7 +214,7 @@ class Home extends React.Component<Props, State> {
       api &&
       selectedDefinition &&
       getLightingDefinition(
-        selectedDefinition.lighting
+        selectedDefinition.lighting,
       ).supportedLightingValues.includes(LightingValue.BACKLIGHT_EFFECT)
     ) {
       const val = await api.getRGBMode();
@@ -231,4 +243,4 @@ class Home extends React.Component<Props, State> {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export const Home = connect(mapStateToProps, mapDispatchToProps)(HomeComponent);
