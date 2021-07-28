@@ -1,11 +1,10 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import chippySrc from '../images/chippy.png';
 
 const defaultChippy = {
   width: 300,
   height: 300,
-  src: chippySrc
+  src: '/images/chippy.png',
 };
 
 const LoaderContainer = styled.div`
@@ -15,34 +14,38 @@ const LoaderContainer = styled.div`
   align-items: center;
 `;
 
-const CircleContainer = styled.div<{containerHeight: number, containerWidth: number, progress: number | null}>`
+const CircleContainer = styled.div<{
+  containerHeight: number;
+  containerWidth: number;
+  progress: number | null;
+}>`
   border-radius: 50%;
   background-color: var(--color_medium-grey);
-  height: ${props => props.containerHeight}px;
-  width: ${props => props.containerWidth}px;
+  height: ${(props) => props.containerHeight}px;
+  width: ${(props) => props.containerWidth}px;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
 
-  animation-duration: ${props => (props.progress === null ? 1.5 : 0)}s;
+  animation-duration: ${(props) => (props.progress === null ? 1.5 : 0)}s;
   animation-name: bob;
   animation-iteration-count: infinite;
   animation-direction: alternate;
   animation-timing-function: ease-in-out;
 
   &::after {
-    height: ${props => props.containerHeight}px;
-    width: ${props => props.containerWidth}px;
+    height: ${(props) => props.containerHeight}px;
+    width: ${(props) => props.containerWidth}px;
     position: absolute;
     content: '';
     background-color: var(--color_accent);
-    top: ${props => props.containerHeight + 1}px;
+    top: ${(props) => props.containerHeight + 1}px;
     left: 0;
     right: 0;
     transition: transform 0.4s ease-out;
     transform: translate3d(
       0,
-      ${props => -(props.progress || 0) * props.containerHeight}px,
+      ${(props) => -(props.progress || 0) * props.containerHeight}px,
       0
     );
   }
@@ -60,7 +63,7 @@ export default function ChippyLoader(props: Props) {
   const containerPadding = width * 0.25;
   const [containerHeight, containerWidth] = [
     height + containerPadding * 2,
-    width + containerPadding * 2
+    width + containerPadding * 2,
   ];
   return (
     <LoaderContainer {...{containerHeight, containerWidth}}>
@@ -77,7 +80,7 @@ export default function ChippyLoader(props: Props) {
             marginLeft: `${-width / 2}px`,
             position: 'absolute',
             zIndex: 1,
-            width: width
+            width: width,
           }}
         />
       </CircleContainer>

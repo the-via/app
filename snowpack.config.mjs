@@ -13,9 +13,9 @@ export default {
       {
         /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
         ...(process.versions.pnp ? {tsc: 'yarn pnpify tsc'} : {}),
+        resolveJSONModule: true,
       },
     ],
-    /*
     [
       '@snowpack/plugin-webpack',
       {
@@ -28,17 +28,10 @@ export default {
               minimize: true,
               splitChunks: {chunks: 'all'},
             },
-            module: {
-              rules: [
-                {test: /\.json$/, loader: 'json'},
-                {test: /\.png$/, loader: 'url-loader'},
-              ],
-            },
           };
         },
       },
     ],
-    */
   ],
   routes: [
     /* Enable an SPA Fallback in development: */
@@ -46,7 +39,7 @@ export default {
   ],
   optimize: {
     /* Example: Bundle your final build: */
-    bundle: true,
+    bundle: false,
     minify: true,
     target: 'es2018',
   },
