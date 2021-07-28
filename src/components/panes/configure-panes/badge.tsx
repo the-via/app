@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import {
   getConnectedDevices,
   getSelectedDefinition,
-  offsetKeyboard
+  offsetKeyboard,
 } from '../../../redux/modules/keymap';
 import {actions} from '../../../redux/modules/keymap';
-import {RootState} from '../../../redux';
-import {connect} from 'react-redux';
+import type {RootState} from '../../../redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import LeftArrow from '../../icons/left-arrow';
 import RightArrow from '../../icons/right-arrow';
 import {bindActionCreators} from 'redux';
@@ -16,16 +16,19 @@ type OwnProps = {};
 
 const mapStateToProps = (state: RootState) => ({
   selectedDefinition: getSelectedDefinition(state.keymap),
-  connectedDevices: getConnectedDevices(state.keymap)
+  connectedDevices: getConnectedDevices(state.keymap),
 });
 
-const mapDispatchToProps = dispatch =>
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) =>
   bindActionCreators(
     {
       offsetKeyboard,
-      setLayer: actions.setLayer
+      setLayer: actions.setLayer,
     },
-    dispatch
+    dispatch,
   );
 
 const Container = styled.div`
@@ -36,9 +39,9 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const SlideContainer = styled.div`
+const SlideContainer = styled.div<{showButtons?: boolean}>`
   transition: 0.4s ease-out;
-  transform: translate3d(${props => (props.showButtons ? 0 : 66)}px, 0, 0);
+  transform: translate3d(${(props) => (props.showButtons ? 0 : 66)}px, 0, 0);
 `;
 
 const KeyboardTitle = styled.label`
@@ -108,5 +111,5 @@ export class BadgeComponent extends React.Component<Props> {
 
 export const Badge = connect(
   mapStateToProps,
-  mapDispatchToProps
-)(BadgeComponent);
+  mapDispatchToProps,
+)(BadgeComponent) as any;

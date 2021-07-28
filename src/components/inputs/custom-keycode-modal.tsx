@@ -2,7 +2,10 @@ import * as React from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
-import {anyKeycodeToString, advancedStringToKeycode} from '../../utils/advanced-keys';
+import {
+  anyKeycodeToString,
+  advancedStringToKeycode,
+} from '../../utils/advanced-keys';
 
 import TextInput from './text-input';
 
@@ -45,7 +48,7 @@ const RowDiv = styled.div`
 
 type KeycodeModalProps = {
   defaultValue?: number;
-  onChange: (number) => void;
+  onChange: (val: number) => void;
   onExit: () => void;
   onConfirm: (keycode: number) => void;
 };
@@ -94,7 +97,7 @@ function inputIsValid(input: string): boolean {
   );
 }
 
-function keycodeFromInput(input: string): number {
+function keycodeFromInput(input: string): number | null {
   if (inputIsBasicByte(input)) {
     return basicByteFromInput(input);
   }
@@ -110,10 +113,10 @@ function keycodeFromInput(input: string): number {
   return null;
 }
 
-export const KeycodeModal: React.FC<KeycodeModalProps> = props => {
+export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const inputRef = React.useRef<HTMLInputElement>();
   const [isValid, setIsValid] = React.useState(false);
-  const defaultInput = anyKeycodeToString(props.defaultValue);
+  const defaultInput = anyKeycodeToString(props.defaultValue as number);
 
   return (
     <ModalBackground>
@@ -123,7 +126,7 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = props => {
         </PromptText>
         <TextInput
           defaultValue={defaultInput}
-          ref={inputRef}
+          ref={inputRef as any}
           type="text"
           placeholder={defaultInput || 'KC_NO, 0xFF, etc.'}
           onChange={() => {
@@ -137,8 +140,8 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = props => {
           <AccentButton
             disabled={!isValid}
             onClick={() => {
-              const input = inputRef.current.value;
-              props.onConfirm(keycodeFromInput(input));
+              const input = inputRef.current?.value;
+              props.onConfirm(keycodeFromInput(input as any) as any);
             }}
           >
             Confirm

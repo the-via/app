@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {useLocation} from 'react-router';
-import {Link} from 'react-router-dom';
 import styled from 'styled-components';
-import {RootState} from '../../redux';
+import {useLocation} from 'react-router';
+import type {RootState} from '../../redux';
+import {Link} from 'react-router-dom';
 import PANES from '../../utils/pane-config';
 import {connect} from 'react-redux';
 
@@ -15,7 +15,7 @@ const Container = styled.div`
   text-align: center;
 `;
 
-const MenuItem = styled.button`
+const MenuItem = styled.button<{selected?: boolean}>`
   background: none;
   border: none;
   font-family: inherit;
@@ -26,10 +26,10 @@ const MenuItem = styled.button`
   font-size: 18px;
   text-transform: uppercase;
   cursor: pointer;
-  color: ${props =>
+  color: ${(props) =>
     props.selected ? 'var(--color_light-grey)' : 'var(--color_medium-grey)'};
   &:hover {
-    color: ${props =>
+    color: ${(props) =>
       props.selected ? 'var(--color_light-grey)' : 'var(--color_light-grey)'};
   }
 `;
@@ -38,14 +38,16 @@ const {DEBUG_PROD, NODE_ENV} = import.meta.env;
 const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 
 const mapStateToProps = ({settings}: RootState) => ({
-  showDesignTab: settings.showDesignTab
+  showDesignTab: settings.showDesignTab,
 });
 
-export function UnconnectedGlobalMenu(props) {
+type Props = ReturnType<typeof mapStateToProps>;
+
+const UnconnectedGlobalMenu: React.FC<Props> = (props) => {
   const location = useLocation();
 
   const Panes = React.useMemo(() => {
-    return PANES.map(pane => {
+    return PANES.map((pane) => {
       if (pane.key === 'design' && !props.showDesignTab) return null;
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
@@ -63,6 +65,6 @@ export function UnconnectedGlobalMenu(props) {
       <Container>{Panes}</Container>
     </React.Fragment>
   );
-}
+};
 
 export default connect(mapStateToProps)(UnconnectedGlobalMenu);

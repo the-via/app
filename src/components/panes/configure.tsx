@@ -11,7 +11,7 @@ import {
   getLoadProgress,
   getSelectedDefinition,
   getSelectedProtocol,
-  getCustomMenus
+  getCustomMenus,
 } from '../../redux/modules/keymap';
 import * as ReactTooltip from 'react-tooltip';
 import {CustomFeatures, getLightingDefinition} from 'via-reader';
@@ -38,7 +38,7 @@ const mapStateToProps = ({keymap, macros}: RootState) => ({
   progress: getLoadProgress(keymap),
   selectedDefinition: getSelectedDefinition(keymap),
   selectedProtocol: getSelectedProtocol(keymap),
-  customMenus: getCustomMenus(keymap)
+  customMenus: getCustomMenus(keymap),
 });
 
 const Pane = styled(DefaultPane)`
@@ -58,11 +58,11 @@ const Rows = [
   Lighting,
   SaveLoad,
   RotaryEncoder,
-  ...makeCustomMenus([])
+  ...makeCustomMenus([]),
 ];
 function getCustomPanes(customFeatures: CustomFeatures[]) {
   if (
-    customFeatures.find(feature => feature === CustomFeatures.RotaryEncoder)
+    customFeatures.find((feature) => feature === CustomFeatures.RotaryEncoder)
   ) {
     return [RotaryEncoder];
   }
@@ -73,7 +73,7 @@ function getRowsForKeyboard({
   customMenus,
   selectedDefinition,
   showMacros,
-  selectedProtocol
+  selectedProtocol,
 }: Props): typeof Rows {
   const {lighting, customFeatures, layouts} = selectedDefinition;
   const {supportedLightingValues} = getLightingDefinition(lighting);
@@ -121,36 +121,38 @@ function ConfigureGrid(props: Props) {
   const SelectedPane = KeyboardRows[selectedRow].Pane;
   const [dimensions, setDimensions] = React.useState({
     width: 1280,
-    height: 900
+    height: 900,
   });
   const flexRef = React.useRef(null);
-  
+
   useResize(
     flexRef,
-    entry =>
+    (entry) =>
       flexRef.current &&
       setDimensions({
         width: entry.width,
-        height: entry.height
-      })
+        height: entry.height,
+      }),
   );
-  
+
   return (
     <Grid>
       <MenuCell>
         <MenuContainer>
-          {KeyboardRows.map((RowLabel, idx) => (
-            <Row
-              key={idx}
-              onClick={_ => setRow(idx)}
-              selected={selectedRow === idx}
-            >
-              <IconContainer>
-                <RowLabel.Icon />
-              </IconContainer>
-              {RowLabel.Title}
-            </Row>
-          ))}
+          {KeyboardRows.map(
+            ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
+              <Row
+                key={idx}
+                onClick={(_) => setRow(idx)}
+                selected={selectedRow === idx}
+              >
+                <IconContainer>
+                  <Icon />
+                </IconContainer>
+                {Title}
+              </Row>
+            ),
+          )}
         </MenuContainer>
       </MenuCell>
 

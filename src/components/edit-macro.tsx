@@ -3,8 +3,8 @@ import {Component} from 'react';
 import styled from 'styled-components';
 import {getMacroKeycodes} from '../utils/macro-api';
 import {validateExpression} from '../utils/macro-api';
-import Button from './inputs/button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
+import Button from './inputs/button';
 import {Row, Message, ErrorMessage} from './styled';
 
 const MacroContainer = styled.div`
@@ -37,7 +37,7 @@ const Keycode = styled.span`
   color: lightgrey;
 `;
 
-const AutocompleteItem = ({entity: {label, code}}) => (
+const AutocompleteItem = ({entity: {label, code}}: any) => (
   <div>
     {label} <Keycode>{code}</Keycode>
   </div>
@@ -50,7 +50,7 @@ const findKeycodes = (token: string) => {
       title
         ? title.toUpperCase().indexOf(uToken) > -1
         : name.toUpperCase().indexOf(uToken) > -1 ||
-          code.toUpperCase().indexOf(uToken) > -1
+          code.toUpperCase().indexOf(uToken) > -1,
     )
     .slice(0, 10)
     .map(({name, code, title}) => {
@@ -71,13 +71,13 @@ type Props = {
 type State = {
   value: string;
   appendEnter: boolean;
-  errorMessage: string;
+  errorMessage?: string;
 };
 
 export class EditMacro extends Component<Props, State> {
-  private textarea: HTMLTextAreaElement;
+  private textarea: HTMLTextAreaElement | undefined;
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     const {initialValue} = this.props;
@@ -86,50 +86,53 @@ export class EditMacro extends Component<Props, State> {
       value:
         initialValue &&
         initialValue.trimRight().replace(new RegExp(`${enterToken}$`), ''),
-      appendEnter:
-        initialValue && initialValue.trimRight().endsWith(enterToken),
-      errorMessage: undefined
+      appendEnter: !!(
+        initialValue && initialValue.trimRight().endsWith(enterToken)
+      ),
+      errorMessage: undefined,
     };
   }
 
-  onChange = e => {
+  onChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
     this.setState({
       ...this.state,
-      value: e.target.value
+      value: e.target.value,
     });
   };
 
-  onAppendEnterChange = e => {
-    this.setState((prevState, props) => ({
+  onAppendEnterChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    this.setState((prevState) => ({
       ...this.state,
-      appendEnter: !prevState.appendEnter
+      appendEnter: !prevState.appendEnter,
     }));
   };
 
   saveMacro = () => {
-    const value = this.state.appendEnter
-      ? this.textarea.value + enterToken
-      : this.textarea.value;
-    const validationResult = validateExpression(value);
-    if (validationResult.isValid) {
-      this.props.onSaveMacro(value);
-      this.setState((prevState, props) => ({
-        ...prevState,
-        errorMessage: undefined
-      }));
-    } else {
-      this.setState((prevState, props) => ({
-        ...prevState,
-        errorMessage: validationResult.errorMessage
-      }));
-    }
-    switch (this.textarea.value.trim().toLowerCase()) {
-      case 'do a barrel roll':
-        this.props.onBarrelRoll();
-        break;
-      case 'twilight zone':
-        document.body.style.filter = 'invert(100%)';
-        break;
+    if (this.textarea) {
+      const value = this.state.appendEnter
+        ? this.textarea.value + enterToken
+        : this.textarea.value;
+      const validationResult = validateExpression(value);
+      if (validationResult.isValid) {
+        this.props.onSaveMacro(value);
+        this.setState((prevState, props) => ({
+          ...prevState,
+          errorMessage: undefined,
+        }));
+      } else {
+        this.setState((prevState, props) => ({
+          ...prevState,
+          errorMessage: validationResult.errorMessage,
+        }));
+      }
+      switch (this.textarea.value.trim().toLowerCase()) {
+        case 'do a barrel roll':
+          this.props.onBarrelRoll();
+          break;
+        case 'twilight zone':
+          document.body.style.filter = 'invert(100%)';
+          break;
+      }
     }
   };
 
@@ -159,16 +162,16 @@ export class EditMacro extends Component<Props, State> {
               lineHeight: '20px',
               width: '100%',
               height: '70px',
-              resize: 'none'
+              resize: 'none',
             }}
             containerStyle={{
-              flex: 11
+              flex: 11,
             }}
             dropdownStyle={{
-              zIndex: 999
+              zIndex: 999,
             }}
             listStyle={{
-              position: 'fixed'
+              position: 'fixed',
             }}
             minChar={0}
             innerRef={(textarea: HTMLTextAreaElement) => {
@@ -180,18 +183,18 @@ export class EditMacro extends Component<Props, State> {
                 dataProvider: findKeycodes,
                 component: AutocompleteItem,
                 output: (item, trigger) => ({
-                  text: item.code,
-                  caretPosition: 'end'
-                })
+                  text: (item as any).code,
+                  caretPosition: 'end',
+                }),
               },
               '{': {
                 dataProvider: findKeycodes,
                 component: AutocompleteItem,
                 output: (item, trigger) => ({
-                  text: `{${item.code}`,
-                  caretPosition: 'end'
-                })
-              }
+                  text: `{${(item as any).code}`,
+                  caretPosition: 'end',
+                }),
+              },
             }}
           />
 
@@ -200,8 +203,8 @@ export class EditMacro extends Component<Props, State> {
         <label>
           <input
             type="checkbox"
-            defaultChecked={this.state.appendEnter}
             onChange={this.onAppendEnterChange}
+            defaultChecked={this.state.appendEnter}
           />
           Tap 'Enter' at end of macro
         </label>

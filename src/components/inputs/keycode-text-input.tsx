@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
 import {
   advancedStringToKeycode,
-  anyKeycodeToString
+  anyKeycodeToString,
 } from '../../utils/advanced-keys';
 
 const NormalInput = styled.input`
@@ -46,7 +46,7 @@ type State = {
 };
 
 export class KeycodeTextInput extends React.Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     const {defaultValue} = props;
     let currentValue = anyKeycodeToString(defaultValue);
@@ -55,7 +55,7 @@ export class KeycodeTextInput extends React.Component<Props, State> {
       defaultValueAsString: currentValue,
       currentParsed: defaultValue,
       currentValue,
-      isError: false
+      isError: false,
     };
   }
 
@@ -63,7 +63,7 @@ export class KeycodeTextInput extends React.Component<Props, State> {
   // We want to maintain state here for validation purposes.
   // But if we get a new prop, it means our change has made it up to where it matters
   // And we should use it to represent what's actually coming from the kb
-  static getDerivedStateFromProps(props, state) {
+  static getDerivedStateFromProps(props: Props, state: State) {
     if (
       state.lastDefault !== props.defaultValue &&
       state.currentParsed !== props.defaultValue
@@ -72,18 +72,18 @@ export class KeycodeTextInput extends React.Component<Props, State> {
         ...state,
         currentValue: anyKeycodeToString(props.defaultValue),
         currentParsed: props.defaultValue,
-        lastDefault: props.defaultValue
+        lastDefault: props.defaultValue,
       };
     }
     return state;
   }
 
-  handleChange = (e): void => {
+  handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const value = e.target.value;
     this.setState({currentValue: value});
   };
 
-  handleBlur = (e): void => {
+  handleBlur: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const {onBlur} = this.props;
     const {lastDefault} = this.state;
     const value = e.target.value.trim().toUpperCase();

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-const SvgIcKeyboard24Px = _ => (
+const SvgIcKeyboard24Px: React.FC<{}> = (_) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

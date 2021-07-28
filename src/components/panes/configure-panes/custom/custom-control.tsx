@@ -3,9 +3,9 @@ import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
-import {VIADefinitionV2, VIAItem, VIAControlItem} from 'via-reader';
-import {LightingData} from '../../../../types';
-import {ColorPicker} from '../../../inputs/color-picker';
+import type {VIADefinitionV2, VIAItem, VIAControlItem} from 'via-reader';
+import type {LightingData} from '../../../../types';
+import {ArrayColorPicker} from '../../../inputs/color-picker';
 
 type Props = {
   lightingData: LightingData;
@@ -18,19 +18,13 @@ export type ControlMeta = [
     min: number;
     max: number;
     getOptions: (d: VIADefinitionV2) => string[];
-  }>
+  }>,
 ];
 
 type AdvancedControlProps = Props & {meta: ControlMeta};
-const AdvancedColorPicker = props => {
-  const {color, setColor} = props;
-  return (
-    <ColorPicker color={{hue: color[0], sat: color[1]}} setColor={setColor} />
-  );
-};
 
 export const VIACustomItem = React.memo(
-  (props: VIAItem & {updateValue; value: number[]; _id: string}) => (
+  (props: VIAItem & {updateValue: any; value: number[]; _id: string}) => (
     <ControlRow id={props._id}>
       <Label>{props.label}</Label>
       <Detail>
@@ -41,7 +35,7 @@ export const VIACustomItem = React.memo(
         )}
       </Detail>
     </ControlRow>
-  )
+  ),
 );
 
 type ControlGetSet = {
@@ -51,7 +45,8 @@ type ControlGetSet = {
 
 type VIACustomControlProps = VIAControlItem & ControlGetSet;
 
-const boxOrArr = elem => (Array.isArray(elem) ? elem : [elem]);
+const boxOrArr = <N extends any>(elem: N | N[]) =>
+  Array.isArray(elem) ? elem : [elem];
 
 // we can compare value against option[1], that way corrupted values are false
 const valueIsChecked = (option: number | number[], value: number[]) =>
@@ -77,34 +72,38 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
       return (
         <AccentSlider
           isChecked={valueIsChecked(toggleOptions[1], props.value)}
-          onChange={val =>
+          onChange={(val) =>
             props.updateValue(
               name,
               ...command,
-              ...boxOrArr(toggleOptions[+val])
+              ...boxOrArr(toggleOptions[+val]),
             )
           }
         />
       );
     }
     case 'dropdown': {
-      const selectOptions = options.map(([label, value], idx) => ({
-        value: value || idx,
-        label
-      }));
+      const selectOptions = options.map(
+        ([label, value]: [string, number], idx: number) => ({
+          value: value || idx,
+          label,
+        }),
+      );
       return (
         <AccentSelect
           width={250}
-          onChange={option => props.updateValue(name, ...command, option.value)}
+          onChange={(option) =>
+            option && props.updateValue(name, ...command, +option.value)
+          }
           options={selectOptions}
-          defaultValue={selectOptions.find(p => value[0] === p.value)}
+          defaultValue={selectOptions.find((p: any) => value[0] === p.value)}
         />
       );
     }
     case 'color': {
       return (
-        <AdvancedColorPicker
-          color={props.value}
+        <ArrayColorPicker
+          color={props.value as [number, number]}
           setColor={(hue, sat) => props.updateValue(name, ...command, hue, sat)}
         />
       );

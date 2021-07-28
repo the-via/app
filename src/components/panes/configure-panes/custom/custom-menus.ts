@@ -1,4 +1,4 @@
-import {VIAMenu} from 'via-reader';
+import type {VIAMenu} from 'via-reader';
 
 export const WTRGBMenu: VIAMenu = {
   label: 'WT Lighting',
@@ -11,7 +11,7 @@ export const WTRGBMenu: VIAMenu = {
           type: 'range',
           // bytes?: 1 (default)
           options: [0, 100],
-          content: ['brightness', 0x00, 0x09]
+          content: ['brightness', 0x00, 0x09],
         },
         {
           label: 'Effect',
@@ -27,15 +27,15 @@ export const WTRGBMenu: VIAMenu = {
             ['Cycle Vertical', 0],
             ['Jellybean Raindrops', 0],
             ['Radial All Hues', 0],
-            ['Radial Color 1', 1]
+            ['Radial Color 1', 1],
           ],
-          content: ['effect', 0x00, 0x0a]
+          content: ['effect', 0x00, 0x0a],
         },
         {
           label: 'Effect Speed',
           type: 'range',
           options: [0, 3],
-          content: ['effect_speed', 0x00, 0x0b]
+          content: ['effect_speed', 0x00, 0x0b],
         },
         {
           showIf: '{effect} != 0',
@@ -43,9 +43,9 @@ export const WTRGBMenu: VIAMenu = {
             {
               label: 'Color 1',
               type: 'color',
-              content: ['color_1', 0x00, 0x0c]
-            }
-          ]
+              content: ['color_1', 0x00, 0x0c],
+            },
+          ],
         },
         {
           showIf: '{effect} == 2 || {effect} == 3 || {effect} == 4',
@@ -53,11 +53,11 @@ export const WTRGBMenu: VIAMenu = {
             {
               label: 'Color 2',
               type: 'color',
-              content: ['color_2', 0x00, 0x0d]
-            }
-          ]
-        }
-      ]
+              content: ['color_2', 0x00, 0x0d],
+            },
+          ],
+        },
+      ],
     },
     {
       label: 'Advanced',
@@ -66,78 +66,78 @@ export const WTRGBMenu: VIAMenu = {
           label: 'Disable LEDs when USB is suspended',
           type: 'toggle',
           // options: [0,1] <- optional explicit, defaults to this
-          content: ['backlight_disable_when_usb_suspended', 0x00, 0x07]
+          content: ['backlight_disable_when_usb_suspended', 0x00, 0x07],
         },
         {
           label: 'LED Sleep Timeout',
           type: 'range',
           options: [0, 255],
           unit: 'mins',
-          content: ['backlight_disable_after_timeout', 0x00, 0x08]
+          content: ['backlight_disable_after_timeout', 0x00, 0x08],
         },
         {
           label: 'Caps Lock indicator',
           type: 'toggle',
           options: [
             [255, 255],
-            [254, 254]
+            [254, 254],
           ],
-          content: ['backlight_caps_lock_indicator', 0x00, 0x0f]
+          content: ['backlight_caps_lock_indicator', 0x00, 0x0f],
         },
         {
           label: 'Caps Lock indicator color',
           type: 'color',
           showIf: '{backlight_caps_lock_indicator.0} == 254',
-          content: ['backlight_caps_lock_indicator_color', 0x00, 0x0e]
+          content: ['backlight_caps_lock_indicator_color', 0x00, 0x0e],
         },
         {
           label: 'Layer 1 indicator',
           type: 'toggle',
           options: [
             [255, 255],
-            [254, 254]
+            [254, 254],
           ],
-          content: ['backlight_layer_1_indicator', 0x00, 0x11]
+          content: ['backlight_layer_1_indicator', 0x00, 0x11],
         },
         {
           label: 'Layer 1 indicator color',
           type: 'color',
           showIf: '{backlight_caps_lock_indicator.0} == 254',
-          content: ['backlight_layer_1_indicator_color', 0x00, 0x10]
+          content: ['backlight_layer_1_indicator_color', 0x00, 0x10],
         },
         {
           label: 'Layer 2 indicator',
           type: 'toggle',
           options: [
             [255, 255],
-            [254, 254]
+            [254, 254],
           ],
-          content: ['backlight_layer_1_indicator', 0x00, 0x13]
+          content: ['backlight_layer_1_indicator', 0x00, 0x13],
         },
         {
           label: 'Layer 2 indicator color',
           type: 'color',
           showIf: '{backlight_caps_lock_indicator.0} == 254',
-          content: ['backlight_layer_1_indicator_color', 0x00, 0x12]
+          content: ['backlight_layer_1_indicator_color', 0x00, 0x12],
         },
         {
           label: 'Layer 3 indicator',
           type: 'toggle',
           options: [
             [255, 255],
-            [254, 254]
+            [254, 254],
           ],
-          content: ['backlight_layer_1_indicator', 0x00, 0x15]
+          content: ['backlight_layer_1_indicator', 0x00, 0x15],
         },
         {
           label: 'Layer 3 indicator color',
           type: 'color',
           showIf: '{backlight_caps_lock_indicator.0} == 254',
-          content: ['backlight_layer_1_indicator_color', 0x00, 0x14]
-        }
-      ]
-    }
-  ]
+          content: ['backlight_layer_1_indicator_color', 0x00, 0x14],
+        },
+      ],
+    },
+  ],
 };
 
 export const QMKLightingMenu: VIAMenu = {
@@ -149,14 +149,14 @@ export const QMKLightingMenu: VIAMenu = {
         {
           label: 'Backlight',
           type: 'toggle',
-          content: ['backlight', 0x00, 0x0a]
+          content: ['backlight', 0x00, 0x0a],
         },
         {
           showIf: '{backlight}',
           label: 'Brightness',
           type: 'range',
           options: [0, 100],
-          content: ['brightness', 0x00, 0x09]
+          content: ['brightness', 0x00, 0x09],
         },
         {
           label: 'Underglow effect',
@@ -199,8 +199,8 @@ export const QMKLightingMenu: VIAMenu = {
             ['Gradient 9', 1],
             ['Gradient 10', 1],
             ['RGB Test', 1],
-            ['Alternating', 1]
-          ]
+            ['Alternating', 1],
+          ],
         },
         {
           showIf: '{underglowEffect} != 0',
@@ -209,17 +209,17 @@ export const QMKLightingMenu: VIAMenu = {
               label: 'Underglow Brightness',
               type: 'range',
               options: [0, 100],
-              content: ['underglowBrightness', 0x00, 0x80]
+              content: ['underglowBrightness', 0x00, 0x80],
             },
             {
               label: 'Underglow Effect Speed',
               type: 'range',
               options: [0, 3],
-              content: ['underglowEffectSpeed', 0x00, 0x82]
-            }
-          ]
-        }
-      ]
-    }
-  ]
+              content: ['underglowEffectSpeed', 0x00, 0x82],
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };
