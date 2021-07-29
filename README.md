@@ -5,7 +5,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/9439214c-1d81-45b8-bbfc-bdae3082610c/deploy-status)](https://app.netlify.com/sites/zen-poincare-02a1be/deploys)
 
-<img src="https://raw.githubusercontent.com/the-via/app/main/public/images/chippy.png?token=AANCPGEKEIBRG3RHADZJXCLBAMZ2I" width="300"/>
+<img src="public/images/chippy.png" width="300"/>
 
 ## Useful commands
 ### yarn start
