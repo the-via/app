@@ -1,10 +1,11 @@
 import * as React from 'react';
+import {bindActionCreators} from 'redux';
 import useResize from 'react-resize-observer-hook';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
 import {Pane as DefaultPane} from './pane';
-import {connect} from 'react-redux';
+import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import type {RootState} from '../../redux';
 import {
   actions,
@@ -12,6 +13,7 @@ import {
   getSelectedDefinition,
   getSelectedProtocol,
   getCustomMenus,
+  reloadConnectedDevices,
 } from '../../redux/modules/keymap';
 import ReactTooltip from 'react-tooltip';
 import {CustomFeatures, getLightingDefinition} from 'via-reader';
@@ -26,13 +28,24 @@ import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
+import {AccentButton} from '../inputs/accent-button';
 type ReduxState = ReturnType<typeof mapStateToProps>;
 
-type ReduxDispatch = typeof mapDispatchToProps;
+type ReduxDispatch = ReturnType<typeof mapDispatchToProps>;
 
 type Props = ReduxState & ReduxDispatch;
 
-const mapDispatchToProps = {clearSelectedKey: actions.clearSelectedKey};
+const mapDispatchToProps: MapDispatchToPropsFunction<
+  any,
+  ReturnType<typeof mapStateToProps>
+> = (dispatch) =>
+  bindActionCreators(
+    {
+      clearSelectedKey: actions.clearSelectedKey,
+      reloadConnectedDevices: reloadConnectedDevices,
+    },
+    dispatch,
+  );
 const mapStateToProps = ({keymap, macros}: RootState) => ({
   showMacros: macros.isFeatureSupported,
   progress: getLoadProgress(keymap),
@@ -99,10 +112,25 @@ function getRowsForKeyboard({
 }
 
 function Loader(props: Props) {
+  const [showButton, setShowButton] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!props.selectedDefinition) {
+        setShowButton(true);
+      }
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, []);
   return (
     <>
       <ChippyLoader progress={props.progress || null} />
-      <LoadingText isSearching={!props.selectedDefinition} />
+      {showButton ? (
+        <AccentButton onClick={props.reloadConnectedDevices}>
+          Authorize device
+        </AccentButton>
+      ) : (
+        <LoadingText isSearching={!props.selectedDefinition} />
+      )}
     </>
   );
 }
