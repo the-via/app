@@ -610,7 +610,12 @@ export class KeyboardAPI {
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
-      console.error('Command:', commandBytes, 'Bad Resp:', buffer);
+      console.error(
+        `Command for ${this.kbAddr}:`,
+        commandBytes,
+        'Bad Resp:',
+        buffer,
+      );
       throw new Error('Receiving incorrect response for command');
     }
     console.info(

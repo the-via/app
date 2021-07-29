@@ -124,12 +124,12 @@ class HomeComponent extends React.Component<Props, State> {
 
     try {
       startMonitoring();
-
       this.props.allowGlobalHotKeys();
       usbDetect.on('change', this.updateDevicesRepeat);
       usbDetect.on('remove', this.validateDevices);
       timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
       this.props.loadDefinitions();
+      this.props.reloadConnectedDevices();
       this.enableKeyPressListener();
     } catch (error) {
       // TODO: check `error` for usb detection issues first?

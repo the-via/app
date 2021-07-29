@@ -488,7 +488,6 @@ export const loadDefinitions = (): ThunkResult => {
     dispatch(actions.updateDefinitions(getDevicesFromStore()));
     await syncStore();
     dispatch(actions.updateDefinitions(getDevicesFromStore()));
-    dispatch(actions.selectDevice(null));
     dispatch(reloadConnectedDevices());
   };
 };

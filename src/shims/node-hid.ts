@@ -1,4 +1,7 @@
 import type {WebVIADevice} from '../types';
+// This is a bit cray
+const globalBuffer: {[path: string]: ArrayBuffer[]} = {};
+const eventWaitBuffer: {[path: string]: ((a: Uint8Array) => void)[]} = {};
 const filterHIDDevices = (devices: HIDDevice[]) =>
   devices.filter((device) =>
     device.collections?.some(
@@ -18,14 +21,22 @@ const ExtendedHID = {
       ],
     });
   },
+  getFilteredDevices: async () => {
+    return filterHIDDevices(await navigator.hid.getDevices());
+  },
   devices: async () => {
-    let devices = filterHIDDevices(await navigator.hid.getDevices());
+    let devices = await ExtendedHID.getFilteredDevices();
     // TODO: This is a hack to avoid spamming the requestDevices popup
     if (devices.length === 0) {
       await ExtendedHID.requestDevices();
-      devices = await navigator.hid.getDevices();
+      devices = await ExtendedHID.getFilteredDevices();
     }
     return devices.map((device) => {
+      // This is super important in order to have a stable way to identify the same device
+      // that was already scanned. It's a bit hacky but https://github.com/WICG/webhid/issues/7
+      // ¯\_(ツ)_/¯
+      const path = (device as any).__path || `via-path:${Math.random()}`;
+      (device as any).__path = path;
       const HIDDevice = {
         _device: device,
         usage: 0x61,
@@ -33,14 +44,13 @@ const ExtendedHID = {
         interface: 0x0001,
         vendorId: device.vendorId ?? -1,
         productId: device.productId ?? -1,
-        path: `${Math.random()}`,
+        path,
       };
-      return (ExtendedHID._cache[HIDDevice.path] = HIDDevice);
+      return (ExtendedHID._cache[path] = HIDDevice);
     });
   },
   HID: class HID {
     _hidDevice?: WebVIADevice;
-    _buffer: ArrayBuffer[] = [];
     usage: number = -1;
     usagePage: number = -1;
     interface: number = -1;
@@ -60,6 +70,8 @@ const ExtendedHID = {
         this.usage = this._hidDevice.usage ?? this.usage;
         this.usagePage = this._hidDevice.usagePage ?? this.usagePage;
         this.interface = this._hidDevice.interface;
+        globalBuffer[this.path] = globalBuffer[this.path] || [];
+        eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];
         if (!this._hidDevice._device.opened) {
           this.open();
         }
@@ -70,25 +82,30 @@ const ExtendedHID = {
     async open() {
       if (this._hidDevice && !this._hidDevice._device.opened) {
         this.openPromise = this._hidDevice._device.open();
+        this.setupListeners();
         await this.openPromise;
-        this._hidDevice._device.addEventListener('inputreport', (e) => {
-          this._buffer.push(new Uint8Array(e.data.buffer));
-        });
       }
       return Promise.resolve();
     }
-    async read(fn: (err?: Error, data?: ArrayBuffer) => void) {
-      if (this._buffer.length > 0) {
-        fn(undefined, this._buffer.shift());
-      } else {
-        await new Promise((res, rej) => {
-          const once = () => {
-            this._hidDevice?._device.removeEventListener('inputreport', once);
-            res(undefined);
-          };
-          this._hidDevice?._device.addEventListener('inputreport', once);
+    setupListeners() {
+      if (this._hidDevice) {
+        this._hidDevice._device.addEventListener('inputreport', (e) => {
+          if (eventWaitBuffer[this.path].length !== 0) {
+            (eventWaitBuffer[this.path].shift() as any)(
+              new Uint8Array(e.data.buffer),
+            );
+          } else {
+            globalBuffer[this.path].push(new Uint8Array(e.data.buffer));
+          }
         });
-        fn(undefined, this._buffer.shift());
+      }
+    }
+
+    read(fn: (err?: Error, data?: ArrayBuffer) => void) {
+      if (globalBuffer[this.path].length > 0) {
+        fn(undefined, globalBuffer[this.path].shift() as any);
+      } else {
+        eventWaitBuffer[this.path].push((data) => fn(undefined, data));
       }
     }
     async write(arr: number[]) {
