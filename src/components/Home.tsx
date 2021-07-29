@@ -124,8 +124,6 @@ class HomeComponent extends React.Component<Props, State> {
     usbDetect.on('remove', this.validateDevices);
     timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
     this.props.loadDefinitions();
-    this.props.reloadConnectedDevices();
-    //this.updateDevicesRepeat();
     this.enableKeyPressListener();
   }
 

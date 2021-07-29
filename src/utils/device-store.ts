@@ -8,12 +8,12 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
-const remoteBaseURL = 'https://www.caniusevia.com';
-const devicesURL = new URL('keyboards.v2.json', remoteBaseURL);
+const remoteBaseURL = '';
+const devicesURL = '/keyboards.v2.json';
 const remoteDefaultData = {
   generatedAt: -1,
   definitions: {},
-  theme: getTheme()
+  theme: getTheme(),
 };
 const deviceStore = new Store({
   defaults: {
@@ -22,15 +22,15 @@ const deviceStore = new Store({
       allowKeyboardKeyRemapping: false,
       showDesignTab: false,
       disableFastRemap: false,
-      disableHardwareAcceleration: false
-    }
-  }
+      disableHardwareAcceleration: false,
+    },
+  },
 });
 let lastJSON = deviceStore.get('remoteData');
 
 export async function syncStore() {
   try {
-    const response = await fetch(devicesURL.href);
+    const response = await fetch(devicesURL);
     const json = await response.json();
     if (json.generatedAt !== lastJSON.generatedAt) {
       lastJSON = json;

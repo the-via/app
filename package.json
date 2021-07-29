@@ -56,6 +56,7 @@
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.1",
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7",
     "snowpack-plugin-json5": "^1.0.0",
