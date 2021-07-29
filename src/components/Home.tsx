@@ -2,7 +2,7 @@ import * as React from 'react';
 import styles from './Home.module.css';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {getDevicesUsingDefinitions} from '../utils/hid-keyboards';
-import {usbDetect} from '../utils/usb-hid';
+import {startMonitoring, usbDetect} from '../utils/usb-hid';
 import {Title} from './title-bar';
 import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {bindActionCreators} from 'redux';
@@ -79,6 +79,7 @@ export type Props = OwnProps &
 // TODO: remove loaded and ready - use loading progress instead. Need more in redux before that can be done
 type State = {
   selectedTitle: string | null;
+  usbDetectionError: boolean;
 };
 
 const timeoutRepeater =
@@ -111,6 +112,7 @@ class HomeComponent extends React.Component<Props, State> {
 
   state = {
     selectedTitle: null,
+    usbDetectionError: false,
   };
 
   homeElem = React.createRef<HTMLDivElement>();
@@ -119,12 +121,20 @@ class HomeComponent extends React.Component<Props, State> {
     if (this.homeElem.current) {
       this.homeElem.current.focus();
     }
-    this.props.allowGlobalHotKeys();
-    usbDetect.on('change', this.updateDevicesRepeat);
-    usbDetect.on('remove', this.validateDevices);
-    timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
-    this.props.loadDefinitions();
-    this.enableKeyPressListener();
+
+    try {
+      startMonitoring();
+
+      this.props.allowGlobalHotKeys();
+      usbDetect.on('change', this.updateDevicesRepeat);
+      usbDetect.on('remove', this.validateDevices);
+      timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
+      this.props.loadDefinitions();
+      this.enableKeyPressListener();
+    } catch (error) {
+      // TODO: check `error` for usb detection issues first?
+      this.setState({usbDetectionError: true});
+    }
   }
 
   componentWillUnmount() {
@@ -240,7 +250,26 @@ class HomeComponent extends React.Component<Props, State> {
         tabIndex={0}
         style={{flex: 1}}
       >
-        {this.props.children}
+        {this.state.usbDetectionError ? (
+          <div className={styles.usbError}>
+            <div className={styles.usbErrorIcon}>❌</div>
+            <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
+            <p>
+              Looks like there was a problem getting USB detection working.
+              Right now, we only support{' '}
+              <a
+                className={styles.usbErrorWebHIDLink}
+                href="https://caniuse.com/?search=webhid"
+                target="_blank"
+              >
+                browsers that have WebHID enabled
+              </a>
+              , so make sure yours is compatible before trying again.
+            </p>
+          </div>
+        ) : (
+          this.props.children
+        )}
       </div>
     );
   }
