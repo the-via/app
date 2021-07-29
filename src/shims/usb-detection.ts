@@ -16,17 +16,17 @@ export class usbDetect {
   static stopMonitoring() {
     this.shouldMonitor = false;
   }
-  private static onConnect() {
-    if (this.shouldMonitor) {
-      this._listeners.change.forEach((f) => f());
+  private static onConnect = () => {
+    if (usbDetect.shouldMonitor) {
+      usbDetect._listeners.change.forEach((f) => f());
     }
-  }
-  private static onDisconnect() {
-    if (this.shouldMonitor) {
-      this._listeners.change.forEach((f) => f());
-      this._listeners.remove.forEach((f) => f());
+  };
+  private static onDisconnect = () => {
+    if (usbDetect.shouldMonitor) {
+      usbDetect._listeners.change.forEach((f) => f());
+      usbDetect._listeners.remove.forEach((f) => f());
     }
-  }
+  };
   static on(eventName: USBMonitorEvent, cb: () => void) {
     this._listeners[eventName] = [...this._listeners[eventName], cb];
   }

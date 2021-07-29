@@ -120,7 +120,7 @@ function Loader(props: Props) {
       }
     }, 3000);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [props.selectedDefinition]);
   return (
     <>
       <ChippyLoader progress={props.progress || null} />

@@ -144,9 +144,9 @@ class HomeComponent extends React.Component<Props, State> {
     this.disableKeyPressListener();
   }
 
-  validateDevices = () => {
+  validateDevices = async () => {
     // getDevices can potentially contain devices with no definition, change this later
-    const keyboards = getDevicesUsingDefinitions(this.props.definitions);
+    const keyboards = await getDevicesUsingDefinitions(this.props.definitions);
     this.props.validateDevices(keyboards);
   };
 
