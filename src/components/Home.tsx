@@ -256,7 +256,15 @@ class HomeComponent extends React.Component<Props, State> {
             <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
             <p>
               Looks like there was a problem getting USB detection working.
-              Right now, we only support Chrome so try again in that browser.
+              Right now, we only support{' '}
+              <a
+                className={styles.usbErrorWebHIDLink}
+                href="https://caniuse.com/?search=webhid"
+                target="_blank"
+              >
+                browsers that have WebHID enabled
+              </a>
+              , so make sure yours is compatible before trying again.
             </p>
           </div>
         ) : (

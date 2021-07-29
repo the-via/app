@@ -36,7 +36,7 @@
   height: 100%;
   justify-content: center;
   margin: 0 auto;
-  max-width: 600px;
+  max-width: 650px;
   text-align: center;
 }
 
@@ -46,6 +46,10 @@
 
 .usbErrorHeading {
   margin: 1rem 0 0;
+}
+
+.usbErrorWebHIDLink {
+  text-decoration: underline;
 }
 
 *:focus {
