@@ -40,7 +40,7 @@ export default {
   optimize: {
     /* Example: Bundle your final build: */
     bundle: false,
-    minify: true,
+    minify: false,
     target: 'es2018',
   },
   packageOptions: {

@@ -1,3 +1,55 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  position: relative;
+  color: white;
+  background-color: #232c39;
+  font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+h2 {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: bold;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+p {
+  font-size: 24px;
+}
+li {
+  list-style: none;
+}
+a {
+  color: white;
+  opacity: 0.75;
+  text-decoration: none;
+}
+a:hover {
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+:root {
+  --color_accent: #ad7070;
+  --color_light-grey: #d9d9d9;
+  --color_medium-grey: #707070;
+  --color_dark-grey: #414141;
+  --color_light-jet: #222;
+  --color_jet: #1d1b1b;
+  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
+}
+#root {
+  background: var(--gradient);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
 @font-face {
   font-family: 'Source Code Pro';
   font-style: normal;
@@ -268,53 +320,4 @@
 }
 .rc-slider-handle:focus {
   box-shadow: none;
-}
-body {
-  position: relative;
-  color: white;
-  height: 100vh;
-  background-color: #232c39;
-  font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-}
-h2 {
-  margin: 0;
-  font-size: 2.25rem;
-  font-weight: bold;
-  letter-spacing: -0.025em;
-  color: #fff;
-}
-p {
-  font-size: 24px;
-}
-li {
-  list-style: none;
-}
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
-}
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-  cursor: pointer;
-}
-:root {
-  --color_accent: #ad7070;
-  --color_light-grey: #d9d9d9;
-  --color_medium-grey: #707070;
-  --color_dark-grey: #414141;
-  --color_light-jet: #222;
-  --color_jet: #1d1b1b;
-  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
-}
-#root {
-  background: var(--gradient);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }

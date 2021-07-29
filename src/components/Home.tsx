@@ -236,7 +236,12 @@ class HomeComponent extends React.Component<Props, State> {
   render() {
     // Remove once custom menus are removed
     return (
-      <div className={styles.home} ref={this.homeElem} tabIndex={0}>
+      <div
+        className={styles.home}
+        ref={this.homeElem}
+        tabIndex={0}
+        style={{flex: 1}}
+      >
         {this.props.children}
       </div>
     );

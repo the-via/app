@@ -3,8 +3,9 @@ import styled from 'styled-components';
 export const Pane = styled.div`
   background: var(--gradient);
   display: flex;
+  flex: 1;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   background: var(--gradient);
 `;
