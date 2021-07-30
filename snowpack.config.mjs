@@ -22,12 +22,6 @@ export default {
         extendConfig: (config) => {
           return {
             ...config,
-            optimization: {
-              concatenateModules: true,
-              removeEmptyChunks: true,
-              minimize: true,
-              splitChunks: {chunks: 'all'},
-            },
           };
         },
       },
@@ -41,6 +35,8 @@ export default {
     /* Example: Bundle your final build: */
     bundle: false,
     minify: false,
+    splitting: true,
+
     target: 'es2018',
   },
   packageOptions: {
