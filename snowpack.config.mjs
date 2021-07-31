@@ -16,16 +16,6 @@ export default {
         resolveJSONModule: true,
       },
     ],
-    [
-      '@snowpack/plugin-webpack',
-      {
-        extendConfig: (config) => {
-          return {
-            ...config,
-          };
-        },
-      },
-    ],
   ],
   routes: [
     /* Enable an SPA Fallback in development: */
