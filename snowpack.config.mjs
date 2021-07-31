@@ -2,7 +2,7 @@
 export default {
   mount: {
     public: {url: '/', static: true},
-    src: {url: '/dist'},
+    src: {url: '/dist' },
   },
   plugins: [
     'snowpack-plugin-json5',
@@ -14,16 +14,6 @@ export default {
         /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
         ...(process.versions.pnp ? {tsc: 'yarn pnpify tsc'} : {}),
         resolveJSONModule: true,
-      },
-    ],
-    [
-      '@snowpack/plugin-webpack',
-      {
-        extendConfig: (config) => {
-          return {
-            ...config,
-          };
-        },
       },
     ],
   ],
