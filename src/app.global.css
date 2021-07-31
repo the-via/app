@@ -1,0 +1,323 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  position: relative;
+  color: white;
+  background-color: #232c39;
+  font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+h2 {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: bold;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+p {
+  font-size: 24px;
+}
+li {
+  list-style: none;
+}
+a {
+  color: white;
+  opacity: 0.75;
+  text-decoration: none;
+}
+a:hover {
+  opacity: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+:root {
+  --color_accent: #ad7070;
+  --color_light-grey: #d9d9d9;
+  --color_medium-grey: #707070;
+  --color_dark-grey: #414141;
+  --color_light-jet: #222;
+  --color_jet: #1d1b1b;
+  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
+}
+#root {
+  background: var(--gradient);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 200;
+  src: local('Source Code Pro ExtraLight'), local('SourceCodePro-ExtraLight'),
+    url(/fonts/source-code-pro-v11-latin-200.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-200.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 200;
+  src: local('Source Code Pro ExtraLight Italic'),
+    local('SourceCodePro-ExtraLightIt'),
+    url(/fonts/source-code-pro-v11-latin-200italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-200italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Source Code Pro Light'), local('SourceCodePro-Light'),
+    url(/fonts/source-code-pro-v11-latin-300.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-300.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 300;
+  src: local('Source Code Pro Light Italic'), local('SourceCodePro-LightIt'),
+    url(/fonts/source-code-pro-v11-latin-300italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-300italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Source Code Pro Regular'), local('SourceCodePro-Regular'),
+    url(/fonts/source-code-pro-v11-latin-regular.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-regular.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Source Code Pro Italic'), local('SourceCodePro-It'),
+    url(/fonts/source-code-pro-v11-latin-italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 500;
+  src: local('Source Code Pro Medium'), local('SourceCodePro-Medium'),
+    url(/fonts/source-code-pro-v11-latin-500.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-500.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 500;
+  src: local('Source Code Pro Medium Italic'), local('SourceCodePro-MediumIt'),
+    url(/fonts/source-code-pro-v11-latin-500italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-500italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Source Code Pro SemiBold'), local('SourceCodePro-SemiBold'),
+    url(/fonts/source-code-pro-v11-latin-600.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-600.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 600;
+  src: local('Source Code Pro SemiBold Italic'),
+    local('SourceCodePro-SemiBoldIt'),
+    url(/fonts/source-code-pro-v11-latin-600italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-600italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Source Code Pro Bold'), local('SourceCodePro-Bold'),
+    url(/fonts/source-code-pro-v11-latin-700.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-700.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Source Code Pro Bold Italic'), local('SourceCodePro-BoldIt'),
+    url(/fonts/source-code-pro-v11-latin-700italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-700italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 900;
+  src: local('Source Code Pro Black'), local('SourceCodePro-Black'),
+    url(/fonts/source-code-pro-v11-latin-900.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-900.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: italic;
+  font-weight: 900;
+  src: local('Source Code Pro Black Italic'), local('SourceCodePro-BlackIt'),
+    url(/fonts/source-code-pro-v11-latin-900italic.woff2) format('woff2'),
+    url(/fonts/source-code-pro-v11-latin-900italic.woff) format('woff');
+}
+@font-face {
+  font-family: GothamRoundedBold;
+  src: url(/fonts/GothamRoundedBold_21016.ttf) format('opentype');
+}
+@font-face {
+  font-family: GothamRounded;
+  src: url(/fonts/GothamRoundedBook_21018.ttf) format('opentype');
+}
+@font-face {
+  font-family: Symbola;
+  src: url(/fonts/Symbola.ttf) format('opentype');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 200;
+  src: local('Source Sans Pro ExtraLight'), local('SourceSansPro-ExtraLight'),
+    url(/fonts/source-sans-pro-v13-latin-200.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-200.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 200;
+  src: local('Source Sans Pro ExtraLight Italic'),
+    local('SourceSansPro-ExtraLightItalic'),
+    url(/fonts/source-sans-pro-v13-latin-200italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-200italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Source Sans Pro Light'), local('SourceSansPro-Light'),
+    url(/fonts/source-sans-pro-v13-latin-300.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-300.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 300;
+  src: local('Source Sans Pro Light Italic'), local('SourceSansPro-LightItalic'),
+    url(/fonts/source-sans-pro-v13-latin-300italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-300italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Source Sans Pro Regular'), local('SourceSansPro-Regular'),
+    url(/fonts/source-sans-pro-v13-latin-regular.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-regular.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Source Sans Pro Italic'), local('SourceSansPro-Italic'),
+    url(/fonts/source-sans-pro-v13-latin-italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 600;
+  src: local('Source Sans Pro SemiBold'), local('SourceSansPro-SemiBold'),
+    url(/fonts/source-sans-pro-v13-latin-600.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-600.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 600;
+  src: local('Source Sans Pro SemiBold Italic'),
+    local('SourceSansPro-SemiBoldItalic'),
+    url(/fonts/source-sans-pro-v13-latin-600italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-600italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Source Sans Pro Bold'), local('SourceSansPro-Bold'),
+    url(/fonts/source-sans-pro-v13-latin-700.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-700.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Source Sans Pro Bold Italic'), local('SourceSansPro-BoldItalic'),
+    url(/fonts/source-sans-pro-v13-latin-700italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-700italic.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 900;
+  src: local('Source Sans Pro Black'), local('SourceSansPro-Black'),
+    url(/fonts/source-sans-pro-v13-latin-900.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-900.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: italic;
+  font-weight: 900;
+  src: local('Source Sans Pro Black Italic'), local('SourceSansPro-BlackItalic'),
+    url(/fonts/source-sans-pro-v13-latin-900italic.woff2) format('woff2'),
+    url(/fonts/source-sans-pro-v13-latin-900italic.woff) format('woff');
+}
+@keyframes select-glow {
+  0% {
+    filter: brightness(0.75);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(0.75);
+  }
+}
+@keyframes border-glow {
+  0% {
+    border: 2px dashed var(--color_accent);
+  }
+  50% {
+    border: 2px dashed var(--color_medium-grey);
+  }
+  100% {
+    border: 2px dashed var(--color_accent);
+  }
+}
+@keyframes bob {
+  0% {
+    transform: translate3d(0, -10px, 0);
+  }
+  50% {
+    transform: translate3d(0, 10px, 0);
+  }
+  100% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+@keyframes text-glow {
+  0% {
+    stroke: var(--color_accent);
+  }
+  50% {
+    stroke: var(--color_medium-grey);
+  }
+  100% {
+    stroke: var(--color_accent);
+  }
+}
+.rc-slider-handle:focus {
+  box-shadow: none;
+}
