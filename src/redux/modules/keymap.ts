@@ -796,7 +796,8 @@ export const getSelectedLayerIndex = (state: State) => state.selectedLayerIndex;
 export const getDefinitions = createSelector(
   getBaseDefinitions,
   getCustomDefinitions,
-  (definitions, customDefinitions) => ({...definitions, ...customDefinitions}),
+  (definitions, customDefinitions) =>
+    ({...definitions, ...customDefinitions} as KeyboardDictionary),
 );
 export const getSelectedConnectedDevice = createSelector(
   getConnectedDevices,

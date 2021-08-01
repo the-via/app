@@ -8,7 +8,6 @@ import {
   getSelectedLightingData,
   updateBacklightValue,
   getSelectedDefinition,
-  actions,
 } from '../../../redux/modules/keymap';
 import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import type {RootState} from '../../../redux';
@@ -20,11 +19,8 @@ import {
   AdvancedLightingValues,
   AdvancedPane,
 } from './submenus/lighting/advanced';
-import {
-  LightingValue,
-  VIADefinitionV2,
-  getLightingDefinition,
-} from 'via-reader';
+import type {VIADefinitionV2} from 'via-reader';
+import {LightingValue, getLightingDefinition} from 'via-reader';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},

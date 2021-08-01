@@ -2,21 +2,24 @@ import * as React from 'react';
 import styled from 'styled-components';
 import {
   getConnectedDevices,
+  getDefinitions,
   getSelectedDefinition,
   offsetKeyboard,
 } from '../../../redux/modules/keymap';
 import {actions} from '../../../redux/modules/keymap';
 import type {RootState} from '../../../redux';
 import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import LeftArrow from '../../icons/left-arrow';
-import RightArrow from '../../icons/right-arrow';
 import {bindActionCreators} from 'redux';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
+import type {VIADefinitionV2} from 'via-reader';
 
 type OwnProps = {};
 
 const mapStateToProps = (state: RootState) => ({
   selectedDefinition: getSelectedDefinition(state.keymap),
   connectedDevices: getConnectedDevices(state.keymap),
+  definitions: getDefinitions(state.keymap),
 });
 
 const mapDispatchToProps: MapDispatchToPropsFunction<
@@ -36,7 +39,7 @@ const Container = styled.div`
   right: 15px;
   top: 0px;
   font-size: 18px;
-  overflow: hidden;
+  pointer-events: none;
 `;
 
 const SlideContainer = styled.div<{showButtons?: boolean}>`
@@ -45,6 +48,7 @@ const SlideContainer = styled.div<{showButtons?: boolean}>`
 `;
 
 const KeyboardTitle = styled.label`
+  pointer-events: all;
   display: inline-block;
   background: var(--color_accent);
   border-bottom-left-radius: 6px;
@@ -52,62 +56,138 @@ const KeyboardTitle = styled.label`
   font-size: 18px;
   text-transform: uppercase;
   color: var(--color_light-grey);
-  padding: 0 10px;
+  padding: 1px 10px;
   margin-right: 10px;
-`;
-
-const IconButton = styled.button`
-  border: 1px solid var(--color_dark-grey);
-  outline: none;
-  background: none;
-  padding: 0 8px;
-  vertical-align: top;
+  border: solid 1px var(--color_dark-grey);
   border-top: none;
   cursor: pointer;
-  height: 26px;
-  color: var(--color-dark-grey);
-  &:active {
-    outline: none;
-  }
-
   &:hover {
-    background: var(--color_medium-grey);
+    background: var(--color_dark-accent);
+  }
+`;
+const KeyboardList = styled.ul<{show: boolean}>`
+  padding: 0;
+  border: 1px solid var(--color_dark-grey);
+  width: 160px;
+  border-radius: 6px;
+  background-color: var(--color_light-jet);
+  margin: 0;
+  margin-top: 5px;
+  right: 10px;
+  position: absolute;
+  pointer-events: ${(props) => (props.show ? 'all' : 'none')};
+  transition: all 0.2s ease-out;
+  opacity: ${(props) => (props.show ? 1 : 0)};
+  overflow: hidden;
+  transform: ${(props) => (props.show ? 0 : `translateY(-5px)`)};
+`;
+const KeyboardButton = styled.button<{selected?: boolean}>`
+  display: block;
+  text-align: center;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  border: none;
+  background: ${(props) =>
+    props.selected ? 'var(--color_light-grey)' : 'transparent'};
+  color: ${(props) =>
+    props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  &:hover {
+    border: none;
+    background: ${(props) =>
+      props.selected ? 'var(--color_light-grey)' : 'var(--color_dark-grey)'};
+    color: ${(props) =>
+      props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
   }
 `;
 
-const LeftIconButton = styled(IconButton)`
-  border-bottom-left-radius: 6px;
-`;
-
-const RightIconButton = styled(IconButton)`
-  margin-left: -1px;
-  border-bottom-right-radius: 6px;
+const ClickCover = styled.div`
+  position: fixed;
+  pointer-events: all;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.4;
+  background: var(--color_jet);
 `;
 
 type Props = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-export class BadgeComponent extends React.Component<Props> {
-  render() {
-    const {connectedDevices, offsetKeyboard, selectedDefinition} = this.props;
-    const showPrevNext = Object.values(connectedDevices).length > 1;
+type ConnectedKeyboardDefinition = [string, VIADefinitionV2];
 
-    return (
-      <Container>
-        <SlideContainer showButtons={showPrevNext}>
-          <KeyboardTitle>{selectedDefinition.name}</KeyboardTitle>
-          <LeftIconButton onClick={() => offsetKeyboard(-1)}>
-            <LeftArrow />
-          </LeftIconButton>
-          <RightIconButton onClick={() => offsetKeyboard(1)}>
-            <RightArrow />
-          </RightIconButton>
-        </SlideContainer>
-      </Container>
+const KeyboardSelectors: React.FC<{
+  show: boolean;
+  keyboards: ConnectedKeyboardDefinition[];
+  onClickOut: () => void;
+}> = (props) => {
+  return (
+    <>
+      {props.show && <ClickCover onClick={props.onClickOut} />}
+      <KeyboardList show={props.show}>
+        {props.keyboards.map(([path, keyboard]) => {
+          return (
+            <KeyboardButton selected={true} key={path}>
+              {keyboard.name}
+            </KeyboardButton>
+          );
+        })}
+        <KeyboardButton>
+          Authorize New
+          <FontAwesomeIcon icon={faPlus} style={{marginLeft: '10px'}} />
+        </KeyboardButton>
+      </KeyboardList>
+    </>
+  );
+};
+
+export const BadgeComponent: React.FC<Props> = (props) => {
+  const {connectedDevices, definitions, selectedDefinition} = props;
+  const [showList, setShowList] = React.useState(false);
+
+  const connectedKeyboardDefinitions: ConnectedKeyboardDefinition[] =
+    React.useMemo(
+      () =>
+        Object.entries(connectedDevices).map(([path, device]) => [
+          path,
+          definitions[(device as any).vendorProductId],
+        ]),
+      [connectedDevices, definitions],
     );
-  }
-}
+
+  return (
+    <>
+      <Container>
+        <KeyboardTitle onClick={() => setShowList(!showList)}>
+          {selectedDefinition.name}
+          <FontAwesomeIcon
+            icon={faAngleDown}
+            style={{
+              transform: showList ? 'rotate(180deg)' : '',
+              transition: 'transform 0.2s ease-out',
+              marginLeft: '5px',
+            }}
+          />
+        </KeyboardTitle>
+        <KeyboardSelectors
+          show={showList}
+          keyboards={connectedKeyboardDefinitions}
+          onClickOut={() => setShowList(false)}
+        />
+      </Container>
+    </>
+  );
+};
 
 export const Badge = connect(
   mapStateToProps,

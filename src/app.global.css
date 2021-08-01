@@ -37,6 +37,7 @@ a:hover {
 }
 :root {
   --color_accent: #ad7070;
+  --color_dark-accent: #6d4e4e;
   --color_light-grey: #d9d9d9;
   --color_medium-grey: #707070;
   --color_dark-grey: #414141;
