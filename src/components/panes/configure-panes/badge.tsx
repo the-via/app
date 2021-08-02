@@ -1,17 +1,20 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import {
+  actions,
+  selectConnectedDeviceByPath,
   getConnectedDevices,
   getDefinitions,
   getSelectedDefinition,
+  getSelectedDevicePath,
   offsetKeyboard,
 } from '../../../redux/modules/keymap';
-import {actions} from '../../../redux/modules/keymap';
 import type {RootState} from '../../../redux';
 import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
+import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2} from 'via-reader';
 
 type OwnProps = {};
@@ -20,6 +23,7 @@ const mapStateToProps = (state: RootState) => ({
   selectedDefinition: getSelectedDefinition(state.keymap),
   connectedDevices: getConnectedDevices(state.keymap),
   definitions: getDefinitions(state.keymap),
+  selectedPath: getSelectedDevicePath(state.keymap),
 });
 
 const mapDispatchToProps: MapDispatchToPropsFunction<
@@ -30,6 +34,7 @@ const mapDispatchToProps: MapDispatchToPropsFunction<
     {
       offsetKeyboard,
       setLayer: actions.setLayer,
+      selectConnectedDeviceByPath,
     },
     dispatch,
   );
@@ -129,20 +134,32 @@ type ConnectedKeyboardDefinition = [string, VIADefinitionV2];
 const KeyboardSelectors: React.FC<{
   show: boolean;
   keyboards: ConnectedKeyboardDefinition[];
+  selectedPath: string;
   onClickOut: () => void;
+  selectKeyboard: (kb: string) => void;
 }> = (props) => {
+  const requestAndChangeDevice = async () => {
+    const device = await HID.requestDevice();
+    if (device) {
+      props.selectKeyboard((device as any).__path);
+    }
+  };
   return (
     <>
       {props.show && <ClickCover onClick={props.onClickOut} />}
       <KeyboardList show={props.show}>
         {props.keyboards.map(([path, keyboard]) => {
           return (
-            <KeyboardButton selected={true} key={path}>
+            <KeyboardButton
+              selected={path === props.selectedPath}
+              key={path}
+              onClick={() => props.selectKeyboard(path as string)}
+            >
               {keyboard.name}
             </KeyboardButton>
           );
         })}
-        <KeyboardButton>
+        <KeyboardButton onClick={requestAndChangeDevice}>
           Authorize New
           <FontAwesomeIcon icon={faPlus} style={{marginLeft: '10px'}} />
         </KeyboardButton>
@@ -152,7 +169,13 @@ const KeyboardSelectors: React.FC<{
 };
 
 export const BadgeComponent: React.FC<Props> = (props) => {
-  const {connectedDevices, definitions, selectedDefinition} = props;
+  const {
+    connectedDevices,
+    definitions,
+    selectedDefinition,
+    selectConnectedDeviceByPath,
+    selectedPath,
+  } = props;
   const [showList, setShowList] = React.useState(false);
 
   const connectedKeyboardDefinitions: ConnectedKeyboardDefinition[] =
@@ -181,8 +204,13 @@ export const BadgeComponent: React.FC<Props> = (props) => {
         </KeyboardTitle>
         <KeyboardSelectors
           show={showList}
+          selectedPath={selectedPath}
           keyboards={connectedKeyboardDefinitions}
           onClickOut={() => setShowList(false)}
+          selectKeyboard={(path) => {
+            selectConnectedDeviceByPath(path);
+            setShowList(false);
+          }}
         />
       </Container>
     </>

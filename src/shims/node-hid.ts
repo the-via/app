@@ -9,10 +9,27 @@ const filterHIDDevices = (devices: HIDDevice[]) =>
         collection.usage === 0x61 && collection.usagePage === 0xff60,
     ),
   );
+const tagDevice = (device: HIDDevice) => {
+  // This is super important in order to have a stable way to identify the same device
+  // that was already scanned. It's a bit hacky but https://github.com/WICG/webhid/issues/7
+  // ¯\_(ツ)_/¯
+  const path = (device as any).__path || `via-path:${Math.random()}`;
+  (device as any).__path = path;
+  const HIDDevice = {
+    _device: device,
+    usage: 0x61,
+    usagePage: 0xff60,
+    interface: 0x0001,
+    vendorId: device.vendorId ?? -1,
+    productId: device.productId ?? -1,
+    path,
+  };
+  return (ExtendedHID._cache[path] = HIDDevice);
+};
 const ExtendedHID = {
   _cache: {} as {[key: string]: any},
-  requestDevices: async () => {
-    await navigator.hid.requestDevice({
+  requestDevice: async () => {
+    const requestedDevice = await navigator.hid.requestDevice({
       filters: [
         {
           usagePage: 0xff60,
@@ -20,34 +37,20 @@ const ExtendedHID = {
         },
       ],
     });
+    requestedDevice.forEach(tagDevice);
+    return requestedDevice[0];
   },
   getFilteredDevices: async () => {
     return filterHIDDevices(await navigator.hid.getDevices());
   },
-  devices: async () => {
+  devices: async (requestAuthorize = false) => {
     let devices = await ExtendedHID.getFilteredDevices();
     // TODO: This is a hack to avoid spamming the requestDevices popup
-    if (devices.length === 0) {
-      await ExtendedHID.requestDevices();
+    if (devices.length === 0 || requestAuthorize) {
+      await ExtendedHID.requestDevice();
       devices = await ExtendedHID.getFilteredDevices();
     }
-    return devices.map((device) => {
-      // This is super important in order to have a stable way to identify the same device
-      // that was already scanned. It's a bit hacky but https://github.com/WICG/webhid/issues/7
-      // ¯\_(ツ)_/¯
-      const path = (device as any).__path || `via-path:${Math.random()}`;
-      (device as any).__path = path;
-      const HIDDevice = {
-        _device: device,
-        usage: 0x61,
-        usagePage: 0xff60,
-        interface: 0x0001,
-        vendorId: device.vendorId ?? -1,
-        productId: device.productId ?? -1,
-        path,
-      };
-      return (ExtendedHID._cache[path] = HIDDevice);
-    });
+    return devices.map(tagDevice);
   },
   HID: class HID {
     _hidDevice?: WebVIADevice;

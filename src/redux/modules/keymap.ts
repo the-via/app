@@ -255,6 +255,15 @@ export const offsetKeyboard = (offset: number): ThunkResult => {
   };
 };
 
+export const selectConnectedDeviceByPath = (path: string): ThunkResult => {
+  return async (dispatch, getState) => {
+    await dispatch(reloadConnectedDevices());
+    const connectedDevice = getConnectedDevices(getState().keymap)[path];
+    if (connectedDevice) {
+      dispatch(selectConnectedDevice(connectedDevice.device));
+    }
+  };
+};
 export const selectConnectedDevice = (device: Device): ThunkResult => {
   return async (dispatch, getState) => {
     dispatch(actions.selectDevice(device));
