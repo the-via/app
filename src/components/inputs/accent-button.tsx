@@ -15,31 +15,43 @@ const AccentButtonElem = styled.div<{disabled?: boolean}>`
   border: 1px solid var(--color_accent);
   display: inline-block;
   box-sizing: border-box;
-  cursor: ${props => (props.disabled ? 'initial' : 'pointer')};
-  color: ${props =>
+  cursor: ${(props) => (props.disabled ? 'initial' : 'pointer')};
+  color: ${(props) =>
     props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
-  border-color: ${props =>
+  border-color: ${(props) =>
     props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
 
   &:hover {
     border: 1px solid var(--color_accent);
-    color: ${props =>
+    color: ${(props) =>
       props.disabled ? 'var(--color_dark-grey)' : 'var(--color_light-grey)'};
-    border-color: ${props =>
+    border-color: ${(props) =>
       props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.disabled ? 'transparent' : 'var(--color_accent)'};
   }
+`;
+const AccentButtonLargeElem = styled(AccentButtonElem)`
+  font-size: 24px;
+  line-height: 60px;
+  height: 60px;
 `;
 const noop = () => {};
 
 type AccentButtonProps = {
-  disabled?: boolean,
-  onClick: (...a: any[]) => void,
+  disabled?: boolean;
+  onClick: (...a: any[]) => void;
 };
 
-export const AccentButton: React.FC<AccentButtonProps> = props => (
+export const AccentButton: React.FC<AccentButtonProps> = (props) => (
   <AccentButtonElem
+    {...props}
+    onClick={props.disabled ? noop : props.onClick}
+  />
+);
+
+export const AccentButtonLarge: React.FC<AccentButtonProps> = (props) => (
+  <AccentButtonLargeElem
     {...props}
     onClick={props.disabled ? noop : props.onClick}
   />

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {bindActionCreators} from 'redux';
 import useResize from 'react-resize-observer-hook';
 import styled from 'styled-components';
@@ -28,7 +30,7 @@ import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
-import {AccentButton} from '../inputs/accent-button';
+import {AccentButtonLarge} from '../inputs/accent-button';
 type ReduxState = ReturnType<typeof mapStateToProps>;
 
 type ReduxDispatch = ReturnType<typeof mapDispatchToProps>;
@@ -125,9 +127,10 @@ function Loader(props: Props) {
     <>
       <ChippyLoader progress={props.progress || null} />
       {showButton ? (
-        <AccentButton onClick={props.reloadConnectedDevices}>
-          Authorize device
-        </AccentButton>
+        <AccentButtonLarge onClick={props.reloadConnectedDevices}>
+          Authorize device{' '}
+          <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
+        </AccentButtonLarge>
       ) : (
         <LoadingText isSearching={!props.selectedDefinition} />
       )}
