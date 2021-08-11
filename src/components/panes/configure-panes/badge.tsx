@@ -15,7 +15,7 @@ import {bindActionCreators} from 'redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 
 type OwnProps = {};
 
@@ -129,7 +129,7 @@ type Props = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-type ConnectedKeyboardDefinition = [string, VIADefinitionV2];
+type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
 
 const KeyboardSelectors: React.FC<{
   show: boolean;

@@ -31,10 +31,10 @@ import {
   FlexCell,
 } from './grid';
 import Layouts from '../Layouts';
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
 
-type KeyboardDefinitionEntry = [string, VIADefinitionV2];
+type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 
 type ReduxState = {
   allDefinitions: KeyboardDefinitionEntry[];
@@ -366,7 +366,7 @@ function Debug(props: Props) {
                         allDefinitions.find(
                           ([id]) => id === device.vendorProductId.toString(),
                         ) as KeyboardDefinitionEntry
-                      )[1] as VIADefinitionV2
+                      )[1] as VIADefinitionV2 | VIADefinitionV3
                     ).name
                   }
                 </SubLabel>

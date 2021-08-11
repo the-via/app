@@ -22,7 +22,7 @@ import {
   getShortNameForKeycode,
 } from '../utils/key';
 import type {IKeycode} from '../utils/key';
-import type {VIADefinitionV2, VIAKey, KeyColorType} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3, VIAKey, KeyColorType} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {MouseEventHandler} from 'react';
 
@@ -406,7 +406,7 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
 });
 
 type ReduxProps = {
-  selectedDefinition: VIADefinitionV2 | null;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
   macros: RootState['macros'];
   matrixKeycodes?: number[];
   keys?: VIAKey[];
@@ -440,7 +440,7 @@ export const getLabel = (
   keycodeByte: number,
   width: number,
   macros: RootState['macros'],
-  selectedDefinition: VIADefinitionV2 | null,
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
 ) => {
   let label: string = '';
   if (isUserKeycodeByte(keycodeByte) && selectedDefinition?.customKeycodes) {

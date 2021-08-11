@@ -1,4 +1,4 @@
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 
 export type HIDColor = {
   hue: number;
@@ -72,7 +72,7 @@ export type KeyboardDefinition = {
 };
 
 export type KeyboardDictionary = {
-  [key: string]: VIADefinitionV2;
+  [key: string]: VIADefinitionV2 | VIADefinitionV3;
 };
 
 export type KeyboardLibrary = {

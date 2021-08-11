@@ -2,10 +2,10 @@ import * as React from 'react';
 import {AccentSelect} from './inputs/accent-select';
 import {AccentSlider} from './inputs/accent-slider';
 import {Detail, IndentedControlRow, Label} from './panes/grid';
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 
 interface Props {
-  definition: VIADefinitionV2;
+  definition: VIADefinitionV2 | VIADefinitionV3;
   onLayoutChange: (newSelectedOptionKeys: number[]) => void;
   RowComponent?: React.ComponentType;
 }

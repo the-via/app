@@ -3,13 +3,13 @@ import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
-import type {VIADefinitionV2, VIAItem, VIAControlItem} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3, VIAItem, VIAControlItem} from 'via-reader';
 import type {LightingData} from '../../../../types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 
 type Props = {
   lightingData: LightingData;
-  definition: VIADefinitionV2;
+  definition: VIADefinitionV2 | VIADefinitionV3;
 };
 
 export type ControlMeta = [
@@ -17,7 +17,7 @@ export type ControlMeta = [
   {type: string} & Partial<{
     min: number;
     max: number;
-    getOptions: (d: VIADefinitionV2) => string[];
+    getOptions: (d: VIADefinitionV2 | VIADefinitionV3) => string[];
   }>,
 ];
 

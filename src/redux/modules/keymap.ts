@@ -7,8 +7,10 @@ import {
 } from 'typesafe-actions';
 import {
   getLightingDefinition,
+  isTypeVIADefinitionV2,
   LightingValue,
   VIADefinitionV2,
+  VIADefinitionV3,
 } from 'via-reader';
 
 import type {Device, KeyboardDictionary} from '../../types';
@@ -78,9 +80,9 @@ export const actions = {
   updateDefinitions: createStandardAction(
     'via/keymap/UPDATE_DEFINITIONS',
   )<KeyboardDictionary>(),
-  loadDefinition: createStandardAction(
-    'via/keymap/LOAD_DEFINITION',
-  )<VIADefinitionV2>(),
+  loadDefinition: createStandardAction('via/keymap/LOAD_DEFINITION')<
+    VIADefinitionV2 | VIADefinitionV3
+  >(),
   setNumberOfLayers: createStandardAction(
     'via/keymap/SET_NUMBER_OF_LAYERS',
   )<number>(),
@@ -414,7 +416,13 @@ export const updateLightingData = (device: Device): ThunkResult => {
     const state = getState().keymap;
     const definitions = getDefinitions(state);
     const {api, vendorProductId} = state.connectedDevices[device.path];
-    const {lighting} = definitions[vendorProductId];
+    const definition = definitions[vendorProductId];
+
+    if (!isTypeVIADefinitionV2(definition)) {
+      throw new Error('This method is only compatible with v2 definitions');
+    }
+
+    const {lighting} = definition;
     const {supportedLightingValues, effects} = getLightingDefinition(lighting);
 
     if (supportedLightingValues.length !== 0) {

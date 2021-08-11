@@ -19,8 +19,8 @@ import {
   AdvancedLightingValues,
   AdvancedPane,
 } from './submenus/lighting/advanced';
-import type {VIADefinitionV2} from 'via-reader';
-import {LightingValue, getLightingDefinition} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import {LightingValue, getLightingDefinition, isTypeVIADefinitionV2} from 'via-reader';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -52,7 +52,7 @@ type OwnProps = {};
 
 type ReduxProps = {
   lightingData: LightingData;
-  selectedDefinition: VIADefinitionV2;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
   updateBacklightValue: (command: LightingValue, ...args: number[]) => void;
   updateCustomColor: (num: number, hue: number, sat: number) => void;
 };
@@ -85,6 +85,10 @@ export class LightingMenu extends Component<Props, State> {
 
   get menus() {
     const {selectedDefinition} = this.props;
+
+    if (!isTypeVIADefinitionV2(selectedDefinition)) {
+      throw new Error("This lighting component is only compatible with v2 definitions")
+    }
 
     const hasLayouts = LayoutConfigValues.some(
       (value) =>

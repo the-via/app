@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import {getLightingDefinition, LightingValue} from 'via-reader';
-import type {VIADefinitionV2} from 'via-reader';
+import {getLightingDefinition, isTypeVIADefinitionV2, LightingValue} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {LightingControl, ControlMeta} from './lighting-control';
 
 export const AdvancedLightingValues = [
@@ -87,14 +87,14 @@ const RGBControls: ControlMeta[] = [
 ];
 export const AdvancedPane: React.FC<{
   lightingData: any;
-  selectedDefinition: VIADefinitionV2;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
   updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
 }> = (props) => {
   const {selectedDefinition, lightingData, updateBacklightValue} = props;
-  const {supportedLightingValues} = getLightingDefinition(
-    selectedDefinition.lighting,
-  );
-  if (lightingData) {
+  if (isTypeVIADefinitionV2(selectedDefinition) && lightingData) {
+    const {supportedLightingValues} = getLightingDefinition(
+      selectedDefinition.lighting,
+    );
     return (
       <>
         {RGBControls.filter(
