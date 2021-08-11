@@ -18,7 +18,7 @@ import {
   reloadConnectedDevices,
 } from '../../redux/modules/keymap';
 import ReactTooltip from 'react-tooltip';
-import {CustomFeatures, getLightingDefinition} from 'via-reader';
+import {CustomFeaturesV2, getLightingDefinition} from 'via-reader';
 import {ConnectedPositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
@@ -75,9 +75,9 @@ const Rows = [
   RotaryEncoder,
   ...makeCustomMenus([]),
 ];
-function getCustomPanes(customFeatures: CustomFeatures[]) {
+function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
   if (
-    customFeatures.find((feature) => feature === CustomFeatures.RotaryEncoder)
+    customFeatures.find((feature) => feature === CustomFeaturesV2.RotaryEncoder)
   ) {
     return [RotaryEncoder];
   }

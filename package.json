@@ -33,7 +33,7 @@
     "reselect": "^4.0.0",
     "styled-components": "^5.3.0",
     "typesafe-actions": "^4.4.2",
-    "via-reader": "git://github.com/the-via/reader.git#d17fbe3c04a4df8231d0fbe524047a512fb72c9d"
+    "via-reader": "git://github.com/the-via/reader.git#e87869ffba8232da94f9341a9cf8cfc8a04deff2"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
