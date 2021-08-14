@@ -7,7 +7,8 @@ import {
 } from 'typesafe-actions';
 import {
   getLightingDefinition,
-  isTypeVIADefinitionV2,
+  isVIADefinitionV2,
+  isVIADefinitionV3,
   LightingValue,
   VIADefinitionV2,
   VIADefinitionV3,
@@ -277,7 +278,7 @@ export const selectConnectedDevice = (device: Device): ThunkResult => {
       dispatch(updateLightingData(device));
     }
     if (protocol >= 10) {
-      dispatch(updateCustomMenuData(device));
+      dispatch(updateV3MenuData(device));
     }
 
     dispatch(loadKeymapFromDevice(device));
@@ -375,14 +376,18 @@ const extractCommands = (menuOrControls: any) =>
     ? menuOrControls.content.flatMap(extractCommands)
     : [];
 
-export const updateCustomMenuData = (device: Device): ThunkResult => {
+export const updateV3MenuData = (device: Device): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
     const definitions = getDefinitions(state);
     const {api, protocol, vendorProductId} =
       state.connectedDevices[device.path];
-    const {customMenus = []} = definitions[vendorProductId];
-    const commands = customMenus.flatMap(extractCommands);
+    const definition = definitions[vendorProductId];
+    if (!isVIADefinitionV3(definition)) {
+      throw new Error('V3 menus are only compatible with V3 VIA definitions.');
+    }
+    const {menus = []} = definition;
+    const commands = menus.flatMap(extractCommands);
     if (commands.length !== 0 && protocol >= 10) {
       let props = {};
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
@@ -418,7 +423,7 @@ export const updateLightingData = (device: Device): ThunkResult => {
     const {api, vendorProductId} = state.connectedDevices[device.path];
     const definition = definitions[vendorProductId];
 
-    if (!isTypeVIADefinitionV2(definition)) {
+    if (!isVIADefinitionV2(definition)) {
       throw new Error('This method is only compatible with v2 definitions');
     }
 
@@ -844,6 +849,9 @@ export const getSelectedDefinition = createSelector(
 export const getCustomCommands = createSelector(
   getSelectedDefinition,
   (definition) => {
+    if (!isVIADefinitionV2(definition)) {
+      throw new Error('Custom commands require a V2 defintion.');
+    }
     if (definition === undefined || definition.customMenus === undefined) {
       return [];
     }
@@ -855,10 +863,11 @@ export const getCustomCommands = createSelector(
     }, {});
   },
 );
+
 export const getCustomMenus = createSelector(
   getSelectedDefinition,
   (definition) => {
-    if (definition === undefined) {
+    if (definition === undefined || !isVIADefinitionV3(definition)) {
       return [];
     }
 
@@ -888,7 +897,7 @@ export const getCustomMenus = createSelector(
                   ),
           };
 
-    return (definition.customMenus || []).map((val, idx) =>
+    return (definition.menus || []).map((val, idx) =>
       compileMenu('custom_menu', 3, val, idx),
     );
   },

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
-import {getLightingDefinition, isTypeVIADefinitionV2, LightingValue} from 'via-reader';
+import {getLightingDefinition, isVIADefinitionV2, LightingValue} from 'via-reader';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
@@ -31,7 +31,7 @@ export const LayoutPane: React.FC<{
 }> = (props) => {
   const {selectedDefinition, updateBacklightValue, lightingData} = props;
 
-  if (!isTypeVIADefinitionV2(selectedDefinition)) {
+  if (!isVIADefinitionV2(selectedDefinition)) {
     throw new Error("This lighting component is only compatible with v2 definitions");
   }
 

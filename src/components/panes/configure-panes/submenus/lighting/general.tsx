@@ -3,7 +3,7 @@ import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {
   getLightingDefinition,
-  isTypeVIADefinitionV2,
+  isVIADefinitionV2,
   LightingValue,
   VIADefinitionV2,
   VIADefinitionV3
@@ -26,7 +26,7 @@ const BacklightControls: [
     {
       type: 'select',
       getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) => 
-        isTypeVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).effects.map(
+      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).effects.map(
           ([label]) => label,
         ),
     },
@@ -54,7 +54,7 @@ const UnderglowControls: [
     {
       type: 'select',
       getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
-        isTypeVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).underglowEffects.map(
+      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).underglowEffects.map(
           ([label]) => label,
         ),
     },

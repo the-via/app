@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import {getLightingDefinition, isTypeVIADefinitionV2, LightingValue} from 'via-reader';
+import {getLightingDefinition, isVIADefinitionV2, LightingValue} from 'via-reader';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {LightingControl, ControlMeta} from './lighting-control';
 
@@ -91,7 +91,7 @@ export const AdvancedPane: React.FC<{
   updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
 }> = (props) => {
   const {selectedDefinition, lightingData, updateBacklightValue} = props;
-  if (isTypeVIADefinitionV2(selectedDefinition) && lightingData) {
+  if (isVIADefinitionV2(selectedDefinition) && lightingData) {
     const {supportedLightingValues} = getLightingDefinition(
       selectedDefinition.lighting,
     );

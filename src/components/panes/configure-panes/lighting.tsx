@@ -20,7 +20,7 @@ import {
   AdvancedPane,
 } from './submenus/lighting/advanced';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
-import {LightingValue, getLightingDefinition, isTypeVIADefinitionV2} from 'via-reader';
+import {LightingValue, getLightingDefinition, isVIADefinitionV2} from 'via-reader';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -86,7 +86,7 @@ export class LightingMenu extends Component<Props, State> {
   get menus() {
     const {selectedDefinition} = this.props;
 
-    if (!isTypeVIADefinitionV2(selectedDefinition)) {
+    if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error("This lighting component is only compatible with v2 definitions")
     }
 
