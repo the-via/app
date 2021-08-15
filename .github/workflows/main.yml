@@ -26,8 +26,7 @@ jobs:
       - name: Checkout definitions repo
         uses: actions/checkout@master
         with:
-          name: the-via/keyboards  
-          ref: refs/heads/master
+          repository: the-via/keyboards  
           path: keyboards
       - name: test 
         run: |
