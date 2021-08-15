@@ -1,11 +1,15 @@
 export let Store: any;
+
+// In an Electron context
 if ((globalThis as any).require) {
   Store = (globalThis as any).require('electron-store');
-} else {
+}
+// On the web
+else {
   Store = class Store {
     store: any;
     constructor(props: any) {
-      const store = localStorage.getItem('electronStore');
+      const store = localStorage.getItem('via-app-store');
       this.store = store ? JSON.parse(store) : props.defaults;
     }
     get(key: string) {
@@ -13,7 +17,7 @@ if ((globalThis as any).require) {
     }
     set(key: string) {
       this.store[key] = arguments[1];
-      localStorage.setItem('electronStore', JSON.stringify(this.store));
+      localStorage.setItem('via-app-store', JSON.stringify(this.store));
     }
   };
 }

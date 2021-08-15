@@ -1,6 +1,6 @@
 import type {Device} from 'src/types/types';
 import {getTheme} from 'via-reader';
-import {Store} from '../shims/electron-store';
+import {Store} from '../shims/store';
 import {getVendorProductId} from './hid-keyboards';
 
 export type Settings = {
@@ -17,6 +17,7 @@ const remoteDefaultData = {
   definitions: {},
   theme: getTheme(),
 };
+
 const deviceStore = new Store({
   defaults: {
     remoteData: remoteDefaultData,
