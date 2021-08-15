@@ -1,6 +1,6 @@
 import {HID} from '../shims/node-hid';
 import {usbDetect} from '../shims/usb-detection';
-import type {Device} from '../types';
+import type {Device} from '../types/types';
 
 export {HID} from '../shims/node-hid';
 export {usbDetect} from '../shims/usb-detection';

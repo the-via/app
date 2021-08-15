@@ -1,4 +1,4 @@
-import type {WebVIADevice} from '../types';
+import type {WebVIADevice} from '../types/types';
 // This is a bit cray
 const globalBuffer: {[path: string]: ArrayBuffer[]} = {};
 const eventWaitBuffer: {[path: string]: ((a: Uint8Array) => void)[]} = {};

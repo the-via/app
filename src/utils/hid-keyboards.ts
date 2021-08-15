@@ -1,4 +1,4 @@
-import type {Device, KeyboardDictionary} from '../types';
+import type {Device, KeyboardDictionary} from '../types/types';
 import {canConnect} from './keyboard-api';
 import {scanDevices} from './usb-hid';
 

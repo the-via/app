@@ -1,4 +1,4 @@
-import type {Device} from 'src/types';
+import type {Device} from 'src/types/types';
 import {getTheme} from 'via-reader';
 import {Store} from '../shims/electron-store';
 import {getVendorProductId} from './hid-keyboards';

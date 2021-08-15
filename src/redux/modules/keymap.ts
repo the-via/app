@@ -11,7 +11,7 @@ import {
   VIADefinitionV2,
 } from 'via-reader';
 
-import type {Device, KeyboardDictionary} from '../../types';
+import type {Device, KeyboardDictionary} from '../../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
