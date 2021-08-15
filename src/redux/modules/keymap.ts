@@ -223,8 +223,13 @@ export const reloadConnectedDevices = (): ThunkResult => {
     const missingDefinitions = await Promise.all(
       missingDevices.map((d) => getDefinition(d)),
     );
-    missingDefinitions.forEach((definition) =>
-      dispatch(actions.loadDefinition(definition)),
+    dispatch(
+      actions.updateDefinitions(
+        missingDefinitions.reduce(
+          (p, n) => ({...p, [n.vendorProductId]: n}),
+          {},
+        ),
+      ),
     );
     const devices = await getDevicesUsingDefinitions(
       getDefinitions(getState().keymap),
@@ -745,7 +750,10 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
   }))
   .handleAction(actions.updateDefinitions, (state, action) => ({
     ...state,
-    definitions: action.payload,
+    definitions: {
+      ...state.definitions,
+      ...action.payload,
+    },
   }))
   .handleAction(actions.setKey, (state, action) => {
     const {keyIndex, value} = action.payload;
