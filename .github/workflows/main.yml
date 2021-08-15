@@ -28,12 +28,16 @@ jobs:
         with:
           repository: the-via/keyboards  
           path: keyboards
-          
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          path: app
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: ls
       - name: test 
         run: |
+          cd keyboards
           yarn
           yarn build-isolated
 
