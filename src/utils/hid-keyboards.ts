@@ -34,6 +34,28 @@ function definitionExists(
   return definitions[getVendorProductId(vendorId, productId)] !== undefined;
 }
 
+function idExists({productId, vendorId}: Device, ids: number[]) {
+  return ids.includes(getVendorProductId(vendorId, productId));
+}
+
+export async function getMissingDevicesUsingDefinitions(
+  definitions: KeyboardDictionary,
+  ids: number[],
+): Promise<Device[]> {
+  const usbDevices = await scanDevices();
+  return usbDevices.filter((device: Device) => {
+    const validVendorProduct = idExists(device, ids);
+    const definitionLoaded = definitionExists(device, definitions);
+    const validInterface = isValidInterface(device);
+    // attempt connection
+    return (
+      validVendorProduct &&
+      validInterface &&
+      !definitionLoaded &&
+      canConnect(device)
+    );
+  });
+}
 export async function getDevicesUsingDefinitions(
   definitions: KeyboardDictionary,
 ): Promise<Device[]> {
