@@ -18,14 +18,21 @@ jobs:
   definitions:
     runs-on: ubuntu-latest
     steps:
+      - name: Use Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
       - name: Checkout definitions repo
         uses: actions/checkout@master
         with:
           name: the-via/keyboards  
-          ref: refs/heads/release
+          ref: refs/heads/master
           path: keyboards
-      - name: test ls
-        run: ls
+      - name: test 
+        run: |
+          yarn
+          yarn build-isolated
 
   
   # This workflow contains a single job called "build"
