@@ -4,7 +4,7 @@ import {AccentSelect} from '../../../../inputs/accent-select';
 import {AccentRange} from '../../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../../grid';
 import type {VIADefinitionV2, LightingValue} from 'via-reader';
-import type {LightingData} from '../../../../../types';
+import type {LightingData} from '../../../../../types/types';
 import {ArrayColorPicker} from '../../../../inputs/color-picker';
 type Props = {
   lightingData: LightingData & any;

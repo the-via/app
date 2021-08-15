@@ -1,5 +1,7 @@
+import type {Device} from 'src/types/types';
 import {getTheme} from 'via-reader';
 import {Store} from '../shims/electron-store';
+import {getVendorProductId} from './hid-keyboards';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -9,7 +11,7 @@ export type Settings = {
 };
 
 const remoteBaseURL = '';
-const devicesURL = '/keyboards.v2.json';
+const devicesURL = '/definitions/supported_kbs.json';
 const remoteDefaultData = {
   generatedAt: -1,
   definitions: {},
@@ -42,8 +44,20 @@ export async function syncStore() {
   return lastJSON.remoteData;
 }
 
+export async function getDefinition(device: Device) {
+  const filename = getVendorProductId(device.vendorId, device.productId);
+  const url = `/definitions/${filename}.json`;
+  const response = await fetch(url);
+  const json = await response.json();
+  return json;
+}
+
 export function getDevicesFromStore() {
   return lastJSON.definitions;
+}
+
+export function getSupportedIdsFromStore() {
+  return lastJSON.supportedKbs;
 }
 
 export function getThemeFromStore() {

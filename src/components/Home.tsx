@@ -9,7 +9,7 @@ import {bindActionCreators} from 'redux';
 import {loadMacros} from '../redux/modules/macros';
 
 import {
-  loadDefinitions,
+  loadSupportedIds,
   loadKeymapFromDevice,
   reloadConnectedDevices,
   selectConnectedDevice,
@@ -62,7 +62,7 @@ const mapDispatchToProps: MapDispatchToPropsFunction<
       validateDevices: actions.validateDevices,
       updateSelectedLightingData: actions.updateSelectedLightingData,
       updateSelectedKey: actions.updateSelectedKey,
-      loadDefinitions,
+      loadSupportedIds,
       selectConnectedDevice,
       reloadConnectedDevices,
     },
@@ -127,9 +127,8 @@ class HomeComponent extends React.Component<Props, State> {
       this.props.allowGlobalHotKeys();
       usbDetect.on('change', this.updateDevicesRepeat);
       usbDetect.on('remove', this.validateDevices);
-      timeoutRepeater(this.props.loadDefinitions, 5 * 60000, Infinity);
-      this.props.loadDefinitions();
-      this.props.reloadConnectedDevices();
+      timeoutRepeater(this.props.loadSupportedIds, 5 * 60000, Infinity);
+      this.props.loadSupportedIds();
       this.enableKeyPressListener();
     } catch (error) {
       // TODO: check `error` for usb detection issues first?

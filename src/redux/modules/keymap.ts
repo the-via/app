@@ -11,16 +11,22 @@ import {
   VIADefinitionV2,
 } from 'via-reader';
 
-import type {Device, KeyboardDictionary} from '../../types';
+import type {Device, KeyboardDictionary} from '../../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
   packBits,
   unpackBits,
 } from '../../utils/bit-pack';
-import {getDevicesFromStore, syncStore} from '../../utils/device-store';
+import {
+  getDevicesFromStore,
+  getSupportedIdsFromStore,
+  getDefinition,
+  syncStore,
+} from '../../utils/device-store';
 import {
   getDevicesUsingDefinitions,
+  getMissingDevicesUsingDefinitions,
   getVendorProductId,
 } from '../../utils/hid-keyboards';
 import {
@@ -75,6 +81,9 @@ export const actions = {
   updateSelectedKey: createStandardAction(
     'via/keymap/UPDATE_SELECTED_KEY',
   )<number>(),
+  updateSupportedIds: createStandardAction('via/keymap/UPDATE_SUPPORTED_IDS')<
+    number[]
+  >(),
   updateDefinitions: createStandardAction(
     'via/keymap/UPDATE_DEFINITIONS',
   )<KeyboardDictionary>(),
@@ -207,7 +216,24 @@ export const reloadConnectedDevices = (): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
     const selectedPath = getSelectedDevicePath(state) as string;
-    const devices = await getDevicesUsingDefinitions(getDefinitions(state));
+    const missingDevices = await getMissingDevicesUsingDefinitions(
+      getDefinitions(state),
+      state.supportedIds,
+    );
+    const missingDefinitions = await Promise.all(
+      missingDevices.map((d) => getDefinition(d)),
+    );
+    dispatch(
+      actions.updateDefinitions(
+        missingDefinitions.reduce(
+          (p, n) => ({...p, [n.vendorProductId]: n}),
+          {},
+        ),
+      ),
+    );
+    const devices = await getDevicesUsingDefinitions(
+      getDefinitions(getState().keymap),
+    );
     const protocolVersions = await Promise.all(
       devices.map((device) => new KeyboardAPI(device).getProtocolVersion()),
     );
@@ -492,7 +518,17 @@ export const saveRawKeymapToDevice = (
   };
 };
 
+export const loadSupportedIds = (): ThunkResult => {
+  return async (dispatch) => {
+    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
+    await syncStore();
+    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
+    dispatch(reloadConnectedDevices());
+  };
+};
+
 export const loadDefinitions = (): ThunkResult => {
+  throw new Error('stop using this');
   return async (dispatch) => {
     dispatch(actions.updateDefinitions(getDevicesFromStore()));
     await syncStore();
@@ -545,6 +581,7 @@ export type State = {
   selectedDevice: null | Device;
   allowKeyRemappingViaKeyboard: boolean;
   allowGlobalHotKeys: boolean;
+  supportedIds: number[];
 };
 
 const initialState: State = {
@@ -563,6 +600,7 @@ const initialState: State = {
   lightingMap: {},
   layoutOptionsMap: {},
   customMenuDataMap: {},
+  supportedIds: [],
 };
 
 const getSelectedPropsFromDevice = (device: Device) => ({
@@ -706,9 +744,16 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
       selectedLayerIndex: newLayerIndex,
     };
   })
+  .handleAction(actions.updateSupportedIds, (state, action) => ({
+    ...state,
+    supportedIds: action.payload,
+  }))
   .handleAction(actions.updateDefinitions, (state, action) => ({
     ...state,
-    definitions: action.payload,
+    definitions: {
+      ...state.definitions,
+      ...action.payload,
+    },
   }))
   .handleAction(actions.setKey, (state, action) => {
     const {keyIndex, value} = action.payload;
