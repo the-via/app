@@ -1,5 +1,5 @@
 import type {LightingValue} from 'via-reader';
-import type {MatrixInfo} from '../types';
+import type {MatrixInfo} from '../types/types';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 

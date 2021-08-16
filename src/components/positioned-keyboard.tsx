@@ -604,7 +604,7 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
       },
       Array(rows)
         .fill(0)
-        .map((row) => Array(cols).fill(0)),
+        .map(() => Array(cols).fill(0)),
     )
     .map((arr) => arr.sort((a, b) => a[0] - b[0]));
   const colKeys = keys
@@ -615,7 +615,7 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
       },
       Array(cols)
         .fill(0)
-        .map((col) => Array(rows).fill(0)),
+        .map(() => Array(rows).fill(0)),
     )
     .map((arr) => arr.sort((a, b) => a[1] - b[1]));
   return {rowKeys, colKeys};
