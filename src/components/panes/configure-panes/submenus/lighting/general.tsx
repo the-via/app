@@ -79,7 +79,7 @@ export const GeneralPane: React.FC<{
     selectedDefinition,
   } = props;
 
-  if (!isTypeVIADefinitionV2(selectedDefinition)) {
+  if (!isVIADefinitionV2(selectedDefinition)) {
     throw new Error("This lighting component is only compatible with v2 definitions");
   }
 

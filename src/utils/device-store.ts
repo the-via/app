@@ -1,5 +1,6 @@
+import type {KeyboardDictionary} from 'src/types';
 import {getTheme} from 'via-reader';
-import {Store} from '../shims/electron-store';
+import {RemoteData, Store} from '../shims/electron-store';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -8,24 +9,22 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
-const remoteBaseURL = '';
 const devicesURL = '/keyboards.v2.json';
-const remoteDefaultData = {
+const remoteDefaultData: RemoteData = {
   generatedAt: -1,
   definitions: {},
   theme: getTheme(),
 };
 const deviceStore = new Store({
-  defaults: {
-    remoteData: remoteDefaultData,
-    settings: {
-      allowKeyboardKeyRemapping: false,
-      showDesignTab: false,
-      disableFastRemap: false,
-      disableHardwareAcceleration: false,
-    },
+  remoteData: remoteDefaultData,
+  settings: {
+    allowKeyboardKeyRemapping: false,
+    showDesignTab: false,
+    disableFastRemap: false,
+    disableHardwareAcceleration: false,
   },
 });
+
 let lastJSON = deviceStore.get('remoteData');
 
 export async function syncStore() {
@@ -39,10 +38,10 @@ export async function syncStore() {
   } catch (e) {
     console.warn(e);
   }
-  return lastJSON.remoteData;
+  return lastJSON;
 }
 
-export function getDevicesFromStore() {
+export function getDevicesFromStore(): KeyboardDictionary {
   return lastJSON.definitions;
 }
 
