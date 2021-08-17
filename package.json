@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "snowpack dev",
+    "dev": "snowpack dev",
     "build": "yarn update-definitions && snowpack build",
     "update-definitions": "node scripts/download-definition.js",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
