@@ -11,7 +11,7 @@ export type Settings = {
 };
 
 const remoteBaseURL = '';
-const devicesURL = '/definitions/supported_kbs.json';
+const devicesURL = '/definitions/v2/supported_kbs.json';
 const remoteDefaultData = {
   generatedAt: -1,
   definitions: {},
@@ -46,7 +46,7 @@ export async function syncStore() {
 
 export async function getDefinition(device: Device) {
   const filename = getVendorProductId(device.vendorId, device.productId);
-  const url = `/definitions/${filename}.json`;
+  const url = `/definitions/v2/${filename}.json`;
   const response = await fetch(url);
   const json = await response.json();
   return json;

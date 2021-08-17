@@ -1,4 +1,6 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
+import proxy from 'http2-proxy';
+
 export default {
   mount: {
     public: {url: '/', static: true},
@@ -20,6 +22,19 @@ export default {
   routes: [
     /* Enable an SPA Fallback in development: */
     // {"match": "routes", "src": ".*", "dest": "/index.html"},
+    {
+      src: '/definitions/.*',
+      dest: (req, res) => {
+        console.log(req.url);
+        req.url = req.url.replace(/^\/definitions/, '');
+
+        console.log(req.url);
+        return proxy.web(req, res, {
+          hostname: 'localhost',
+          port: 5000,
+        });
+      },
+    },
   ],
   optimize: {
     /* Example: Bundle your final build: */
