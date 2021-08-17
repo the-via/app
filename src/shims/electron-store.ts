@@ -11,13 +11,6 @@ export type StoreData = {
   remoteData: KeyboardDefinitionIndex;
   settings: Settings;
 };
-
-// Under what circumstance does the following evalutate to true?
-
-// export let Store: any;
-// if ((globalThis as any).require) {
-//   Store = (globalThis as any).require('electron-store');
-// } else {
 export class Store {
   store: StoreData;
   constructor(defaults: StoreData) {
@@ -35,4 +28,3 @@ export class Store {
     localStorage.setItem('electronStore', JSON.stringify(this.store));
   }
 }
-// }
