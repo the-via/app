@@ -1,4 +1,8 @@
-import type {KeyboardDefinitionIndex} from 'via-reader';
+import type {
+  KeyboardDefinitionIndex,
+  VIADefinitionV2,
+  VIADefinitionV3,
+} from 'via-reader';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -7,8 +11,14 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
+export type KeyboardDefinitions<T extends VIADefinitionV2 | VIADefinitionV3> =
+  KeyboardDefinitionIndex & {
+    definitions: Record<number, T>;
+  };
+
 export type StoreData = {
-  remoteData: KeyboardDefinitionIndex;
+  v2Definitions: KeyboardDefinitions<VIADefinitionV2>;
+  v3Definitions: KeyboardDefinitions<VIADefinitionV3>;
   settings: Settings;
 };
 export class Store {

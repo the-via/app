@@ -485,7 +485,8 @@ export const getLabel = (
 };
 
 export const getColors = (color: KeyColorType): KeyColor =>
-  getThemeFromStore()[color];
+  // TODO: make choice based on protocol
+  getThemeFromStore('v2Definitions')[color];
 
 const AnchorContainer = styled.div`
   position: relative;

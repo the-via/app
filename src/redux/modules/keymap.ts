@@ -23,7 +23,7 @@ import {
 } from '../../utils/bit-pack';
 import {
   getSupportedIdsFromStore,
-  getDefinition,
+  getMissingDefinition,
   syncStore,
 } from '../../utils/device-store';
 import {
@@ -223,7 +223,8 @@ export const reloadConnectedDevices = (): ThunkResult => {
       state.supportedIds,
     );
     const missingDefinitions = await Promise.all(
-      missingDevices.map((d) => getDefinition(d)),
+      // TODO: make choice based on protocol
+      missingDevices.map((d) => getMissingDefinition('v2Definitions', d)),
     );
     dispatch(
       actions.updateDefinitions(
@@ -531,10 +532,15 @@ export const saveRawKeymapToDevice = (
 };
 
 export const loadSupportedIds = (): ThunkResult => {
+  // TODO: make choices based on protocol
   return async (dispatch) => {
-    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
-    await syncStore();
-    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
+    dispatch(
+      actions.updateSupportedIds(getSupportedIdsFromStore('v2Definitions')),
+    );
+    await syncStore('v2Definitions');
+    dispatch(
+      actions.updateSupportedIds(getSupportedIdsFromStore('v2Definitions')),
+    );
     dispatch(reloadConnectedDevices());
   };
 };

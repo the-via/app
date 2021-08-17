@@ -1,7 +1,13 @@
-import {getTheme, KeyboardDefinitionIndex} from 'via-reader';
-import {Store} from '../shims/electron-store';
+import {
+  getTheme,
+  KeyboardDefinitionIndex,
+  VIADefinitionV2,
+  VIADefinitionV3,
+} from 'via-reader';
+import {KeyboardDefinitions, Store, StoreData} from '../shims/electron-store';
 import type {Device} from 'src/types/types';
 import {getVendorProductId} from './hid-keyboards';
+import type {PropertiesOfType, ValueOf} from './generic-types';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -10,15 +16,21 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
-const devicesURL = '/definitions/v2/supported_kbs.json';
-const remoteDefaultData: KeyboardDefinitionIndex = {
-  generatedAt: -1,
-  version: '2.0.0',
-  theme: getTheme(),
-  vendorProductIds: [],
-};
 const deviceStore = new Store({
-  remoteData: remoteDefaultData,
+  v2Definitions: {
+    generatedAt: -1,
+    version: '2.0.0',
+    theme: getTheme(),
+    vendorProductIds: [],
+    definitions: {},
+  },
+  v3Definitions: {
+    generatedAt: -1,
+    version: '3.0.0',
+    theme: getTheme(),
+    vendorProductIds: [],
+    definitions: {},
+  },
   settings: {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
@@ -27,37 +39,59 @@ const deviceStore = new Store({
   },
 });
 
-let lastJSON = deviceStore.get('remoteData');
+type DefinitionProperties = PropertiesOfType<
+  StoreData,
+  KeyboardDefinitionIndex
+>;
 
-export async function syncStore() {
+const getDefinitionRoot = <K extends keyof DefinitionProperties>(
+  definitionType: K,
+) => `/definitions/${definitionType === 'v2Definitions' ? 'v2' : 'v3'}`;
+
+export async function syncStore<K extends keyof DefinitionProperties>(
+  definitionType: K,
+): Promise<KeyboardDefinitionIndex> {
+  const lastJSON = deviceStore.get(definitionType);
+
   try {
+    const devicesURL = `${getDefinitionRoot(
+      definitionType,
+    )}/supported_kbs.json`;
     const response = await fetch(devicesURL);
     const json = await response.json();
+
     if (json.generatedAt !== lastJSON.generatedAt) {
-      lastJSON = json;
-      deviceStore.set('remoteData', json);
+      deviceStore.set(definitionType, json);
     }
   } catch (e) {
     console.warn(e);
   }
+
   return lastJSON;
 }
 
-export async function getDefinition(device: Device) {
+export async function getMissingDefinition<
+  K extends keyof DefinitionProperties,
+>(definitionType: K, device: Device) {
   const filename = getVendorProductId(device.vendorId, device.productId);
-  const url = `/definitions/v2/${filename}.json`;
+  const url = `${getDefinitionRoot(definitionType)}/${filename}.json`;
   const response = await fetch(url);
-  const json = await response.json();
+  const json: ValueOf<StoreData[K]['definitions']> = await response.json();
+  const definition = deviceStore.get(definitionType);
+  deviceStore.set(definitionType, {
+    ...definition,
+    definitions: {...definition.definitions, [filename]: json},
+  });
   return json;
 }
 
-export function getSupportedIdsFromStore() {
-  return lastJSON.vendorProductIds;
-}
+export const getSupportedIdsFromStore = <K extends keyof DefinitionProperties>(
+  definitionType: K,
+) => deviceStore.get(definitionType).vendorProductIds;
 
-export function getThemeFromStore() {
-  return lastJSON.theme;
-}
+export const getThemeFromStore = <K extends keyof DefinitionProperties>(
+  definitionType: K,
+) => deviceStore.get(definitionType).theme;
 
 export function getSettings(): Settings {
   return deviceStore.get('settings');
