@@ -22,7 +22,6 @@ import {
   unpackBits,
 } from '../../utils/bit-pack';
 import {
-  getDevicesFromStore,
   getSupportedIdsFromStore,
   getDefinition,
   syncStore,
@@ -536,16 +535,6 @@ export const loadSupportedIds = (): ThunkResult => {
     dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
     await syncStore();
     dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
-    dispatch(reloadConnectedDevices());
-  };
-};
-
-export const loadDefinitions = (): ThunkResult => {
-  throw new Error('stop using this');
-  return async (dispatch) => {
-    dispatch(actions.updateDefinitions(getDevicesFromStore()));
-    await syncStore();
-    dispatch(actions.updateDefinitions(getDevicesFromStore()));
     dispatch(reloadConnectedDevices());
   };
 };

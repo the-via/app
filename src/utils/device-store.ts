@@ -1,6 +1,6 @@
 import {getTheme, KeyboardDefinitionIndex} from 'via-reader';
 import {Store} from '../shims/electron-store';
-import type {Device, KeyboardDictionary} from 'src/types/types';
+import type {Device} from 'src/types/types';
 import {getVendorProductId} from './hid-keyboards';
 
 export type Settings = {
@@ -13,8 +13,9 @@ export type Settings = {
 const devicesURL = '/definitions/v2/supported_kbs.json';
 const remoteDefaultData: KeyboardDefinitionIndex = {
   generatedAt: -1,
-  definitions: {},
+  version: '2.0.0',
   theme: getTheme(),
+  vendorProductIds: [],
 };
 const deviceStore = new Store({
   remoteData: remoteDefaultData,
@@ -50,12 +51,8 @@ export async function getDefinition(device: Device) {
   return json;
 }
 
-export function getDevicesFromStore(): KeyboardDictionary {
-  return lastJSON.definitions;
-}
-
 export function getSupportedIdsFromStore() {
-  return lastJSON.supportedKbs;
+  return lastJSON.vendorProductIds;
 }
 
 export function getThemeFromStore() {
