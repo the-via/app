@@ -1,11 +1,4 @@
-import type {KeyboardDictionary} from 'src/types';
-import type {ThemeDefinition} from 'via-reader';
-
-export type RemoteData = {
-  generatedAt: number;
-  definitions: KeyboardDictionary;
-  theme: ThemeDefinition;
-};
+import type {KeyboardDefinitionIndex} from 'via-reader';
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
@@ -15,7 +8,7 @@ export type Settings = {
 };
 
 export type StoreData = {
-  remoteData: RemoteData;
+  remoteData: KeyboardDefinitionIndex;
   settings: Settings;
 };
 

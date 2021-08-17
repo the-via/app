@@ -11,7 +11,7 @@ export type Settings = {
 };
 
 const devicesURL = '/definitions/supported_kbs.json';
-const remoteDefaultData: RemoteData = {
+const remoteDefaultData: KeyboardDefinitionIndex = {
   generatedAt: -1,
   definitions: {},
   theme: getTheme(),
