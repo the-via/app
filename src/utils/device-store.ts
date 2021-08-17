@@ -1,5 +1,5 @@
-import {getTheme} from 'via-reader';
-import {RemoteData, Store} from '../shims/electron-store';
+import {getTheme, KeyboardDefinitionIndex} from 'via-reader';
+import {Store} from '../shims/electron-store';
 import type {Device, KeyboardDictionary} from 'src/types/types';
 import {getVendorProductId} from './hid-keyboards';
 
@@ -10,7 +10,7 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
-const devicesURL = '/definitions/supported_kbs.json';
+const devicesURL = '/definitions/v2/supported_kbs.json';
 const remoteDefaultData: KeyboardDefinitionIndex = {
   generatedAt: -1,
   definitions: {},
@@ -44,7 +44,7 @@ export async function syncStore() {
 
 export async function getDefinition(device: Device) {
   const filename = getVendorProductId(device.vendorId, device.productId);
-  const url = `/definitions/${filename}.json`;
+  const url = `/definitions/v2/${filename}.json`;
   const response = await fetch(url);
   const json = await response.json();
   return json;
