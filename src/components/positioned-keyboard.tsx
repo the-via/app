@@ -170,10 +170,6 @@ export const OuterSecondaryKey = styled.div<{
   backgroundColor: string;
 }>`
   background-color: ${(props) => props.backgroundColor};
-  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
   padding-top: 2px;
   padding-bottom: 9px;
   padding-left: 6px;

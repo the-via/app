@@ -258,7 +258,7 @@ function Debug(props: Props) {
                         )
                       : [];
                     const displayedKeys = [...keys, ...selectedOptionKeys];
-                    if (selectedKey) {
+                    if (selectedKey !== undefined) {
                       setSelectedKey(
                         getNextKey(selectedKey, displayedKeys) ?? undefined,
                       );
