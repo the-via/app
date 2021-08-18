@@ -1,5 +1,6 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 import proxy from 'http2-proxy';
+import path from 'path';
 
 export default {
   mount: {
@@ -16,6 +17,34 @@ export default {
         /* Yarn PnP workaround: see https://www.npmjs.com/package/@snowpack/plugin-typescript */
         ...(process.versions.pnp ? {tsc: 'yarn pnpify tsc'} : {}),
         resolveJSONModule: true,
+      },
+    ],
+    [
+      '@snowpack/plugin-webpack',
+      {
+        extendConfig: (config) => {
+          const cssModulesRule = config.module.rules.find(
+            (rule) =>
+              rule &&
+              rule.use &&
+              rule.use.find(
+                (use) =>
+                  use &&
+                  use.loader &&
+                  use.loader.includes('css-loader') &&
+                  use.options &&
+                  use.options.modules,
+              ),
+          );
+
+          if (cssModulesRule) {
+            cssModulesRule.use.unshift({
+              loader: path.resolve('./scripts/css-modules-fix.js'),
+            });
+          }
+
+          return config;
+        },
       },
     ],
   ],
