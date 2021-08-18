@@ -94,13 +94,13 @@ export const KeyContainer = styled.div<{selected: boolean}>`
   user-select: none;
   transform: ${(props) =>
     props.selected
-      ? 'translate3d(0, -1px, 0) scale(0.99)'
+      ? 'translate3d(0, -4px, 0) scale(0.99)'
       : 'translate3d(0,0,0)'};
   :hover {
     transform: ${(props) =>
       props.selected
-        ? 'translate3d(0, -1px, 0) scale(0.99)'
-        : 'translate3d(0,-1px,0)'};
+        ? 'translate3d(0, -4px, 0) scale(0.99)'
+        : 'translate3d(0,-4px,0)'};
   }
   animation-name: select-glow;
   animation-duration: ${(props) => (props.selected ? 1.5 : 0)}s;
@@ -117,7 +117,7 @@ export const RotationContainer = styled.div<{
 }>`
   position: absolute;
   ${(props) => (props.selected ? 'z-index:2;' : '')}
-  transform: ${(props) => `rotate(${props.r}deg)`};
+  transform: ${(props) => `rotate3d(0,0,1,${props.r}deg)`};
   transform-origin: ${(props) =>
     `${CSSVarObject.keyXPos * props.rx}px ${
       CSSVarObject.keyYPos * props.ry
@@ -125,13 +125,7 @@ export const RotationContainer = styled.div<{
 `;
 
 export const BGKeyContainer = styled(KeyContainer)`
-  transform: translate3d(0, -1px, 0) scale(0.99);
-  :hover {
-    transform: ${(props) =>
-      props.selected
-        ? 'translate3d(0,-1px,0) scale(0.99)'
-        : 'translate3d(0,-1px,0)'};
-  }
+  transform: translate3d(0, -4px, 0) scale(0.99);
 `;
 
 const SmallInnerKey = styled.div<{backgroundColor: string}>`
@@ -276,7 +270,7 @@ export const KeyBG = React.memo(
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
     return (
-      <RotationContainer r={r} rx={rx} ry={ry}>
+      <RotationContainer r={r} rx={rx} ry={ry} selected={true}>
         <BGKeyContainer
           selected={true}
           style={{
