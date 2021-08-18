@@ -532,7 +532,7 @@ export const saveRawKeymapToDevice = (
 };
 
 export const loadSupportedIds = (): ThunkResult => {
-  // TODO: make choices based on protocol
+  // TODO: make choice based on protocol
   return async (dispatch) => {
     dispatch(
       actions.updateSupportedIds(getSupportedIdsFromStore('v2Definitions')),
