@@ -6,15 +6,25 @@ import {
   createStandardAction,
 } from 'typesafe-actions';
 import {
+  BuiltInMenuModule,
   getLightingDefinition,
   isVIADefinitionV2,
   isVIADefinitionV3,
   LightingValue,
   VIADefinitionV2,
   VIADefinitionV3,
+  VIAMenu,
 } from 'via-reader';
 
-import type {Device, KeyboardDictionary} from '../../types/types';
+import type {
+  Device,
+  KeyboardDictionary,
+  VendorProductIdMap,
+  LightingData,
+  ConnectedDevice,
+  ConnectedDevices,
+  HIDColor,
+} from '../../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -27,15 +37,10 @@ import {
   syncStore,
 } from '../../utils/device-store';
 import {
-  getDevicesUsingDefinitions,
-  getMissingDevicesUsingDefinitions,
+  getRecognisedDevices,
   getVendorProductId,
 } from '../../utils/hid-keyboards';
-import {
-  isValidProtocolVersion,
-  KeyboardAPI,
-  KeyboardValue,
-} from '../../utils/keyboard-api';
+import {KeyboardAPI, KeyboardValue} from '../../utils/keyboard-api';
 import type {RootState} from '..';
 import {loadMacros} from './macros';
 
@@ -45,22 +50,7 @@ type Layer = {
   isLoaded: boolean;
 };
 type DeviceMap = {[devicePath: string]: Layer[]};
-type ConnectedDevice = {
-  api: KeyboardAPI;
-  device: Device;
-  vendorProductId: number;
-  protocol: number;
-};
-export type ConnectedDevices = {
-  [devicePath: string]: ConnectedDevice;
-};
-type HIDColor = {
-  hue: number;
-  sat: number;
-};
-type LightingData = {
-  customColors?: HIDColor[];
-};
+
 type CustomMenuData = {
   [commandName: string]: number[];
 };
@@ -83,9 +73,9 @@ export const actions = {
   updateSelectedKey: createStandardAction(
     'via/keymap/UPDATE_SELECTED_KEY',
   )<number>(),
-  updateSupportedIds: createStandardAction('via/keymap/UPDATE_SUPPORTED_IDS')<
-    number[]
-  >(),
+  updateSupportedIds: createStandardAction(
+    'via/keymap/UPDATE_SUPPORTED_IDS',
+  )<VendorProductIdMap>(),
   updateDefinitions: createStandardAction(
     'via/keymap/UPDATE_DEFINITIONS',
   )<KeyboardDictionary>(),
@@ -141,12 +131,12 @@ type Actions = ActionType<typeof actions>;
 type ThunkResult = ThunkAction<Promise<void>, RootState, undefined, Actions>;
 
 // TODO: don't need to pass device when we move that to redux
-export const loadKeymapFromDevice = (device: Device): ThunkResult => {
+// edit: can we replace the device param by calling getSelectedConnectedDevice() inside the thunk?
+export const loadKeymapFromDevice = (
+  connectedDevice: ConnectedDevice,
+): ThunkResult => {
   return async (dispatch, getState) => {
-    const api = new KeyboardAPI(device);
-    if (!api) {
-      return;
-    }
+    const {api} = connectedDevice;
 
     const state = getState().keymap;
     if (getLoadProgress(state) === 1) {
@@ -156,20 +146,21 @@ export const loadKeymapFromDevice = (device: Device): ThunkResult => {
     const numberOfLayers = await api.getLayerCount();
     dispatch(actions.setNumberOfLayers(numberOfLayers));
     for (let layer = 0; layer < numberOfLayers; layer++) {
-      dispatch(loadKeymapLayer(api, layer, device));
+      dispatch(loadKeymapLayer(layer, connectedDevice));
     }
   };
 };
 
 const loadKeymapLayer = (
-  api: KeyboardAPI,
   layerIndex: number,
-  device: Device,
+  connectedDevice: ConnectedDevice,
 ): ThunkResult => {
   return async (dispatch, getState) => {
-    const {path: devicePath, vendorId, productId} = device;
-    const {matrix} = getDefinitions(getState().keymap)[
-      getVendorProductId(vendorId, productId)
+    const {api, device, vendorProductId, requiredDefinitionVersion} =
+      connectedDevice;
+    const {path: devicePath} = device;
+    const {matrix} = getDefinitions(getState().keymap)[vendorProductId][
+      requiredDefinitionVersion
     ];
     const keymap = await api.readRawMatrix(matrix, layerIndex);
     dispatch(actions.loadLayerSuccess({layerIndex, keymap, devicePath}));
@@ -218,43 +209,64 @@ export const reloadConnectedDevices = (): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
     const selectedPath = getSelectedDevicePath(state) as string;
-    const missingDevices = await getMissingDevicesUsingDefinitions(
-      getDefinitions(state),
-      state.supportedIds,
+    const recognisedDevices = await getRecognisedDevices(state.supportedIds);
+
+    const protocolVersions = await Promise.all(
+      recognisedDevices.map((device) =>
+        new KeyboardAPI(device).getProtocolVersion(),
+      ),
     );
+
+    const connectedDevices = recognisedDevices.reduce<ConnectedDevices>(
+      (devices, device, idx) => {
+        const protocol = protocolVersions[idx];
+        devices[device.path] = {
+          api: new KeyboardAPI(device),
+          device,
+          protocol,
+          requiredDefinitionVersion: protocol >= 10 ? 'v3' : 'v2',
+          vendorProductId: getVendorProductId(
+            device.vendorId,
+            device.productId,
+          ),
+        };
+
+        return devices;
+      },
+      {},
+    );
+
+    const definitions = getDefinitions(state);
     const missingDefinitions = await Promise.all(
-      // TODO: make choice based on protocol
-      missingDevices.map((d) => getMissingDefinition('v2Definitions', d)),
+      Object.values(connectedDevices)
+        // Check if we already have the required definition in the store
+        .filter(
+          ({vendorProductId, requiredDefinitionVersion}) =>
+            !definitions ||
+            !definitions[vendorProductId] ||
+            !definitions[vendorProductId][requiredDefinitionVersion],
+        )
+        // Go and get it if we don't
+        .map(({device, requiredDefinitionVersion}) =>
+          getMissingDefinition(device, requiredDefinitionVersion),
+        ),
     );
+
     dispatch(
       actions.updateDefinitions(
-        missingDefinitions.reduce(
-          (p, n) => ({...p, [n.vendorProductId]: n}),
+        missingDefinitions.reduce<KeyboardDictionary>(
+          (p, [definition, version]) => ({
+            ...p,
+            [definition.vendorProductId]: {
+              ...p[definition.vendorProductId],
+              [version]: definition,
+            },
+          }),
           {},
         ),
       ),
     );
-    const devices = await getDevicesUsingDefinitions(
-      getDefinitions(getState().keymap),
-    );
-    const protocolVersions = await Promise.all(
-      devices.map((device) => new KeyboardAPI(device).getProtocolVersion()),
-    );
-    const connectedDevices: ConnectedDevices = devices.reduce(
-      (p, n, idx) =>
-        isValidProtocolVersion(protocolVersions[idx])
-          ? {
-              ...p,
-              [n.path]: {
-                api: new KeyboardAPI(n),
-                device: n,
-                protocol: protocolVersions[idx],
-                vendorProductId: getVendorProductId(n.vendorId, n.productId),
-              },
-            }
-          : p,
-      {},
-    );
+
     Object.entries(connectedDevices).forEach(([path, d]) => {
       console.info('Setting connected device:', d.protocol, path, d);
     });
@@ -262,7 +274,7 @@ export const reloadConnectedDevices = (): ThunkResult => {
     const validDevicesArr = Object.entries(connectedDevices);
     if (!connectedDevices[selectedPath] && validDevicesArr.length > 0) {
       const firstConnectedDevice = validDevicesArr[0][1];
-      dispatch(selectConnectedDevice(firstConnectedDevice.device));
+      dispatch(selectConnectedDevice(firstConnectedDevice));
     } else if (validDevicesArr.length === 0) {
       dispatch(actions.selectDevice(null));
     }
@@ -278,8 +290,7 @@ export const offsetKeyboard = (offset: number): ThunkResult => {
     const currIdx = connectedDevices.findIndex(
       (device) => device[0] === selectedDevicePath,
     );
-    const newDevice =
-      connectedDevices[(currIdx + offset + length) % length][1].device;
+    const newDevice = connectedDevices[(currIdx + offset + length) % length][1];
     dispatch(selectConnectedDevice(newDevice));
   };
 };
@@ -289,25 +300,27 @@ export const selectConnectedDeviceByPath = (path: string): ThunkResult => {
     await dispatch(reloadConnectedDevices());
     const connectedDevice = getConnectedDevices(getState().keymap)[path];
     if (connectedDevice) {
-      dispatch(selectConnectedDevice(connectedDevice.device));
+      dispatch(selectConnectedDevice(connectedDevice));
     }
   };
 };
-export const selectConnectedDevice = (device: Device): ThunkResult => {
+export const selectConnectedDevice = (
+  connectedDevice: ConnectedDevice,
+): ThunkResult => {
   return async (dispatch, getState) => {
-    dispatch(actions.selectDevice(device));
-    dispatch(loadMacros(device));
+    dispatch(actions.selectDevice(connectedDevice.device));
+    dispatch(loadMacros(connectedDevice.device));
     dispatch(loadLayoutOptions());
 
     const protocol = getSelectedProtocol(getState().keymap);
     if (protocol < 10) {
-      dispatch(updateLightingData(device));
+      dispatch(updateLightingData(connectedDevice.device));
     }
     if (protocol >= 10) {
-      dispatch(updateV3MenuData(device));
+      dispatch(updateV3MenuData(connectedDevice.device));
     }
 
-    dispatch(loadKeymapFromDevice(device));
+    dispatch(loadKeymapFromDevice(connectedDevice));
   };
 };
 
@@ -395,20 +408,24 @@ const commandParamLengths = {
   [LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED]: 1,
 };
 
-const extractCommands = (menuOrControls: any) =>
-  'type' in menuOrControls
+const extractCommands = (menuOrControls: any) => {
+  if (typeof menuOrControls === 'string') {
+    // properly type the input and add proper type guards
+    return [];
+  }
+  return 'type' in menuOrControls
     ? [menuOrControls.content]
     : 'content' in menuOrControls
     ? menuOrControls.content.flatMap(extractCommands)
     : [];
+};
 
 export const updateV3MenuData = (device: Device): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
-    const definitions = getDefinitions(state);
-    const {api, protocol, vendorProductId} =
-      state.connectedDevices[device.path];
-    const definition = definitions[vendorProductId];
+    const {api, protocol} = state.connectedDevices[device.path]; // should this be from selected device?
+
+    const definition = getSelectedDefinition(state);
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
@@ -442,18 +459,18 @@ export const updateV3MenuData = (device: Device): ThunkResult => {
   };
 };
 
+// TODO: improve selectors and probs get rid of device being passed in
 export const updateLightingData = (device: Device): ThunkResult => {
   return async (dispatch, getState) => {
     const state = getState().keymap;
-    const definitions = getDefinitions(state);
-    const {api, vendorProductId} = state.connectedDevices[device.path];
-    const definition = definitions[vendorProductId];
+    const selectedDefinition = getSelectedDefinition(state);
+    const {api} = state.connectedDevices[device.path];
 
-    if (!isVIADefinitionV2(definition)) {
+    if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error('This method is only compatible with v2 definitions');
     }
 
-    const {lighting} = definition;
+    const {lighting} = selectedDefinition;
     const {supportedLightingValues, effects} = getLightingDefinition(lighting);
 
     if (supportedLightingValues.length !== 0) {
@@ -534,13 +551,10 @@ export const saveRawKeymapToDevice = (
 export const loadSupportedIds = (): ThunkResult => {
   // TODO: make choice based on protocol
   return async (dispatch) => {
-    dispatch(
-      actions.updateSupportedIds(getSupportedIdsFromStore('v2Definitions')),
-    );
-    await syncStore('v2Definitions');
-    dispatch(
-      actions.updateSupportedIds(getSupportedIdsFromStore('v2Definitions')),
-    );
+    // TODO: Why do we call this twice?
+    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
+    await syncStore();
+    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
     dispatch(reloadConnectedDevices());
   };
 };
@@ -586,10 +600,9 @@ export type State = {
   definitions: KeyboardDictionary;
   customDefinitions: KeyboardDictionary;
   selectedKey: null | number;
-  selectedDevice: null | Device;
   allowKeyRemappingViaKeyboard: boolean;
   allowGlobalHotKeys: boolean;
-  supportedIds: number[];
+  supportedIds: VendorProductIdMap;
 };
 
 const initialState: State = {
@@ -598,7 +611,6 @@ const initialState: State = {
   rawDeviceMap: {},
   definitions: {},
   customDefinitions: {},
-  selectedDevice: null,
   selectedDevicePath: null,
   selectedKey: null,
   selectedVendorProductId: null,
@@ -765,16 +777,14 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
   }))
   .handleAction(actions.setKey, (state, action) => {
     const {keyIndex, value} = action.payload;
-    const {selectedVendorProductId} = state;
     const keymap = [...(getSelectedRawLayer(state) as any).keymap];
     const {selectedLayerIndex} = state;
     const rawDeviceLayers = getSelectedRawLayers(state);
-    const definitions = getDefinitions(state);
     const keys = getSelectedKeyDefinitions(state);
-    const definition = definitions[selectedVendorProductId as number];
     const {
       matrix: {cols},
-    } = definition;
+    } = getSelectedDefinition(state);
+
     const {row, col} = keys[keyIndex];
     const newRawLayers = [...(rawDeviceLayers as Layer[])];
     keymap[row * cols + col] = value;
@@ -883,19 +893,30 @@ export const getSelectedAPI = createSelector(
 );
 export const getSelectedDefinition = createSelector(
   getDefinitions,
-  getSelectedVendorProductId,
-  (definitions, id) => definitions[id],
+  getSelectedConnectedDevice,
+  (definitions, connectedDevice) =>
+    connectedDevice &&
+    definitions &&
+    definitions[connectedDevice.vendorProductId] &&
+    definitions[connectedDevice.vendorProductId][
+      connectedDevice.requiredDefinitionVersion
+    ],
 );
 export const getCustomCommands = createSelector(
   getSelectedDefinition,
   (definition) => {
-    if (!isVIADefinitionV2(definition)) {
-      throw new Error('Custom commands require a V2 defintion.');
-    }
-    if (definition === undefined || definition.customMenus === undefined) {
+    if (definition === undefined) {
       return [];
     }
-    return definition.customMenus.flatMap(extractCommands).reduce((p, n) => {
+    const menus = isVIADefinitionV2(definition)
+      ? definition.customMenus
+      : definition.menus;
+
+    if (menus === undefined) {
+      return [];
+    }
+
+    return menus.flatMap(extractCommands).reduce((p, n) => {
       return {
         ...p,
         [n[0]]: n.slice(1),
@@ -911,8 +932,9 @@ export const getCustomMenus = createSelector(
       return [];
     }
 
-    const compileMenu = (partial: string, depth = 0, val: any, idx: number) =>
-      depth === 0
+    const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
+      console.log('compiling menu');
+      return depth === 0
         ? val
         : {
             ...val,
@@ -936,12 +958,23 @@ export const getCustomMenus = createSelector(
                     ),
                   ),
           };
+    };
 
-    return (definition.menus || []).map((val, idx) =>
-      compileMenu('custom_menu', 3, val, idx),
-    );
+    // TODO: handle BuiltInMenuModule and string values
+    // Should we even have random string values as per current type?
+    return (definition.menus || [])
+      .filter((menu) => isVIAMenu(menu))
+      .map((val, idx) => compileMenu('custom_menu', 3, val, idx));
+    // return [];
   },
 );
+
+function isVIAMenu(
+  value: BuiltInMenuModule | VIAMenu | string,
+): value is VIAMenu {
+  const viaMenu = value as VIAMenu;
+  return viaMenu.label !== undefined && viaMenu.content !== undefined;
+}
 
 export const getSelectedLayoutOptions = createSelector(
   getSelectedDefinition,

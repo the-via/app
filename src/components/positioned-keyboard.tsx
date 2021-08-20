@@ -22,7 +22,12 @@ import {
   getShortNameForKeycode,
 } from '../utils/key';
 import type {IKeycode} from '../utils/key';
-import type {VIADefinitionV2, VIADefinitionV3, VIAKey, KeyColorType} from 'via-reader';
+import type {
+  VIADefinitionV2,
+  VIADefinitionV3,
+  VIAKey,
+  KeyColorType,
+} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {MouseEventHandler} from 'react';
 
@@ -486,7 +491,7 @@ export const getLabel = (
 
 export const getColors = (color: KeyColorType): KeyColor =>
   // TODO: make choice based on protocol
-  getThemeFromStore('v2Definitions')[color];
+  getThemeFromStore()[color];
 
 const AnchorContainer = styled.div`
   position: relative;
@@ -787,11 +792,17 @@ type MatrixProps = {
 };
 const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
   <SVG>
-    {rowKeys.map((arr) => (
-      <RowLine points={arr.map((point) => (point || []).join(',')).join(' ')} />
+    {rowKeys.map((arr, index) => (
+      <RowLine
+        points={arr.map((point) => (point || []).join(',')).join(' ')}
+        key={index}
+      />
     ))}
-    {colKeys.map((arr) => (
-      <ColLine points={arr.map((point) => (point || []).join(',')).join(' ')} />
+    {colKeys.map((arr, index) => (
+      <ColLine
+        points={arr.map((point) => (point || []).join(',')).join(' ')}
+        key={index}
+      />
     ))}
   </SVG>
 );

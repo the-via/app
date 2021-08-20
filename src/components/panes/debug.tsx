@@ -13,7 +13,6 @@ import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
 import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
 import {
-  ConnectedDevices,
   getDefinitions,
   getCustomDefinitions,
   getBaseDefinitions,
@@ -33,7 +32,9 @@ import {
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
+import type {ConnectedDevices} from 'src/types/types';
 
+// TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 
 type ReduxState = {
@@ -52,9 +53,27 @@ const mapDispatchToProps = {};
 const mapStateToProps = ({keymap}: RootState) => ({
   api: getSelectedAPI(keymap),
   connectedDevices: getConnectedDevices(keymap),
-  allDefinitions: Object.entries(getDefinitions(keymap)),
-  remoteDefinitions: Object.entries(getBaseDefinitions(keymap)),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap)),
+
+  // Temporary patch that gets the page to load
+  // TODO: We probably need to rethink this + design a bit. Loading defs in design causes this to crash
+  allDefinitions: Object.entries(getDefinitions(keymap))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([id, definition]) => definition !== undefined),
+  remoteDefinitions: Object.entries(getBaseDefinitions(keymap))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([id, definition]) => definition !== undefined),
+  localDefinitions: Object.entries(getCustomDefinitions(keymap))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([id, definition]) => definition !== undefined),
 });
 
 const Container = styled.div`

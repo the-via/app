@@ -84,14 +84,14 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
   return [];
 }
 
+// TODO: need to work out how to type these props
 function getRowsForKeyboard({
   customMenus,
   selectedDefinition,
   showMacros,
   selectedProtocol,
 }: Props): typeof Rows {
-  const {lighting, customFeatures, layouts} = selectedDefinition;
-  const {supportedLightingValues} = getLightingDefinition(lighting);
+  const {layouts} = selectedDefinition;
   let titles: typeof Rows = [Keycode];
   if (layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0) {
     titles = [...titles, Layouts];
@@ -99,12 +99,17 @@ function getRowsForKeyboard({
   if (showMacros) {
     titles = [...titles, Macros];
   }
-  if (selectedProtocol <= 9 && supportedLightingValues.length !== 0) {
-    titles = [...titles, Lighting];
+  if (selectedProtocol <= 9) {
+    const {lighting, customFeatures} = selectedDefinition;
+    const {supportedLightingValues} = getLightingDefinition(lighting);
+    if (supportedLightingValues.length !== 0) {
+      titles = [...titles, Lighting];
+    }
+    if (customFeatures) {
+      titles = [...titles, ...getCustomPanes(customFeatures)];
+    }
   }
-  if (customFeatures) {
-    titles = [...titles, ...getCustomPanes(customFeatures)];
-  }
+
   if (selectedProtocol >= 10 && customMenus) {
     titles = [...titles, ...makeCustomMenus(customMenus)];
   }

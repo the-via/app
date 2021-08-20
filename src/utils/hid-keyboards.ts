@@ -1,4 +1,8 @@
-import type {Device, KeyboardDictionary} from '../types/types';
+import type {
+  Device,
+  KeyboardDictionary,
+  VendorProductIdMap,
+} from '../types/types';
 import {canConnect} from './keyboard-api';
 import {scanDevices} from './usb-hid';
 
@@ -31,31 +35,25 @@ function definitionExists(
   {productId, vendorId}: Device,
   definitions: KeyboardDictionary,
 ) {
-  return definitions[getVendorProductId(vendorId, productId)] !== undefined;
+  const definition = definitions[getVendorProductId(vendorId, productId)];
+  return definition && (definition.v2 || definition.v3);
 }
 
-function idExists({productId, vendorId}: Device, ids: number[]) {
-  return ids.includes(getVendorProductId(vendorId, productId));
-}
+const idExists = ({productId, vendorId}: Device, vpidMap: VendorProductIdMap) =>
+  vpidMap[getVendorProductId(vendorId, productId)];
 
-export async function getMissingDevicesUsingDefinitions(
-  definitions: KeyboardDictionary,
-  ids: number[],
-): Promise<Device[]> {
+export const getRecognisedDevices = async (vpidMap: VendorProductIdMap) => {
   const usbDevices = await scanDevices();
   return usbDevices.filter((device: Device) => {
-    const validVendorProduct = idExists(device, ids);
-    const definitionLoaded = definitionExists(device, definitions);
+    const validVendorProduct = idExists(device, vpidMap);
     const validInterface = isValidInterface(device);
     // attempt connection
-    return (
-      validVendorProduct &&
-      validInterface &&
-      !definitionLoaded &&
-      canConnect(device)
-    );
+    return validVendorProduct && validInterface && canConnect(device);
   });
-}
+};
+
+// TODO: is there a meaningful difference between getRecognisedDevices and getDevicesUsingDefinitions?
+// Is it useful to keep getDevicesUsingDefinitions in the event that a definition can't be downloaded?
 export async function getDevicesUsingDefinitions(
   definitions: KeyboardDictionary,
 ): Promise<Device[]> {
