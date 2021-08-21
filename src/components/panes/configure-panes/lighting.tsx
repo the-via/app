@@ -20,7 +20,12 @@ import {
   AdvancedPane,
 } from './submenus/lighting/advanced';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
-import {LightingValue, getLightingDefinition, isVIADefinitionV2} from 'via-reader';
+import {
+  LightingValue,
+  getLightingDefinition,
+  isVIADefinitionV2,
+} from 'via-reader';
+import type {LightingData} from 'src/types/types';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -28,14 +33,6 @@ export const Category = {
   Advanced: {label: 'Advanced', Menu: AdvancedPane},
 };
 
-type HIDColor = {
-  hue: number;
-  sat: number;
-};
-
-export type LightingData = {
-  customColors?: HIDColor[];
-};
 const LightingPane = styled(CenterPane)`
   height: 100%;
   background: var(--color_dark_grey);
@@ -87,7 +84,9 @@ export class LightingMenu extends Component<Props, State> {
     const {selectedDefinition} = this.props;
 
     if (!isVIADefinitionV2(selectedDefinition)) {
-      throw new Error("This lighting component is only compatible with v2 definitions")
+      throw new Error(
+        'This lighting component is only compatible with v2 definitions',
+      );
     }
 
     const hasLayouts = LayoutConfigValues.some(

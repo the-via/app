@@ -1,36 +1,22 @@
-import {
-  getTheme,
-  KeyboardDefinitionIndex,
-  VIADefinitionV2,
-  VIADefinitionV3,
-} from 'via-reader';
-import {KeyboardDefinitions, Store, StoreData} from '../shims/electron-store';
-import type {Device} from 'src/types/types';
+import {getTheme, KeyboardDefinitionIndex, ThemeDefinition} from 'via-reader';
+import {Store} from '../shims/via-app-store';
+import type {
+  DefinitionIndex,
+  DefinitionVersionMap,
+  VendorProductIdMap,
+  Settings,
+  Device,
+} from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
-import type {PropertiesOfType, ValueOf} from './generic-types';
-
-export type Settings = {
-  allowKeyboardKeyRemapping: boolean;
-  showDesignTab: boolean;
-  disableFastRemap: boolean;
-  disableHardwareAcceleration: boolean;
-};
 
 const deviceStore = new Store({
-  v2Definitions: {
+  definitionIndex: {
     generatedAt: -1,
     version: '2.0.0',
     theme: getTheme(),
-    vendorProductIds: [],
-    definitions: {},
+    supportedVendorProductIdMap: {},
   },
-  v3Definitions: {
-    generatedAt: -1,
-    version: '3.0.0',
-    theme: getTheme(),
-    vendorProductIds: [],
-    definitions: {},
-  },
+  definitions: {},
   settings: {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
@@ -39,64 +25,85 @@ const deviceStore = new Store({
   },
 });
 
-type DefinitionProperties = PropertiesOfType<
-  StoreData,
-  KeyboardDefinitionIndex
->;
+// TODO: invalidate cache if we change cache structure
 
-const getDefinitionRoot = <K extends keyof DefinitionProperties>(
-  definitionType: K,
-) => `/definitions/${definitionType === 'v2Definitions' ? 'v2' : 'v3'}`;
+/** Retreives the latest definition index and invalidates the definition cache if a new one is found */
+export async function syncStore(): Promise<DefinitionIndex> {
+  const currentDefinitionIndex = deviceStore.get('definitionIndex');
 
-export async function syncStore<K extends keyof DefinitionProperties>(
-  definitionType: K,
-): Promise<KeyboardDefinitionIndex> {
-  const lastJSON = deviceStore.get(definitionType);
-
+  // TODO: fall back to cache if can't hit endpoint, notify user
   try {
-    const devicesURL = `${getDefinitionRoot(
-      definitionType,
-    )}/supported_kbs.json`;
-    const response = await fetch(devicesURL);
-    const json = await response.json();
+    // Get definition index file
+    const response = await fetch('/definitions/supported_kbs.json', {
+      cache: 'reload',
+    });
+    const json: KeyboardDefinitionIndex = await response.json();
 
-    if (json.generatedAt !== lastJSON.generatedAt) {
-      deviceStore.set(definitionType, json);
+    // TODO: maybe we should just export this shape from keyboards repo
+    // v3 is a superset of v2 - if the def is avail in v2, it is also avail in v3
+    const v2vpidMap = json.vendorProductIds.v2.reduce(
+      (acc: VendorProductIdMap, id) => {
+        acc[id] = acc[id] || {};
+        acc[id].v2 = acc[id].v3 = true;
+        return acc;
+      },
+      {},
+    );
+
+    const vpidMap = json.vendorProductIds.v3.reduce(
+      (acc: VendorProductIdMap, def) => {
+        acc[def] = acc[def] || {};
+        acc[def].v3 = true;
+        return acc;
+      },
+      v2vpidMap,
+    );
+
+    if (json.generatedAt !== currentDefinitionIndex?.generatedAt) {
+      const newIndex = {
+        ...json,
+        supportedVendorProductIdMap: vpidMap,
+      };
+      deviceStore.set('definitionIndex', newIndex);
+      deviceStore.set('definitions', {});
+
+      return newIndex;
     }
   } catch (e) {
     console.warn(e);
   }
 
-  return lastJSON;
+  return currentDefinitionIndex;
 }
 
-export async function getMissingDefinition<
-  K extends keyof DefinitionProperties,
->(definitionType: K, device: Device) {
-  const filename = getVendorProductId(device.vendorId, device.productId);
-  const url = `${getDefinitionRoot(definitionType)}/${filename}.json`;
+export const getMissingDefinition = async <
+  K extends keyof DefinitionVersionMap,
+>(
+  device: Device,
+  version: K,
+): Promise<[DefinitionVersionMap[K], K]> => {
+  const vpid = getVendorProductId(device.vendorId, device.productId);
+  const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
-  const json: ValueOf<StoreData[K]['definitions']> = await response.json();
-  const definition = deviceStore.get(definitionType);
-  deviceStore.set(definitionType, {
-    ...definition,
-    definitions: {...definition.definitions, [filename]: json},
+  const json: DefinitionVersionMap[K] = await response.json();
+  const definitions = deviceStore.get('definitions');
+  deviceStore.set('definitions', {
+    ...definitions,
+    [vpid]: {
+      ...definitions[vpid],
+      [version]: json,
+    },
   });
-  return json;
-}
+  return [json, version];
+};
 
-export const getSupportedIdsFromStore = <K extends keyof DefinitionProperties>(
-  definitionType: K,
-) => deviceStore.get(definitionType).vendorProductIds;
+export const getSupportedIdsFromStore = (): VendorProductIdMap =>
+  deviceStore.get('definitionIndex')?.supportedVendorProductIdMap;
 
-export const getThemeFromStore = <K extends keyof DefinitionProperties>(
-  definitionType: K,
-) => deviceStore.get(definitionType).theme;
+export const getThemeFromStore = (): ThemeDefinition =>
+  deviceStore.get('definitionIndex')?.theme;
 
-export function getSettings(): Settings {
-  return deviceStore.get('settings');
-}
+export const getSettings = (): Settings => deviceStore.get('settings');
 
-export function setSettings(settings: Settings) {
-  return deviceStore.set('settings', settings);
-}
+export const setSettings = (settings: Settings) =>
+  deviceStore.set('settings', settings);

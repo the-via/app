@@ -25,6 +25,7 @@ import {
   getSelectedKeyDefinitions,
   updateKey,
   actions,
+  getSelectedProtocol,
 } from '../../../redux/modules/keymap';
 import {bindActionCreators} from 'redux';
 import {KeycodeType, getLightingDefinition} from 'via-reader';
@@ -113,6 +114,7 @@ const mapStateToProps = ({keymap, macros, settings}: RootState) => ({
   displayedKeys: getSelectedKeyDefinitions(keymap),
   disableFastRemap: settings.disableFastRemap,
   selectedKeyboard: getSelectedDevice(keymap),
+  selectedProtocol: getSelectedProtocol(keymap),
   selectedKey: getSelectedKey(keymap),
   matrixKeycodes: getSelectedKeymap(keymap),
   macros,
@@ -162,7 +164,11 @@ class KeycodeMenuComponent extends Component<Props, State> {
   };
 
   get enabledMenus(): IKeycodeMenu[] {
-    const {selectedDefinition} = this.props;
+    // TODO: type props
+    const {selectedDefinition, selectedProtocol} = this.props;
+    if (selectedProtocol >= 10) {
+      return [];
+    }
     const {lighting, customKeycodes} = selectedDefinition;
     const {keycodes} = getLightingDefinition(lighting);
     return KeycodeCategories.filter(

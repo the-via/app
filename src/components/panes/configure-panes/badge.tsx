@@ -16,6 +16,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {ConnectedDevice} from 'src/types/types';
 
 type OwnProps = {};
 
@@ -183,7 +184,9 @@ export const BadgeComponent: React.FC<Props> = (props) => {
       () =>
         Object.entries(connectedDevices).map(([path, device]) => [
           path,
-          definitions[(device as any).vendorProductId],
+          definitions[(device as ConnectedDevice).vendorProductId][
+            (device as ConnectedDevice).requiredDefinitionVersion
+          ],
         ]),
       [connectedDevices, definitions],
     );
