@@ -165,15 +165,7 @@ export class KeyboardAPI {
   }
 
   async getByteBuffer(): Promise<number[]> {
-    return new Promise((resolve, reject) => {
-      this.getHID().read((err: Error, data: number[]) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(data);
-        }
-      });
-    });
+    return this.getHID().readP();
   }
 
   async getProtocolVersion() {
@@ -459,16 +451,18 @@ export class KeyboardAPI {
     const macroBufferSize = await this.getMacroBufferSize();
     // Can only get 28 bytes at a time
     const size = 28;
+    const bytesP = [];
     const bytes = [];
     for (let offset = 0; offset < macroBufferSize; offset += 28) {
-      const [, , , , ...buffer] = await this.hidCommand(
-        DYNAMIC_KEYMAP_MACRO_GET_BUFFER,
-        [...shiftFrom16Bit(offset), size],
+      bytesP.push(
+        this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [
+          ...shiftFrom16Bit(offset),
+          size,
+        ]),
       );
-      bytes.push(...buffer);
     }
-
-    return bytes;
+    const allBytes = await Promise.all(bytesP);
+    return allBytes.flatMap((bytes) => Array.from(bytes.slice(4)));
   }
 
   // From protocol: id_dynamic_keymap_macro_set_buffer <offset> <size> <data>

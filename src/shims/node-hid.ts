@@ -111,6 +111,9 @@ const ExtendedHID = {
         eventWaitBuffer[this.path].push((data) => fn(undefined, data));
       }
     }
+
+    readP = promisify((arg: any) => this.read(arg));
+
     async write(arr: number[]) {
       await this.openPromise;
       const data = new Uint8Array(arr.slice(1));
@@ -119,4 +122,12 @@ const ExtendedHID = {
   },
 };
 
+const promisify = (cb: Function) => () => {
+  return new Promise((res, rej) => {
+    cb((e: any, d: any) => {
+      if (e) rej(e);
+      else res(d);
+    });
+  });
+};
 export const HID = ExtendedHID;
