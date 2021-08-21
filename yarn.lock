@@ -7710,7 +7710,12 @@ typesafe-actions@^4.4.2:
   resolved "https://registry.yarnpkg.com/typesafe-actions/-/typesafe-actions-4.4.2.tgz#8f817c479d12130b5ebb442032968b2a18929e1a"
   integrity sha512-QW61P4cOX8dCNmrfpcUMjvU/MF/sFTC8/PlG9215W1gKDzZUBjRGdyYSO6ZcEUNsn491S2VpryJOHSIVSDqJrg==
 
-typescript@^3.7.2, typescript@^3.8.3:
+typescript@3.9.4:
+  version "3.9.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.4.tgz#5aa0a54904b51b96dfd67870ce2db70251802f10"
+  integrity sha512-9OL+r0KVHqsYVH7K18IBR9hhC82YwLNlpSZfQDupGcfg8goB9p/s/9Okcy+ztnTeHR2U68xq21/igW9xpoGTgA==
+
+typescript@^3.8.3:
   version "3.9.10"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
@@ -7931,16 +7936,16 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"via-reader@git://github.com/the-via/reader.git#d17fbe3c04a4df8231d0fbe524047a512fb72c9d":
+"via-reader@git://github.com/the-via/reader.git#8cedc0c7ad3d16b79e27edb37f08760ac81b6e3a":
   version "1.0.0"
-  resolved "git://github.com/the-via/reader.git#d17fbe3c04a4df8231d0fbe524047a512fb72c9d"
+  resolved "git://github.com/the-via/reader.git#8cedc0c7ad3d16b79e27edb37f08760ac81b6e3a"
   dependencies:
     "@types/node" "^12.12.11"
     ajv "^6.10.2"
     core-js "^3.4.1"
     husky "^3.1.0"
     invariant "^2.2.4"
-    typescript "^3.7.2"
+    typescript "3.9.4"
     util "^0.12.4"
     util-inspect "^0.1.8"
 

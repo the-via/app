@@ -1,73 +1,109 @@
-import type {Device} from 'src/types/types';
-import {getTheme} from 'via-reader';
-import {Store} from '../shims/electron-store';
+import {getTheme, KeyboardDefinitionIndex, ThemeDefinition} from 'via-reader';
+import {Store} from '../shims/via-app-store';
+import type {
+  DefinitionIndex,
+  DefinitionVersionMap,
+  VendorProductIdMap,
+  Settings,
+  Device,
+} from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
-export type Settings = {
-  allowKeyboardKeyRemapping: boolean;
-  showDesignTab: boolean;
-  disableFastRemap: boolean;
-  disableHardwareAcceleration: boolean;
-};
-
-const remoteBaseURL = '';
-const devicesURL = '/definitions/v2/supported_kbs.json';
-const remoteDefaultData = {
-  generatedAt: -1,
-  definitions: {},
-  theme: getTheme(),
-};
 const deviceStore = new Store({
-  defaults: {
-    remoteData: remoteDefaultData,
-    settings: {
-      allowKeyboardKeyRemapping: false,
-      showDesignTab: false,
-      disableFastRemap: false,
-      disableHardwareAcceleration: false,
-    },
+  definitionIndex: {
+    generatedAt: -1,
+    version: '2.0.0',
+    theme: getTheme(),
+    supportedVendorProductIdMap: {},
+  },
+  definitions: {},
+  settings: {
+    allowKeyboardKeyRemapping: false,
+    showDesignTab: false,
+    disableFastRemap: false,
+    disableHardwareAcceleration: false,
   },
 });
-let lastJSON = deviceStore.get('remoteData');
 
-export async function syncStore() {
+// TODO: invalidate cache if we change cache structure
+
+/** Retreives the latest definition index and invalidates the definition cache if a new one is found */
+export async function syncStore(): Promise<DefinitionIndex> {
+  const currentDefinitionIndex = deviceStore.get('definitionIndex');
+
+  // TODO: fall back to cache if can't hit endpoint, notify user
   try {
-    const response = await fetch(devicesURL);
-    const json = await response.json();
-    if (json.generatedAt !== lastJSON.generatedAt) {
-      lastJSON = json;
-      deviceStore.set('remoteData', json);
+    // Get definition index file
+    const response = await fetch('/definitions/supported_kbs.json', {
+      cache: 'reload',
+    });
+    const json: KeyboardDefinitionIndex = await response.json();
+
+    // TODO: maybe we should just export this shape from keyboards repo
+    // v3 is a superset of v2 - if the def is avail in v2, it is also avail in v3
+    const v2vpidMap = json.vendorProductIds.v2.reduce(
+      (acc: VendorProductIdMap, id) => {
+        acc[id] = acc[id] || {};
+        acc[id].v2 = acc[id].v3 = true;
+        return acc;
+      },
+      {},
+    );
+
+    const vpidMap = json.vendorProductIds.v3.reduce(
+      (acc: VendorProductIdMap, def) => {
+        acc[def] = acc[def] || {};
+        acc[def].v3 = true;
+        return acc;
+      },
+      v2vpidMap,
+    );
+
+    if (json.generatedAt !== currentDefinitionIndex?.generatedAt) {
+      const newIndex = {
+        ...json,
+        supportedVendorProductIdMap: vpidMap,
+      };
+      deviceStore.set('definitionIndex', newIndex);
+      deviceStore.set('definitions', {});
+
+      return newIndex;
     }
   } catch (e) {
     console.warn(e);
   }
-  return lastJSON.remoteData;
+
+  return currentDefinitionIndex;
 }
 
-export async function getDefinition(device: Device) {
-  const filename = getVendorProductId(device.vendorId, device.productId);
-  const url = `/definitions/v2/${filename}.json`;
+export const getMissingDefinition = async <
+  K extends keyof DefinitionVersionMap,
+>(
+  device: Device,
+  version: K,
+): Promise<[DefinitionVersionMap[K], K]> => {
+  const vpid = getVendorProductId(device.vendorId, device.productId);
+  const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
-  const json = await response.json();
-  return json;
-}
+  const json: DefinitionVersionMap[K] = await response.json();
+  const definitions = deviceStore.get('definitions');
+  deviceStore.set('definitions', {
+    ...definitions,
+    [vpid]: {
+      ...definitions[vpid],
+      [version]: json,
+    },
+  });
+  return [json, version];
+};
 
-export function getDevicesFromStore() {
-  return lastJSON.definitions;
-}
+export const getSupportedIdsFromStore = (): VendorProductIdMap =>
+  deviceStore.get('definitionIndex')?.supportedVendorProductIdMap;
 
-export function getSupportedIdsFromStore() {
-  return lastJSON.supportedKbs;
-}
+export const getThemeFromStore = (): ThemeDefinition =>
+  deviceStore.get('definitionIndex')?.theme;
 
-export function getThemeFromStore() {
-  return lastJSON.theme;
-}
+export const getSettings = (): Settings => deviceStore.get('settings');
 
-export function getSettings(): Settings {
-  return deviceStore.get('settings');
-}
-
-export function setSettings(settings: Settings) {
-  return deviceStore.set('settings', settings);
-}
+export const setSettings = (settings: Settings) =>
+  deviceStore.set('settings', settings);

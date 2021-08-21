@@ -3,8 +3,10 @@ import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {
   getLightingDefinition,
+  isVIADefinitionV2,
   LightingValue,
   VIADefinitionV2,
+  VIADefinitionV3
 } from 'via-reader';
 import {LightingControl} from './lighting-control';
 
@@ -23,8 +25,8 @@ const BacklightControls: [
     'Effect',
     {
       type: 'select',
-      getOptions: (definition: VIADefinitionV2) =>
-        getLightingDefinition(definition.lighting).effects.map(
+      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) => 
+      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).effects.map(
           ([label]) => label,
         ),
     },
@@ -51,8 +53,8 @@ const UnderglowControls: [
     'Underglow Effect',
     {
       type: 'select',
-      getOptions: (definition: VIADefinitionV2) =>
-        getLightingDefinition(definition.lighting).underglowEffects.map(
+      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
+      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).underglowEffects.map(
           ([label]) => label,
         ),
     },
@@ -66,7 +68,7 @@ const UnderglowControls: [
 
 export const GeneralPane: React.FC<{
   lightingData: any;
-  selectedDefinition: VIADefinitionV2;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
   updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
   updateCustomColor: (color: number, hue: number, sat: number) => void;
 }> = (props) => {
@@ -76,6 +78,10 @@ export const GeneralPane: React.FC<{
     updateBacklightValue,
     selectedDefinition,
   } = props;
+
+  if (!isVIADefinitionV2(selectedDefinition)) {
+    throw new Error("This lighting component is only compatible with v2 definitions");
+  }
 
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
   const {supportedLightingValues} = lightingDefinition;

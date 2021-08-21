@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
-import {getLightingDefinition, LightingValue} from 'via-reader';
-import type {VIADefinitionV2} from 'via-reader';
+import {getLightingDefinition, isVIADefinitionV2, LightingValue} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
   LightingValue.BACKLIGHT_USE_ISO_ENTER,
@@ -26,10 +26,15 @@ const BooleanControls: [LightingValue, string][] = [
 
 export const LayoutPane: React.FC<{
   lightingData: any;
-  selectedDefinition: VIADefinitionV2;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
   updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
 }> = (props) => {
   const {selectedDefinition, updateBacklightValue, lightingData} = props;
+
+  if (!isVIADefinitionV2(selectedDefinition)) {
+    throw new Error("This lighting component is only compatible with v2 definitions");
+  }
+
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
   if (lightingDefinition.supportedLightingValues.length !== 0) {
     const controls = BooleanControls.filter(

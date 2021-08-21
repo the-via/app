@@ -15,7 +15,8 @@ import {bindActionCreators} from 'redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {ConnectedDevice} from 'src/types/types';
 
 type OwnProps = {};
 
@@ -129,7 +130,7 @@ type Props = OwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-type ConnectedKeyboardDefinition = [string, VIADefinitionV2];
+type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
 
 const KeyboardSelectors: React.FC<{
   show: boolean;
@@ -183,7 +184,9 @@ export const BadgeComponent: React.FC<Props> = (props) => {
       () =>
         Object.entries(connectedDevices).map(([path, device]) => [
           path,
-          definitions[(device as any).vendorProductId],
+          definitions[(device as ConnectedDevice).vendorProductId][
+            (device as ConnectedDevice).requiredDefinitionVersion
+          ],
         ]),
       [connectedDevices, definitions],
     );

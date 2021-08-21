@@ -17,6 +17,7 @@ import CustomIcon from './icon';
 import {evalExpr} from 'pelpi';
 import type {
   VIADefinitionV2,
+  VIADefinitionV3,
   VIAMenu,
   VIASubmenu,
   VIASubmenuSlice,
@@ -46,7 +47,7 @@ type OwnProps = {
 };
 
 type ReduxProps = {
-  selectedDefinition: VIADefinitionV2;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
 };
 type Props = ReduxProps & OwnProps;
 

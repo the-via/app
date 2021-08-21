@@ -5,6 +5,9 @@ let drums: any;
 let square: any;
 let pipe: any;
 let ac: any;
+
+// TODO: get this working or bin it?
+
 //const SoundFont = require('soundfont-player');
 //const callOnce = fn => {
 //  let called = false;

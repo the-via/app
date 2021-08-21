@@ -15,8 +15,11 @@ import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
   isKeyboardDefinitionV2,
+  keyboardDefinitionV3ToVIADefinitionV3,
+  isVIADefinitionV3,
+  isKeyboardDefinitionV3
 } from 'via-reader';
-import type {VIADefinitionV2} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   getDefinitions,
@@ -109,6 +112,7 @@ const UploadIcon = styled.div`
   }
 `;
 
+// TODO: insert branching logic for v2 vs v3 def
 function importDefinition(
   props: Props,
   file: File,
@@ -189,7 +193,7 @@ function DesignTab(props: Props) {
   });
 
   const options = localDefinitions.map(
-    ([, definition]: [string, VIADefinitionV2], index: number) => ({
+    ([, definition]: [string, VIADefinitionV2 | VIADefinitionV3], index: number) => ({
       label: definition.name,
       value: index,
     }),
@@ -297,7 +301,7 @@ function DesignTab(props: Props) {
               {Object.values(localDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {(Object.values(localDefinitions) as [string, VIADefinitionV2][]).map(
+          {(Object.values(localDefinitions) as [string, VIADefinitionV2 | VIADefinitionV3][]).map(
             ([id, definition]) => {
               return (
                 <IndentedControlRow>

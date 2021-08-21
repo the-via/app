@@ -3,7 +3,8 @@ import {
   createStandardAction,
   ActionType
 } from 'typesafe-actions';
-import {getSettings, setSettings, Settings} from '../../utils/device-store';
+import {getSettings, setSettings} from '../../utils/device-store';
+import type {Settings} from '../../types/types'
 
 // Actions
 export const actions = {
