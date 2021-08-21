@@ -35,6 +35,7 @@ import {
   getSupportedIdsFromStore,
   getMissingDefinition,
   syncStore,
+  getDefinitionsFromStore,
 } from '../../utils/device-store';
 import {
   getRecognisedDevices,
@@ -240,12 +241,13 @@ export const reloadConnectedDevices = (): ThunkResult => {
     const missingDefinitions = await Promise.all(
       Object.values(connectedDevices)
         // Check if we already have the required definition in the store
-        .filter(
-          ({vendorProductId, requiredDefinitionVersion}) =>
+        .filter(({vendorProductId, requiredDefinitionVersion}) => {
+          return (
             !definitions ||
             !definitions[vendorProductId] ||
-            !definitions[vendorProductId][requiredDefinitionVersion],
-        )
+            !definitions[vendorProductId][requiredDefinitionVersion]
+          );
+        })
         // Go and get it if we don't
         .map(({device, requiredDefinitionVersion}) =>
           getMissingDefinition(device, requiredDefinitionVersion),
@@ -470,7 +472,7 @@ export const updateLightingData = (device: Device): ThunkResult => {
       throw new Error('This method is only compatible with v2 definitions');
     }
 
-    const {lighting} = selectedDefinition;
+    const {lighting} = selectedDefinition as VIADefinitionV2;
     const {supportedLightingValues, effects} = getLightingDefinition(lighting);
 
     if (supportedLightingValues.length !== 0) {
@@ -551,10 +553,9 @@ export const saveRawKeymapToDevice = (
 export const loadSupportedIds = (): ThunkResult => {
   // TODO: make choice based on protocol
   return async (dispatch) => {
-    // TODO: Why do we call this twice?
-    dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
     await syncStore();
     dispatch(actions.updateSupportedIds(getSupportedIdsFromStore()));
+    dispatch(actions.updateDefinitions(getDefinitionsFromStore()));
     dispatch(reloadConnectedDevices());
   };
 };

@@ -6,6 +6,7 @@ import type {
   VendorProductIdMap,
   Settings,
   Device,
+  KeyboardDictionary,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
@@ -101,6 +102,9 @@ export const getMissingDefinition = async <
 
 export const getSupportedIdsFromStore = (): VendorProductIdMap =>
   deviceStore.get('definitionIndex')?.supportedVendorProductIdMap;
+
+export const getDefinitionsFromStore = (): KeyboardDictionary =>
+  deviceStore.get('definitions');
 
 export const getThemeFromStore = (): ThemeDefinition =>
   deviceStore.get('definitionIndex')?.theme;
