@@ -17,7 +17,7 @@ import {
   isKeyboardDefinitionV2,
   keyboardDefinitionV3ToVIADefinitionV3,
   isVIADefinitionV3,
-  isKeyboardDefinitionV3
+  isKeyboardDefinitionV3,
 } from 'via-reader';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
@@ -44,6 +44,7 @@ import {
   getDevicesUsingDefinitions,
   getVendorProductId,
 } from '../../utils/hid-keyboards';
+import type {DefinitionVersion} from 'src/types/types';
 
 type Props = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
@@ -117,19 +118,28 @@ function importDefinition(
   props: Props,
   file: File,
   setErrors: (errors: string[]) => void,
+  version: DefinitionVersion,
 ) {
   const reader = new FileReader();
   reader.onload = async () => {
     try {
       if (!reader.result) return;
       const res = JSON.parse(reader.result.toString());
-      const isValid = isKeyboardDefinitionV2(res) || isVIADefinitionV2(res);
+      const isValid =
+        version === 'v2'
+          ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
+          : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
       if (isValid) {
         setErrors([]);
-        const definition = isVIADefinitionV2(res)
-          ? res
-          : keyboardDefinitionV2ToVIADefinitionV2(res);
-        props.loadDefinition(definition);
+        const definition =
+          version === 'v2'
+            ? isVIADefinitionV2(res)
+              ? res
+              : keyboardDefinitionV2ToVIADefinitionV2(res)
+            : isVIADefinitionV3(res)
+            ? res
+            : keyboardDefinitionV3ToVIADefinitionV3(res);
+        props.loadDefinition({definition, version});
         const keyboards = await getDevicesUsingDefinitions(
           props.allDefinitions,
         );
@@ -144,7 +154,10 @@ function importDefinition(
         props.reloadConnectedDevices();
       } else {
         setErrors(
-          (isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []).map(
+          (version === 'v2'
+            ? isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []
+            : isKeyboardDefinitionV3.errors || isVIADefinitionV3.errors || []
+          ).map(
             (e) => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
           ),
         );
@@ -172,7 +185,7 @@ function onDrop(
       ) {
         var file = dataTransfer.items[i].getAsFile();
         if (file) {
-          importDefinition(props, file, setErrors);
+          importDefinition(props, file, setErrors, props.definitionVersion);
         }
       }
     }
@@ -191,9 +204,14 @@ function DesignTab(props: Props) {
     width: 1280,
     height: 900,
   });
+  const [definitionVersion, setDefinitionVersion] =
+    React.useState<DefinitionVersion>('v3');
 
   const options = localDefinitions.map(
-    ([, definition]: [string, VIADefinitionV2 | VIADefinitionV3], index: number) => ({
+    (
+      [, definition]: [string, VIADefinitionV2 | VIADefinitionV3],
+      index: number,
+    ) => ({
       label: definition.name,
       value: index,
     }),
@@ -209,7 +227,9 @@ function DesignTab(props: Props) {
         height: entry.height,
       }),
   );
-  const entry = localDefinitions[selectedDefinitionIndex];
+  const entry =
+    localDefinitions[selectedDefinitionIndex] &&
+    localDefinitions[selectedDefinitionIndex][definitionVersion];
 
   return (
     <DesignPane
@@ -230,7 +250,9 @@ function DesignTab(props: Props) {
           />
         ) : (
           <UploadIcon
-            onDrop={(evt) => onDrop(evt, props, setErrors)}
+            onDrop={(evt) =>
+              onDrop(evt, {...props, definitionVersion}, setErrors)
+            }
             onDragOver={(evt) => {
               evt.dataTransfer.effectAllowed = 'copyMove';
               evt.dataTransfer.dropEffect = 'copy';
@@ -248,10 +270,21 @@ function DesignTab(props: Props) {
             <Label>Load Draft Definition</Label>
             <Detail>
               <AccentUploadButton
-                onLoad={(file) => importDefinition(props, file, setErrors)}
+                onLoad={(file) =>
+                  importDefinition(props, file, setErrors, definitionVersion)
+                }
               >
                 Load
               </AccentUploadButton>
+            </Detail>
+          </ControlRow>
+          <ControlRow>
+            <Label>Enabled legacy mode (V2 definitions)</Label>
+            <Detail>
+              <AccentSlider
+                isChecked={definitionVersion === 'v2'}
+                onChange={(val) => setDefinitionVersion(val ? 'v2' : 'v3')}
+              />
             </Detail>
           </ControlRow>
           {entry && (
@@ -301,19 +334,22 @@ function DesignTab(props: Props) {
               {Object.values(localDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {(Object.values(localDefinitions) as [string, VIADefinitionV2 | VIADefinitionV3][]).map(
-            ([id, definition]) => {
-              return (
-                <IndentedControlRow>
-                  <SubLabel>{definition.name}</SubLabel>
-                  <Detail>
-                    0x
-                    {parseInt(id).toString(16).toUpperCase()}
-                  </Detail>
-                </IndentedControlRow>
-              );
-            },
-          )}
+          {(
+            Object.values(localDefinitions) as [
+              string,
+              VIADefinitionV2 | VIADefinitionV3,
+            ][]
+          ).map(([id, definition]) => {
+            return (
+              <IndentedControlRow>
+                <SubLabel>{definition.name}</SubLabel>
+                <Detail>
+                  0x
+                  {parseInt(id).toString(16).toUpperCase()}
+                </Detail>
+              </IndentedControlRow>
+            );
+          })}
         </Container>
       </OverflowCell>
     </DesignPane>
