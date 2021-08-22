@@ -23,6 +23,14 @@ export type Device = {
   path: string;
 };
 
+export type Keymap = number[];
+export type Layer = {
+  keymap: Keymap;
+  isLoaded: boolean;
+};
+
+export type DeviceMap = {[devicePath: string]: Layer[]};
+
 export type WebVIADevice = Device & {
   _device: HIDDevice;
 };

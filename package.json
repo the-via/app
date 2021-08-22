@@ -29,7 +29,6 @@
     "react-select": "^4.3.1",
     "react-tooltip": "^4.2.21",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0",
     "styled-components": "^5.3.0",
     "via-reader": "git://github.com/the-via/reader.git#2a89b25008c622e73521cea7f0bd3de1ce5150f6"
   },
