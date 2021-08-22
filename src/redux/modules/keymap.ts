@@ -7,6 +7,7 @@ import {
 } from 'typesafe-actions';
 import {
   BuiltInMenuModule,
+  DefinitionVersion,
   getLightingDefinition,
   isVIADefinitionV2,
   isVIADefinitionV3,
@@ -80,9 +81,10 @@ export const actions = {
   updateDefinitions: createStandardAction(
     'via/keymap/UPDATE_DEFINITIONS',
   )<KeyboardDictionary>(),
-  loadDefinition: createStandardAction('via/keymap/LOAD_DEFINITION')<
-    VIADefinitionV2 | VIADefinitionV3
-  >(),
+  loadDefinition: createStandardAction('via/keymap/LOAD_DEFINITION')<{
+    definition: VIADefinitionV2 | VIADefinitionV3;
+    version: DefinitionVersion;
+  }>(),
   setNumberOfLayers: createStandardAction(
     'via/keymap/SET_NUMBER_OF_LAYERS',
   )<number>(),
@@ -722,7 +724,10 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
     ...state,
     customDefinitions: {
       ...state.customDefinitions,
-      [action.payload.vendorProductId]: action.payload,
+      [action.payload.definition.vendorProductId]: {
+        ...[action.payload.version],
+        [action.payload.version]: action.payload.definition,
+      },
     },
   }))
   .handleAction(actions.updateSelectedCustomMenuData, (state, action) => ({
