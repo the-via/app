@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {Component} from 'react';
 import styled from 'styled-components';
-import {getMacroKeycodes} from '../utils/macro-api';
+import {getAutocompleteKeycodes} from '../utils/autocomplete-keycodes';
 import {validateExpression} from '../utils/macro-api';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import Button from './inputs/button';
@@ -45,7 +45,7 @@ const AutocompleteItem = ({entity: {label, code}}: any) => (
 const AutocompleteLoading = () => <div>Loading</div>;
 const findKeycodes = (token: string) => {
   const uToken = token.toUpperCase();
-  return getMacroKeycodes()
+  return getAutocompleteKeycodes()
     .filter(({name, title, code}) =>
       title
         ? title.toUpperCase().indexOf(uToken) > -1

@@ -3,13 +3,15 @@ import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {ErrorMessage} from '../../../../styled';
-import {
-  getMacroKeycodes,
-  validateExpression,
-} from '../../../../../utils/macro-api';
+import {validateExpression} from '../../../../../utils/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import type {RootState} from '../../../../../redux';
+import {
+  AutocompleteItem,
+  AutocompleteLoading,
+  findKeycodes,
+} from '../../../../../components/inputs/autocomplete-keycode';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -26,16 +28,6 @@ const Link = styled.a`
   color: var(--color_accent);
   text-decoration: underline;
 `;
-const KeycodeLabel = styled.span`
-  color: var(--color_medium-grey);
-  display: flex;
-`;
-
-const Keycode = styled.span`
-  color: var(--color_accent);
-  display: flex;
-  padding-left: 10px;
-`;
 
 const DescriptionLabel = styled(Label)`
   font-size: 14px;
@@ -45,42 +37,6 @@ const DescriptionLabel = styled(Label)`
   padding-left: 5px;
 `;
 
-const Item = styled.div<{selected?: boolean}>`
-  box-sizing: border-box;
-  min-width: 200px;
-  padding: 5px 10px;
-  display: flex;
-  justify-content: space-between;
-  background-color: ${(props) =>
-    !props.selected ? 'var(--color_light-jet)' : 'var(--color_dark-grey)'};
-
-  &:hover {
-    background-color: var(--color_dark-grey);
-  }
-`;
-
-const AutocompleteItem: React.FC<any> = ({selected, entity: {label, code}}) => (
-  <Item selected={selected}>
-    <KeycodeLabel>{label}</KeycodeLabel> <Keycode>{code}</Keycode>
-  </Item>
-);
-
-const AutocompleteLoading: React.FC<{}> = () => <div>Loading</div>;
-const findKeycodes = (token: string) => {
-  const uToken = token.toUpperCase();
-  return getMacroKeycodes()
-    .filter(({name, title, code}) =>
-      title
-        ? title.toUpperCase().indexOf(uToken) > -1
-        : name.toUpperCase().indexOf(uToken) > -1 ||
-          code.toUpperCase().indexOf(uToken) > -1,
-    )
-    .slice(0, 10)
-    .map(({name, code, title}) => {
-      const label = title ? title : name;
-      return {label, code};
-    });
-};
 const AutoHeightRow = styled(ControlRow)`
   height: auto;
 `;
