@@ -1,9 +1,10 @@
 import * as React from 'react';
+import {anyKeycodeToString} from '../../../utils/advanced-keys';
 import {AccentButton} from '../accent-button';
 import {KeycodeModal} from '../custom-keycode-modal';
 import type {PelpiInput} from './input';
 
-export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = props => {
+export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   const [, setKeycode] = React.useState<number>();
 
@@ -13,7 +14,7 @@ export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = props => {
       setKeycode(arg);
       props.setValue(arg);
     },
-    [props.setValue]
+    [props.setValue],
   );
 
   React.useEffect(() => {
@@ -23,12 +24,13 @@ export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = props => {
   return (
     <>
       <AccentButton onClick={() => setShowModal(true)}>
-        Show Keycode Input
+        {anyKeycodeToString(props.value)}
       </AccentButton>
       {showModal && (
         <KeycodeModal
+          defaultValue={props.value}
           onChange={onChange}
-          onConfirm={keycode => {
+          onConfirm={(keycode) => {
             props.setValue(keycode);
             setShowModal(false);
           }}
