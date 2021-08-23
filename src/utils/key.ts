@@ -3,6 +3,13 @@ import {
   advancedKeycodeToString,
   advancedStringToKeycode,
 } from './advanced-keys';
+import {
+  BuiltInKeycodeModule,
+  VIADefinitionV3,
+  VIADefinitionV2,
+  getLightingDefinition,
+  KeycodeType,
+} from 'via-reader';
 
 export interface IKeycode {
   name: string;
@@ -1313,3 +1320,43 @@ export function getKeycodes(): IKeycodeMenu[] {
     },
   ];
 }
+
+const categoriesForKeycodeModule = (keycodeModule: BuiltInKeycodeModule) =>
+  ({
+    [BuiltInKeycodeModule.VIAKeycodes]: ['Basic', 'Media', 'Macro', 'Special'],
+    [BuiltInKeycodeModule.WTLighting]: ['Lighting'],
+    [BuiltInKeycodeModule.QMKLighting]: ['QMK Lighting'],
+  }[keycodeModule]);
+
+export const getKeycodesForKeyboard = (
+  definition: VIADefinitionV3 | VIADefinitionV2,
+) => {
+  // v2
+  let includeList: string[] = [];
+  if ('lighting' in definition) {
+    const {keycodes} = getLightingDefinition(definition.lighting);
+    includeList = categoriesForKeycodeModule(
+      BuiltInKeycodeModule.VIAKeycodes,
+    ).concat(
+      keycodes === KeycodeType.None
+        ? []
+        : keycodes === KeycodeType.QMK
+        ? categoriesForKeycodeModule(BuiltInKeycodeModule.QMKLighting)
+        : categoriesForKeycodeModule(BuiltInKeycodeModule.WTLighting),
+    );
+  } else {
+    const {keycodes} = definition;
+    includeList = keycodes.flatMap(categoriesForKeycodeModule);
+  }
+  return getKeycodes()
+    .flatMap((keycodeMenu) =>
+      includeList.includes(keycodeMenu.label) ? keycodeMenu.keycodes : [],
+    )
+    .sort((a, b) => {
+      if (a.code <= b.code) {
+        return -1;
+      } else {
+        return 1;
+      }
+    });
+};

@@ -9,7 +9,10 @@ import {
 } from '../../utils/advanced-keys';
 import {useCombobox} from 'downshift';
 import TextInput from './text-input';
-import {getAutocompleteKeycodes} from '../../utils/autocomplete-keycodes';
+import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
+import type {RootState} from '../../redux';
+import {connect} from 'react-redux';
+import {getSelectedDefinition} from '../../redux/modules/keymap';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -134,12 +137,17 @@ function keycodeFromInput(input: string): number | null {
   return null;
 }
 
-const items = getAutocompleteKeycodes().map((k) => ({
-  code: k.code,
-  label: k.title ?? k.name,
-}));
-export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
-  const [inputItems, setInputItems] = React.useState(items);
+const getInputItems = (arr: IKeycode[]) =>
+  arr.map((k) => ({
+    code: k.code,
+    label: k.title ?? k.name,
+  }));
+
+// Connect component with redux here:
+const KeycodeModalComponent: React.FC<
+  KeycodeModalProps & ReturnType<typeof mapStateToProps>
+> = (props) => {
+  const [inputItems, setInputItems] = React.useState(props.supportedInputItems);
   const defaultInput = anyKeycodeToString(props.defaultValue as number);
   const {
     getMenuProps,
@@ -156,7 +164,7 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
     itemToString: (item) => item?.code ?? '',
     onInputValueChange: ({inputValue}) => {
       setInputItems(
-        items.filter(({label, code}) =>
+        props.supportedInputItems.filter(({label, code}) =>
           [label, code]
             .flatMap((s) => s.split(/\s+/))
             .map((s) => s.toLowerCase())
@@ -215,4 +223,9 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   );
 };
 
-export default KeycodeModal;
+const mapStateToProps = ({keymap}: RootState) => ({
+  supportedInputItems: getInputItems(
+    getKeycodesForKeyboard(getSelectedDefinition(keymap)),
+  ),
+});
+export const KeycodeModal = connect(mapStateToProps)(KeycodeModalComponent);

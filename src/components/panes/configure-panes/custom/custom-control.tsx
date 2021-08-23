@@ -1,9 +1,15 @@
 import * as React from 'react';
+import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
 import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
-import type {VIADefinitionV2, VIADefinitionV3, VIAItem, VIAControlItem} from 'via-reader';
+import type {
+  VIADefinitionV2,
+  VIADefinitionV3,
+  VIAItem,
+  VIAControlItem,
+} from 'via-reader';
 // TODO: should this be coming from reader instead?
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
@@ -67,7 +73,15 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
         />
       );
     }
-
+    case 'keycode': {
+      return (
+        <PelpiKeycodeInput
+          value={props.value[0]}
+          meta={{}}
+          setValue={(val: number) => props.updateValue(name, ...command, val)}
+        />
+      );
+    }
     case 'toggle': {
       const toggleOptions: any[] = options || [0, 1];
       return (
