@@ -90,7 +90,6 @@ export const actions = {
     keymap: number[];
     devicePath: string;
   }>(),
-  offsetKeyboard: createStandardAction('via/keymap/OFFSET_KEYBOARD')<number>(),
   saveKeymapSuccess: createStandardAction('via/keymap/SAVE')<Layer[]>(),
   setLayer: createStandardAction('via/keymap/SET_LAYER')<number>(),
   setKey: createStandardAction('via/keymap/SET_KEY')<{
@@ -277,20 +276,6 @@ export const reloadConnectedDevices = (): ThunkResult => {
     } else if (validDevicesArr.length === 0) {
       dispatch(actions.selectDevice(null));
     }
-  };
-};
-
-export const offsetKeyboard = (offset: number): ThunkResult => {
-  return async (dispatch, getState) => {
-    const state = getState().keymap;
-    const connectedDevices = Object.entries(getConnectedDevices(state));
-    const selectedDevicePath = getSelectedDevicePath(state);
-    const {length} = connectedDevices;
-    const currIdx = connectedDevices.findIndex(
-      (device) => device[0] === selectedDevicePath,
-    );
-    const newDevice = connectedDevices[(currIdx + offset + length) % length][1];
-    dispatch(selectConnectedDevice(newDevice));
   };
 };
 
@@ -651,27 +636,6 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
       ? getSelectedPropsFromDevice(action.payload)
       : getResetSelectedProps()),
   }))
-  .handleAction(actions.offsetKeyboard, (state, action) => {
-    const connectedDevices = Object.entries(getConnectedDevices(state));
-    const selectedDevicePath = getSelectedDevicePath(state);
-    const offset = action.payload;
-    const {length} = connectedDevices;
-    const currIdx = connectedDevices.findIndex(
-      (device) => device[0] === selectedDevicePath,
-    );
-    if (length > 1 && currIdx !== -1) {
-      return {
-        ...state,
-        ...getSelectedPropsFromDevice(
-          connectedDevices[(currIdx + offset + length) % length][1].device,
-        ),
-      };
-    }
-    return {
-      ...state,
-      ...getResetSelectedProps(),
-    };
-  })
   .handleAction(actions.updateLayoutOptions, (state, action) => ({
     ...state,
     layoutOptionsMap: {

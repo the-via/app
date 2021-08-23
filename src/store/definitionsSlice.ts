@@ -1,10 +1,17 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {KeyboardDictionary} from 'src/types/types';
+import {numIntoBytes, packBits} from 'src/utils/bit-pack';
+import {KeyboardValue} from 'src/utils/keyboard-api';
 import type {
   DefinitionVersion,
   VIADefinitionV2,
   VIADefinitionV3,
 } from 'via-reader';
+import type {AppThunk, RootState} from '.';
+import {
+  getSelectedDevicePath,
+  getSelectedConnectedDevice,
+} from './devicesSlice';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -55,3 +62,77 @@ export const {loadDefinition, updateDefinitions, updateLayoutOptions} =
   definitionsSlice.actions;
 
 export default definitionsSlice.reducer;
+
+export const updateLayoutOption =
+  (index: number, val: number): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const definition = getSelectedDefinition(state);
+    const device = getSelectedConnectedDevice(state);
+    const path = getSelectedDevicePath(state);
+
+    if (!definition || !device || !path || !definition.layouts.labels) {
+      return;
+    }
+
+    const optionsNums = definition.layouts.labels.map((layoutLabel) =>
+      Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
+    );
+    const {api} = device;
+    const options = getSelectedLayoutOptions(state);
+    options[index] = val;
+
+    const bytes = numIntoBytes(
+      packBits(options.map((option, idx) => [option, optionsNums[idx]])),
+    );
+
+    try {
+      await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
+    } catch {
+      console.warn('Setting layout option command not working');
+    }
+
+    dispatch(
+      updateLayoutOptions({
+        [path]: options,
+      }),
+    );
+  };
+
+export const getBaseDefinitions = (state: RootState) =>
+  state.definitions.definitions;
+export const getCustomDefinitions = (state: RootState) =>
+  state.definitions.customDefinitions;
+export const getLayoutOptionsMap = (state: RootState) =>
+  state.definitions.layoutOptionsMap;
+
+export const getDefinitions = createSelector(
+  getBaseDefinitions,
+  getCustomDefinitions,
+  (definitions, customDefinitions) =>
+    ({...definitions, ...customDefinitions} as KeyboardDictionary),
+);
+
+export const getSelectedDefinition = createSelector(
+  getDefinitions,
+  getSelectedConnectedDevice,
+  (definitions, connectedDevice) =>
+    connectedDevice &&
+    definitions &&
+    definitions[connectedDevice.vendorProductId] &&
+    definitions[connectedDevice.vendorProductId][
+      connectedDevice.requiredDefinitionVersion
+    ],
+);
+
+export const getSelectedLayoutOptions = createSelector(
+  getSelectedDefinition,
+  getLayoutOptionsMap,
+  getSelectedDevicePath,
+  (definition, map, path) =>
+    (path && map[path]) ||
+    (definition &&
+      definition.layouts.labels &&
+      definition.layouts.labels.map((_) => 0)) ||
+    [],
+);

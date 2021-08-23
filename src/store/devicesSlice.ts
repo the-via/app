@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {
   ConnectedDevice,
   ConnectedDevices,
@@ -182,7 +182,13 @@ export const reloadConnectedDevices =
     // );
   };
 
+export const getConnectedDevices = (state: RootState) =>
+  state.devices.connectedDevices;
 export const getSelectedDevicePath = (state: RootState) =>
   state.devices.selectedDevicePath;
-
 export const getSupportedIds = (state: RootState) => state.devices.supportedIds;
+export const getSelectedConnectedDevice = createSelector(
+  getConnectedDevices,
+  getSelectedDevicePath,
+  (devices, path) => path && devices[path],
+);

@@ -1,6 +1,14 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevice, DeviceLayerMap, Keymap} from 'src/types/types';
+import type {
+  ConnectedDevice,
+  Device,
+  DeviceLayerMap,
+  Keymap,
+  Layer,
+} from 'src/types/types';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {AppThunk, RootState} from '.';
+import {getSelectedDefinition} from './definitionsSlice';
 import {getSelectedDevicePath} from './devicesSlice';
 
 export type KeymapState = {
@@ -54,6 +62,13 @@ export const keymapSlice = createSlice({
     updateSelectedKey: (state, action: PayloadAction<number>) => {
       state.selectedKey = action.payload;
     },
+    saveKeymapSuccess: (
+      state,
+      action: PayloadAction<{layers: Layer[]; devicePath: string}>,
+    ) => {
+      const {layers, devicePath} = action.payload;
+      state.rawDeviceMap[devicePath] = layers;
+    },
     setKey: (
       state,
       action: PayloadAction<{
@@ -106,6 +121,7 @@ export const {
   clearSelectedKey,
   setKey,
   updateSelectedKey,
+  saveKeymapSuccess,
 } = keymapSlice.actions;
 
 export default keymapSlice.reducer;
@@ -138,6 +154,29 @@ export const loadKeymapFromDevice =
         );
       }),
     );
+  };
+
+// TODO: why isn't this keymap of type Keymap i.e. number[]?
+// TODO: should this be using the current selected device? not sure
+// TODO: if not should it use connected device instead to get the api from it?
+export const saveRawKeymapToDevice =
+  (keymap: number[][], device: Device): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const api = new KeyboardAPI(device);
+    const definition = getSelectedDefinition(state);
+    if (!api || !definition) {
+      return;
+    }
+
+    const {matrix} = definition;
+
+    await api.writeRawMatrix(matrix, keymap);
+    const layers = keymap.map((layer) => ({
+      keymap: layer,
+      isLoaded: true,
+    }));
+    dispatch(saveKeymapSuccess({layers, devicePath: device.path}));
   };
 
 export const getRawDeviceMap = (state: RootState) => state.keymap.rawDeviceMap;
