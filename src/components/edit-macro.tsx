@@ -6,6 +6,10 @@ import {validateExpression} from '../utils/macro-api';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import Button from './inputs/button';
 import {Row, Message, ErrorMessage} from './styled';
+import {
+  AutocompleteItem,
+  AutocompleteLoading,
+} from './inputs/autocomplete-keycode';
 
 const MacroContainer = styled.div`
   overflow: hidden;
@@ -37,12 +41,6 @@ const Keycode = styled.span`
   color: lightgrey;
 `;
 
-const AutocompleteItem = ({entity: {label, code}}: any) => (
-  <div>
-    {label} <Keycode>{code}</Keycode>
-  </div>
-);
-const AutocompleteLoading = () => <div>Loading</div>;
 const findKeycodes = (token: string) => {
   const uToken = token.toUpperCase();
   return getAutocompleteKeycodes()

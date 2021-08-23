@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-const AccentButtonElem = styled.div<{disabled?: boolean}>`
+const AccentButtonElem = styled.button<{disabled?: boolean}>`
   height: 40px;
   padding: 0 15px;
   line-height: 40px;
@@ -21,7 +21,8 @@ const AccentButtonElem = styled.div<{disabled?: boolean}>`
   border-color: ${(props) =>
     props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
 
-  &:hover {
+  &:hover,
+  &:focus {
     border: 1px solid var(--color_accent);
     color: ${(props) =>
       props.disabled ? 'var(--color_dark-grey)' : 'var(--color_light-grey)'};
