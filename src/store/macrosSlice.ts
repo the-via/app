@@ -22,17 +22,22 @@ export const macrosSlice = createSlice({
     // doesn't actually mutate the state because it uses the Immer library,
     // which detects changes to a "draft state" and produces a brand new
     // immutable state based off those changes
-    loadMacrosSuccess: (state, {payload}: PayloadAction<string[]>) => {
-      state.expressions = payload;
+    loadMacrosSuccess: (state, action: PayloadAction<string[]>) => {
+      state.expressions = action.payload;
     },
-    saveMacrosSuccess: (state, {payload}: PayloadAction<string[]>) => {
-      state.expressions = payload;
+    saveMacrosSuccess: (state, action: PayloadAction<string[]>) => {
+      state.expressions = action.payload;
     },
     setMacrosNotSupported: (state) => {
       state.isFeatureSupported = false;
     },
   },
 });
+
+export const {loadMacrosSuccess, saveMacrosSuccess, setMacrosNotSupported} =
+  macrosSlice.actions;
+
+export default macrosSlice.reducer;
 
 export const loadMacros =
   (device: Device): AppThunk =>
@@ -58,8 +63,3 @@ export const saveMacros =
       dispatch(saveMacrosSuccess(macros));
     }
   };
-
-export const {loadMacrosSuccess, saveMacrosSuccess, setMacrosNotSupported} =
-  macrosSlice.actions;
-
-export default macrosSlice.reducer;

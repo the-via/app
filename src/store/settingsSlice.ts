@@ -7,12 +7,14 @@ import {getSettings, setSettings} from '../utils/device-store';
 export type SettingsState = Settings & {
   isTestMatrixEnabled: boolean;
   requireRestart: boolean;
+  allowGlobalHotKeys: boolean;
 };
 
 const initialState: SettingsState = {
   ...getSettings(),
   isTestMatrixEnabled: false,
   requireRestart: false,
+  allowGlobalHotKeys: false,
 };
 
 const toggleBool = (
@@ -49,6 +51,12 @@ export const settingsSlice = createSlice({
     requireRestart: (state) => {
       toggleBool(state, 'requireRestart');
     },
+    disableGlobalHotKeys: (state) => {
+      state.allowGlobalHotKeys = false;
+    },
+    allowGlobalHotkeys: (state) => {
+      state.allowGlobalHotKeys = true;
+    },
   },
 });
 
@@ -59,6 +67,8 @@ export const {
   toggleCreatorMode,
   setTestMatrixEnabled,
   requireRestart,
+  disableGlobalHotKeys,
+  allowGlobalHotkeys,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

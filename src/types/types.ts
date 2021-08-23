@@ -1,5 +1,6 @@
 import type {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {
+  DefinitionVersion,
   KeyboardDefinitionIndex,
   VIADefinitionV2,
   VIADefinitionV3,
@@ -29,7 +30,7 @@ export type Layer = {
   isLoaded: boolean;
 };
 
-export type DeviceMap = {[devicePath: string]: Layer[]};
+export type DeviceLayerMap = {[devicePath: string]: Layer[]};
 
 export type WebVIADevice = Device & {
   _device: HIDDevice;
@@ -64,10 +65,6 @@ export type DefinitionVersionMap = {v2: VIADefinitionV2; v3: VIADefinitionV3};
 
 // Is DefinitionMap a better name?
 export type KeyboardDictionary = Record<string, DefinitionVersionMap>;
-
-// Couldn't use an enum because babel uses isolated modules
-export type DefinitionVersion =
-  keyof KeyboardDictionary[keyof KeyboardDictionary];
 
 export type VendorProductIdMap = Record<number, {v2: boolean; v3: boolean}>;
 

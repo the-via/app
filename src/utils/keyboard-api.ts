@@ -1,4 +1,4 @@
-import type {Device} from 'src/types/types';
+import type {Device, Keymap} from 'src/types/types';
 import type {LightingValue, MatrixInfo} from 'via-reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
@@ -199,7 +199,7 @@ export class KeyboardAPI {
     }
   }
 
-  async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<number[]> {
+  async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<Keymap> {
     const version = await this.getProtocolVersion();
     if (version >= PROTOCOL_BETA) {
       return this.fastReadRawMatrix(matrix, layer);

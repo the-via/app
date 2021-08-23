@@ -64,9 +64,6 @@ type LayoutOptionsMap = {[devicePath: string]: LayoutOption[]};
 
 // Actions
 export const actions = {
-  toggleKeyRemappingViaKeyboard: createStandardAction(
-    'via/keymap/TOGGLE_KEY_REMAPPING_VIA_KB',
-  )(),
   allowGlobalHotKeys: createStandardAction('via/keymap/ALLOW_GLOBAL_HOTKEYS')(),
   disableGlobalHotKeys: createStandardAction(
     'via/keymap/DISABLE_GLOBAL_HOTKEYS',
@@ -96,8 +93,6 @@ export const actions = {
   offsetKeyboard: createStandardAction('via/keymap/OFFSET_KEYBOARD')<number>(),
   saveKeymapSuccess: createStandardAction('via/keymap/SAVE')<Layer[]>(),
   setLayer: createStandardAction('via/keymap/SET_LAYER')<number>(),
-  incrementLayer: createStandardAction('via/keymap/INCREMENT_LAYER')(),
-  decrementLayer: createStandardAction('via/keymap/DECREMENT_LAYER')(),
   setKey: createStandardAction('via/keymap/SET_KEY')<{
     keyIndex: number;
     value: number;
@@ -603,13 +598,11 @@ export type State = {
   definitions: KeyboardDictionary;
   customDefinitions: KeyboardDictionary;
   selectedKey: null | number;
-  allowKeyRemappingViaKeyboard: boolean;
   allowGlobalHotKeys: boolean;
   supportedIds: VendorProductIdMap;
 };
 
 const initialState: State = {
-  allowKeyRemappingViaKeyboard: false,
   allowGlobalHotKeys: false,
   rawDeviceMap: {},
   definitions: {},
@@ -647,10 +640,6 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
   .handleAction(actions.disableGlobalHotKeys, (state) => ({
     ...state,
     allowGlobalHotKeys: false,
-  }))
-  .handleAction(actions.toggleKeyRemappingViaKeyboard, (state) => ({
-    ...state,
-    allowKeyRemappingViaKeyboard: !state.allowKeyRemappingViaKeyboard,
   }))
   .handleAction(actions.allowGlobalHotKeys, (state) => ({
     ...state,
@@ -748,26 +737,6 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
     return {
       ...state,
       selectedLayerIndex: action.payload,
-    };
-  })
-  .handleAction(actions.incrementLayer, (state) => {
-    const newLayerIndex = state.selectedLayerIndex + 1;
-    if (newLayerIndex >= state.numberOfLayers) {
-      return state;
-    }
-    return {
-      ...state,
-      selectedLayerIndex: newLayerIndex,
-    };
-  })
-  .handleAction(actions.decrementLayer, (state) => {
-    const newLayerIndex = state.selectedLayerIndex - 1;
-    if (newLayerIndex < 0) {
-      return state;
-    }
-    return {
-      ...state,
-      selectedLayerIndex: newLayerIndex,
     };
   })
   .handleAction(actions.updateSupportedIds, (state, action) => ({

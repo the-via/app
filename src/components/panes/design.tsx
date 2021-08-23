@@ -19,7 +19,11 @@ import {
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
 } from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {
+  VIADefinitionV2,
+  VIADefinitionV3,
+  DefinitionVersion,
+} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   getDefinitions,
@@ -44,7 +48,6 @@ import {
   getDevicesUsingDefinitions,
   getVendorProductId,
 } from '../../utils/hid-keyboards';
-import type {DefinitionVersion} from 'src/types/types';
 
 type Props = ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
