@@ -7,11 +7,17 @@ import type {
   VendorProductIdMap,
 } from 'src/types/types';
 import {
+  getDefinitionsFromStore,
+  getSupportedIdsFromStore,
+  syncStore,
+} from 'src/utils/device-store';
+import {
   getRecognisedDevices,
   getVendorProductId,
 } from 'src/utils/hid-keyboards';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {AppThunk, RootState} from '.';
+import {updateDefinitions} from './definitionsSlice';
 import {loadMacros} from './macrosSlice';
 
 export type DevicesState = {
@@ -30,11 +36,6 @@ export const deviceSlice = createSlice({
   name: 'devices',
   initialState,
   reducers: {
-    // Redux Toolkit allows us to write "mutating" logic in reducers. It
-    // doesn't actually mutate the state because it uses the Immer library,
-    // which detects changes to a "draft state" and produces a brand new
-    // immutable state based off those change
-
     // TODO: change to just pass the device path instead of the whole device
     selectDevice: (state, action: PayloadAction<Device | null>) => {
       // TODO: set selectedKey to null, but this lives in the keymap slice
@@ -78,6 +79,17 @@ export const {
 
 export default deviceSlice.reducer;
 
+export const selectConnectedDeviceByPath =
+  (path: string): AppThunk =>
+  async (dispatch, getState) => {
+    await dispatch(reloadConnectedDevices());
+    const connectedDevice = getConnectedDevices(getState())[path];
+    if (connectedDevice) {
+      dispatch(selectConnectedDevice(connectedDevice));
+    }
+  };
+
+// TODO: should we change these other thunks to use the selected device state instead of params?
 export const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
@@ -181,6 +193,13 @@ export const reloadConnectedDevices =
     //   ),
     // );
   };
+
+export const loadSupportedIds = (): AppThunk => async (dispatch) => {
+  await syncStore();
+  dispatch(updateSupportedIds(getSupportedIdsFromStore()));
+  dispatch(updateDefinitions(getDefinitionsFromStore()));
+  dispatch(reloadConnectedDevices());
+};
 
 export const getConnectedDevices = (state: RootState) =>
   state.devices.connectedDevices;

@@ -8,8 +8,14 @@ import type {
 } from 'src/types/types';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {AppThunk, RootState} from '.';
-import {getSelectedDefinition} from './definitionsSlice';
-import {getSelectedDevicePath} from './devicesSlice';
+import {
+  getSelectedDefinition,
+  getSelectedKeyDefinitions,
+} from './definitionsSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedDevicePath,
+} from './devicesSlice';
 
 export type KeymapState = {
   rawDeviceMap: DeviceLayerMap;
@@ -179,6 +185,24 @@ export const saveRawKeymapToDevice =
     dispatch(saveKeymapSuccess({layers, devicePath: device.path}));
   };
 
+export const updateKey =
+  (keyIndex: number, value: number): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const keys = getSelectedKeyDefinitions(state);
+    const connectedDevice = getSelectedConnectedDevice(state);
+    if (!connectedDevice || !keys) {
+      return;
+    }
+
+    const selectedLayerIndex = getSelectedLayerIndex(state);
+    const {api, device} = connectedDevice;
+    const {row, col} = keys[keyIndex];
+    await api.setKey(selectedLayerIndex, row, col, value);
+    dispatch(setKey({keymapIndex: keyIndex, value, devicePath: device.path}));
+  };
+
+export const getSelectedKey = (state: RootState) => state.keymap.selectedKey;
 export const getRawDeviceMap = (state: RootState) => state.keymap.rawDeviceMap;
 export const getNumberOfLayers = (state: RootState) =>
   state.keymap.numberOfLayers;
@@ -200,6 +224,30 @@ export const getLoadProgress = createSelector(
 
 export const getSelectedRawLayer = createSelector(
   getSelectedRawLayers,
+  getSelectedLayerIndex,
+  (deviceLayers, layerIndex) => deviceLayers && deviceLayers[layerIndex],
+);
+
+export const getSelectedKeymaps = createSelector(
+  getSelectedKeyDefinitions,
+  getSelectedDefinition,
+  getSelectedRawLayers,
+  (keys, definition, layers) => {
+    if (definition && layers) {
+      const rawKeymaps = layers.map((layer) => layer.keymap);
+      const {
+        matrix: {cols},
+      } = definition;
+      return rawKeymaps.map((keymap) =>
+        keys.map(({row, col}) => keymap[row * cols + col]),
+      );
+    }
+    return undefined;
+  },
+);
+
+export const getSelectedKeymap = createSelector(
+  getSelectedKeymaps,
   getSelectedLayerIndex,
   (deviceLayers, layerIndex) => deviceLayers && deviceLayers[layerIndex],
 );

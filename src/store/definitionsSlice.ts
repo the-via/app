@@ -1,6 +1,11 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {KeyboardDictionary} from 'src/types/types';
-import {numIntoBytes, packBits} from 'src/utils/bit-pack';
+import {
+  bytesIntoNum,
+  numIntoBytes,
+  packBits,
+  unpackBits,
+} from 'src/utils/bit-pack';
 import {KeyboardValue} from 'src/utils/keyboard-api';
 import type {
   DefinitionVersion,
@@ -99,6 +104,37 @@ export const updateLayoutOption =
     );
   };
 
+export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
+  const state = getState();
+  const selectedDefinition = getSelectedDefinition(state);
+  const connectedDevice = getSelectedConnectedDevice(state);
+  if (
+    !connectedDevice ||
+    !selectedDefinition ||
+    !selectedDefinition.layouts.labels
+  ) {
+    return;
+  }
+
+  const {api, device} = connectedDevice;
+  try {
+    const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
+    const options = unpackBits(
+      bytesIntoNum(res),
+      selectedDefinition.layouts.labels.map((layoutLabel: string[] | string) =>
+        Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
+      ),
+    );
+    dispatch(
+      updateLayoutOptions({
+        [device.path]: options,
+      }),
+    );
+  } catch {
+    console.warn('Getting layout options command not working');
+  }
+};
+
 export const getBaseDefinitions = (state: RootState) =>
   state.definitions.definitions;
 export const getCustomDefinitions = (state: RootState) =>
@@ -135,4 +171,25 @@ export const getSelectedLayoutOptions = createSelector(
       definition.layouts.labels &&
       definition.layouts.labels.map((_) => 0)) ||
     [],
+);
+
+export const getSelectedOptionKeys = createSelector(
+  getSelectedLayoutOptions,
+  getSelectedDefinition,
+  (layoutOptions, definition) =>
+    definition &&
+    layoutOptions.flatMap(
+      (option, idx) => definition.layouts.optionKeys[idx][option],
+    ),
+);
+
+export const getSelectedKeyDefinitions = createSelector(
+  getSelectedDefinition,
+  getSelectedOptionKeys,
+  (definition, optionKeys) => {
+    if (definition && optionKeys) {
+      return definition.layouts.keys.concat(optionKeys);
+    }
+    return [];
+  },
 );

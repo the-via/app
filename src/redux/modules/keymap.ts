@@ -798,8 +798,7 @@ export const getLayoutOptionsMap = (state: State) => state.layoutOptionsMap;
 export const getCustomMenuDataMap = (state: State) => state.customMenuDataMap;
 export const getLightingMap = (state: State) => state.lightingMap;
 export const getNumberOfLayers = (state: State) => state.numberOfLayers;
-export const getSelectedVendorProductId = (state: State) =>
-  state.selectedVendorProductId as number;
+
 export const getSelectedDevicePath = (state: State) =>
   state.selectedDevicePath as string;
 export const getSelectedLayerIndex = (state: State) => state.selectedLayerIndex;
@@ -908,13 +907,6 @@ export const getCustomMenus = createSelector(
   },
 );
 
-function isVIAMenu(
-  value: BuiltInMenuModule | VIAMenu | string,
-): value is VIAMenu {
-  const viaMenu = value as VIAMenu;
-  return viaMenu.label !== undefined && viaMenu.content !== undefined;
-}
-
 export const getSelectedLayoutOptions = createSelector(
   getSelectedDefinition,
   getLayoutOptionsMap,
@@ -987,10 +979,7 @@ export const getSelectedRawLayer = createSelector(
   getSelectedLayerIndex,
   (deviceLayers, layerIndex) => deviceLayers && deviceLayers[layerIndex],
 );
-export const getSelectedRawMatrix = createSelector(
-  getSelectedRawLayer,
-  (selectedLayer) => selectedLayer && selectedLayer.keymap,
-);
+
 export const getSelectedKeymap = createSelector(
   getSelectedKeymaps,
   getSelectedLayerIndex,
