@@ -96,7 +96,6 @@ export const actions = {
     keyIndex: number;
     value: number;
   }>(),
-  validateDevices: createStandardAction('via/keymap/VALIDATE')<Device[]>(),
 
   // TODO: move this to a device-centric reducer later
   selectDevice: createStandardAction(
@@ -763,23 +762,7 @@ export const keymapReducer = createReducer<State, Actions>(initialState)
       ...state.rawDeviceMap,
       [state.selectedDevicePath as string]: action.payload,
     },
-  }))
-  .handleAction(actions.validateDevices, (state, action) => {
-    // Filter current device data based on current connected devices
-    const validatedDevices = action.payload.reduce(
-      (acc, {path}) => {
-        (acc.rawDeviceMap as any)[path] = state.rawDeviceMap[path];
-        (acc.lightingMap as any)[path] = state.lightingMap[path];
-        return acc;
-      },
-      {lightingMap: {}, rawDeviceMap: {}},
-    );
-
-    return {
-      ...state,
-      ...validatedDevices,
-    };
-  });
+  }));
 
 const initDeviceLayers = (numberOfLayers: number): Layer[] =>
   Array(numberOfLayers).fill({

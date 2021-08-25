@@ -1,5 +1,5 @@
 import {byteToKey, keycodesList} from './key';
-import {Device, KeyboardAPI} from './keyboard-api';
+import type {KeyboardAPI} from './keyboard-api';
 import basicKeyToByte from './key-to-byte.json5';
 
 // Corresponds to 'magic codes' in qmk sendstring
@@ -68,17 +68,6 @@ function isMacroKeycode(keycode: string): boolean {
 function getByte(keycode: string): number {
   return basicKeyToByte[keycode.toUpperCase()];
 }
-
-export const getMacroApi = (device: Device) => {
-  if (!device) {
-    return undefined;
-  }
-  const keyboardApi = new KeyboardAPI(device);
-  if (!keyboardApi) {
-    return undefined;
-  }
-  return new MacroAPI(keyboardApi);
-};
 
 export class MacroAPI {
   constructor(private keyboardApi: KeyboardAPI) {}

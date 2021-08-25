@@ -4,10 +4,12 @@ import type {
   ConnectedDevices,
   Device,
   DeviceLayerMap,
+  KeyboardDictionary,
   VendorProductIdMap,
 } from 'src/types/types';
 import {
   getDefinitionsFromStore,
+  getMissingDefinition,
   getSupportedIdsFromStore,
   syncStore,
 } from 'src/utils/device-store';
@@ -17,8 +19,15 @@ import {
 } from 'src/utils/hid-keyboards';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {AppThunk, RootState} from '.';
-import {updateDefinitions} from './definitionsSlice';
+import {
+  getDefinitions,
+  loadLayoutOptions,
+  updateDefinitions,
+} from './definitionsSlice';
+import {loadKeymapFromDevice} from './keymapSlice';
+import {updateLightingData} from './lightingSlice';
 import {loadMacros} from './macrosSlice';
+import {updateV3MenuData} from './menusSlice';
 
 export type DevicesState = {
   selectedDevicePath: string | null;
@@ -37,26 +46,12 @@ export const deviceSlice = createSlice({
   initialState,
   reducers: {
     // TODO: change to just pass the device path instead of the whole device
-    selectDevice: (state, action: PayloadAction<Device | null>) => {
-      // TODO: set selectedKey to null, but this lives in the keymap slice
+    selectDevice: (state, action: PayloadAction<ConnectedDevice | null>) => {
       if (!action.payload) {
         state.selectedDevicePath = null;
       } else {
-        state.selectedDevicePath = action.payload.path;
+        state.selectedDevicePath = action.payload.device.path;
       }
-    },
-    validateDevices: (state, action: PayloadAction<Device[]>) => {
-      // TODO: is there a better way to do this? what does this even do?
-      // TODO: listen to this action and update lighting map in lighting and keymap slices accordingly
-      // Filter current device data based on current connected devices
-      const validatedDeviceMap = action.payload.reduce(
-        (acc: DeviceLayerMap, {path}) => {
-          acc[path] = state.rawDeviceMap[path];
-          return acc;
-        },
-        {},
-      );
-      state.rawDeviceMap = validatedDeviceMap;
     },
     updateConnectedDevices: (
       state,
@@ -70,12 +65,8 @@ export const deviceSlice = createSlice({
   },
 });
 
-export const {
-  selectDevice,
-  updateConnectedDevices,
-  validateDevices,
-  updateSupportedIds,
-} = deviceSlice.actions;
+export const {selectDevice, updateConnectedDevices, updateSupportedIds} =
+  deviceSlice.actions;
 
 export default deviceSlice.reducer;
 
@@ -90,19 +81,20 @@ export const selectConnectedDeviceByPath =
   };
 
 // TODO: should we change these other thunks to use the selected device state instead of params?
+// Maybe not? the nice this about this is we don't have to null check the device
 export const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
-    dispatch(selectDevice(connectedDevice.device));
-    dispatch(loadMacros(connectedDevice.device));
+    dispatch(selectDevice(connectedDevice));
+    dispatch(loadMacros(connectedDevice));
     dispatch(loadLayoutOptions());
 
     const {protocol} = connectedDevice;
     if (protocol < 10) {
-      dispatch(updateLightingData(connectedDevice.device));
+      dispatch(updateLightingData(connectedDevice));
     }
     if (protocol >= 10) {
-      dispatch(updateV3MenuData(connectedDevice.device));
+      dispatch(updateV3MenuData(connectedDevice));
     }
 
     dispatch(loadKeymapFromDevice(connectedDevice));
@@ -159,39 +151,39 @@ export const reloadConnectedDevices =
       dispatch(selectDevice(null));
     }
 
-    // // TODO: replace with a call to an action from the definition store
-    // const definitions = getDefinitions(state);
-    // const missingDefinitions = await Promise.all(
-    //   Object.values(connectedDevices)
-    //     // Check if we already have the required definition in the store
-    //     .filter(({vendorProductId, requiredDefinitionVersion}) => {
-    //       return (
-    //         !definitions ||
-    //         !definitions[vendorProductId] ||
-    //         !definitions[vendorProductId][requiredDefinitionVersion]
-    //       );
-    //     })
-    //     // Go and get it if we don't
-    //     .map(({device, requiredDefinitionVersion}) =>
-    //       getMissingDefinition(device, requiredDefinitionVersion),
-    //     ),
-    // );
+    // TODO: replace with a call to an action from the definition store
+    const definitions = getDefinitions(state);
+    const missingDefinitions = await Promise.all(
+      Object.values(connectedDevices)
+        // Check if we already have the required definition in the store
+        .filter(({vendorProductId, requiredDefinitionVersion}) => {
+          return (
+            !definitions ||
+            !definitions[vendorProductId] ||
+            !definitions[vendorProductId][requiredDefinitionVersion]
+          );
+        })
+        // Go and get it if we don't
+        .map(({device, requiredDefinitionVersion}) =>
+          getMissingDefinition(device, requiredDefinitionVersion),
+        ),
+    );
 
-    // // TODO: set definitions in definition store
-    // dispatch(
-    //   updateDefinitions(
-    //     missingDefinitions.reduce<KeyboardDictionary>(
-    //       (p, [definition, version]) => ({
-    //         ...p,
-    //         [definition.vendorProductId]: {
-    //           ...p[definition.vendorProductId],
-    //           [version]: definition,
-    //         },
-    //       }),
-    //       {},
-    //     ),
-    //   ),
-    // );
+    // TODO: set definitions in definition store
+    dispatch(
+      updateDefinitions(
+        missingDefinitions.reduce<KeyboardDictionary>(
+          (p, [definition, version]) => ({
+            ...p,
+            [definition.vendorProductId]: {
+              ...p[definition.vendorProductId],
+              [version]: definition,
+            },
+          }),
+          {},
+        ),
+      ),
+    );
   };
 
 export const loadSupportedIds = (): AppThunk => async (dispatch) => {

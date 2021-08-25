@@ -9,12 +9,14 @@ import type {
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {AppThunk, RootState} from '.';
 import {
+  getDefinitions,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  selectDevice,
 } from './devicesSlice';
 
 export type KeymapState = {
@@ -79,44 +81,21 @@ export const keymapSlice = createSlice({
       state,
       action: PayloadAction<{
         devicePath: string;
-        // layerIndex: number; // TODO: pass this in explicitly replace ref to selectedLayerIndex?
         keymapIndex: number;
         value: number;
       }>,
     ) => {
-      // TODO: implement this in the UpdateKey thunk to extract the keymapIndex
-
-      // const {keyIndex, value} = action.payload;
-      // const keymap = [...(getSelectedRawLayer(state) as any).keymap];
-      // const {selectedLayerIndex} = state;
-      // const rawDeviceLayers = getSelectedRawLayers(state);
-      // const keys = getSelectedKeyDefinitions(state);
-      // const {
-      //   matrix: {cols},
-      // } = getSelectedDefinition(state);
-
-      // const {row, col} = keys[keyIndex];
-      // const newRawLayers = [...(rawDeviceLayers as Layer[])];
-      // keymap[row * cols + col] = value;
-      // newRawLayers[selectedLayerIndex] = {
-      //   ...newRawLayers[selectedLayerIndex],
-      //   keymap,
-      // };
-
-      // return {
-      //   ...state,
-      //   rawDeviceMap: {
-      //     ...state.rawDeviceMap,
-      //     [state.selectedDevicePath as string]: newRawLayers,
-      //   },
-      // };
-
       const {keymapIndex, value, devicePath} = action.payload;
       const {selectedLayerIndex} = state;
 
       state.rawDeviceMap[devicePath][selectedLayerIndex].keymap[keymapIndex] =
         value;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(selectDevice, (state) => {
+      state.selectedKey = null;
+    });
   },
 });
 
@@ -147,9 +126,8 @@ export const loadKeymapFromDevice =
     const numberOfLayers = await api.getLayerCount();
     dispatch(setNumberOfLayers(numberOfLayers));
 
-    const {matrix} = getDefinitions(getState().keymap)[vendorProductId][
-      requiredDefinitionVersion
-    ];
+    const {matrix} =
+      getDefinitions(state)[vendorProductId][requiredDefinitionVersion];
 
     // TODO: is this await Promise.all() necessary?
     await Promise.all(
@@ -164,7 +142,7 @@ export const loadKeymapFromDevice =
 
 // TODO: why isn't this keymap of type Keymap i.e. number[]?
 // TODO: should this be using the current selected device? not sure
-// TODO: if not should it use connected device instead to get the api from it?
+// TODO: should it use connected device instead to get the api from it?
 export const saveRawKeymapToDevice =
   (keymap: number[][], device: Device): AppThunk =>
   async (dispatch, getState) => {
@@ -191,7 +169,8 @@ export const updateKey =
     const state = getState();
     const keys = getSelectedKeyDefinitions(state);
     const connectedDevice = getSelectedConnectedDevice(state);
-    if (!connectedDevice || !keys) {
+    const selectedDefinition = getSelectedDefinition(state);
+    if (!connectedDevice || !keys || !selectedDefinition) {
       return;
     }
 
@@ -199,7 +178,11 @@ export const updateKey =
     const {api, device} = connectedDevice;
     const {row, col} = keys[keyIndex];
     await api.setKey(selectedLayerIndex, row, col, value);
-    dispatch(setKey({keymapIndex: keyIndex, value, devicePath: device.path}));
+
+    const {matrix} = selectedDefinition;
+    const keymapIndex = row * matrix.cols + col;
+
+    dispatch(setKey({keymapIndex, value, devicePath: device.path}));
   };
 
 export const getSelectedKey = (state: RootState) => state.keymap.selectedKey;

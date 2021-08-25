@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {Device} from 'src/types/types';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
-import {getMacroApi} from 'src/utils/macro-api';
+import type {ConnectedDevice} from 'src/types/types';
+import {MacroAPI} from 'src/utils/macro-api';
 import type {AppThunk} from '.';
 
 export type MacrosState = {
@@ -36,13 +35,13 @@ export const {loadMacrosSuccess, saveMacrosSuccess, setMacrosNotSupported} =
 export default macrosSlice.reducer;
 
 export const loadMacros =
-  (device: Device): AppThunk =>
+  (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
-    const protocol = await new KeyboardAPI(device).getProtocolVersion();
+    const {api, protocol} = connectedDevice;
     if (protocol < 8) {
       dispatch(setMacrosNotSupported());
     } else {
-      const macroApi = getMacroApi(device);
+      const macroApi = new MacroAPI(api);
       if (macroApi) {
         const macros = await macroApi.readMacroExpressions();
         dispatch(loadMacrosSuccess(macros));
@@ -51,9 +50,10 @@ export const loadMacros =
   };
 
 export const saveMacros =
-  (device: Device, macros: string[]): AppThunk =>
+  (connectedDevice: ConnectedDevice, macros: string[]): AppThunk =>
   async (dispatch) => {
-    const macroApi = getMacroApi(device);
+    const {api} = connectedDevice;
+    const macroApi = new MacroAPI(api);
     if (macroApi) {
       await macroApi.writeMacroExpressions(macros);
       dispatch(saveMacrosSuccess(macros));
