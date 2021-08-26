@@ -5,9 +5,9 @@ import {CenterPane} from '../pane';
 import {useState} from 'react';
 import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
-import {useAppSelector} from 'src/store/hooks';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {saveMacros} from 'src/store/macrosSlice';
+import {useAppSelector} from '../../../store/hooks';
+import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
+import {saveMacros} from '../../../store/macrosSlice';
 import {useDispatch} from 'react-redux';
 
 const MacroPane = styled(CenterPane)`

@@ -5,7 +5,8 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
-    "baseUrl": "./",
+    /* TODO: make paths work properly so we don't have to make everything relative */
+    "baseUrl": "src",
     /* paths - import rewriting/resolving */
     "paths": {
       // If you configured any Snowpack aliases, add them here.

@@ -5,8 +5,8 @@ import type {
   DeviceLayerMap,
   Keymap,
   Layer,
-} from 'src/types/types';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
+} from 'types/types';
+import {KeyboardAPI} from '../utils/keyboard-api';
 import type {AppThunk, RootState} from './index';
 import {
   getDefinitions,

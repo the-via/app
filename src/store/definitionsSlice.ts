@@ -1,12 +1,12 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {KeyboardDictionary} from 'src/types/types';
+import type {KeyboardDictionary} from 'types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
   packBits,
   unpackBits,
-} from 'src/utils/bit-pack';
-import {KeyboardValue} from 'src/utils/keyboard-api';
+} from '../utils/bit-pack';
+import {KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   VIADefinitionV2,
@@ -67,6 +67,65 @@ export const {loadDefinition, updateDefinitions, updateLayoutOptions} =
   definitionsSlice.actions;
 
 export default definitionsSlice.reducer;
+
+export const getBaseDefinitions = (state: RootState) =>
+  state.definitions.definitions;
+export const getCustomDefinitions = (state: RootState) =>
+  state.definitions.customDefinitions;
+export const getLayoutOptionsMap = (state: RootState) =>
+  state.definitions.layoutOptionsMap;
+
+export const getDefinitions = createSelector(
+  getBaseDefinitions,
+  getCustomDefinitions,
+  (definitions, customDefinitions) =>
+    ({...definitions, ...customDefinitions} as KeyboardDictionary),
+);
+
+export const getSelectedDefinition = createSelector(
+  getDefinitions,
+  getSelectedConnectedDevice,
+  (definitions, connectedDevice) =>
+    connectedDevice &&
+    definitions &&
+    definitions[connectedDevice.vendorProductId] &&
+    definitions[connectedDevice.vendorProductId][
+      connectedDevice.requiredDefinitionVersion
+    ],
+);
+
+export const getSelectedLayoutOptions = createSelector(
+  getSelectedDefinition,
+  getLayoutOptionsMap,
+  getSelectedDevicePath,
+  (definition, map, path) =>
+    (path && map[path]) ||
+    (definition &&
+      definition.layouts.labels &&
+      definition.layouts.labels.map((_) => 0)) ||
+    [],
+);
+
+export const getSelectedOptionKeys = createSelector(
+  getSelectedLayoutOptions,
+  getSelectedDefinition,
+  (layoutOptions, definition) =>
+    definition &&
+    layoutOptions.flatMap(
+      (option, idx) => definition.layouts.optionKeys[idx][option],
+    ),
+);
+
+export const getSelectedKeyDefinitions = createSelector(
+  getSelectedDefinition,
+  getSelectedOptionKeys,
+  (definition, optionKeys) => {
+    if (definition && optionKeys) {
+      return definition.layouts.keys.concat(optionKeys);
+    }
+    return [];
+  },
+);
 
 export const updateLayoutOption =
   (index: number, val: number): AppThunk =>
@@ -134,62 +193,3 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     console.warn('Getting layout options command not working');
   }
 };
-
-export const getBaseDefinitions = (state: RootState) =>
-  state.definitions.definitions;
-export const getCustomDefinitions = (state: RootState) =>
-  state.definitions.customDefinitions;
-export const getLayoutOptionsMap = (state: RootState) =>
-  state.definitions.layoutOptionsMap;
-
-export const getDefinitions = createSelector(
-  getBaseDefinitions,
-  getCustomDefinitions,
-  (definitions, customDefinitions) =>
-    ({...definitions, ...customDefinitions} as KeyboardDictionary),
-);
-
-export const getSelectedDefinition = createSelector(
-  getDefinitions,
-  getSelectedConnectedDevice,
-  (definitions, connectedDevice) =>
-    connectedDevice &&
-    definitions &&
-    definitions[connectedDevice.vendorProductId] &&
-    definitions[connectedDevice.vendorProductId][
-      connectedDevice.requiredDefinitionVersion
-    ],
-);
-
-export const getSelectedLayoutOptions = createSelector(
-  getSelectedDefinition,
-  getLayoutOptionsMap,
-  getSelectedDevicePath,
-  (definition, map, path) =>
-    (path && map[path]) ||
-    (definition &&
-      definition.layouts.labels &&
-      definition.layouts.labels.map((_) => 0)) ||
-    [],
-);
-
-export const getSelectedOptionKeys = createSelector(
-  getSelectedLayoutOptions,
-  getSelectedDefinition,
-  (layoutOptions, definition) =>
-    definition &&
-    layoutOptions.flatMap(
-      (option, idx) => definition.layouts.optionKeys[idx][option],
-    ),
-);
-
-export const getSelectedKeyDefinitions = createSelector(
-  getSelectedDefinition,
-  getSelectedOptionKeys,
-  (definition, optionKeys) => {
-    if (definition && optionKeys) {
-      return definition.layouts.keys.concat(optionKeys);
-    }
-    return [];
-  },
-);

@@ -25,7 +25,7 @@ import {
   getLightingDefinition,
   isVIADefinitionV2,
 } from 'via-reader';
-import type {LightingData} from 'src/types/types';
+import type {LightingData} from 'types/types';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},

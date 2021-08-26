@@ -2,22 +2,17 @@ import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {
   ConnectedDevice,
   ConnectedDevices,
-  Device,
-  DeviceLayerMap,
   KeyboardDictionary,
   VendorProductIdMap,
-} from 'src/types/types';
+} from '../types/types';
 import {
   getDefinitionsFromStore,
   getMissingDefinition,
   getSupportedIdsFromStore,
   syncStore,
-} from 'src/utils/device-store';
-import {
-  getRecognisedDevices,
-  getVendorProductId,
-} from 'src/utils/hid-keyboards';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
+} from '../utils/device-store';
+import {getRecognisedDevices, getVendorProductId} from '../utils/hid-keyboards';
+import {KeyboardAPI} from '../utils/keyboard-api';
 import type {AppThunk, RootState} from './index';
 import {
   getDefinitions,
@@ -69,6 +64,17 @@ export const {selectDevice, updateConnectedDevices, updateSupportedIds} =
   deviceSlice.actions;
 
 export default deviceSlice.reducer;
+
+export const getConnectedDevices = (state: RootState) =>
+  state.devices.connectedDevices;
+export const getSelectedDevicePath = (state: RootState) =>
+  state.devices.selectedDevicePath;
+export const getSupportedIds = (state: RootState) => state.devices.supportedIds;
+export const getSelectedConnectedDevice = createSelector(
+  getConnectedDevices,
+  getSelectedDevicePath,
+  (devices, path) => path && devices[path],
+);
 
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
@@ -192,14 +198,3 @@ export const loadSupportedIds = (): AppThunk => async (dispatch) => {
   dispatch(updateDefinitions(getDefinitionsFromStore()));
   dispatch(reloadConnectedDevices());
 };
-
-export const getConnectedDevices = (state: RootState) =>
-  state.devices.connectedDevices;
-export const getSelectedDevicePath = (state: RootState) =>
-  state.devices.selectedDevicePath;
-export const getSupportedIds = (state: RootState) => state.devices.supportedIds;
-export const getSelectedConnectedDevice = createSelector(
-  getConnectedDevices,
-  getSelectedDevicePath,
-  (devices, path) => path && devices[path],
-);

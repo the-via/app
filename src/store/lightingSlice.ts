@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevice, LightingData} from 'src/types/types';
+import type {ConnectedDevice, LightingData} from 'types/types';
 import {
   getLightingDefinition,
   isVIADefinitionV2,

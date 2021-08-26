@@ -1,4 +1,4 @@
-import type {KeyboardAPI} from 'src/utils/keyboard-api';
+import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   KeyboardDefinitionIndex,
