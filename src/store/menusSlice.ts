@@ -1,7 +1,7 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {ConnectedDevice} from 'src/types/types';
 import {isVIADefinitionV2, isVIADefinitionV3, isVIAMenu} from 'via-reader';
-import type {AppThunk, RootState} from '.';
+import type {AppThunk, RootState} from './index';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,

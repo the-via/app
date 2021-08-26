@@ -12,7 +12,7 @@ import type {
   VIADefinitionV2,
   VIADefinitionV3,
 } from 'via-reader';
-import type {AppThunk, RootState} from '.';
+import type {AppThunk, RootState} from './index';
 import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,

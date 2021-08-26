@@ -18,7 +18,7 @@ import {
   getVendorProductId,
 } from 'src/utils/hid-keyboards';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
-import type {AppThunk, RootState} from '.';
+import type {AppThunk, RootState} from './index';
 import {
   getDefinitions,
   loadLayoutOptions,

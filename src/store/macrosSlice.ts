@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {ConnectedDevice} from 'src/types/types';
 import {MacroAPI} from 'src/utils/macro-api';
-import type {AppThunk} from '.';
+import type {AppThunk} from './index';
 
 export type MacrosState = {
   expressions: string[];
