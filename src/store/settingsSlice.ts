@@ -7,14 +7,14 @@ import type {RootState} from '.';
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 export type SettingsState = Settings & {
   isTestMatrixEnabled: boolean;
-  requireRestart: boolean;
+  restartRequired: boolean;
   allowGlobalHotKeys: boolean;
 };
 
 const initialState: SettingsState = {
   ...getSettings(),
   isTestMatrixEnabled: false,
-  requireRestart: false,
+  restartRequired: false,
   allowGlobalHotKeys: false,
 };
 
@@ -45,14 +45,14 @@ export const settingsSlice = createSlice({
     setTestMatrixEnabled: (state) => {
       toggleBool(state, 'isTestMatrixEnabled');
     },
-    requireRestart: (state) => {
-      toggleBool(state, 'requireRestart');
-    },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
     },
     enableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = true;
+    },
+    requireRestart: (state) => {
+      state.restartRequired = true;
     },
   },
 });
@@ -78,3 +78,7 @@ export const getDisableFastRemap = (state: RootState) =>
   state.settings.disableFastRemap;
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
+export const getDisableHardwareAcceleration = (state: RootState) =>
+  state.settings.disableHardwareAcceleration;
+export const getRestartRequired = (state: RootState) =>
+  state.settings.restartRequired;
