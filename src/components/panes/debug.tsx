@@ -32,7 +32,7 @@ import {
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
-import type {ConnectedDevices} from 'types/types';
+import type {ConnectedDevices} from '../types/types';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];

@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {KeyboardDictionary} from 'types/types';
+import type {KeyboardDictionary} from '../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,

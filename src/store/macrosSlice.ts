@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevice} from 'types/types';
+import type {ConnectedDevice} from '../types/types';
 import {MacroAPI} from '../utils/macro-api';
 import type {AppThunk} from './index';
 

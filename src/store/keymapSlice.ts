@@ -5,7 +5,7 @@ import type {
   DeviceLayerMap,
   Keymap,
   Layer,
-} from 'types/types';
+} from '../types/types';
 import {KeyboardAPI} from '../utils/keyboard-api';
 import type {AppThunk, RootState} from './index';
 import {
@@ -23,7 +23,7 @@ export type KeymapState = {
   rawDeviceMap: DeviceLayerMap;
   numberOfLayers: number;
   selectedLayerIndex: number;
-  selectedKey: null | number;
+  selectedKey: number | null;
 };
 
 const initialState: KeymapState = {
@@ -67,7 +67,7 @@ export const keymapSlice = createSlice({
     clearSelectedKey: (state) => {
       state.selectedKey = null;
     },
-    updateSelectedKey: (state, action: PayloadAction<number>) => {
+    updateSelectedKey: (state, action: PayloadAction<number | null>) => {
       state.selectedKey = action.payload;
     },
     saveKeymapSuccess: (

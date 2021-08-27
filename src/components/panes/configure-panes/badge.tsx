@@ -16,7 +16,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
-import type {ConnectedDevice} from 'types/types';
+import type {ConnectedDevice} from '../types/types';
 
 type OwnProps = {};
 
