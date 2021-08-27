@@ -476,7 +476,7 @@ const AnchorContainer = styled.div`
   width: 100%;
 `;
 
-const PositionedKeyboard = (props: PositionedKeyboardProps) => {
+export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {selectable, updateSelectedKey, containerDimensions} = props;
 
   const selectedKey = useAppSelector((state) => getSelectedKey(state));
