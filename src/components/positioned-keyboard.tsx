@@ -687,6 +687,7 @@ const getTraversalOrder = (arr: VIAKey[]): VIAKey[] => {
   }
 };
 
+// TODO: This code is shared across components, move to shared module?
 export const getNextKey = (
   currIndex: number,
   keys: VIAKey[],

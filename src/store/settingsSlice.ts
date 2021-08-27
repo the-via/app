@@ -2,6 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 import type {Settings} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
+import type {RootState} from '.';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 export type SettingsState = Settings & {
@@ -50,7 +51,7 @@ export const settingsSlice = createSlice({
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
     },
-    allowGlobalHotkeys: (state) => {
+    enableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = true;
     },
   },
@@ -64,7 +65,14 @@ export const {
   setTestMatrixEnabled,
   requireRestart,
   disableGlobalHotKeys,
-  allowGlobalHotkeys,
+  enableGlobalHotKeys,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
+
+export const getAllowKeyboardKeyRemapping = (state: RootState) =>
+  state.settings.allowKeyboardKeyRemapping;
+export const getAllowGlobalHotKeys = (state: RootState) =>
+  state.settings.allowGlobalHotKeys;
+export const getDisableFastRemap = (state: RootState) =>
+  state.settings.disableFastRemap;

@@ -1,85 +1,41 @@
-import * as React from 'react';
 import styles from './Home.module.css';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
-import {getDevicesUsingDefinitions} from '../utils/hid-keyboards';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
 import {Title} from './title-bar';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import {loadMacros} from '../redux/modules/macros';
-
 import {
+  getLightingDefinition,
+  isVIADefinitionV2,
+  LightingValue,
+} from 'via-reader';
+import {getNextKey} from './positioned-keyboard';
+import {useDispatch} from 'react-redux';
+import {
+  getSelectedConnectedDevice,
   loadSupportedIds,
-  loadKeymapFromDevice,
   reloadConnectedDevices,
-  selectConnectedDevice,
-  getLoadProgress,
+} from 'src/store/devicesSlice';
+import {createRef, ReactNode, useEffect, useState} from 'react';
+import {
+  disableGlobalHotKeys,
+  enableGlobalHotKeys,
+  getAllowGlobalHotKeys,
+  getAllowKeyboardKeyRemapping,
+  getDisableFastRemap,
+} from '../store/settingsSlice';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedKey,
   getSelectedLayerIndex,
   updateKey,
-  actions,
-  getSelectedKey,
-  getSelectedDevicePath,
-  getSelectedAPI,
+  updateSelectedKey as updateSelectedKeyAction,
+} from 'src/store/keymapSlice';
+import {
   getSelectedDefinition,
-  getSelectedVendorProductId,
-  getSelectedProtocol,
   getSelectedKeyDefinitions,
-  getSelectedDevice,
-  getDefinitions,
-} from '../redux/modules/keymap';
-import type {RootState} from '../redux';
-import {getLightingDefinition, LightingValue} from 'via-reader';
-import {getNextKey} from './positioned-keyboard';
-
-const mapStateToProps = ({keymap, settings}: RootState) => ({
-  allowKeyRemappingViaKeyboard: settings.allowKeyboardKeyRemapping,
-  disableFastRemap: settings.disableFastRemap,
-  globalHotKeysAllowed: keymap.allowGlobalHotKeys,
-  definitions: getDefinitions(keymap),
-  progress: getLoadProgress(keymap),
-  activeLayer: getSelectedLayerIndex(keymap),
-  selectedKey: getSelectedKey(keymap),
-  selectedDevicePath: getSelectedDevicePath(keymap),
-  selectedDevice: getSelectedDevice(keymap),
-  selectedProtocol: getSelectedProtocol(keymap),
-  displayedKeys: getSelectedKeyDefinitions(keymap),
-  selectedAPI: getSelectedAPI(keymap),
-  selectedVendorProductId: getSelectedVendorProductId(keymap),
-  selectedDefinition: getSelectedDefinition(keymap),
-});
-
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) =>
-  bindActionCreators(
-    {
-      loadMacros,
-      loadKeymapFromDevice,
-      updateKey,
-      allowGlobalHotKeys: actions.allowGlobalHotKeys,
-      disableGlobalHotKeys: actions.disableGlobalHotKeys,
-      validateDevices: actions.validateDevices,
-      updateSelectedLightingData: actions.updateSelectedLightingData,
-      updateSelectedKey: actions.updateSelectedKey,
-      loadSupportedIds,
-      selectConnectedDevice,
-      reloadConnectedDevices,
-    },
-    dispatch,
-  );
+} from 'src/store/definitionsSlice';
 
 type OwnProps = {
-  children: React.ReactNode;
-};
-export type Props = OwnProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
-
-// TODO: remove loaded and ready - use loading progress instead. Need more in redux before that can be done
-type State = {
-  selectedTitle: string | null;
-  usbDetectionError: boolean;
+  children: ReactNode;
 };
 
 const timeoutRepeater =
@@ -92,130 +48,94 @@ const timeoutRepeater =
       }
     }, timeout);
 
-class HomeComponent extends React.Component<Props, State> {
-  updateDevicesRepeat: () => void = timeoutRepeater(
+const HomeComponent = (props: OwnProps) => {
+  const dispatch = useDispatch();
+  const allowKeyRemappingViaKeyboard = useAppSelector((state) =>
+    getAllowKeyboardKeyRemapping(state),
+  );
+  const globalHotKeysAllowed = useAppSelector((state) =>
+    getAllowGlobalHotKeys(state),
+  );
+  const selectedKey = useAppSelector((state) => getSelectedKey(state));
+  const selectedDevice = useAppSelector((state) =>
+    getSelectedConnectedDevice(state),
+  );
+  const selectedDefinition = useAppSelector((state) =>
+    getSelectedDefinition(state),
+  );
+  const selectedLayerIndex = useAppSelector((state) =>
+    getSelectedLayerIndex(state),
+  );
+  const selectedKeyDefinitions = useAppSelector((state) =>
+    getSelectedKeyDefinitions(state),
+  );
+  const disableFastRemap = useAppSelector((state) =>
+    getDisableFastRemap(state),
+  );
+
+  const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
-      this.props.reloadConnectedDevices();
+      dispatch(reloadConnectedDevices());
     },
     500,
     1,
   );
-  /*
-    this.updateDevicesRepeat = timeoutRepeater(
-      () => {
-        this.props.reloadConnectedDevices();
-      },
-      500,
-      1
-    );
-    */
 
-  state = {
-    selectedTitle: null,
-    usbDetectionError: false,
-  };
-
-  homeElem = React.createRef<HTMLDivElement>();
-
-  componentDidMount() {
-    if (this.homeElem.current) {
-      this.homeElem.current.focus();
-    }
-
-    try {
-      startMonitoring();
-      this.props.allowGlobalHotKeys();
-      usbDetect.on('change', this.updateDevicesRepeat);
-      usbDetect.on('remove', this.validateDevices);
-      timeoutRepeater(this.props.loadSupportedIds, 5 * 60000, Infinity);
-      this.props.loadSupportedIds();
-      this.enableKeyPressListener();
-    } catch (error) {
-      // TODO: check `error` for usb detection issues first?
-      this.setState({usbDetectionError: true});
-    }
-  }
-
-  componentWillUnmount() {
-    usbDetect.off('change', this.updateDevicesRepeat);
-    usbDetect.off('remove', this.validateDevices);
-    this.props.disableGlobalHotKeys();
-    this.disableKeyPressListener();
-  }
-
-  validateDevices = async () => {
-    // getDevices can potentially contain devices with no definition, change this later
-    const keyboards = await getDevicesUsingDefinitions(this.props.definitions);
-    this.props.validateDevices(keyboards);
-  };
-
-  disableKeyPressListener = () => {
-    const body = document.body;
-    if (body) {
-      body.removeEventListener('keydown', this.handleKeys);
-    }
-  };
-
-  enableKeyPressListener = () => {
-    const body = document.body;
-    if (body) {
-      body.addEventListener('keydown', this.handleKeys);
-    }
-  };
-
-  handleKeys = (evt: KeyboardEvent): void => {
+  const updateSelectedKey = async (value: number) => {
     if (
-      this.props.allowKeyRemappingViaKeyboard &&
-      this.props.globalHotKeysAllowed &&
-      this.props.selectedKey !== null
+      selectedLayerIndex !== null &&
+      selectedKey !== null &&
+      selectedDefinition
     ) {
-      const keycode = mapEvtToKeycode(evt);
-      if (keycode) {
-        this.updateSelectedKey(getByteForCode(keycode));
-      }
-    }
-  };
-
-  setSelectedTitle = (selectedTitle: string | null) => {
-    this.props.updateSelectedKey(null);
-    this.setState({selectedTitle});
-  };
-
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.selectedDevicePath !== this.props.selectedDevicePath) {
-      this.setState({
-        selectedTitle: this.props.selectedDevicePath ? Title.KEYS : null,
-      });
-      this.props.updateSelectedKey(null);
-      this.toggleLights();
-    }
-  }
-
-  updateSelectedKey = async (value: number) => {
-    const {
-      activeLayer,
-      updateKey,
-      selectedKey,
-      selectedDefinition,
-      displayedKeys,
-      disableFastRemap,
-    } = this.props;
-
-    if (activeLayer !== null && selectedKey !== null && selectedDefinition) {
       // Redux
-      updateKey(selectedKey, value);
-      this.props.updateSelectedKey(
-        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys),
+      dispatch(updateKey(selectedKey, value));
+      dispatch(
+        updateSelectedKeyAction(
+          disableFastRemap
+            ? null
+            : getNextKey(selectedKey, selectedKeyDefinitions),
+        ),
       );
     }
   };
 
-  async toggleLights() {
-    const api = this.props.selectedAPI;
-    const selectedDefinition = this.props.selectedDefinition;
+  const handleKeys = (evt: KeyboardEvent): void => {
+    if (
+      allowKeyRemappingViaKeyboard &&
+      globalHotKeysAllowed &&
+      selectedKey !== null
+    ) {
+      const keycode = mapEvtToKeycode(evt);
+      if (keycode) {
+        updateSelectedKey(getByteForCode(keycode));
+      }
+    }
+  };
+
+  const enableKeyPressListener = () => {
+    const body = document.body;
+    if (body) {
+      body.addEventListener('keydown', handleKeys);
+    }
+  };
+
+  const disableKeyPressListener = () => {
+    const body = document.body;
+    if (body) {
+      body.removeEventListener('keydown', handleKeys);
+    }
+  };
+
+  const toggleLights = async () => {
+    if (!selectedDevice) {
+      return;
+    }
+    const {api} = selectedDevice;
 
     // TODO: Some sort of toggling lights on v3 firmware
-    if (this.props.selectedProtocol >= 10) return;
+    if (!isVIADefinitionV2(selectedDefinition)) {
+      return;
+    }
 
     if (
       api &&
@@ -238,40 +158,66 @@ class HomeComponent extends React.Component<Props, State> {
       api.timeout(200);
       await api.setRGBMode(val);
     }
-  }
+  };
 
-  render() {
-    // Remove once custom menus are removed
-    return (
-      <div
-        className={styles.home}
-        ref={this.homeElem}
-        tabIndex={0}
-        style={{flex: 1}}
-      >
-        {this.state.usbDetectionError ? (
-          <div className={styles.usbError}>
-            <div className={styles.usbErrorIcon}>❌</div>
-            <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
-            <p>
-              Looks like there was a problem getting USB detection working.
-              Right now, we only support{' '}
-              <a
-                className={styles.usbErrorWebHIDLink}
-                href="https://caniuse.com/?search=webhid"
-                target="_blank"
-              >
-                browsers that have WebHID enabled
-              </a>
-              , so make sure yours is compatible before trying again.
-            </p>
-          </div>
-        ) : (
-          this.props.children
-        )}
-      </div>
-    );
-  }
-}
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
+  const [usbDetectionError, setUsbDetectionError] = useState(false);
 
-export const Home = connect(mapStateToProps, mapDispatchToProps)(HomeComponent);
+  const homeElem = createRef<HTMLDivElement>();
+
+  useEffect(() => {
+    if (homeElem.current) {
+      homeElem.current.focus();
+    }
+
+    try {
+      startMonitoring();
+      dispatch(enableGlobalHotKeys());
+      usbDetect.on('change', updateDevicesRepeat);
+      timeoutRepeater(() => dispatch(loadSupportedIds()), 5 * 60000, Infinity);
+      dispatch(loadSupportedIds());
+      enableKeyPressListener();
+    } catch (error) {
+      // TODO: check `error` for usb detection issues first?
+      setUsbDetectionError(true);
+    }
+
+    return () => {
+      // Cleanup function equiv to componentWillUnmount
+      usbDetect.off('change', updateDevicesRepeat);
+      dispatch(disableGlobalHotKeys());
+      disableKeyPressListener();
+    };
+  }, []); // Passing an empty array as the second arg makes the body of the function equiv to componentDidMount (not including the cleanup func)
+
+  useEffect(() => {
+    setSelectedTitle(selectedDevice ? Title.KEYS : null);
+    dispatch(updateSelectedKeyAction(null));
+    toggleLights();
+  }, [selectedDevice]);
+
+  return (
+    <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
+      {usbDetectionError ? (
+        <div className={styles.usbError}>
+          <div className={styles.usbErrorIcon}>❌</div>
+          <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
+          <p>
+            Looks like there was a problem getting USB detection working. Right
+            now, we only support{' '}
+            <a
+              className={styles.usbErrorWebHIDLink}
+              href="https://caniuse.com/?search=webhid"
+              target="_blank"
+            >
+              browsers that have WebHID enabled
+            </a>
+            , so make sure yours is compatible before trying again.
+          </p>
+        </div>
+      ) : (
+        props.children
+      )}
+    </div>
+  );
+};
