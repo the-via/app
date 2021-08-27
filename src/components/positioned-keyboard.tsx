@@ -26,7 +26,12 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import {getSelectedKey, getSelectedKeymap} from 'src/store/keymapSlice';
+import {
+  getSelectedKey,
+  getSelectedKeymap,
+  updateSelectedKey,
+} from 'src/store/keymapSlice';
+import {useDispatch} from 'react-redux';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -398,7 +403,7 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
 });
 
 type PositionedKeyboardProps = {
-  updateSelectedKey: (index: number) => void;
+  // updateSelectedKey: (index: number) => void;
   selectable: boolean;
   containerDimensions?: any;
   showMatrix?: boolean;
@@ -477,7 +482,8 @@ const AnchorContainer = styled.div`
 `;
 
 export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
-  const {selectable, updateSelectedKey, containerDimensions} = props;
+  const {selectable, containerDimensions} = props;
+  const dispatch = useDispatch();
 
   const selectedKey = useAppSelector((state) => getSelectedKey(state));
   const matrixKeycodes = useAppSelector(
@@ -516,7 +522,11 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
-                  onClick: selectable ? updateSelectedKey : noop,
+                  // TODO: this is the equivalent logic from before, but it doesn't make any sense and fails typechecking. Was this ever being called?
+                  // onClick: selectable
+                  //   ? () => dispatch(updateSelectedKey())
+                  //   : noop,
+                  onClick: noop,
                 }}
                 key={index}
                 id={index}
@@ -541,7 +551,6 @@ export const BlankPositionedKeyboard = (props: {
     selectable={false}
     selectedKey={props.selectedKey === undefined ? null : props.selectedKey}
     macros={{expressions: [], isFeatureSupported: false}}
-    updateSelectedKey={() => {}}
   />
 );
 

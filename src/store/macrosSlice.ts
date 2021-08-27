@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {ConnectedDevice} from '../types/types';
 import {MacroAPI} from '../utils/macro-api';
-import type {AppThunk} from './index';
+import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
   expressions: string[];
@@ -59,3 +59,6 @@ export const saveMacros =
       dispatch(saveMacrosSuccess(macros));
     }
   };
+
+export const getIsMacroFeatureSupported = (state: RootState) =>
+  state.macros.isFeatureSupported;
