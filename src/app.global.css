@@ -12,6 +12,9 @@ body {
   padding: 0;
   user-select: none;
 }
+button {
+  font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif;
+}
 h2 {
   margin: 0;
   font-size: 2.25rem;

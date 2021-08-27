@@ -16,6 +16,7 @@
     "@types/lodash.partition": "^4.6.6",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
     "connected-react-router": "^6.9.1",
+    "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
     "pelpi": "git://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b",

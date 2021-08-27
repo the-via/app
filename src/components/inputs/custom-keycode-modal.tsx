@@ -1,13 +1,18 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
+import {AutocompleteItem} from './autocomplete-keycode';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
 import {
   anyKeycodeToString,
   advancedStringToKeycode,
 } from '../../utils/advanced-keys';
-
+import {useCombobox} from 'downshift';
 import TextInput from './text-input';
+import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
+import type {RootState} from '../../redux';
+import {connect} from 'react-redux';
+import {getSelectedDefinition} from '../../redux/modules/keymap';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -44,6 +49,25 @@ const RowDiv = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 220px;
+`;
+
+const AutocompleteContainer = styled.li`
+  position: fixed;
+  background-color: var(--color_light-jet);
+  max-height: 210px;
+  overflow: auto;
+  border: 1px solid var(--color_dark-grey);
+  margin: 0;
+  padding: 0;
+  width: auto;
+  margin-top: -24px;
+  line-height: normal;
+`;
+
+const AutocompleteItemRow = styled.li`
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--color_dark-grey);
+  }
 `;
 
 type KeycodeModalProps = {
@@ -113,35 +137,81 @@ function keycodeFromInput(input: string): number | null {
   return null;
 }
 
-export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
-  const inputRef = React.useRef<HTMLInputElement>();
-  const [isValid, setIsValid] = React.useState(false);
-  const defaultInput = anyKeycodeToString(props.defaultValue as number);
+const getInputItems = (arr: IKeycode[]) =>
+  arr.map((k) => ({
+    code: k.code,
+    label: k.title ?? k.name,
+  }));
 
+// Connect component with redux here:
+const KeycodeModalComponent: React.FC<
+  KeycodeModalProps & ReturnType<typeof mapStateToProps>
+> = (props) => {
+  const [inputItems, setInputItems] = React.useState(props.supportedInputItems);
+  const defaultInput = anyKeycodeToString(props.defaultValue as number);
+  const {
+    getMenuProps,
+    getComboboxProps,
+    getInputProps,
+    highlightedIndex,
+    inputValue,
+    getItemProps,
+    isOpen,
+  } = useCombobox({
+    items: inputItems,
+    initialIsOpen: defaultInput === '',
+    defaultInputValue: defaultInput,
+    itemToString: (item) => item?.code ?? '',
+    onInputValueChange: ({inputValue}) => {
+      setInputItems(
+        props.supportedInputItems.filter(({label, code}) =>
+          [label, code]
+            .flatMap((s) => s.split(/\s+/))
+            .map((s) => s.toLowerCase())
+            .some((s) => s.startsWith((inputValue ?? '').toLowerCase())),
+        ),
+      );
+    },
+  });
+
+  const isValid = inputIsValid(inputValue);
   return (
     <ModalBackground>
       <ModalContainer>
         <PromptText>
           Please enter your desired QMK keycode or hex code:
         </PromptText>
-        <TextInput
-          defaultValue={defaultInput}
-          ref={inputRef as any}
-          type="text"
-          placeholder={defaultInput || 'KC_NO, 0xFF, etc.'}
-          onChange={() => {
-            if (inputRef.current) {
-              const isValid = inputIsValid(inputRef.current.value);
-              setIsValid(isValid);
-            }
-          }}
-        />
+        <div>
+          <div {...getComboboxProps()}>
+            <TextInput
+              {...getInputProps()}
+              type="text"
+              placeholder={defaultInput || 'KC_NO, 0xFF, etc.'}
+            />
+          </div>
+          <AutocompleteContainer
+            {...getMenuProps()}
+            style={{
+              display: isOpen && inputItems.length ? 'block' : 'none',
+            }}
+          >
+            {isOpen &&
+              inputItems.map((item, index) => (
+                <AutocompleteItemRow {...getItemProps({item, index})}>
+                  <AutocompleteItem
+                    selected={highlightedIndex === index}
+                    entity={item}
+                    key={item.code}
+                  />
+                </AutocompleteItemRow>
+              ))}
+          </AutocompleteContainer>
+        </div>
         <RowDiv>
           <AccentButton
             disabled={!isValid}
             onClick={() => {
-              const input = inputRef.current?.value;
-              props.onConfirm(keycodeFromInput(input as any) as any);
+              props.onConfirm(keycodeFromInput(inputValue as any) as any);
             }}
           >
             Confirm
@@ -153,4 +223,9 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   );
 };
 
-export default KeycodeModal;
+const mapStateToProps = ({keymap}: RootState) => ({
+  supportedInputItems: getInputItems(
+    getKeycodesForKeyboard(getSelectedDefinition(keymap)),
+  ),
+});
+export const KeycodeModal = connect(mapStateToProps)(KeycodeModalComponent);

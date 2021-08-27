@@ -3,7 +3,7 @@ import {Component} from 'react';
 import styled from 'styled-components';
 import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
-import KeycodeModal from '../../inputs/custom-keycode-modal';
+import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
 import {
   keycodeInMaster,
