@@ -76,3 +76,5 @@ export const getAllowGlobalHotKeys = (state: RootState) =>
   state.settings.allowGlobalHotKeys;
 export const getDisableFastRemap = (state: RootState) =>
   state.settings.disableFastRemap;
+export const getShowDesignTab = (state: RootState) =>
+  state.settings.showDesignTab;

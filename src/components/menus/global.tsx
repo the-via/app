@@ -1,10 +1,10 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {useLocation} from 'react-router';
-import type {RootState} from '../../redux';
 import {Link} from 'react-router-dom';
 import PANES from '../../utils/pane-config';
-import {connect} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {getShowDesignTab} from 'src/store/settingsSlice';
 
 const Container = styled.div`
   width: 100vw;
@@ -37,18 +37,14 @@ const MenuItem = styled.button<{selected?: boolean}>`
 const {DEBUG_PROD, NODE_ENV} = import.meta.env;
 const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 
-const mapStateToProps = ({settings}: RootState) => ({
-  showDesignTab: settings.showDesignTab,
-});
+export const UnconnectedGlobalMenu = () => {
+  const showDesignTab = useAppSelector((state) => getShowDesignTab(state));
 
-type Props = ReturnType<typeof mapStateToProps>;
-
-const UnconnectedGlobalMenu: React.FC<Props> = (props) => {
   const location = useLocation();
 
   const Panes = React.useMemo(() => {
     return PANES.map((pane) => {
-      if (pane.key === 'design' && !props.showDesignTab) return null;
+      if (pane.key === 'design' && !showDesignTab) return null;
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
         <Link key={pane.key} to={pane.path}>
@@ -58,7 +54,7 @@ const UnconnectedGlobalMenu: React.FC<Props> = (props) => {
         </Link>
       );
     });
-  }, [location, props.showDesignTab]);
+  }, [location, showDesignTab]);
 
   return (
     <React.Fragment>
@@ -66,5 +62,3 @@ const UnconnectedGlobalMenu: React.FC<Props> = (props) => {
     </React.Fragment>
   );
 };
-
-export default connect(mapStateToProps)(UnconnectedGlobalMenu);
