@@ -1,16 +1,6 @@
-import type {RootState} from '../redux';
 import type {KeyColor} from '../utils/themes';
-import {connect} from 'react-redux';
 import styled from 'styled-components';
-import * as React from 'react';
 import partition from 'lodash.partition';
-import {
-  getSelectedKeyDefinitions,
-  getSelectedDefinition,
-  getSelectedKeymap,
-  getSelectedKey,
-  actions,
-} from '../redux/modules/keymap';
 import {
   getLabelForByte,
   isUserKeycodeByte,
@@ -29,7 +19,14 @@ import type {
   KeyColorType,
 } from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
-import type {MouseEventHandler} from 'react';
+import {memo, MouseEventHandler, useMemo} from 'react';
+import type {RootState} from 'src/store';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedDefinition,
+  getSelectedKeyDefinitions,
+} from 'src/store/definitionsSlice';
+import {getSelectedKey, getSelectedKeymap} from 'src/store/keymapSlice';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -266,7 +263,7 @@ export const chooseInnerKeyContainer = (props: {
     : InnerKeyContainer;
 };
 const noop = (...args: any[]) => {};
-export const KeyBG = React.memo(
+export const KeyBG = memo(
   ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
@@ -297,7 +294,7 @@ export const KeyBG = React.memo(
     );
   },
 );
-const Key = React.memo(
+const Key = memo(
   ({
     x,
     x2,
@@ -400,23 +397,13 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
 });
 
-type ReduxProps = {
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
-  macros: RootState['macros'];
-  matrixKeycodes?: number[];
-  keys?: VIAKey[];
-  selectedKey: number | null;
-};
-
-type OwnProps = {
+type PositionedKeyboardProps = {
   updateSelectedKey: (index: number) => void;
   selectable: boolean;
   containerDimensions?: any;
   showMatrix?: boolean;
   selectedOptionKeys?: number[];
 };
-
-type PositionedKeyboardProps = OwnProps & ReduxProps;
 
 const getTooltipData = ({
   macroExpression,
@@ -490,16 +477,17 @@ const AnchorContainer = styled.div`
 `;
 
 const PositionedKeyboard = (props: PositionedKeyboardProps) => {
-  const {
-    selectedDefinition,
-    selectedKey,
-    matrixKeycodes = [],
-    macros,
-    selectable,
-    updateSelectedKey,
-    keys,
-    containerDimensions,
-  } = props;
+  const {selectable, updateSelectedKey, containerDimensions} = props;
+
+  const selectedKey = useAppSelector((state) => getSelectedKey(state));
+  const matrixKeycodes = useAppSelector(
+    (state) => getSelectedKeymap(state) || [],
+  );
+  const macros = useAppSelector((state) => state.macros);
+  const keys = useAppSelector((state) => getSelectedKeyDefinitions(state));
+  const selectedDefinition = useAppSelector((state) =>
+    getSelectedDefinition(state),
+  );
   if (!selectedDefinition || !keys) {
     return null;
   }
@@ -541,22 +529,13 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  selectedDefinition: getSelectedDefinition(state.keymap),
-  keys: getSelectedKeyDefinitions(state.keymap),
-  macros: state.macros,
-  matrixKeycodes: getSelectedKeymap(state.keymap),
-  selectedKey: getSelectedKey(state.keymap),
-});
-
-export const BlankPositionedKeyboard = (
-  props: {
-    selectedKey?: number;
-    selectedOptionKeys?: number[];
-    containerDimensions: any;
-    showMatrix?: boolean;
-  } & Pick<ReduxProps, 'selectedDefinition'>,
-) => (
+export const BlankPositionedKeyboard = (props: {
+  selectedKey?: number;
+  selectedOptionKeys?: number[];
+  containerDimensions: any;
+  showMatrix?: boolean;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
+}) => (
   <BlankPositionedKeyboardComponent
     {...props}
     selectable={false}
@@ -700,26 +679,34 @@ export const getNextKey = (
     : keys.indexOf(sortedKeys[(sortedIndex + 1) % sortedKeys.length]);
 };
 
-const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
+const BlankPositionedKeyboardComponent = (
+  props: PositionedKeyboardProps & {
+    selectedKey: number | null;
+    macros: RootState['macros'];
+  },
+) => {
   const {
     containerDimensions,
-    matrixKeycodes = [],
-    selectedDefinition,
-    macros,
     selectable,
     selectedKey,
     selectedOptionKeys = [],
     showMatrix = false,
+    macros,
   } = props;
   const pressedKeys = {};
 
-  if (!selectedDefinition) {
+  const matrixKeycodes = useAppSelector((state) => getSelectedKeymap(state));
+  const selectedDefinition = useAppSelector((state) =>
+    getSelectedDefinition(state),
+  );
+
+  if (!selectedDefinition || !matrixKeycodes) {
     return null;
   }
 
   const {width, height, keys, optionKeys} = selectedDefinition.layouts;
 
-  const displayedOptionKeys = React.useMemo(() => {
+  const displayedOptionKeys = useMemo(() => {
     if (optionKeys) {
       return Object.entries(optionKeys).flatMap(([key, options]) => {
         const optionKey = parseInt(key);
@@ -817,7 +804,3 @@ const ColLine = styled.polyline`
   stroke-opacity: 0.4;
   stroke-linecap: round;
 `;
-
-export const ConnectedPositionedKeyboard = connect(mapStateToProps, {
-  updateSelectedKey: actions.updateSelectedKey,
-})(PositionedKeyboard);
