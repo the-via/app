@@ -34,7 +34,7 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 
-type OwnProps = {
+type HomeProps = {
   children: ReactNode;
 };
 
@@ -48,7 +48,7 @@ const timeoutRepeater =
       }
     }, timeout);
 
-const HomeComponent = (props: OwnProps) => {
+export const Home = (props: HomeProps) => {
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector((state) =>
     getAllowKeyboardKeyRemapping(state),
