@@ -42,17 +42,15 @@ export const Settings = () => {
 
   // TODO: we could actually just grab all these from state.settings and then destructure.
   // Only advantage of this approach is indiviual memoisation. Worth?
-  const allowKeyboardKeyRemapping = useAppSelector((state) =>
-    getAllowKeyboardKeyRemapping(state),
+  const allowKeyboardKeyRemapping = useAppSelector(
+    getAllowKeyboardKeyRemapping,
   );
-  const showDesignTab = useAppSelector((state) => getShowDesignTab(state));
-  const disableFastRemap = useAppSelector((state) =>
-    getDisableFastRemap(state),
+  const showDesignTab = useAppSelector(getShowDesignTab);
+  const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const disableHardwareAcceleration = useAppSelector(
+    getDisableHardwareAcceleration,
   );
-  const disableHardwareAcceleration = useAppSelector((state) =>
-    getDisableHardwareAcceleration(state),
-  );
-  const restartRequired = useAppSelector((state) => getRestartRequired(state));
+  const restartRequired = useAppSelector(getRestartRequired);
 
   return (
     <DebugPane>

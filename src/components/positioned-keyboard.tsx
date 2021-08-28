@@ -485,15 +485,13 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {selectable, containerDimensions} = props;
   const dispatch = useDispatch();
 
-  const selectedKey = useAppSelector((state) => getSelectedKey(state));
+  const selectedKey = useAppSelector(getSelectedKey);
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
   const macros = useAppSelector((state) => state.macros);
-  const keys = useAppSelector((state) => getSelectedKeyDefinitions(state));
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
+  const keys = useAppSelector(getSelectedKeyDefinitions);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition || !keys) {
     return null;
   }
@@ -704,10 +702,8 @@ const BlankPositionedKeyboardComponent = (
   } = props;
   const pressedKeys = {};
 
-  const matrixKeycodes = useAppSelector((state) => getSelectedKeymap(state));
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
+  const matrixKeycodes = useAppSelector(getSelectedKeymap);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   if (!selectedDefinition || !matrixKeycodes) {
     return null;

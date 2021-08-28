@@ -50,28 +50,16 @@ const timeoutRepeater =
 
 export const Home = (props: HomeProps) => {
   const dispatch = useDispatch();
-  const allowKeyRemappingViaKeyboard = useAppSelector((state) =>
-    getAllowKeyboardKeyRemapping(state),
+  const allowKeyRemappingViaKeyboard = useAppSelector(
+    getAllowKeyboardKeyRemapping,
   );
-  const globalHotKeysAllowed = useAppSelector((state) =>
-    getAllowGlobalHotKeys(state),
-  );
-  const selectedKey = useAppSelector((state) => getSelectedKey(state));
-  const selectedDevice = useAppSelector((state) =>
-    getSelectedConnectedDevice(state),
-  );
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
-  const selectedLayerIndex = useAppSelector((state) =>
-    getSelectedLayerIndex(state),
-  );
-  const selectedKeyDefinitions = useAppSelector((state) =>
-    getSelectedKeyDefinitions(state),
-  );
-  const disableFastRemap = useAppSelector((state) =>
-    getDisableFastRemap(state),
-  );
+  const globalHotKeysAllowed = useAppSelector(getAllowGlobalHotKeys);
+  const selectedKey = useAppSelector(getSelectedKey);
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
+  const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
+  const disableFastRemap = useAppSelector(getDisableFastRemap);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {

@@ -74,12 +74,8 @@ const Container = styled.div`
 export const Pane = () => {
   const dispatch = useDispatch();
 
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
-  const selectedLayoutOptions = useAppSelector((state) =>
-    getSelectedLayoutOptions(state),
-  );
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
 
   if (!selectedDefinition || !selectedLayoutOptions) {
     return;

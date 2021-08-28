@@ -63,13 +63,9 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
 }
 
 const getRowsForKeyboard = (): typeof Rows => {
-  const showMacros = useAppSelector((state) =>
-    getIsMacroFeatureSupported(state),
-  );
-  const customMenus = useAppSelector((state) => getCustomMenus(state));
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
+  const showMacros = useAppSelector(getIsMacroFeatureSupported);
+  const customMenus = useAppSelector(getCustomMenus);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   if (!selectedDefinition) {
     return [];
@@ -132,10 +128,8 @@ function Loader(props: {
 }
 
 export const ConfigurePane = () => {
-  const selectedDefinition = useAppSelector((state) =>
-    getSelectedDefinition(state),
-  );
-  const loadProgress = useAppSelector((state) => getLoadProgress(state));
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const loadProgress = useAppSelector(getLoadProgress);
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
   return (

@@ -28,9 +28,7 @@ const MenuContainer = styled.div`
 
 export const MacroMenu = () => {
   const dispatch = useDispatch();
-  const selectedDevice = useAppSelector((state) =>
-    getSelectedConnectedDevice(state),
-  );
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const macroExpressions = useAppSelector((state) => state.macros.expressions);
 
   const [selectedMacro, setSelectedMacro] = useState(0);

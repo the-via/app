@@ -39,10 +39,8 @@ const LayerButton = styled.button<{selected?: boolean}>`
 
 export const LayerControl = () => {
   const dispatch = useDispatch();
-  const numberOfLayers = useAppSelector((state) => getNumberOfLayers(state));
-  const selectedLayerIndex = useAppSelector((state) =>
-    getSelectedLayerIndex(state),
-  );
+  const numberOfLayers = useAppSelector(getNumberOfLayers);
+  const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
 
   const Layers = new Array(numberOfLayers)
     .fill(0)
