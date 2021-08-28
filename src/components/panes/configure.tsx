@@ -1,6 +1,5 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import {bindActionCreators} from 'redux';
 import useResize from 'react-resize-observer-hook';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
@@ -30,32 +29,10 @@ import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
-import {useState, useMemo, useRef, useEffect} from 'react';
-import {
-  getSelectedConnectedDevice,
-  reloadConnectedDevices,
-} from 'src/store/devicesSlice';
+import {useState, useRef, useEffect} from 'react';
+import {reloadConnectedDevices} from 'src/store/devicesSlice';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
-
-// const mapDispatchToProps: MapDispatchToPropsFunction<
-//   any,
-//   ReturnType<typeof mapStateToProps>
-// > = (dispatch) =>
-//   bindActionCreators(
-//     {
-//       clearSelectedKey: actions.clearSelectedKey,
-//       reloadConnectedDevices: reloadConnectedDevices,
-//     },
-//     dispatch,
-//   );
-// const mapStateToProps = ({keymap, macros}: RootState) => ({
-//   showMacros: macros.isFeatureSupported,
-//   progress: getLoadProgress(keymap),
-//   selectedDefinition: getSelectedDefinition(keymap),
-//   selectedProtocol: getSelectedProtocol(keymap),
-//   customMenus: getCustomMenus(keymap),
-// });
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
