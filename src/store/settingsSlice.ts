@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {Settings} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
@@ -42,8 +42,8 @@ export const settingsSlice = createSlice({
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
     },
-    setTestMatrixEnabled: (state) => {
-      toggleBool(state, 'isTestMatrixEnabled');
+    setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
+      state.isTestMatrixEnabled = action.payload;
     },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
@@ -82,3 +82,5 @@ export const getDisableHardwareAcceleration = (state: RootState) =>
   state.settings.disableHardwareAcceleration;
 export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
+export const getIsTestMatrixEnabled = (state: RootState) =>
+  state.settings.isTestMatrixEnabled;
