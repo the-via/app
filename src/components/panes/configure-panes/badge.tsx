@@ -1,44 +1,21 @@
-import * as React from 'react';
 import styled from 'styled-components';
-import {
-  actions,
-  selectConnectedDeviceByPath,
-  getConnectedDevices,
-  getDefinitions,
-  getSelectedDefinition,
-  getSelectedDevicePath,
-  offsetKeyboard,
-} from '../../../redux/modules/keymap';
-import type {RootState} from '../../../redux';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
-import type {ConnectedDevice} from '../types/types';
-
-type OwnProps = {};
-
-const mapStateToProps = (state: RootState) => ({
-  selectedDefinition: getSelectedDefinition(state.keymap),
-  connectedDevices: getConnectedDevices(state.keymap),
-  definitions: getDefinitions(state.keymap),
-  selectedPath: getSelectedDevicePath(state.keymap),
-});
-
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) =>
-  bindActionCreators(
-    {
-      offsetKeyboard,
-      setLayer: actions.setLayer,
-      selectConnectedDeviceByPath,
-    },
-    dispatch,
-  );
+import type {ConnectedDevice} from '../../../types/types';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getDefinitions,
+  getSelectedDefinition,
+} from 'src/store/definitionsSlice';
+import {useDispatch} from 'react-redux';
+import {
+  getConnectedDevices,
+  getSelectedDevicePath,
+  selectConnectedDeviceByPath,
+} from 'src/store/devicesSlice';
+import {useMemo, useState} from 'react';
 
 const Container = styled.div`
   position: absolute;
@@ -126,10 +103,6 @@ const ClickCover = styled.div`
   background: var(--color_jet);
 `;
 
-type Props = OwnProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
-
 type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
 
 const KeyboardSelectors: React.FC<{
@@ -169,27 +142,28 @@ const KeyboardSelectors: React.FC<{
   );
 };
 
-export const BadgeComponent: React.FC<Props> = (props) => {
-  const {
-    connectedDevices,
-    definitions,
-    selectedDefinition,
-    selectConnectedDeviceByPath,
-    selectedPath,
-  } = props;
-  const [showList, setShowList] = React.useState(false);
+export const Badge = () => {
+  const dispatch = useDispatch();
+  const definitions = useAppSelector(getDefinitions);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const connectedDevices = useAppSelector(getConnectedDevices);
+  const selectedPath = useAppSelector(getSelectedDevicePath);
+  const [showList, setShowList] = useState(false);
 
-  const connectedKeyboardDefinitions: ConnectedKeyboardDefinition[] =
-    React.useMemo(
-      () =>
-        Object.entries(connectedDevices).map(([path, device]) => [
-          path,
-          definitions[(device as ConnectedDevice).vendorProductId][
-            (device as ConnectedDevice).requiredDefinitionVersion
-          ],
-        ]),
-      [connectedDevices, definitions],
-    );
+  const connectedKeyboardDefinitions: ConnectedKeyboardDefinition[] = useMemo(
+    () =>
+      Object.entries(connectedDevices).map(([path, device]) => [
+        path,
+        definitions[(device as ConnectedDevice).vendorProductId][
+          (device as ConnectedDevice).requiredDefinitionVersion
+        ],
+      ]),
+    [connectedDevices, definitions],
+  );
+
+  if (!selectedDefinition || !selectedPath) {
+    return null;
+  }
 
   return (
     <>
@@ -211,7 +185,7 @@ export const BadgeComponent: React.FC<Props> = (props) => {
           keyboards={connectedKeyboardDefinitions}
           onClickOut={() => setShowList(false)}
           selectKeyboard={(path) => {
-            selectConnectedDeviceByPath(path);
+            dispatch(selectConnectedDeviceByPath(path));
             setShowList(false);
           }}
         />
@@ -219,8 +193,3 @@ export const BadgeComponent: React.FC<Props> = (props) => {
     </>
   );
 };
-
-export const Badge = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(BadgeComponent) as any;
