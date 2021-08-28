@@ -38,7 +38,7 @@ const {DEBUG_PROD, NODE_ENV} = import.meta.env;
 const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
 
 export const UnconnectedGlobalMenu = () => {
-  const showDesignTab = useAppSelector((state) => getShowDesignTab(state));
+  const showDesignTab = useAppSelector(getShowDesignTab);
 
   const location = useLocation();
 

@@ -78,7 +78,7 @@ const UploadIcon = styled.div`
   }
 `;
 
-// TODO: insert branching logic for v2 vs v3 def
+// TODO: move this inside function component and then use the closured dispatch?
 function importDefinition(
   file: File,
   version: DefinitionVersion,

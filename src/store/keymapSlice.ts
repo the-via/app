@@ -1,12 +1,10 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {
   ConnectedDevice,
-  Device,
   DeviceLayerMap,
   Keymap,
   Layer,
 } from '../types/types';
-import {KeyboardAPI} from '../utils/keyboard-api';
 import type {AppThunk, RootState} from './index';
 import {
   getDefinitions,
@@ -142,12 +140,11 @@ export const loadKeymapFromDevice =
 
 // TODO: why isn't this keymap of type Keymap i.e. number[]?
 // TODO: should this be using the current selected device? not sure
-// TODO: should it use connected device instead to get the api from it?
 export const saveRawKeymapToDevice =
-  (keymap: number[][], device: Device): AppThunk =>
+  (keymap: number[][], connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const api = new KeyboardAPI(device);
+    const {api} = connectedDevice;
     const definition = getSelectedDefinition(state);
     if (!api || !definition) {
       return;
@@ -160,7 +157,9 @@ export const saveRawKeymapToDevice =
       keymap: layer,
       isLoaded: true,
     }));
-    dispatch(saveKeymapSuccess({layers, devicePath: device.path}));
+    dispatch(
+      saveKeymapSuccess({layers, devicePath: connectedDevice.device.path}),
+    );
   };
 
 export const updateKey =
