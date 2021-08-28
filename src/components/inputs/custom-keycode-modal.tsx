@@ -12,6 +12,7 @@ import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {useState} from 'react';
+import type {FC} from 'react';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -143,7 +144,7 @@ const getInputItems = (arr: IKeycode[]) =>
   }));
 
 // Connect component with redux here:
-const KeycodeModalComponent = (props: KeycodeModalProps) => {
+export const KeycodeModal: FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition) {
     return null;

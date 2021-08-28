@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {Component} from 'react';
+import {FC, useState} from 'react';
 import styled from 'styled-components';
 import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
@@ -14,23 +13,34 @@ import {
   IKeycodeMenu,
 } from '../../../utils/key';
 import {ErrorMessage} from '../../styled';
-import type {RootState} from '../../../redux';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import {saveMacros} from '../../../redux/modules/macros';
 import {
-  getSelectedKeymap,
-  getSelectedDevice,
-  getSelectedKey,
-  getSelectedDefinition,
-  getSelectedKeyDefinitions,
-  updateKey,
-  actions,
-  getSelectedProtocol,
-} from '../../../redux/modules/keymap';
-import {bindActionCreators} from 'redux';
-import {KeycodeType, getLightingDefinition} from 'via-reader';
+  KeycodeType,
+  getLightingDefinition,
+  isVIADefinitionV3,
+  isVIADefinitionV2,
+} from 'via-reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
 import {getNextKey} from '../../positioned-keyboard';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedDefinition,
+  getSelectedKeyDefinitions,
+} from 'src/store/definitionsSlice';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {saveMacros} from 'src/store/macrosSlice';
+import {useEffect} from 'react';
+import {
+  getSelectedKey,
+  getSelectedKeymap,
+  updateKey as updateKeyAction,
+  updateSelectedKey,
+} from 'src/store/keymapSlice';
+import {
+  disableGlobalHotKeys,
+  enableGlobalHotKeys,
+  getDisableFastRemap,
+} from 'src/store/settingsSlice';
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 54px);
@@ -107,66 +117,36 @@ const KeycodeCategories = getKeycodes()
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
 
-type OwnProps = {};
+export const Pane: FC = () => {
+  const dispatch = useDispatch();
+  const macros = useAppSelector((state) => state.macros);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const matrixKeycodes = useAppSelector(getSelectedKeymap);
+  const selectedKey = useAppSelector(getSelectedKey);
+  const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
 
-const mapStateToProps = ({keymap, macros, settings}: RootState) => ({
-  selectedDefinition: getSelectedDefinition(keymap),
-  displayedKeys: getSelectedKeyDefinitions(keymap),
-  disableFastRemap: settings.disableFastRemap,
-  selectedKeyboard: getSelectedDevice(keymap),
-  selectedProtocol: getSelectedProtocol(keymap),
-  selectedKey: getSelectedKey(keymap),
-  matrixKeycodes: getSelectedKeymap(keymap),
-  macros,
-});
+  // TODO: improve typing so we can get rid of this
+  if (!selectedDefinition || !selectedDevice || !matrixKeycodes) {
+    return null;
+  }
 
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) =>
-  bindActionCreators(
-    {
-      updateKey,
-      updateSelectedKey: actions.updateSelectedKey,
-      saveMacros: saveMacros,
-      allowGlobalHotKeys: actions.allowGlobalHotKeys,
-      disableGlobalHotKeys: actions.disableGlobalHotKeys,
-    },
-    dispatch,
+  const [selectedCategory, setSelectedCategory] = useState(
+    KeycodeCategories[0].label,
   );
+  const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
+  const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
-type Props = OwnProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+  // TODO: it seems like this value is set, but never read. See FIXME in keycode-input.tsx for similar case
+  const [textKeyValue, setTextKeyValue] = useState(0);
 
-type State = {
-  selectedCategory: string;
-  mouseOverDesc: string | null;
-  barrelRoll: boolean;
-  showKeyTextInputModal: boolean;
-  textKeyValue: number;
-};
+  useEffect(() => () => {
+    dispatch(updateSelectedKey(null));
+  }); // componentWillUnmount equiv
 
-class KeycodeMenuComponent extends Component<Props, State> {
-  state = {
-    selectedCategory: KeycodeCategories[0].label,
-    mouseOverDesc: null,
-    barrelRoll: false,
-    showKeyTextInputModal: false,
-    textKeyValue: 0,
-  };
-
-  doABarrelRoll = () => {
-    this.setState((prevState) => ({
-      ...prevState,
-      barrelRoll: true,
-    }));
-  };
-
-  get enabledMenus(): IKeycodeMenu[] {
-    // TODO: type props
-    const {selectedDefinition, selectedProtocol} = this.props;
-    if (selectedProtocol >= 10) {
+  const getEnabledMenus = (): IKeycodeMenu[] => {
+    if (isVIADefinitionV3(selectedDefinition)) {
       return [];
     }
     const {lighting, customKeycodes} = selectedDefinition;
@@ -189,18 +169,17 @@ class KeycodeMenuComponent extends Component<Props, State> {
           ({label}) => label !== 'Custom',
         ),
       );
-  }
+  };
 
-  saveMacro = (id: number, macro: string) => {
-    const {selectedKeyboard, macros, saveMacros} = this.props;
+  const saveMacro = (id: number, macro: string) => {
     const newMacros = (macros.expressions as string[]).map((oldMacro, i) =>
       i === id ? macro : oldMacro,
     );
 
-    saveMacros(selectedKeyboard, newMacros);
+    dispatch(saveMacros(selectedDevice, newMacros));
   };
 
-  renderMacroError() {
+  const renderMacroError = () => {
     return (
       <ErrorMessage>
         It looks like your current firmware doesn't support macros.{' '}
@@ -209,20 +188,15 @@ class KeycodeMenuComponent extends Component<Props, State> {
         </Link>
       </ErrorMessage>
     );
-  }
+  };
 
-  componentWillUnmount() {
-    this.props.updateSelectedKey(null);
-  }
-
-  renderCategories() {
-    const {selectedCategory} = this.state;
+  const renderCategories = () => {
     return (
       <MenuContainer>
-        {this.enabledMenus.map(({label}) => (
+        {getEnabledMenus().map(({label}) => (
           <SubmenuRow
             selected={label === selectedCategory}
-            onClick={(_) => this.setState({selectedCategory: label})}
+            onClick={(_) => setSelectedCategory(label)}
             key={label}
           >
             {label}
@@ -230,53 +204,50 @@ class KeycodeMenuComponent extends Component<Props, State> {
         ))}
       </MenuContainer>
     );
-  }
+  };
 
-  renderKeyInputModal = () => {
-    this.props.disableGlobalHotKeys();
+  const renderKeyInputModal = () => {
+    dispatch(disableGlobalHotKeys());
 
     return (
       <KeycodeModal
-        defaultValue={this.props.matrixKeycodes[this.props.selectedKey]}
-        onChange={(value) => this.setState({textKeyValue: value})}
+        defaultValue={selectedKey ? matrixKeycodes[selectedKey] : undefined}
+        onChange={(value) => setTextKeyValue(value)}
         onExit={() => {
-          this.props.allowGlobalHotKeys();
-          this.setState({showKeyTextInputModal: false});
+          dispatch(enableGlobalHotKeys());
+          setShowKeyTextInputModal(false);
         }}
         onConfirm={(keycode) => {
-          this.props.allowGlobalHotKeys();
-          this.updateKey(keycode);
-          this.setState({showKeyTextInputModal: false});
+          dispatch(enableGlobalHotKeys());
+          updateKey(keycode);
+          setShowKeyTextInputModal(false);
         }}
       />
     );
   };
 
-  updateKey = (value: number) => {
-    const {
-      disableFastRemap,
-      displayedKeys,
-      selectedKey,
-      updateSelectedKey,
-      updateKey,
-    } = this.props;
+  const updateKey = (value: number) => {
     if (selectedKey !== null) {
-      updateKey(selectedKey, value);
-      updateSelectedKey(
-        disableFastRemap ? null : getNextKey(selectedKey, displayedKeys),
+      dispatch(updateKeyAction(selectedKey, value));
+      dispatch(
+        updateSelectedKey(
+          disableFastRemap || !selectedKeyDefinitions
+            ? null
+            : getNextKey(selectedKey, selectedKeyDefinitions),
+        ),
       );
     }
   };
 
-  handleClick(code: string, i: number) {
+  const handleClick = (code: string, i: number) => {
     if (code == 'text') {
-      this.setState({showKeyTextInputModal: true});
+      setShowKeyTextInputModal(true);
     } else {
-      return keycodeInMaster(code) && this.updateKey(getByteForCode(code));
+      return keycodeInMaster(code) && updateKey(getByteForCode(code));
     }
-  }
+  };
 
-  renderKeycode(keycode: IKeycode, index: number) {
+  const renderKeycode = (keycode: IKeycode, index: number) => {
     const {code, title, name} = keycode;
     return (
       <Keycode
@@ -285,54 +256,40 @@ class KeycodeMenuComponent extends Component<Props, State> {
           styles.keycode,
         ].join(' ')}
         key={code}
-        onClick={() => this.handleClick(code, index)}
-        onMouseOver={(_) => {
-          this.setState({
-            mouseOverDesc: title ? `${code}: ${title}` : code,
-          });
-        }}
-        onMouseOut={(_) => this.setState({mouseOverDesc: null})}
+        onClick={() => handleClick(code, index)}
+        onMouseOver={(_) =>
+          setMouseOverDesc(title ? `${code}: ${title}` : code)
+        }
+        onMouseOut={(_) => setMouseOverDesc(null)}
       >
-        <div className={styles.innerKeycode}>
-          {this.state.barrelRoll && index < 11 ? (
-            <img
-              src={`../../../images/_${index}.gif`}
-              style={{width: '100%'}}
-            />
-          ) : (
-            name
-          )}
-        </div>
+        <div className={styles.innerKeycode}>{name}</div>
       </Keycode>
     );
-  }
+  };
 
-  renderCustomKeycode() {
+  const renderCustomKeycode = () => {
     return (
       <CustomKeycode
-        onClick={() =>
-          this.props.selectedKey !== null && this.handleClick('text', 0)
-        }
-        onMouseOver={(_) => {
-          this.setState({
-            mouseOverDesc: `Enter any QMK Keycode`,
-          });
-        }}
-        onMouseOut={(_) => this.setState({mouseOverDesc: null})}
+        onClick={() => selectedKey !== null && handleClick('text', 0)}
+        onMouseOver={(_) => setMouseOverDesc('Enter any QMK Keycode')}
+        onMouseOut={(_) => setMouseOverDesc(null)}
       >
         Any
       </CustomKeycode>
     );
-  }
+  };
 
-  renderSelectedCategory(keycodes: IKeycode[], selectedCategory: string) {
+  const renderSelectedCategory = (
+    keycodes: IKeycode[],
+    selectedCategory: string,
+  ) => {
     const keycodeListItems = keycodes.map((keycode, i) =>
-      this.renderKeycode(keycode, i),
+      renderKeycode(keycode, i),
     );
     switch (selectedCategory) {
       case 'Macro': {
-        return !this.props.macros.isFeatureSupported ? (
-          this.renderMacroError()
+        return !macros.isFeatureSupported ? (
+          renderMacroError()
         ) : (
           <KeycodeList>{keycodeListItems}</KeycodeList>
         );
@@ -340,16 +297,21 @@ class KeycodeMenuComponent extends Component<Props, State> {
       case 'Special': {
         return (
           <KeycodeList>
-            {keycodeListItems.concat(this.renderCustomKeycode())}
+            {keycodeListItems.concat(renderCustomKeycode())}
           </KeycodeList>
         );
       }
       case 'Custom': {
-        const {customKeycodes} = this.props.selectedDefinition;
+        if (
+          !isVIADefinitionV2(selectedDefinition) ||
+          !selectedDefinition.customKeycodes
+        ) {
+          return null;
+        }
         return (
           <KeycodeList>
-            {customKeycodes.map((keycode: IKeycode, idx: number) => {
-              return this.renderKeycode(
+            {selectedDefinition.customKeycodes.map((keycode, idx) => {
+              return renderKeycode(
                 {
                   ...keycode,
                   code: `USER${idx.toLocaleString('en-US', {
@@ -367,35 +329,25 @@ class KeycodeMenuComponent extends Component<Props, State> {
         return <KeycodeList>{keycodeListItems}</KeycodeList>;
       }
     }
-  }
+  };
 
-  render() {
-    const {mouseOverDesc, showKeyTextInputModal} = this.state;
-    const selectedCategoryKeycodes = KeycodeCategories.find(
-      ({label}) => label === this.state.selectedCategory,
-    )?.keycodes as IKeycode[];
+  const selectedCategoryKeycodes = KeycodeCategories.find(
+    ({label}) => label === selectedCategory,
+  )?.keycodes as IKeycode[];
 
-    return (
-      <>
-        <SubmenuOverflowCell>{this.renderCategories()}</SubmenuOverflowCell>
-        <OverflowCell>
-          <KeycodeContainer>
-            {this.renderSelectedCategory(
-              selectedCategoryKeycodes,
-              this.state.selectedCategory,
-            )}
-          </KeycodeContainer>
-          <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
-          {showKeyTextInputModal && this.renderKeyInputModal()}
-        </OverflowCell>
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
+      <OverflowCell>
+        <KeycodeContainer>
+          {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
+        </KeycodeContainer>
+        <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
+        {showKeyTextInputModal && renderKeyInputModal()}
+      </OverflowCell>
+    </>
+  );
+};
 
 export const Icon = component;
 export const Title = title;
-export const Pane = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(KeycodeMenuComponent);
