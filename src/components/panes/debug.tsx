@@ -1,9 +1,7 @@
-import * as React from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {connect} from 'react-redux';
-import {KeyboardAPI, KeyboardValue} from '../../utils/keyboard-api';
+import {KeyboardValue} from '../../utils/keyboard-api';
 import {anyKeycodeToString} from '../../utils/advanced-keys';
 import {MusicalKeySlider} from '../inputs/musical-key-slider';
 import {AccentSelect} from '../inputs/accent-select';
@@ -12,14 +10,6 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
 import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
-import {
-  getDefinitions,
-  getCustomDefinitions,
-  getBaseDefinitions,
-  getSelectedAPI,
-  getConnectedDevices,
-} from '../../redux/modules/keymap';
-import type {RootState} from '../../redux';
 import {
   ControlRow,
   Label,
@@ -32,49 +22,21 @@ import {
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
-import type {ConnectedDevices} from '../types/types';
+import {useRef, useState} from 'react';
+import type {FC} from 'react';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getConnectedDevices,
+  getSelectedConnectedDevice,
+} from 'src/store/devicesSlice';
+import {
+  getBaseDefinitions,
+  getDefinitions,
+  getCustomDefinitions,
+} from 'src/store/definitionsSlice';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
-
-type ReduxState = {
-  allDefinitions: KeyboardDefinitionEntry[];
-  localDefinitions: KeyboardDefinitionEntry[];
-  remoteDefinitions: KeyboardDefinitionEntry[];
-  connectedDevices: ConnectedDevices;
-  api?: KeyboardAPI;
-};
-
-type ReduxDispatch = {};
-
-type Props = ReduxState & ReduxDispatch;
-
-const mapDispatchToProps = {};
-const mapStateToProps = ({keymap}: RootState) => ({
-  api: getSelectedAPI(keymap),
-  connectedDevices: getConnectedDevices(keymap),
-
-  // Temporary patch that gets the page to load
-  // TODO: We probably need to rethink this + design a bit. Loading defs in design causes this to crash
-  allDefinitions: Object.entries(getDefinitions(keymap))
-    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
-      [id, versionMap.v2] as KeyboardDefinitionEntry,
-      [id, versionMap.v3] as KeyboardDefinitionEntry,
-    ])
-    .filter(([id, definition]) => definition !== undefined),
-  remoteDefinitions: Object.entries(getBaseDefinitions(keymap))
-    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
-      [id, versionMap.v2] as KeyboardDefinitionEntry,
-      [id, versionMap.v3] as KeyboardDefinitionEntry,
-    ])
-    .filter(([id, definition]) => definition !== undefined),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap))
-    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
-      [id, versionMap.v2] as KeyboardDefinitionEntry,
-      [id, versionMap.v3] as KeyboardDefinitionEntry,
-    ])
-    .filter(([id, definition]) => definition !== undefined),
-});
 
 const Container = styled.div`
   display: flex;
@@ -132,11 +94,11 @@ const ControlGroupHeader = styled.div`
 `;
 
 const TestControls = () => {
-  const [isChecked, setIsChecked] = React.useState(true);
-  const [rangeVal, setRangeVal] = React.useState(0);
-  const [colorVal, setColorVal] = React.useState<[number, number]>([0, 0]);
-  const [selectionVal, setSelectionVal] = React.useState(0);
-  const [keycode, setKeycode] = React.useState(0);
+  const [isChecked, setIsChecked] = useState(true);
+  const [rangeVal, setRangeVal] = useState(0);
+  const [colorVal, setColorVal] = useState<[number, number]>([0, 0]);
+  const [selectionVal, setSelectionVal] = useState(0);
+  const [keycode, setKeycode] = useState(0);
   const selectOptions = [
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
@@ -197,21 +159,39 @@ const TestControls = () => {
   );
 };
 
-function Debug(props: Props) {
-  const {
-    api,
-    allDefinitions,
-    connectedDevices,
-    remoteDefinitions,
-    localDefinitions,
-  } = props;
-  const [selectedDefinitionIndex, setSelectedDefinition] = React.useState(0);
-  const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
-    [],
-  );
-  const [selectedKey, setSelectedKey] = React.useState<undefined | number>(0);
-  const [showMatrix, setShowMatrix] = React.useState(false);
-  const [dimensions, setDimensions] = React.useState({
+export const Debug: FC = () => {
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = selectedDevice ? selectedDevice.api : null;
+  const connectedDevices = useAppSelector(getConnectedDevices);
+
+  // Temporary patch that gets the page to load
+  // TODO: We probably need to rethink this + design a bit. Loading defs in design causes this to crash
+  const allDefinitions = Object.entries(useAppSelector(getDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const remoteDefinitions = Object.entries(useAppSelector(getBaseDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const localDefinitions = Object.entries(useAppSelector(getCustomDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
+  const [selectedKey, setSelectedKey] = useState<undefined | number>(0);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const [dimensions, setDimensions] = useState({
     width: 1280,
     height: 900,
   });
@@ -222,7 +202,7 @@ function Debug(props: Props) {
   }));
   const entry = allDefinitions[selectedDefinitionIndex];
 
-  const flexRef = React.useRef(null);
+  const flexRef = useRef(null);
   useResize(
     flexRef,
     (entry) =>
@@ -434,6 +414,4 @@ function Debug(props: Props) {
       </MenuPanel>
     </DebugPane>
   );
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Debug);
+};
