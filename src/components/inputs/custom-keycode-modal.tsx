@@ -1,4 +1,3 @@
-import * as React from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
@@ -10,9 +9,9 @@ import {
 import {useCombobox} from 'downshift';
 import TextInput from './text-input';
 import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
-import type {RootState} from '../../redux';
-import {connect} from 'react-redux';
-import {getSelectedDefinition} from '../../redux/modules/keymap';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {useState} from 'react';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -144,10 +143,15 @@ const getInputItems = (arr: IKeycode[]) =>
   }));
 
 // Connect component with redux here:
-const KeycodeModalComponent: React.FC<
-  KeycodeModalProps & ReturnType<typeof mapStateToProps>
-> = (props) => {
-  const [inputItems, setInputItems] = React.useState(props.supportedInputItems);
+const KeycodeModalComponent = (props: KeycodeModalProps) => {
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  if (!selectedDefinition) {
+    return null;
+  }
+  const supportedInputItems = getInputItems(
+    getKeycodesForKeyboard(selectedDefinition),
+  );
+  const [inputItems, setInputItems] = useState(supportedInputItems);
   const defaultInput = anyKeycodeToString(props.defaultValue as number);
   const {
     getMenuProps,
@@ -164,7 +168,7 @@ const KeycodeModalComponent: React.FC<
     itemToString: (item) => item?.code ?? '',
     onInputValueChange: ({inputValue}) => {
       setInputItems(
-        props.supportedInputItems.filter(({label, code}) =>
+        supportedInputItems.filter(({label, code}) =>
           [label, code]
             .flatMap((s) => s.split(/\s+/))
             .map((s) => s.toLowerCase())
@@ -222,10 +226,3 @@ const KeycodeModalComponent: React.FC<
     </ModalBackground>
   );
 };
-
-const mapStateToProps = ({keymap}: RootState) => ({
-  supportedInputItems: getInputItems(
-    getKeycodesForKeyboard(getSelectedDefinition(keymap)),
-  ),
-});
-export const KeycodeModal = connect(mapStateToProps)(KeycodeModalComponent);
