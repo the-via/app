@@ -3,6 +3,9 @@ import proxy from 'http2-proxy';
 import path from 'path';
 
 export default {
+  alias: {
+    src: './src',
+  },
   mount: {
     public: {url: '/', static: true},
     src: {url: '/dist'},
