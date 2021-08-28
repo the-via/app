@@ -1,10 +1,7 @@
-import * as React from 'react';
-import {Component} from 'react';
+// TODO: test this still works on a satisfaction75
+import {Component, FC} from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
-import {connect} from 'react-redux';
-import type {RootState} from '../../../../../redux';
-import {getSelectedAPI} from '../../../../../redux/modules/keymap';
 import {
   getEncoderModes,
   setEncoderModes,
@@ -18,10 +15,6 @@ import {
 import {EncoderModeToggle} from './encoder-mode-toggle';
 import {EncoderCustomConfig} from './encoder-custom-config';
 import type {KeyboardAPI} from '../../../../../utils/keyboard-api';
-
-const mapStateToProps = ({keymap, macros}: RootState) => ({
-  api: getSelectedAPI(keymap),
-});
 
 type EnabledEncoderModes = number;
 type OLEDMode = number;
@@ -233,6 +226,3 @@ export class SatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
     return null;
   }
 }
-
-const ConnectedMenu = connect(mapStateToProps)(SatisfactionMenu);
-export default ConnectedMenu;
