@@ -71,17 +71,6 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-// const mapStateToProps = (state: RootState) => ({
-//   selectedDefinition: getSelectedDefinition(state.keymap),
-//   selectedDevicePath: getSelectedDevicePath(state.keymap),
-//   selectedLayoutOptions: getSelectedLayoutOptions(state.keymap),
-// });
-
-// const mapDispatchToProps: MapDispatchToPropsFunction<
-//   any,
-//   ReturnType<typeof mapStateToProps>
-// > = (dispatch) => bindActionCreators({updateLayoutOption}, dispatch);
-
 export const Pane = () => {
   const dispatch = useDispatch();
 

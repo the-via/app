@@ -2,6 +2,7 @@ import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   KeyboardDefinitionIndex,
+  LightingValue,
   VIADefinitionV2,
   VIADefinitionV3,
 } from 'via-reader';
@@ -11,7 +12,7 @@ export type HIDColor = {
   sat: number;
 };
 
-export type LightingData = {
+export type LightingData = Partial<{[key in LightingValue]: number[]}> & {
   customColors?: HIDColor[];
 };
 
