@@ -2,7 +2,7 @@ import React from 'react';
 import {UnconnectedGlobalMenu} from './components/menus/global';
 import {HashRouter as Router, Switch, Route} from 'react-router-dom';
 import PANES from './utils/pane-config';
-import {HomePage} from './containers/HomePage';
+import {Home} from './components/Home';
 
 export default () => {
   const RouteComponents = PANES.map((pane) => {
@@ -19,9 +19,9 @@ export default () => {
   return (
     <Router>
       <UnconnectedGlobalMenu />
-      <HomePage>
+      <Home>
         <Switch>{RouteComponents}</Switch>
-      </HomePage>
+      </Home>
     </Router>
   );
 };
