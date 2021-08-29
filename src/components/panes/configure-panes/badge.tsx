@@ -13,8 +13,8 @@ import {useDispatch} from 'react-redux';
 import {
   getConnectedDevices,
   getSelectedDevicePath,
-  selectConnectedDeviceByPath,
 } from 'src/store/devicesSlice';
+import {selectConnectedDeviceByPath} from 'src/store/devicesThunks';
 import {useMemo, useState} from 'react';
 
 const Container = styled.div`

@@ -29,7 +29,8 @@ import {
 } from './grid';
 import {useState, FC, useRef, Dispatch, DragEvent} from 'react';
 import {useDispatch} from 'react-redux';
-import {selectDevice, reloadConnectedDevices} from 'src/store/devicesSlice';
+import {selectDevice} from 'src/store/devicesSlice';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 

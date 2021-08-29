@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {KeyboardDictionary} from '../types/types';
+import type {ConnectedDevices, KeyboardDictionary} from '../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -17,6 +17,7 @@ import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
 } from './devicesSlice';
+import {getMissingDefinition} from 'src/utils/device-store';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -193,3 +194,39 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     console.warn('Getting layout options command not working');
   }
 };
+
+export const reloadDefinitions =
+  (connectedDevices: ConnectedDevices): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const definitions = getDefinitions(state);
+    const missingDefinitions = await Promise.all(
+      Object.values(connectedDevices)
+        // Check if we already have the required definition in the store
+        .filter(({vendorProductId, requiredDefinitionVersion}) => {
+          return (
+            !definitions ||
+            !definitions[vendorProductId] ||
+            !definitions[vendorProductId][requiredDefinitionVersion]
+          );
+        })
+        // Go and get it if we don't
+        .map(({device, requiredDefinitionVersion}) =>
+          getMissingDefinition(device, requiredDefinitionVersion),
+        ),
+    );
+    dispatch(
+      updateDefinitions(
+        missingDefinitions.reduce<KeyboardDictionary>(
+          (p, [definition, version]) => ({
+            ...p,
+            [definition.vendorProductId]: {
+              ...p[definition.vendorProductId],
+              [version]: definition,
+            },
+          }),
+          {},
+        ),
+      ),
+    );
+  };

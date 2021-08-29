@@ -1,3 +1,4 @@
+import React, {useState, useRef, useEffect} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import useResize from 'react-resize-observer-hook';
@@ -29,8 +30,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
-import {useState, useRef, useEffect} from 'react';
-import {reloadConnectedDevices} from 'src/store/devicesSlice';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 

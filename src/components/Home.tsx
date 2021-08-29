@@ -1,3 +1,4 @@
+import React, {createRef, ReactNode, useEffect, useState} from 'react';
 import styles from './Home.module.css';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
@@ -9,12 +10,11 @@ import {
 } from 'via-reader';
 import {getNextKey} from './positioned-keyboard';
 import {useDispatch} from 'react-redux';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
-  getSelectedConnectedDevice,
   loadSupportedIds,
   reloadConnectedDevices,
-} from 'src/store/devicesSlice';
-import {createRef, ReactNode, useEffect, useState} from 'react';
+} from 'src/store/devicesThunks';
 import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
