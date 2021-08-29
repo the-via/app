@@ -13,6 +13,7 @@ import {
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
 import type {LayoutLabel} from 'via-reader';
+import type {FC} from 'react';
 
 const LayoutControl: React.FC<{
   onChange: (val: any) => void;
@@ -20,44 +21,44 @@ const LayoutControl: React.FC<{
 }> = (props) => {
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
-  if (Array.isArray(labels)) {
-    const [label, ...optionLabels] = labels;
-    const options = optionLabels.map((label, idx) => ({
-      label,
-      value: `${idx}`,
-    }));
-    return (
-      <ControlRow>
-        <Label>{label}</Label>
-        <Detail>
-          <AccentSelect
-            width={150}
-            defaultValue={options[selectedOption]}
-            options={options}
-            onChange={(option) => {
-              if (option) {
-                onChange(+option.value);
-              }
-            }}
-          />
-        </Detail>
-      </ControlRow>
-    );
-  } else if (typeof labels === 'string') {
-    return (
-      <ControlRow>
-        <Label>{labels}</Label>
-        <Detail>
-          <AccentSlider
-            isChecked={!!selectedOption}
-            onChange={(val) => onChange(+val)}
-          />
-        </Detail>
-      </ControlRow>
-    );
-  }
-
-  return null;
+  // if (Array.isArray(labels)) {
+  const [label, ...optionLabels] = labels;
+  const options = optionLabels.map((label, idx) => ({
+    label,
+    value: `${idx}`,
+  }));
+  return (
+    <ControlRow>
+      <Label>{label}</Label>
+      <Detail>
+        <AccentSelect
+          width={150}
+          defaultValue={options[selectedOption]}
+          options={options}
+          onChange={(option) => {
+            if (option) {
+              onChange(+option.value);
+            }
+          }}
+        />
+      </Detail>
+    </ControlRow>
+  );
+  // TODO: LayoutLabel is of type string | string[], but key is assuming former, meta assuming the latter. Halp
+  // TODO: see context in Pane below
+  // } else if (typeof labels === 'string') {
+  //   return (
+  //     <ControlRow>
+  //       <Label>{labels}</Label>
+  //       <Detail>
+  //         <AccentSlider
+  //           isChecked={!!selectedOption}
+  //           onChange={(val) => onChange(+val)}
+  //         />
+  //       </Detail>
+  //     </ControlRow>
+  //   );
+  // }
 };
 
 const ContainerPane = styled(CenterPane)`
@@ -72,14 +73,14 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-export const Pane = () => {
+export const Pane: FC = () => {
   const dispatch = useDispatch();
 
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
 
   if (!selectedDefinition || !selectedLayoutOptions) {
-    return;
+    return null;
   }
 
   const {layouts} = selectedDefinition;

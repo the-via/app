@@ -201,7 +201,7 @@ const ConfigureGrid = () => {
         <LayerControl />
         <Badge />
       </FlexCell>
-      {SelectedPane && SelectedPane}
+      <SelectedPane />
     </Grid>
   );
 };
