@@ -63,6 +63,9 @@ export const reloadConnectedDevices =
   (): AppThunk => async (dispatch, getState) => {
     const state = getState();
     const selectedDevicePath = getSelectedDevicePath(state);
+
+    // TODO: should we store in local storage for when offline?
+    // Might be worth looking at whole store to work out which bits to store locally
     const supportedIds = getSupportedIds(state);
 
     const recognisedDevices = await getRecognisedDevices(supportedIds);
@@ -98,9 +101,8 @@ export const reloadConnectedDevices =
     dispatch(updateConnectedDevices(connectedDevices));
     const validDevicesArr = Object.entries(connectedDevices);
     if (
-      typeof selectedDevicePath === 'string' &&
-      !connectedDevices[selectedDevicePath] &&
-      validDevicesArr.length > 0
+      !selectedDevicePath ||
+      (!connectedDevices[selectedDevicePath] && validDevicesArr.length > 0)
     ) {
       const firstConnectedDevice = validDevicesArr[0][1];
       dispatch(selectConnectedDevice(firstConnectedDevice));

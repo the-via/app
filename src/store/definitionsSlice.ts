@@ -215,6 +215,9 @@ export const reloadDefinitions =
           getMissingDefinition(device, requiredDefinitionVersion),
         ),
     );
+    if (!missingDefinitions.length) {
+      return;
+    }
     dispatch(
       updateDefinitions(
         missingDefinitions.reduce<KeyboardDictionary>(

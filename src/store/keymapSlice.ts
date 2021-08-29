@@ -127,15 +127,10 @@ export const loadKeymapFromDevice =
     const {matrix} =
       getDefinitions(state)[vendorProductId][requiredDefinitionVersion];
 
-    // TODO: is this await Promise.all() necessary?
-    await Promise.all(
-      Array(numberOfLayers).map(async (_, layerIndex) => {
-        const keymap = await api.readRawMatrix(matrix, layerIndex);
-        dispatch(
-          loadLayerSuccess({layerIndex, keymap, devicePath: device.path}),
-        );
-      }),
-    );
+    for (var layerIndex = 0; layerIndex < numberOfLayers; layerIndex++) {
+      const keymap = await api.readRawMatrix(matrix, layerIndex);
+      dispatch(loadLayerSuccess({layerIndex, keymap, devicePath: device.path}));
+    }
   };
 
 // TODO: why isn't this keymap of type Keymap i.e. number[]?
