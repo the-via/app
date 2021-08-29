@@ -169,14 +169,6 @@ export const Pane: FC = () => {
       );
   };
 
-  const saveMacro = (id: number, macro: string) => {
-    const newMacros = (macros.expressions as string[]).map((oldMacro, i) =>
-      i === id ? macro : oldMacro,
-    );
-
-    dispatch(saveMacros(selectedDevice, newMacros));
-  };
-
   const renderMacroError = () => {
     return (
       <ErrorMessage>

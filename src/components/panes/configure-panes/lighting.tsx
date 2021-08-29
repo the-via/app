@@ -68,6 +68,7 @@ export const Pane: FC = () => {
       Category.General,
       ...(hasLayouts ? [Category.Layout] : []),
       ...(hasAdvanced ? [Category.Advanced] : []),
+    ].filter(({Menu}) => !!Menu);
   };
 
   return (

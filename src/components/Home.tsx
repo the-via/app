@@ -35,7 +35,7 @@ import {
 } from 'src/store/definitionsSlice';
 
 type HomeProps = {
-  children: ReactNode;
+  children?: ReactNode;
 };
 
 const timeoutRepeater =
