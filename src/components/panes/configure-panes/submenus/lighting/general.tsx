@@ -1,3 +1,5 @@
+import React from 'react';
+import type {FC} from 'react';
 import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {
@@ -16,7 +18,6 @@ import {
   updateCustomColor,
 } from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
-import type {FC} from 'react';
 
 const BacklightControls: [
   LightingValue,

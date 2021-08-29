@@ -1,3 +1,4 @@
+import React, {useMemo, useState} from 'react';
 import styled from 'styled-components';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
@@ -15,7 +16,6 @@ import {
   getSelectedDevicePath,
 } from 'src/store/devicesSlice';
 import {selectConnectedDeviceByPath} from 'src/store/devicesThunks';
-import {useMemo, useState} from 'react';
 
 const Container = styled.div`
   position: absolute;

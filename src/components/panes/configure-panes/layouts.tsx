@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import {title, component} from '../../icons/layouts';
 import {ControlRow, OverflowCell, Label, Detail} from '../grid';
