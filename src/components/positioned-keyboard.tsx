@@ -1,4 +1,4 @@
-import React, {memo, MouseEventHandler, useMemo} from 'react';
+import React, {memo, MouseEventHandler, useEffect, useMemo} from 'react';
 import type {KeyColor} from '../utils/themes';
 import styled from 'styled-components';
 import partition from 'lodash.partition';
@@ -299,6 +299,23 @@ export const KeyBG = memo(
     );
   },
 );
+
+type Key = Pick<
+  VIAKey,
+  'x' | 'x2' | 'y' | 'y2' | 'w' | 'w2' | 'h' | 'h2' | 'r' | 'rx' | 'ry'
+> & {
+  c: string;
+  t: string;
+  selected: boolean;
+  macroExpression?: string;
+  centerLabel?: string;
+  topLabel?: string;
+  bottomLabel?: string;
+  label?: string;
+  id: number;
+  onClick?: (id: number) => void;
+};
+
 const Key = memo(
   ({
     x,
@@ -322,7 +339,7 @@ const Key = memo(
     label = undefined,
     id,
     onClick = noop,
-  }: any) => {
+  }: Key) => {
     const isSmall = topLabel !== undefined || centerLabel !== undefined;
     const ChosenInnerKeyContainer = chooseInnerKeyContainer({
       topLabel,
@@ -330,7 +347,7 @@ const Key = memo(
     });
     const ChosenInnerKey = chooseInnerKey({topLabel, centerLabel});
     const legends = isSmall && !centerLabel ? [topLabel, bottomLabel] : [label];
-    const tooltipData = getTooltipData({macroExpression, label});
+    const tooltipData = label && getTooltipData({macroExpression, label});
     const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
       onClick(id);
@@ -339,7 +356,7 @@ const Key = memo(
     return (
       <RotationContainer selected={selected} r={r} rx={rx} ry={ry}>
         <KeyContainer
-          id={id}
+          id={id.toString()}
           {...tooltipData}
           selected={selected}
           style={getKeyContainerPosition({w, h, x, y})}
@@ -350,10 +367,10 @@ const Key = memo(
               <OuterSecondaryKey
                 backgroundColor={getDarkenedColor(c)}
                 style={getKeyContainerPosition({
-                  w: w2,
+                  w: w2 || 0,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2,
+                  h: h2 || 0,
                 })}
               >
                 <ChosenInnerKey
@@ -403,7 +420,6 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
 });
 
 type PositionedKeyboardProps = {
-  // updateSelectedKey: (index: number) => void;
   selectable: boolean;
   containerDimensions?: any;
   showMatrix?: boolean;
@@ -496,6 +512,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
     return null;
   }
   const {width, height} = selectedDefinition.layouts;
+
   return (
     <div>
       <KeyboardFrame
@@ -521,10 +538,13 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   ...getColors(k.color),
                   selected: selectedKey === index,
                   // TODO: this is the equivalent logic from before, but it doesn't make any sense and fails typechecking. Was this ever being called?
-                  // onClick: selectable
-                  //   ? () => dispatch(updateSelectedKey())
-                  //   : noop,
-                  onClick: noop,
+                  onClick: selectable
+                    ? (id) => {
+                        console.log(id);
+                        dispatch(updateSelectedKey(id));
+                      }
+                    : noop,
+                  // onClick: (val) => console.log(val),
                 }}
                 key={index}
                 id={index}

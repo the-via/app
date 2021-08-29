@@ -139,9 +139,12 @@ export const Pane: FC = () => {
   // TODO: it seems like this value is set, but never read. See FIXME in keycode-input.tsx for similar case
   const [textKeyValue, setTextKeyValue] = useState(0);
 
-  useEffect(() => () => {
-    dispatch(updateSelectedKey(null));
-  }); // componentWillUnmount equiv
+  useEffect(
+    () => () => {
+      dispatch(updateSelectedKey(null));
+    },
+    [],
+  ); // componentWillUnmount equiv
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
