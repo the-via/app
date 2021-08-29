@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import styles from './color.module.css';
 

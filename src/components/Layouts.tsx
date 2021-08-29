@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {AccentSelect} from './inputs/accent-select';
 import {AccentSlider} from './inputs/accent-slider';
 import {Detail, IndentedControlRow, Label} from './panes/grid';

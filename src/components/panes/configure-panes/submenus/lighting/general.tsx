@@ -16,6 +16,7 @@ import {
   updateCustomColor,
 } from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 
 const BacklightControls: [
   LightingValue,
@@ -75,7 +76,7 @@ const UnderglowControls: [
   ],
 ];
 
-export const GeneralPane = () => {
+export const GeneralPane: FC = () => {
   const dispatch = useDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);

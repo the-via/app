@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   chooseInnerKey,
@@ -11,14 +11,14 @@ import {
   OuterSecondaryKey,
   getKeyContainerPosition,
   RotationContainer,
-  BlankKeyboardFrame
+  BlankKeyboardFrame,
 } from './positioned-keyboard';
 import type {VIAKey} from 'via-reader';
 
 export enum TestKeyState {
   Initial,
   KeyDown,
-  KeyUp
+  KeyUp,
 }
 
 const TestKey = React.memo(
@@ -42,16 +42,16 @@ const TestKey = React.memo(
     r = 0,
     rx = 0,
     ry = 0,
-    onClick
+    onClick,
   }: any) => {
     const isSmall = topLabel !== undefined || centerLabel !== undefined;
     const ChosenInnerKeyContainer = chooseInnerKeyContainer({
       topLabel,
-      centerLabel
+      centerLabel,
     });
     const ChosenInnerKey = chooseInnerKey({topLabel, centerLabel});
     const legends = isSmall && !centerLabel ? [topLabel, bottomLabel] : [label];
-    const hasSecondKey = [h2, w2].every(i => i !== undefined);
+    const hasSecondKey = [h2, w2].every((i) => i !== undefined);
 
     return (
       <RotationContainer selected={false} r={r} rx={rx} ry={ry}>
@@ -68,7 +68,7 @@ const TestKey = React.memo(
                   w: w2,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2
+                  h: h2,
                 })}
               >
                 <ChosenInnerKey backgroundColor={c}>
@@ -90,23 +90,18 @@ const TestKey = React.memo(
         </TestKeyContainer>
       </RotationContainer>
     );
-  }
+  },
 );
 
 const testKeyColor = {
   c: '#ad7070',
-  t: '#d9d9d9'
+  t: '#d9d9d9',
 };
 
 export const TestKeyboard = (props: any) => {
   const macros = {expressions: [], isFeatureSupported: false};
-  const {
-    pressedKeys,
-    keys,
-    containerDimensions,
-    matrixKeycodes,
-    definition
-  } = props;
+  const {pressedKeys, keys, containerDimensions, matrixKeycodes, definition} =
+    props;
   const {width, height} = definition.layouts;
   return (
     <div>
@@ -125,7 +120,7 @@ export const TestKeyboard = (props: any) => {
                 ...testKeyColor,
                 keyState: pressedKeys[index],
                 id: index,
-                key: index
+                key: index,
               }}
             />
           );
@@ -135,14 +130,26 @@ export const TestKeyboard = (props: any) => {
   );
 };
 
-const getKeyContainerTransform = ({keyState, x, y, w, h}: {keyState: TestKeyState; x: number; y: number; w: number; h: number}) => ({
-  transform: `translate(${CSSVarObject.keyXPos * x}px, ${CSSVarObject.keyYPos *
-    y +
-    (keyState !== TestKeyState.KeyDown ? 0 : 1) * 2}px)`,
+const getKeyContainerTransform = ({
+  keyState,
+  x,
+  y,
+  w,
+  h,
+}: {
+  keyState: TestKeyState;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}) => ({
+  transform: `translate(${CSSVarObject.keyXPos * x}px, ${
+    CSSVarObject.keyYPos * y + (keyState !== TestKeyState.KeyDown ? 0 : 1) * 2
+  }px)`,
   width: `${CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing}px`,
   height: `${CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing}px`,
   filter: keyState !== TestKeyState.Initial ? 'saturate(1)' : 'saturate(0)',
-  opacity: keyState === TestKeyState.KeyUp ? 1 : 0.4
+  opacity: keyState === TestKeyState.KeyUp ? 1 : 0.4,
 });
 const TestKeyContainer = styled.div`
   position: absolute;

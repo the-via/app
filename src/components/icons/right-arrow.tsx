@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 const SvgIcKeyboardArrowRight24Px: React.FC<{}> = (props) => (
   <svg width="1em" height="1em" viewBox="0 0 6.175 10" {...props}>

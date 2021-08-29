@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 const SvgIcTune24Px: React.FC<{}> = (props) => (
   <svg width={17.187} height={17.187} {...props}>

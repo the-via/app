@@ -1,3 +1,4 @@
+import React, {useRef, useState, FC} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -22,8 +23,6 @@ import {
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {AccentRange} from '../inputs/accent-range';
-import {useRef, useState} from 'react';
-import type {FC} from 'react';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getConnectedDevices,

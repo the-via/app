@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import {getAutocompleteKeycodes} from '../utils/autocomplete-keycodes';
 import {validateExpression} from '../utils/macro-api';

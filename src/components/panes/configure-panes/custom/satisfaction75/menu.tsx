@@ -1,5 +1,5 @@
 // TODO: test this still works on a satisfaction75
-import {Component, FC} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import {

@@ -1,3 +1,4 @@
+import React, {useState, FC, useRef, Dispatch, DragEvent} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -27,7 +28,6 @@ import {
   OverflowCell,
   FlexCell,
 } from './grid';
-import {useState, FC, useRef, Dispatch, DragEvent} from 'react';
 import {useDispatch} from 'react-redux';
 import {selectDevice} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';

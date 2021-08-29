@@ -1,15 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
   LightingValue,
 } from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {LightingControl, ControlMeta} from './lighting-control';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedLightingData} from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -103,7 +103,7 @@ const RGBControls: ControlMeta[] = [
     {type: 'row_col'},
   ],
 ];
-export const AdvancedPane = () => {
+export const AdvancedPane: FC = () => {
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (isVIADefinitionV2(selectedDefinition) && lightingData) {

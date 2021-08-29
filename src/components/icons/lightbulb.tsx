@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 
 const SvgIcLightbulbOutline24Px: React.FC<{}> = (props) => (
   <svg width={11.9} height={17} {...props}>

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {
@@ -6,7 +6,6 @@ import {
   isVIADefinitionV2,
   LightingValue,
 } from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 import {useDispatch} from 'react-redux';
 import {
   getSelectedLightingData,
@@ -14,6 +13,7 @@ import {
 } from 'src/store/lightingSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
   LightingValue.BACKLIGHT_USE_ISO_ENTER,
@@ -35,7 +35,7 @@ const BooleanControls: [LightingValue, string][] = [
   ],
 ];
 
-export const LayoutPane = () => {
+export const Pane: FC = () => {
   const dispatch = useDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);

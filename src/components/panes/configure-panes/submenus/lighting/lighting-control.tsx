@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {AccentSelect} from '../../../../inputs/accent-select';
 import {AccentRange} from '../../../../inputs/accent-range';

@@ -1,10 +1,13 @@
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
-import {useState} from 'react';
 import {title, component} from '../../icons/lightbulb';
 import {GeneralPane} from './submenus/lighting/general';
-import {LayoutConfigValues, LayoutPane} from './submenus/lighting/layout';
+import {
+  LayoutConfigValues,
+  Pane as LayoutPane,
+} from './submenus/lighting/layout';
 import {
   AdvancedLightingValues,
   AdvancedPane,
@@ -12,6 +15,7 @@ import {
 import {getLightingDefinition, isVIADefinitionV2} from 'via-reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -35,7 +39,7 @@ const MenuContainer = styled.div`
   padding: 15px 20px 20px 10px;
 `;
 
-export const Pane = () => {
+export const Pane: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   const [selectedCategory, setSelectedCategory] = useState(Category.General);
@@ -64,7 +68,6 @@ export const Pane = () => {
       Category.General,
       ...(hasLayouts ? [Category.Layout] : []),
       ...(hasAdvanced ? [Category.Advanced] : []),
-    ];
   };
 
   return (

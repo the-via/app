@@ -1,3 +1,4 @@
+import React, {memo, MouseEventHandler, useMemo} from 'react';
 import type {KeyColor} from '../utils/themes';
 import styled from 'styled-components';
 import partition from 'lodash.partition';
@@ -19,7 +20,6 @@ import type {
   KeyColorType,
 } from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
-import {memo, MouseEventHandler, useMemo} from 'react';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';
 import {

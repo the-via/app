@@ -1,4 +1,4 @@
-import {FC, useState} from 'react';
+import React, {FC, useState, useEffect} from 'react';
 import styled from 'styled-components';
 import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
@@ -28,8 +28,6 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {saveMacros} from 'src/store/macrosSlice';
-import {useEffect} from 'react';
 import {
   getSelectedKey,
   getSelectedKeymap,

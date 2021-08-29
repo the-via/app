@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {anyKeycodeToString} from '../../../utils/advanced-keys';
 import {AccentButton} from '../accent-button';
 import {KeycodeModal} from '../custom-keycode-modal';

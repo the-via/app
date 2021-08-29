@@ -1,3 +1,4 @@
+import React, {useState, FC} from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
@@ -11,8 +12,6 @@ import TextInput from './text-input';
 import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
-import {useState} from 'react';
-import type {FC} from 'react';
 
 const ModalBackground = styled.div`
   position: fixed;

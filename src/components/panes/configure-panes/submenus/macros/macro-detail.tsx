@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
@@ -6,12 +6,12 @@ import {ErrorMessage} from '../../../../styled';
 import {validateExpression} from '../../../../../utils/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
-import type {RootState} from '../../../../../redux';
 import {
   AutocompleteItem,
   AutocompleteLoading,
   findKeycodes,
 } from '../../../../../components/inputs/autocomplete-keycode';
+import type {RootState} from 'src/store';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -64,13 +64,13 @@ const TextArea = styled.textarea`
 `;
 
 type Props = {
-  macros: RootState['macros'];
+  macroExpressions: string[];
   selectedMacro: number;
   saveMacros: (macro: string) => void;
 };
 export const MacroDetailPane: React.FC<Props> = (props) => {
   const enterToken = '{KC_ENT}';
-  const currentMacro = props.macros.expressions[props.selectedMacro] || '';
+  const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const textareaInitialValue = currentMacro
     .trimRight()
     .replace(new RegExp(`${enterToken}$`), '');

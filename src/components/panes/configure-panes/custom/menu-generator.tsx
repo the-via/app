@@ -1,7 +1,7 @@
+import React, {useState, useMemo} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
-import React, {useState, useMemo} from 'react';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';
 import CustomIcon from './icon';
