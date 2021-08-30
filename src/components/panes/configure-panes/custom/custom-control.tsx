@@ -10,7 +10,6 @@ import type {
   VIAItem,
   VIAControlItem,
 } from 'via-reader';
-// TODO: should this be coming from reader instead?
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 

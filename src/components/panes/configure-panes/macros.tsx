@@ -79,6 +79,7 @@ export const Pane: FC = () => {
   );
 };
 
-// TODO: how do these work?
+// TODO: these are used in the context that configure.tsx imports menus with props Icon, Title, Pane.
+// Should we encapsulate this type and wrap the exports to conform to them?
 export const Icon = component;
 export const Title = title;

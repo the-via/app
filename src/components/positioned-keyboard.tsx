@@ -522,14 +522,12 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
-                  // TODO: this is the equivalent logic from before, but it doesn't make any sense and fails typechecking. Was this ever being called?
                   onClick: selectable
                     ? (id) => {
                         console.log(id);
                         dispatch(updateSelectedKey(id));
                       }
                     : noop,
-                  // onClick: (val) => console.log(val),
                 }}
                 key={index}
                 id={index}
