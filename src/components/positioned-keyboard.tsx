@@ -1,4 +1,4 @@
-import React, {memo, MouseEventHandler, useEffect, useMemo} from 'react';
+import React, {memo, MouseEventHandler, useMemo} from 'react';
 import type {KeyColor} from '../utils/themes';
 import styled from 'styled-components';
 import partition from 'lodash.partition';
@@ -32,6 +32,7 @@ import {
   updateSelectedKey,
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
+import type {Key} from 'src/types/types';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -300,23 +301,7 @@ export const KeyBG = memo(
   },
 );
 
-type Key = Pick<
-  VIAKey,
-  'x' | 'x2' | 'y' | 'y2' | 'w' | 'w2' | 'h' | 'h2' | 'r' | 'rx' | 'ry'
-> & {
-  c: string;
-  t: string;
-  selected: boolean;
-  macroExpression?: string;
-  centerLabel?: string;
-  topLabel?: string;
-  bottomLabel?: string;
-  label?: string;
-  id: number;
-  onClick?: (id: number) => void;
-};
-
-const Key = memo(
+const KeyComponent = memo(
   ({
     x,
     x2,
@@ -526,7 +511,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
             return (
-              <Key
+              <KeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -763,7 +748,7 @@ const BlankPositionedKeyboardComponent = (
           ) : null}
           {displayedKeys.map((k, index) => {
             return (
-              <Key
+              <KeyComponent
                 {...{
                   ...k,
                   ...getLabel(

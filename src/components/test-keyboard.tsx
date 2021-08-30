@@ -14,6 +14,7 @@ import {
   BlankKeyboardFrame,
 } from './positioned-keyboard';
 import type {VIAKey} from 'via-reader';
+import type {Key} from 'src/types/types';
 
 export enum TestKeyState {
   Initial,
@@ -21,7 +22,13 @@ export enum TestKeyState {
   KeyUp,
 }
 
-const TestKey = React.memo(
+type t = Omit<Key, 'selected' | 'onClick'>;
+
+type TestKey = Omit<Key, 'selected'> & {
+  keyState: TestKeyState;
+};
+
+const TestKeyComponent = React.memo(
   ({
     x,
     y,
@@ -42,8 +49,7 @@ const TestKey = React.memo(
     r = 0,
     rx = 0,
     ry = 0,
-    onClick,
-  }: any) => {
+  }: TestKey) => {
     const isSmall = topLabel !== undefined || centerLabel !== undefined;
     const ChosenInnerKeyContainer = chooseInnerKeyContainer({
       topLabel,
@@ -56,8 +62,7 @@ const TestKey = React.memo(
     return (
       <RotationContainer selected={false} r={r} rx={rx} ry={ry}>
         <TestKeyContainer
-          onClick={onClick}
-          id={id}
+          id={id.toString()}
           style={getKeyContainerTransform({keyState, x, y, w, h})}
         >
           {hasSecondKey ? (
@@ -65,10 +70,10 @@ const TestKey = React.memo(
               <OuterSecondaryKey
                 backgroundColor={getDarkenedColor(c)}
                 style={getKeyContainerPosition({
-                  w: w2,
+                  w: w2 || 0,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2,
+                  h: h2 || 0,
                 })}
               >
                 <ChosenInnerKey backgroundColor={c}>
@@ -113,7 +118,7 @@ export const TestKeyboard = (props: any) => {
       >
         {(keys as VIAKey[]).map((k, index) => {
           return (
-            <TestKey
+            <TestKeyComponent
               {...{
                 ...k,
                 ...getLabel(matrixKeycodes[index], k.w, macros, null),

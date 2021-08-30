@@ -4,6 +4,7 @@ import type {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   LightingValue,
+  VIAKey,
 } from 'via-reader';
 
 export type HIDColor = {
@@ -45,6 +46,22 @@ export type ConnectedDevice = {
 };
 export type ConnectedDevices = {
   [devicePath: string]: ConnectedDevice;
+};
+
+export type Key = Pick<
+  VIAKey,
+  'x' | 'x2' | 'y' | 'y2' | 'w' | 'w2' | 'h' | 'h2' | 'r' | 'rx' | 'ry'
+> & {
+  c: string;
+  t: string;
+  selected: boolean;
+  macroExpression?: string;
+  centerLabel?: string;
+  topLabel?: string;
+  bottomLabel?: string;
+  label?: string;
+  id: number;
+  onClick?: (id: number) => void;
 };
 
 export type Settings = {
