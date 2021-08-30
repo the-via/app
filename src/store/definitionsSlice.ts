@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevices, KeyboardDictionary} from '../types/types';
+import type {ConnectedDevices} from '../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -9,6 +9,7 @@ import {
 import {KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
+  KeyboardDictionary,
   VIADefinitionV2,
   VIADefinitionV3,
 } from 'via-reader';

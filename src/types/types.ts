@@ -2,9 +2,8 @@ import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   KeyboardDefinitionIndex,
+  KeyboardDictionary,
   LightingValue,
-  VIADefinitionV2,
-  VIADefinitionV3,
 } from 'via-reader';
 
 export type HIDColor = {
@@ -60,12 +59,6 @@ export type StoreData = {
   definitions: KeyboardDictionary;
   settings: Settings;
 };
-
-// TODO: should the following be moved to Reader along with KeyboardDictionary?
-export type DefinitionVersionMap = {v2: VIADefinitionV2; v3: VIADefinitionV3};
-
-// Is DefinitionMap a better name?
-export type KeyboardDictionary = Record<string, DefinitionVersionMap>;
 
 export type VendorProductIdMap = Record<number, {v2: boolean; v3: boolean}>;
 

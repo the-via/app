@@ -7981,9 +7981,9 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"via-reader@git://github.com/the-via/reader.git#2a89b25008c622e73521cea7f0bd3de1ce5150f6":
+"via-reader@git://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88":
   version "1.0.0"
-  resolved "git://github.com/the-via/reader.git#2a89b25008c622e73521cea7f0bd3de1ce5150f6"
+  resolved "git://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
   dependencies:
     "@types/node" "^12.12.11"
     ajv "^6.10.2"
