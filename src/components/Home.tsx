@@ -1,4 +1,4 @@
-import React, {createRef, ReactNode, useEffect, useState} from 'react';
+import React, {createRef, FC, ReactNode, useEffect, useState} from 'react';
 import styles from './Home.module.css';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
@@ -34,10 +34,6 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 
-type HomeProps = {
-  children?: ReactNode;
-};
-
 const timeoutRepeater =
   (fn: () => void, timeout: number, numToRepeat = 0) =>
   () =>
@@ -48,7 +44,7 @@ const timeoutRepeater =
       }
     }, timeout);
 
-export const Home = (props: HomeProps) => {
+export const Home: FC = (props) => {
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
