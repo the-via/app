@@ -4,7 +4,7 @@ import {AccentButton} from '../accent-button';
 import {KeycodeModal} from '../custom-keycode-modal';
 import type {PelpiInput} from './input';
 
-export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = (props) => {
+export const PelpiKeycodeInput: React.VFC<PelpiInput<{}>> = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   const [, setKeycode] = React.useState<number>();
 

@@ -15,7 +15,7 @@ import {getSelectedDefinition} from 'src/store/definitionsSlice';
 
 export type ControlMeta = [
   LightingValue,
-  string | React.FC<AdvancedControlProps>,
+  string | React.VFC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;

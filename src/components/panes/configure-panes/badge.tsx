@@ -105,7 +105,7 @@ const ClickCover = styled.div`
 
 type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
 
-const KeyboardSelectors: React.FC<{
+const KeyboardSelectors: React.VFC<{
   show: boolean;
   keyboards: ConnectedKeyboardDefinition[];
   selectedPath: string;

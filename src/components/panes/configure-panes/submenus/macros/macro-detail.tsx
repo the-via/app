@@ -68,7 +68,7 @@ type Props = {
   selectedMacro: number;
   saveMacros: (macro: string) => void;
 };
-export const MacroDetailPane: React.FC<Props> = (props) => {
+export const MacroDetailPane: React.VFC<Props> = (props) => {
   const enterToken = '{KC_ENT}';
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const textareaInitialValue = currentMacro

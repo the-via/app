@@ -19,7 +19,7 @@ type Props = {
 };
 
 export type ControlMeta = [
-  string | React.FC<AdvancedControlProps>,
+  string | React.VFC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;

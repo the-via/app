@@ -90,6 +90,6 @@ const customStyles = {
   },
 };
 
-export const AccentSelect: React.FC<Props> = (props) => (
+export const AccentSelect: React.VFC<Props> = (props) => (
   <Select {...props} styles={customStyles} />
 );

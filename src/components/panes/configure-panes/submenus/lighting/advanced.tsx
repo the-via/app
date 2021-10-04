@@ -30,7 +30,7 @@ const AccentText = styled.span`
 
 type AdvancedControlMeta = [
   LightingValue,
-  string | React.FC<any>,
+  string | React.VFC<any>,
   {type: string} & Partial<{min?: number; max?: number}>,
 ];
 

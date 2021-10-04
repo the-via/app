@@ -15,7 +15,7 @@ import {useDispatch} from 'react-redux';
 import type {LayoutLabel} from 'via-reader';
 import type {FC} from 'react';
 
-const LayoutControl: React.FC<{
+const LayoutControl: React.VFC<{
   onChange: (val: any) => void;
   meta: {labels: string[]; selectedOption: number};
 }> = (props) => {

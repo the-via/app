@@ -9,7 +9,7 @@ const Container = styled.span`
   width: 200px;
 `;
 
-export const AccentRange: React.FC<SliderProps> = (props) => (
+export const AccentRange: React.VFC<SliderProps> = (props) => (
   <Container>
     <Slider
       {...props}

@@ -2,7 +2,7 @@ import React from 'react';
 import {AccentButton} from '../accent-button';
 import type {PelpiInput} from './input';
 
-export const PelpiToggleInput: React.FC<
+export const PelpiToggleInput: React.VFC<
   PelpiInput<{
     label: string;
   }>

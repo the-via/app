@@ -20,11 +20,11 @@ import {
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
 import {useDispatch} from 'react-redux';
-import type {AnyAction} from '@reduxjs/toolkit';
 
 type Category = {
   label: string;
-  Menu: React.FC;
+  // TODO: type this any
+  Menu: React.FC<any>;
 };
 
 const CustomPane = styled(CenterPane)`
@@ -119,7 +119,7 @@ function submenuGenerator(
   }
 }
 
-export const Pane: React.FC<Props> = (props) => {
+export const Pane: React.VFC<Props> = (props) => {
   const dispatch = useDispatch();
   const menus = categoryGenerator(props);
   const [selectedCategory, setSelectedCategory] = useState(
