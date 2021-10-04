@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
@@ -45,23 +45,27 @@ export const Pane: FC = () => {
     dispatch(saveMacros(selectedDevice, newMacros));
   };
 
+  const macroMenus = useMemo(
+    () =>
+      Array(16)
+        .fill(0)
+        .map((_, idx) => idx)
+        .map((idx) => (
+          <SubmenuRow
+            selected={selectedMacro === idx}
+            onClick={(_) => setSelectedMacro(idx)}
+            key={idx}
+          >
+            {`Macro ${idx}`}
+          </SubmenuRow>
+        )),
+    [selectedMacro],
+  );
+
   return (
     <>
       <SubmenuOverflowCell>
-        <MenuContainer>
-          {Array(16)
-            .fill(0)
-            .map((_, idx) => idx)
-            .map((idx) => (
-              <SubmenuRow
-                selected={selectedMacro === idx}
-                onClick={(_) => setSelectedMacro(idx)}
-                key={idx}
-              >
-                {`Macro ${idx}`}
-              </SubmenuRow>
-            ))}
-        </MenuContainer>
+        <MenuContainer>{macroMenus}</MenuContainer>
       </SubmenuOverflowCell>
       <OverflowCell>
         <MacroPane>
