@@ -41,8 +41,8 @@ export const Pane: FC = () => {
     const newMacros = macroExpressions.map((oldMacro, i) =>
       i === selectedMacro ? macro : oldMacro,
     );
-    // TODO: does awaiting really make a difference here?
-    await dispatch(saveMacros(selectedDevice, newMacros));
+
+    dispatch(saveMacros(selectedDevice, newMacros));
   };
 
   return (
