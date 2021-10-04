@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
@@ -43,18 +43,22 @@ export const LayerControl = () => {
   const numberOfLayers = useAppSelector(getNumberOfLayers);
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
 
-  const Layers = new Array(numberOfLayers)
-    .fill(0)
-    .map((_, idx) => idx)
-    .map((layerLabel) => (
-      <LayerButton
-        key={layerLabel}
-        selected={layerLabel === selectedLayerIndex}
-        onClick={() => dispatch(setLayer(layerLabel))}
-      >
-        {layerLabel}
-      </LayerButton>
-    ));
+  const Layers = useMemo(
+    () =>
+      new Array(numberOfLayers)
+        .fill(0)
+        .map((_, idx) => idx)
+        .map((layerLabel) => (
+          <LayerButton
+            key={layerLabel}
+            selected={layerLabel === selectedLayerIndex}
+            onClick={() => dispatch(setLayer(layerLabel))}
+          >
+            {layerLabel}
+          </LayerButton>
+        )),
+    [numberOfLayers, selectedLayerIndex],
+  );
 
   return (
     <Container>
