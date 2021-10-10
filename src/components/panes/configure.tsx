@@ -152,7 +152,6 @@ const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
   const [selectedRow, setRow] = useState(0);
-  // TODO: getRowsForKeyboard was being memoised with useMemo. Not sure if necessary or what gains it offers in this new context.
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow].Pane;
   const [dimensions, setDimensions] = useState({

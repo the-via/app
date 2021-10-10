@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
@@ -130,16 +130,13 @@ export const Pane: React.VFC<Props> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
 
-  const childProps = useMemo(
-    () => ({
-      ...props,
-      selectedDefinition,
-      selectedCustomMenuData,
-      updateCustomMenuValue: (command: string, ...rest: number[]) =>
-        dispatch(updateCustomMenuValue(command, ...rest)),
-    }),
-    [selectedDefinition, selectedCustomMenuData, props],
-  );
+  const childProps = {
+    ...props,
+    selectedDefinition,
+    selectedCustomMenuData,
+    updateCustomMenuValue: (command: string, ...rest: number[]) =>
+      dispatch(updateCustomMenuValue(command, ...rest)),
+  };
 
   if (!selectedDefinition || !selectedCustomMenuData) {
     return null;

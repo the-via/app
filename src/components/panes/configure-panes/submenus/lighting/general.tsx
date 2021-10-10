@@ -126,31 +126,27 @@ export const GeneralPane: FC = () => {
           .map((val, idx) => val + idx)
           .map((val) => {
             let color, setColor;
+            const command =
+              val === 1
+                ? LightingValue.BACKLIGHT_COLOR_1
+                : LightingValue.BACKLIGHT_COLOR_2;
+            const valArr = lightingData[command];
             if (showCustomColors && lightingData.customColors) {
               [color, setColor] = [
                 lightingData.customColors[val - 1],
                 (hue: number, sat: number) =>
                   dispatch(updateCustomColor(val - 1, hue, sat)),
               ];
+            } else if (valArr) {
+              [color, setColor] = [
+                {
+                  hue: valArr[0],
+                  sat: valArr[1],
+                },
+                (hue: number, sat: number) =>
+                  dispatch(updateBacklightValue(command, hue, sat)),
+              ];
             } else {
-              const command =
-                val === 1
-                  ? LightingValue.BACKLIGHT_COLOR_1
-                  : LightingValue.BACKLIGHT_COLOR_2;
-              const valArr = lightingData[command];
-              if (valArr) {
-                [color, setColor] = [
-                  {
-                    hue: valArr[0],
-                    sat: valArr[1],
-                  },
-                  (hue: number, sat: number) =>
-                    dispatch(updateBacklightValue(command, hue, sat)),
-                ];
-              }
-            }
-
-            if (!color || !setColor) {
               return null;
             }
 
