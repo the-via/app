@@ -6,7 +6,7 @@ let square: any;
 let pipe: any;
 let ac: any;
 
-// TODO: get this working or bin it?
+// TODO: get this working in browser
 
 //const SoundFont = require('soundfont-player');
 //const callOnce = fn => {

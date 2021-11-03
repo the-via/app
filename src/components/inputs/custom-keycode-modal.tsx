@@ -71,7 +71,7 @@ const AutocompleteItemRow = styled.li`
 
 type KeycodeModalProps = {
   defaultValue?: number;
-  onChange: (val: number) => void;
+  onChange?: (val: number) => void;
   onExit: () => void;
   onConfirm: (keycode: number) => void;
 };

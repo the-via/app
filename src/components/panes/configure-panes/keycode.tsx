@@ -136,9 +136,6 @@ export const Pane: FC = () => {
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
-  // TODO: it seems like this value is set, but never read. See FIXME in keycode-input.tsx for similar case
-  const [textKeyValue, setTextKeyValue] = useState(0);
-
   useEffect(
     () => () => {
       dispatch(updateSelectedKey(null));
@@ -205,7 +202,6 @@ export const Pane: FC = () => {
     return (
       <KeycodeModal
         defaultValue={selectedKey ? matrixKeycodes[selectedKey] : undefined}
-        onChange={(value) => setTextKeyValue(value)}
         onExit={() => {
           dispatch(enableGlobalHotKeys());
           setShowKeyTextInputModal(false);

@@ -6,20 +6,6 @@ import type {PelpiInput} from './input';
 
 export const PelpiKeycodeInput: React.VFC<PelpiInput<{}>> = (props) => {
   const [showModal, setShowModal] = React.useState(false);
-  const [, setKeycode] = React.useState<number>();
-
-  // FIXME: Is this even used?
-  const onChange = React.useCallback(
-    (arg: number) => {
-      setKeycode(arg);
-      props.setValue(arg);
-    },
-    [props.setValue],
-  );
-
-  React.useEffect(() => {
-    setKeycode(props.value);
-  }, [props.value]);
 
   return (
     <>
@@ -29,7 +15,7 @@ export const PelpiKeycodeInput: React.VFC<PelpiInput<{}>> = (props) => {
       {showModal && (
         <KeycodeModal
           defaultValue={props.value}
-          onChange={onChange}
+          onChange={props.setValue}
           onConfirm={(keycode) => {
             props.setValue(keycode);
             setShowModal(false);
