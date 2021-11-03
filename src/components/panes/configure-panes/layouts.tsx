@@ -17,48 +17,46 @@ import type {FC} from 'react';
 
 const LayoutControl: React.VFC<{
   onChange: (val: any) => void;
-  meta: {labels: string[]; selectedOption: number};
+  meta: {labels: LayoutLabel; selectedOption: number};
 }> = (props) => {
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
-  // if (Array.isArray(labels)) {
-  const [label, ...optionLabels] = labels;
-  const options = optionLabels.map((label, idx) => ({
-    label,
-    value: `${idx}`,
-  }));
-  return (
-    <ControlRow>
-      <Label>{label}</Label>
-      <Detail>
-        <AccentSelect
-          width={150}
-          defaultValue={options[selectedOption]}
-          options={options}
-          onChange={(option) => {
-            if (option) {
-              onChange(+option.value);
-            }
-          }}
-        />
-      </Detail>
-    </ControlRow>
-  );
-  // TODO: LayoutLabel is of type string | string[], but key is assuming former, meta assuming the latter. Halp
-  // TODO: see context in Pane below
-  // } else if (typeof labels === 'string') {
-  //   return (
-  //     <ControlRow>
-  //       <Label>{labels}</Label>
-  //       <Detail>
-  //         <AccentSlider
-  //           isChecked={!!selectedOption}
-  //           onChange={(val) => onChange(+val)}
-  //         />
-  //       </Detail>
-  //     </ControlRow>
-  //   );
-  // }
+  if (Array.isArray(labels)) {
+    const [label, ...optionLabels] = labels;
+    const options = optionLabels.map((label, idx) => ({
+      label,
+      value: `${idx}`,
+    }));
+    return (
+      <ControlRow>
+        <Label>{label}</Label>
+        <Detail>
+          <AccentSelect
+            width={150}
+            defaultValue={options[selectedOption]}
+            options={options}
+            onChange={(option) => {
+              if (option) {
+                onChange(+option.value);
+              }
+            }}
+          />
+        </Detail>
+      </ControlRow>
+    );
+  } else {
+    return (
+      <ControlRow>
+        <Label>{labels}</Label>
+        <Detail>
+          <AccentSlider
+            isChecked={!!selectedOption}
+            onChange={(val) => onChange(+val)}
+          />
+        </Detail>
+      </ControlRow>
+    );
+  }
 };
 
 const ContainerPane = styled(CenterPane)`
@@ -92,12 +90,10 @@ export const Pane: FC = () => {
         <Container>
           {labels.map((label: LayoutLabel, idx: number) => (
             <LayoutControl
-              // TODO: LayoutLabel is of type string | string[], but key is assuming former, meta assuming the latter. Halp
-              // key={label}
               key={idx}
               onChange={(val) => dispatch(updateLayoutOption(idx, val))}
               meta={{
-                labels: label as string[],
+                labels: label,
                 selectedOption: selectedLayoutOptions[idx],
               }}
             />
