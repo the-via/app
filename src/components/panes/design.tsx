@@ -1,4 +1,4 @@
-import React, {useState, FC, useRef, Dispatch, DragEvent} from 'react';
+import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -29,7 +29,7 @@ import {
   FlexCell,
 } from './grid';
 import {useDispatch} from 'react-redux';
-import {selectDevice} from 'src/store/devicesSlice';
+import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
@@ -107,15 +107,12 @@ function importDefinition(
             : keyboardDefinitionV3ToVIADefinitionV3(res);
         dispatch(loadDefinition({definition, version}));
 
-        // TODO: is this bit still needed?
-        // const keyboards = await getDevicesUsingDefinitions(allDefinitions);
-        // props.validateDevices(
-        //   keyboards.filter(
-        //     (device) =>
-        //       res.vendorProductId !==
-        //       getVendorProductId(device.vendorId, device.productId),
-        //   ),
-        // );
+        dispatch(
+          ensureSupportedId({
+            productId: res.vendorProductId as number,
+            version,
+          }),
+        );
         dispatch(selectDevice(null));
         dispatch(reloadConnectedDevices());
       } else {
@@ -174,8 +171,15 @@ export const DesignTab: FC = () => {
   });
   const [definitionVersion, setDefinitionVersion] =
     useState<DefinitionVersion>('v3');
+  const versionDefinitions = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
+  );
 
-  const options = localDefinitions.map((definitionMap, index) => ({
+  const options = versionDefinitions.map((definitionMap, index) => ({
     label: definitionMap[definitionVersion].name,
     value: index.toString(),
   }));
@@ -191,8 +195,8 @@ export const DesignTab: FC = () => {
       }),
   );
   const definition =
-    localDefinitions[selectedDefinitionIndex] &&
-    localDefinitions[selectedDefinitionIndex][definitionVersion];
+    versionDefinitions[selectedDefinitionIndex] &&
+    versionDefinitions[selectedDefinitionIndex][definitionVersion];
 
   return (
     <DesignPane
@@ -294,10 +298,10 @@ export const DesignTab: FC = () => {
           <ControlRow>
             <Label>Draft Definitions</Label>
             <Detail>
-              {Object.values(localDefinitions).length} Definitions
+              {Object.values(versionDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {localDefinitions.map((definition) => {
+          {versionDefinitions.map((definition) => {
             return (
               <IndentedControlRow>
                 <SubLabel>{definition[definitionVersion].name}</SubLabel>

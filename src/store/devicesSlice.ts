@@ -1,4 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import type {DefinitionVersion} from 'via-reader';
 import type {
   ConnectedDevice,
   ConnectedDevices,
@@ -16,7 +17,7 @@ export type DevicesState = {
 const initialState: DevicesState = {
   selectedDevicePath: null,
   connectedDevices: {},
-  supportedIds: [],
+  supportedIds: {},
 };
 
 export const deviceSlice = createSlice({
@@ -40,11 +41,23 @@ export const deviceSlice = createSlice({
     updateSupportedIds: (state, action: PayloadAction<VendorProductIdMap>) => {
       state.supportedIds = action.payload;
     },
+    ensureSupportedId: (
+      state,
+      action: PayloadAction<{productId: number; version: DefinitionVersion}>,
+    ) => {
+      const {productId, version} = action.payload;
+      state.supportedIds[productId] = state.supportedIds[productId] ?? {};
+      state.supportedIds[productId][version] = true;
+    },
   },
 });
 
-export const {selectDevice, updateConnectedDevices, updateSupportedIds} =
-  deviceSlice.actions;
+export const {
+  selectDevice,
+  updateConnectedDevices,
+  updateSupportedIds,
+  ensureSupportedId,
+} = deviceSlice.actions;
 
 export default deviceSlice.reducer;
 

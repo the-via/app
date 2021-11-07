@@ -51,13 +51,14 @@ const definitionsSlice = createSlice({
       }>,
     ) => {
       const {version, definition} = action.payload;
+      const definitionEntry =
+        state.customDefinitions[definition.vendorProductId] ?? {};
       if (version === 'v2') {
-        state.customDefinitions[definition.vendorProductId][version] =
-          definition as VIADefinitionV2;
+        definitionEntry[version] = definition as VIADefinitionV2;
       } else {
-        state.customDefinitions[definition.vendorProductId][version] =
-          definition as VIADefinitionV3;
+        definitionEntry[version] = definition as VIADefinitionV3;
       }
+      state.customDefinitions[definition.vendorProductId] = definitionEntry;
     },
     updateLayoutOptions: (state, action: PayloadAction<LayoutOptionsMap>) => {
       state.layoutOptionsMap = {...state.layoutOptionsMap, ...action.payload};

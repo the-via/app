@@ -1,4 +1,4 @@
-import React, {memo, MouseEventHandler, useMemo} from 'react';
+import React, {memo, MouseEventHandler} from 'react';
 import type {KeyColor} from '../utils/themes';
 import styled from 'styled-components';
 import partition from 'lodash.partition';
@@ -714,20 +714,18 @@ const BlankPositionedKeyboardComponent = (
 
   const {width, height, keys, optionKeys} = selectedDefinition.layouts;
 
-  const displayedOptionKeys = useMemo(() => {
-    if (optionKeys) {
-      return Object.entries(optionKeys).flatMap(([key, options]) => {
+  // This was previously memoised, but removed because it produced an inconsistent number of hooks error
+  // because the memo was not called when selectedDefinition was null
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(([key, options]) => {
         const optionKey = parseInt(key);
 
         // If a selection option has been set for this optionKey, use that
         return selectedOptionKeys[optionKey]
           ? options[selectedOptionKeys[optionKey]]
           : options[0];
-      });
-    } else {
-      return [];
-    }
-  }, [optionKeys, selectedDefinition, selectedOptionKeys]);
+      })
+    : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
   const {rows, cols} = selectedDefinition.matrix;
