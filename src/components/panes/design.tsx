@@ -33,6 +33,7 @@ import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
+import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -160,6 +161,7 @@ function onDrop(
 export const DesignTab: FC = () => {
   const dispatch = useDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const definitionVersion = useAppSelector(getSelectedVersion);
 
   const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
   const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
@@ -169,8 +171,6 @@ export const DesignTab: FC = () => {
     width: 1280,
     height: 900,
   });
-  const [definitionVersion, setDefinitionVersion] =
-    useState<DefinitionVersion>('v3');
   const versionDefinitions = useMemo(
     () =>
       localDefinitions.filter(
@@ -250,7 +250,7 @@ export const DesignTab: FC = () => {
             <Detail>
               <AccentSlider
                 isChecked={definitionVersion === 'v2'}
-                onChange={(val) => setDefinitionVersion(val ? 'v2' : 'v3')}
+                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
               />
             </Detail>
           </ControlRow>

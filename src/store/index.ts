@@ -6,6 +6,7 @@ import keymapReducer from './keymapSlice';
 import definitionsReducer from './definitionsSlice';
 import lightingReducer from './lightingSlice';
 import menusReducer from './menusSlice';
+import designReducer from './designSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     definitions: definitionsReducer,
     lighting: lightingReducer,
     menus: menusReducer,
+    design: designReducer,
   },
 });
 
