@@ -1,25 +1,20 @@
-import * as React from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import {bindActionCreators} from 'redux';
 import useResize from 'react-resize-observer-hook';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
 import {Pane as DefaultPane} from './pane';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import type {RootState} from '../../redux';
-import {
-  actions,
-  getLoadProgress,
-  getSelectedDefinition,
-  getSelectedProtocol,
-  getCustomMenus,
-  reloadConnectedDevices,
-} from '../../redux/modules/keymap';
 import ReactTooltip from 'react-tooltip';
-import {CustomFeaturesV2, getLightingDefinition} from 'via-reader';
-import {ConnectedPositionedKeyboard} from '../positioned-keyboard';
+import {
+  CustomFeaturesV2,
+  getLightingDefinition,
+  isVIADefinitionV2,
+  VIADefinitionV2,
+  VIADefinitionV3,
+} from 'via-reader';
+import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
 import * as Lighting from './configure-panes/lighting';
@@ -31,30 +26,13 @@ import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
 import {AccentButtonLarge} from '../inputs/accent-button';
-type ReduxState = ReturnType<typeof mapStateToProps>;
-
-type ReduxDispatch = ReturnType<typeof mapDispatchToProps>;
-
-type Props = ReduxState & ReduxDispatch;
-
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) =>
-  bindActionCreators(
-    {
-      clearSelectedKey: actions.clearSelectedKey,
-      reloadConnectedDevices: reloadConnectedDevices,
-    },
-    dispatch,
-  );
-const mapStateToProps = ({keymap, macros}: RootState) => ({
-  showMacros: macros.isFeatureSupported,
-  progress: getLoadProgress(keymap),
-  selectedDefinition: getSelectedDefinition(keymap),
-  selectedProtocol: getSelectedProtocol(keymap),
-  customMenus: getCustomMenus(keymap),
-});
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
+import {useDispatch} from 'react-redux';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
+import {getCustomMenus} from 'src/store/menusSlice';
+import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -84,13 +62,15 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
   return [];
 }
 
-// TODO: need to work out how to type these props
-function getRowsForKeyboard({
-  customMenus,
-  selectedDefinition,
-  showMacros,
-  selectedProtocol,
-}: Props): typeof Rows {
+const getRowsForKeyboard = (): typeof Rows => {
+  const showMacros = useAppSelector(getIsMacroFeatureSupported);
+  const customMenus = useAppSelector(getCustomMenus);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+
+  if (!selectedDefinition) {
+    return [];
+  }
+
   const {layouts} = selectedDefinition;
   let titles: typeof Rows = [Keycode];
   if (layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0) {
@@ -99,7 +79,7 @@ function getRowsForKeyboard({
   if (showMacros) {
     titles = [...titles, Macros];
   }
-  if (selectedProtocol <= 9) {
+  if (isVIADefinitionV2(selectedDefinition)) {
     const {lighting, customFeatures} = selectedDefinition;
     const {supportedLightingValues} = getLightingDefinition(lighting);
     if (supportedLightingValues.length !== 0) {
@@ -108,58 +88,77 @@ function getRowsForKeyboard({
     if (customFeatures) {
       titles = [...titles, ...getCustomPanes(customFeatures)];
     }
-  }
-
-  if (selectedProtocol >= 10 && customMenus) {
+  } else if (customMenus) {
     titles = [...titles, ...makeCustomMenus(customMenus)];
   }
 
   titles = [...titles, SaveLoad];
   return titles;
-}
+};
 
-function Loader(props: Props) {
-  const [showButton, setShowButton] = React.useState<boolean>(false);
-  React.useEffect(() => {
+function Loader(props: {
+  loadProgress: number;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
+}) {
+  const {loadProgress, selectedDefinition} = props;
+  const dispatch = useDispatch();
+
+  const [showButton, setShowButton] = useState<boolean>(false);
+  useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!props.selectedDefinition) {
+      if (!selectedDefinition) {
         setShowButton(true);
       }
     }, 3000);
     return () => clearTimeout(timeout);
-  }, [props.selectedDefinition]);
+  }, [selectedDefinition]);
   return (
     <>
-      <ChippyLoader progress={props.progress || null} />
+      <ChippyLoader progress={loadProgress || null} />
       {showButton ? (
-        <AccentButtonLarge onClick={props.reloadConnectedDevices}>
+        <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device{' '}
           <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
         </AccentButtonLarge>
       ) : (
-        <LoadingText isSearching={!props.selectedDefinition} />
+        <LoadingText isSearching={!selectedDefinition} />
       )}
     </>
   );
 }
 
-function ConfigurePane(props: Props) {
-  const showLoader = !props.selectedDefinition || props.progress !== 1;
+export const ConfigurePane = () => {
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const loadProgress = useAppSelector(getLoadProgress);
+
+  const showLoader = !selectedDefinition || loadProgress !== 1;
   return (
     <Pane>
-      {showLoader ? <Loader {...props} /> : <ConfigureGrid {...props} />}
+      {showLoader ? (
+        <Loader
+          {...{
+            loadProgress,
+            selectedDefinition: selectedDefinition ? selectedDefinition : null,
+          }}
+        />
+      ) : (
+        <ConfigureGrid />
+      )}
     </Pane>
   );
-}
-function ConfigureGrid(props: Props) {
-  const [selectedRow, setRow] = React.useState(0);
-  const KeyboardRows = React.useMemo(() => getRowsForKeyboard(props), [props]);
+};
+
+const ConfigureGrid = () => {
+  const dispatch = useDispatch();
+
+  const [selectedRow, setRow] = useState(0);
+  const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow].Pane;
-  const [dimensions, setDimensions] = React.useState({
+  const [dimensions, setDimensions] = useState({
     width: 1280,
     height: 900,
   });
-  const flexRef = React.useRef(null);
+  const flexRef = useRef(null);
 
   useResize(
     flexRef,
@@ -192,8 +191,8 @@ function ConfigureGrid(props: Props) {
         </MenuContainer>
       </MenuCell>
 
-      <FlexCell ref={flexRef} onClick={props.clearSelectedKey}>
-        <ConnectedPositionedKeyboard
+      <FlexCell ref={flexRef} onClick={() => dispatch(clearSelectedKey())}>
+        <PositionedKeyboard
           containerDimensions={dimensions}
           selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
         />
@@ -204,6 +203,4 @@ function ConfigureGrid(props: Props) {
       <SelectedPane />
     </Grid>
   );
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ConfigurePane);
+};

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
 import {

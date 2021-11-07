@@ -1,23 +1,23 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {title, component} from '../../icons/layouts';
 import {ControlRow, OverflowCell, Label, Detail} from '../grid';
 import {AccentSlider} from '../../inputs/accent-slider';
 import {AccentSelect} from '../../inputs/accent-select';
 import {CenterPane} from '../pane';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import type {RootState} from '../../../redux';
-import {bindActionCreators} from 'redux';
 import {
   getSelectedDefinition,
-  getSelectedDevicePath,
   getSelectedLayoutOptions,
   updateLayoutOption,
-} from '../../../redux/modules/keymap';
+} from 'src/store/definitionsSlice';
+import {useAppSelector} from 'src/store/hooks';
+import {useDispatch} from 'react-redux';
+import type {LayoutLabel} from 'via-reader';
+import type {FC} from 'react';
 
-const LayoutControl: React.FC<{
+const LayoutControl: React.VFC<{
   onChange: (val: any) => void;
-  meta: {labels: string[]; selectedOption: number};
+  meta: {labels: LayoutLabel; selectedOption: number};
 }> = (props) => {
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
@@ -44,7 +44,7 @@ const LayoutControl: React.FC<{
         </Detail>
       </ControlRow>
     );
-  } else if (typeof labels === 'string') {
+  } else {
     return (
       <ControlRow>
         <Label>{labels}</Label>
@@ -57,8 +57,6 @@ const LayoutControl: React.FC<{
       </ControlRow>
     );
   }
-
-  return null;
 };
 
 const ContainerPane = styled(CenterPane)`
@@ -73,36 +71,31 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-const mapStateToProps = (state: RootState) => ({
-  selectedDefinition: getSelectedDefinition(state.keymap),
-  selectedDevicePath: getSelectedDevicePath(state.keymap),
-  selectedLayoutOptions: getSelectedLayoutOptions(state.keymap),
-});
+export const Pane: FC = () => {
+  const dispatch = useDispatch();
 
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) => bindActionCreators({updateLayoutOption}, dispatch);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
 
-type Props = ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+  if (!selectedDefinition || !selectedLayoutOptions) {
+    return null;
+  }
 
-const LayoutPane = (props: Props) => {
-  const layouts = props.selectedDefinition.layouts;
-  const options = props.selectedLayoutOptions;
+  const {layouts} = selectedDefinition;
+
   const labels = layouts.labels || [];
   return (
     <OverflowCell>
       <ContainerPane>
         <Container>
-          {labels.map((label: string, idx: number) => (
+          {labels.map((label: LayoutLabel, idx: number) => (
             <LayoutControl
-              {...props}
-              key={label}
-              onChange={(val) =>
-                props.updateLayoutOption(props.selectedDevicePath, idx, val)
-              }
-              meta={{labels: label, selectedOption: options[idx]}}
+              key={idx}
+              onChange={(val) => dispatch(updateLayoutOption(idx, val))}
+              meta={{
+                labels: label,
+                selectedOption: selectedLayoutOptions[idx],
+              }}
             />
           ))}
         </Container>
@@ -112,4 +105,3 @@ const LayoutPane = (props: Props) => {
 };
 export const Title = title;
 export const Icon = component;
-export const Pane = connect(mapStateToProps, mapDispatchToProps)(LayoutPane);

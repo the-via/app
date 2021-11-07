@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const LoadingText = styled.div`
@@ -8,14 +8,14 @@ const LoadingText = styled.div`
 
 enum LoadingLabel {
   Searching = 'Searching for devices...',
-  Loading = 'Loading...'
+  Loading = 'Loading...',
 }
 
 type Props = {
   isSearching: boolean;
 };
 
-export default function(props: Props) {
+export default function (props: Props) {
   return (
     <LoadingText data-tid="loading-message">
       {props.isSearching ? LoadingLabel.Searching : LoadingLabel.Loading}

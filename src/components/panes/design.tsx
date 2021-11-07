@@ -1,10 +1,8 @@
-import * as React from 'react';
-import {bindActionCreators} from 'redux';
+import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
@@ -19,18 +17,8 @@ import {
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
 } from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {DefinitionVersion} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
-import {
-  getDefinitions,
-  getCustomDefinitions,
-  getBaseDefinitions,
-  getSelectedAPI,
-  getConnectedDevices,
-  reloadConnectedDevices,
-  actions,
-} from '../../redux/modules/keymap';
-import type {RootState} from '../../redux';
 import {
   ControlRow,
   Label,
@@ -40,33 +28,12 @@ import {
   OverflowCell,
   FlexCell,
 } from './grid';
-import {
-  getDevicesUsingDefinitions,
-  getVendorProductId,
-} from '../../utils/hid-keyboards';
-import type {DefinitionVersion} from 'src/types/types';
-
-type Props = ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
-
-const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = (dispatch) =>
-  bindActionCreators(
-    {
-      loadDefinition: actions.loadDefinition,
-      validateDevices: actions.validateDevices,
-      selectDevice: actions.selectDevice,
-      reloadConnectedDevices,
-    },
-    dispatch,
-  );
-
-const mapStateToProps = ({keymap}: RootState) => ({
-  api: getSelectedAPI(keymap),
-  connectedDevices: getConnectedDevices(keymap),
-  allDefinitions: getDefinitions(keymap),
-  remoteDefinitions: Object.entries(getBaseDefinitions(keymap)),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap)),
-});
+import {useDispatch} from 'react-redux';
+import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
+import {useAppSelector} from 'src/store/hooks';
+import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
+import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -113,12 +80,12 @@ const UploadIcon = styled.div`
   }
 `;
 
-// TODO: insert branching logic for v2 vs v3 def
+// TODO: move this inside function component and then use the closured dispatch?
 function importDefinition(
-  props: Props,
   file: File,
-  setErrors: (errors: string[]) => void,
   version: DefinitionVersion,
+  dispatch: Dispatch<any>,
+  setErrors: (errors: string[]) => void,
 ) {
   const reader = new FileReader();
   reader.onload = async () => {
@@ -139,19 +106,16 @@ function importDefinition(
             : isVIADefinitionV3(res)
             ? res
             : keyboardDefinitionV3ToVIADefinitionV3(res);
-        props.loadDefinition({definition, version});
-        const keyboards = await getDevicesUsingDefinitions(
-          props.allDefinitions,
+        dispatch(loadDefinition({definition, version}));
+
+        dispatch(
+          ensureSupportedId({
+            productId: res.vendorProductId as number,
+            version,
+          }),
         );
-        props.validateDevices(
-          keyboards.filter(
-            (device) =>
-              res.vendorProductId !==
-              getVendorProductId(device.vendorId, device.productId),
-          ),
-        );
-        props.selectDevice(null);
-        props.reloadConnectedDevices();
+        dispatch(selectDevice(null));
+        dispatch(reloadConnectedDevices());
       } else {
         setErrors(
           (version === 'v2'
@@ -168,9 +132,11 @@ function importDefinition(
   };
   reader.readAsBinaryString(file);
 }
+
 function onDrop(
-  evt: React.DragEvent<HTMLElement>,
-  props: Props,
+  evt: DragEvent<HTMLElement>,
+  version: DefinitionVersion,
+  dispatch: Dispatch<any>,
   setErrors: (errors: string[]) => void,
 ) {
   evt.preventDefault();
@@ -185,39 +151,40 @@ function onDrop(
       ) {
         var file = dataTransfer.items[i].getAsFile();
         if (file) {
-          importDefinition(props, file, setErrors, props.definitionVersion);
+          importDefinition(file, version, dispatch, setErrors);
         }
       }
     }
   }
 }
 
-function DesignTab(props: Props) {
-  const {localDefinitions} = props;
-  const [selectedDefinitionIndex, setSelectedDefinition] = React.useState(0);
-  const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
-    [],
-  );
-  const [showMatrix, setShowMatrix] = React.useState(false);
-  const [errors, setErrors] = React.useState<string[]>([]);
-  const [dimensions, setDimensions] = React.useState({
+export const DesignTab: FC = () => {
+  const dispatch = useDispatch();
+  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const definitionVersion = useAppSelector(getSelectedVersion);
+
+  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const [errors, setErrors] = useState<string[]>([]);
+  const [dimensions, setDimensions] = useState({
     width: 1280,
     height: 900,
   });
-  const [definitionVersion, setDefinitionVersion] =
-    React.useState<DefinitionVersion>('v3');
-
-  const options = localDefinitions.map(
-    (
-      [, definition]: [string, VIADefinitionV2 | VIADefinitionV3],
-      index: number,
-    ) => ({
-      label: definition.name,
-      value: index,
-    }),
+  const versionDefinitions = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
   );
 
-  const flexRef = React.useRef(null);
+  const options = versionDefinitions.map((definitionMap, index) => ({
+    label: definitionMap[definitionVersion].name,
+    value: index.toString(),
+  }));
+
+  const flexRef = useRef(null);
   useResize(
     flexRef,
     (entry) =>
@@ -227,9 +194,9 @@ function DesignTab(props: Props) {
         height: entry.height,
       }),
   );
-  const entry =
-    localDefinitions[selectedDefinitionIndex] &&
-    localDefinitions[selectedDefinitionIndex][definitionVersion];
+  const definition =
+    versionDefinitions[selectedDefinitionIndex] &&
+    versionDefinitions[selectedDefinitionIndex][definitionVersion];
 
   return (
     <DesignPane
@@ -241,17 +208,17 @@ function DesignTab(props: Props) {
       }}
     >
       <FlexCell ref={flexRef}>
-        {entry ? (
+        {definition ? (
           <BlankPositionedKeyboard
             containerDimensions={dimensions}
-            selectedDefinition={entry[1]}
+            selectedDefinition={definition}
             selectedOptionKeys={selectedOptionKeys}
             showMatrix={showMatrix}
           />
         ) : (
           <UploadIcon
             onDrop={(evt) =>
-              onDrop(evt, {...props, definitionVersion}, setErrors)
+              onDrop(evt, definitionVersion, dispatch, setErrors)
             }
             onDragOver={(evt) => {
               evt.dataTransfer.effectAllowed = 'copyMove';
@@ -271,7 +238,7 @@ function DesignTab(props: Props) {
             <Detail>
               <AccentUploadButton
                 onLoad={(file) =>
-                  importDefinition(props, file, setErrors, definitionVersion)
+                  importDefinition(file, definitionVersion, dispatch, setErrors)
                 }
               >
                 Load
@@ -283,11 +250,11 @@ function DesignTab(props: Props) {
             <Detail>
               <AccentSlider
                 isChecked={definitionVersion === 'v2'}
-                onChange={(val) => setDefinitionVersion(val ? 'v2' : 'v3')}
+                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
               />
             </Detail>
           </ControlRow>
-          {entry && (
+          {definition && (
             <ControlRow>
               <Label>Shown Keyboard Definition</Label>
               <Detail>
@@ -307,15 +274,15 @@ function DesignTab(props: Props) {
               </Detail>
             </ControlRow>
           )}
-          {entry && (
+          {definition && (
             <Layouts
-              definition={entry[1]}
+              definition={definition}
               onLayoutChange={(newSelectedOptionKeys) => {
                 setSelectedOptionKeys(newSelectedOptionKeys);
               }}
             />
           )}
-          {entry && (
+          {definition && (
             <ControlRow>
               <Label>Show Matrix</Label>
               <Detail>
@@ -331,21 +298,18 @@ function DesignTab(props: Props) {
           <ControlRow>
             <Label>Draft Definitions</Label>
             <Detail>
-              {Object.values(localDefinitions).length} Definitions
+              {Object.values(versionDefinitions).length} Definitions
             </Detail>
           </ControlRow>
-          {(
-            Object.values(localDefinitions) as [
-              string,
-              VIADefinitionV2 | VIADefinitionV3,
-            ][]
-          ).map(([id, definition]) => {
+          {versionDefinitions.map((definition) => {
             return (
               <IndentedControlRow>
-                <SubLabel>{definition.name}</SubLabel>
+                <SubLabel>{definition[definitionVersion].name}</SubLabel>
                 <Detail>
                   0x
-                  {parseInt(id).toString(16).toUpperCase()}
+                  {definition[definitionVersion].vendorProductId
+                    .toString(16)
+                    .toUpperCase()}
                 </Detail>
               </IndentedControlRow>
             );
@@ -354,6 +318,4 @@ function DesignTab(props: Props) {
       </OverflowCell>
     </DesignPane>
   );
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(DesignTab);
+};

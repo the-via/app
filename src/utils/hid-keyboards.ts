@@ -1,8 +1,5 @@
-import type {
-  Device,
-  KeyboardDictionary,
-  VendorProductIdMap,
-} from '../types/types';
+import type {KeyboardDictionary} from 'via-reader';
+import type {Device, VendorProductIdMap} from '../types/types';
 import {canConnect} from './keyboard-api';
 import {scanDevices} from './usb-hid';
 

@@ -1,12 +1,16 @@
-import {getTheme, KeyboardDefinitionIndex, ThemeDefinition} from 'via-reader';
+import {
+  DefinitionVersionMap,
+  getTheme,
+  KeyboardDefinitionIndex,
+  KeyboardDictionary,
+  ThemeDefinition,
+} from 'via-reader';
 import {Store} from '../shims/via-app-store';
 import type {
   DefinitionIndex,
-  DefinitionVersionMap,
   VendorProductIdMap,
   Settings,
   Device,
-  KeyboardDictionary,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 

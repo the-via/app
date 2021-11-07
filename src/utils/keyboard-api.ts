@@ -1,3 +1,4 @@
+import type {Device, Keymap} from '../types/types';
 import type {LightingValue, MatrixInfo} from 'via-reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
@@ -100,14 +101,6 @@ const shiftBufferTo16Bit = (buffer: number[]): number[] => {
 const shiftBufferFrom16Bit = (buffer: number[]): number[] =>
   buffer.map(shiftFrom16Bit).flatMap((value) => value);
 
-export type Device = {
-  productId: number;
-  vendorId: number;
-  interface: number;
-  usage?: number;
-  usagePage?: number;
-  path: string;
-};
 type Command = number;
 type HIDAddress = string;
 type Layer = number;
@@ -206,7 +199,7 @@ export class KeyboardAPI {
     }
   }
 
-  async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<number[]> {
+  async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<Keymap> {
     const version = await this.getProtocolVersion();
     if (version >= PROTOCOL_BETA) {
       return this.fastReadRawMatrix(matrix, layer);

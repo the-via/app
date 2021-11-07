@@ -1,33 +1,30 @@
-import * as React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
-import {Component} from 'react';
-import {
-  getSelectedDefinition,
-  getSelectedCustomMenuData,
-  updateCustomMenuValue,
-} from '../../../../redux/modules/keymap';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
-import type {RootState} from '../../../../redux';
-import {bindActionCreators} from 'redux';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';
 import CustomIcon from './icon';
 import {evalExpr} from 'pelpi';
 import type {
-  VIADefinitionV2,
-  VIADefinitionV3,
   VIAMenu,
   VIASubmenu,
   VIASubmenuSlice,
   VIAItem,
   VIAItemSlice,
 } from 'via-reader';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {
+  getSelectedCustomMenuData,
+  updateCustomMenuValue,
+} from 'src/store/menusSlice';
+import {useDispatch} from 'react-redux';
 
 type Category = {
   label: string;
-  Menu: React.FC;
+  // TODO: type this any
+  Menu: React.FC<any>;
 };
 
 const CustomPane = styled(CenterPane)`
@@ -42,17 +39,8 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-type OwnProps = {
+type Props = {
   viaMenu: VIAMenu;
-};
-
-type ReduxProps = {
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
-};
-type Props = ReduxProps & OwnProps;
-
-type State = {
-  selectedCategory: Category | null;
 };
 
 function isItem(
@@ -131,63 +119,55 @@ function submenuGenerator(
   }
 }
 
-export class CustomMenu extends Component<Props, State> {
-  state = {
-    selectedCategory: null,
+export const Pane: React.VFC<Props> = (props) => {
+  const dispatch = useDispatch();
+  const menus = categoryGenerator(props);
+  const [selectedCategory, setSelectedCategory] = useState(
+    menus[0] || {label: '', Menu: () => <div />},
+  );
+  const SelectedMenu = selectedCategory.Menu;
+
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
+
+  const childProps = {
+    ...props,
+    selectedDefinition,
+    selectedCustomMenuData,
+    updateCustomMenuValue: (command: string, ...rest: number[]) =>
+      dispatch(updateCustomMenuValue(command, ...rest)),
   };
 
-  get menus() {
-    return categoryGenerator(this.props);
+  if (!selectedDefinition || !selectedCustomMenuData) {
+    return null;
   }
 
-  render() {
-    const selectedCategory = this.state.selectedCategory ||
-      this.menus[0] || {label: '', Menu: () => <div />};
-    const SelectedMenu = selectedCategory.Menu;
-    return (
-      <>
-        <SubmenuCell>
-          <MenuContainer>
-            {this.menus.map((menu) => (
-              <SubmenuRow
-                selected={selectedCategory.label === menu.label}
-                onClick={(_) => this.setState({selectedCategory: menu})}
-                key={menu.label}
-              >
-                {menu.label}
-              </SubmenuRow>
-            ))}
-          </MenuContainer>
-        </SubmenuCell>
-        <OverflowCell>
-          <CustomPane>
-            <Container>{SelectedMenu(this.props)}</Container>
-          </CustomPane>
-        </OverflowCell>
-      </>
-    );
-  }
-}
-
-const mapStateToProps = (state: RootState) => ({
-  selectedDefinition: getSelectedDefinition(state.keymap),
-  selectedCustomMenuData: getSelectedCustomMenuData(state.keymap),
-});
-
-const mapDispatchToProps: MapDispatchToPropsFunction<
-  any,
-  ReturnType<typeof mapStateToProps>
-> = (dispatch) =>
-  bindActionCreators(
-    {
-      updateCustomMenuValue,
-    },
-    dispatch,
+  return (
+    <>
+      <SubmenuCell>
+        <MenuContainer>
+          {menus.map((menu) => (
+            <SubmenuRow
+              selected={selectedCategory.label === menu.label}
+              onClick={(_) => setSelectedCategory(menu)}
+              key={menu.label}
+            >
+              {menu.label}
+            </SubmenuRow>
+          ))}
+        </MenuContainer>
+      </SubmenuCell>
+      <OverflowCell>
+        <CustomPane>
+          <Container>{SelectedMenu(childProps)}</Container>
+        </CustomPane>
+      </OverflowCell>
+    </>
   );
+};
 
 export const Icon = component;
 export const Title = title;
-export const Pane = connect(mapStateToProps, mapDispatchToProps)(CustomMenu);
 
 export type IdTag = {_id: string};
 export type MapIntoArr<A, C> = A extends (infer B)[] ? (C & B)[] : any;

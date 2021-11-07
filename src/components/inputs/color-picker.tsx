@@ -1,5 +1,4 @@
-import * as React from 'react';
-import {Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import styles from './color.module.css';
 
@@ -229,7 +228,7 @@ export class ColorPicker extends Component<Props, State> {
   }
 }
 
-export const ArrayColorPicker: React.FC<{
+export const ArrayColorPicker: React.VFC<{
   color: [number, number];
   setColor: Props['setColor'];
 }> = (props) => {

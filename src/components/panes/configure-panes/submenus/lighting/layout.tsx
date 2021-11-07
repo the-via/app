@@ -1,8 +1,19 @@
-import * as React from 'react';
+import React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
-import {getLightingDefinition, isVIADefinitionV2, LightingValue} from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import {
+  getLightingDefinition,
+  isVIADefinitionV2,
+  LightingValue,
+} from 'via-reader';
+import {useDispatch} from 'react-redux';
+import {
+  getSelectedLightingData,
+  updateBacklightValue,
+} from 'src/store/lightingSlice';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
   LightingValue.BACKLIGHT_USE_ISO_ENTER,
@@ -24,15 +35,19 @@ const BooleanControls: [LightingValue, string][] = [
   ],
 ];
 
-export const LayoutPane: React.FC<{
-  lightingData: any;
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
-  updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
-}> = (props) => {
-  const {selectedDefinition, updateBacklightValue, lightingData} = props;
+export const Pane: FC = () => {
+  const dispatch = useDispatch();
+  const lightingData = useAppSelector(getSelectedLightingData);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+
+  if (!lightingData) {
+    return null;
+  }
 
   if (!isVIADefinitionV2(selectedDefinition)) {
-    throw new Error("This lighting component is only compatible with v2 definitions");
+    throw new Error(
+      'This lighting component is only compatible with v2 definitions',
+    );
   }
 
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
@@ -44,17 +59,23 @@ export const LayoutPane: React.FC<{
 
     return (
       <>
-        {controls.map(([command, label]) => (
-          <ControlRow key={command}>
-            <Label>{label}</Label>
-            <Detail>
-              <AccentSlider
-                isChecked={!!lightingData[command][0]}
-                onChange={(val) => updateBacklightValue(command, +val)}
-              />
-            </Detail>
-          </ControlRow>
-        ))}
+        {controls.map(([command, label]) => {
+          const valArr = lightingData && lightingData[command];
+          const isChecked = valArr && valArr[0];
+          return (
+            <ControlRow key={command}>
+              <Label>{label}</Label>
+              <Detail>
+                <AccentSlider
+                  isChecked={!!isChecked}
+                  onChange={(val) =>
+                    dispatch(updateBacklightValue(command, +val))
+                  }
+                />
+              </Detail>
+            </ControlRow>
+          );
+        })}
       </>
     );
   }

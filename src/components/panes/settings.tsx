@@ -1,13 +1,23 @@
-import * as React from 'react';
-import {bindActionCreators} from 'redux';
+import React from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {connect, MapDispatchToPropsFunction} from 'react-redux';
 import {ControlRow, Label, Detail, OverflowCell} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
-import type {RootState} from '../../redux';
-import {actions as SettingsActions} from '../../redux/modules/settings';
 import {ErrorMessage} from '../styled';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getAllowKeyboardKeyRemapping,
+  getShowDesignTab,
+  getDisableFastRemap,
+  getDisableHardwareAcceleration,
+  getRestartRequired,
+  toggleCreatorMode,
+  toggleFastRemap,
+  toggleHardwareAcceleration,
+  requireRestart,
+  toggleKeyRemappingViaKeyboard,
+} from 'src/store/settingsSlice';
 
 const RestartMessage = styled(ErrorMessage)`
   margin: 0;
@@ -28,9 +38,21 @@ const DebugPane = styled(Pane)`
 `;
 
 const version = '3';
-type Props = ReturnType<typeof mapDispatchToProps> &
-  ReturnType<typeof mapStateToProps>;
-function Settings(props: Props) {
+export const Settings = () => {
+  const dispatch = useDispatch();
+
+  // TODO: we could actually just grab all these from state.settings and then destructure.
+  // Only advantage of this approach is indiviual memoisation. Worth?
+  const allowKeyboardKeyRemapping = useAppSelector(
+    getAllowKeyboardKeyRemapping,
+  );
+  const showDesignTab = useAppSelector(getShowDesignTab);
+  const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const disableHardwareAcceleration = useAppSelector(
+    getDisableHardwareAcceleration,
+  );
+  const restartRequired = useAppSelector(getRestartRequired);
+
   return (
     <DebugPane>
       <OverflowCell>
@@ -43,8 +65,8 @@ function Settings(props: Props) {
             <Label>Show Design tab</Label>
             <Detail>
               <AccentSlider
-                onChange={props.toggleCreatorMode}
-                isChecked={props.showDesignTab}
+                onChange={() => dispatch(toggleCreatorMode())}
+                isChecked={showDesignTab}
               />
             </Detail>
           </ControlRow>
@@ -52,8 +74,8 @@ function Settings(props: Props) {
             <Label>Fast Key Mapping</Label>
             <Detail>
               <AccentSlider
-                onChange={props.toggleFastRemap}
-                isChecked={!props.disableFastRemap}
+                onChange={() => dispatch(toggleFastRemap())}
+                isChecked={disableFastRemap}
               />
             </Detail>
           </ControlRow>
@@ -62,10 +84,10 @@ function Settings(props: Props) {
             <Detail>
               <AccentSlider
                 onChange={() => {
-                  props.toggleHardwareAcceleration();
-                  props.setRequireRestart();
+                  dispatch(toggleHardwareAcceleration());
+                  dispatch(requireRestart());
                 }}
-                isChecked={!props.disableHardwareAcceleration}
+                isChecked={!disableHardwareAcceleration}
               />
             </Detail>
           </ControlRow>
@@ -73,12 +95,12 @@ function Settings(props: Props) {
             <Label>Allow remapping via keyboard</Label>
             <Detail>
               <AccentSlider
-                onChange={props.toggleKeyRemappingViaKeyboard}
-                isChecked={props.allowKeyRemappingViaKeyboard}
+                onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}
+                isChecked={allowKeyboardKeyRemapping}
               />
             </Detail>
           </ControlRow>
-          {props.requireRestart && (
+          {restartRequired && (
             <ControlRow>
               <RestartMessage>
                 VIA requires a restart to finish applying your changes.
@@ -89,28 +111,4 @@ function Settings(props: Props) {
       </OverflowCell>
     </DebugPane>
   );
-}
-
-function mapStateToProps(state: RootState) {
-  return {
-    allowKeyRemappingViaKeyboard: state.settings.allowKeyboardKeyRemapping,
-    showDesignTab: state.settings.showDesignTab,
-    disableFastRemap: state.settings.disableFastRemap,
-    disableHardwareAcceleration: state.settings.disableHardwareAcceleration,
-    requireRestart: state.settings.requireRestart
-  };
-}
-const mapDispatchToProps: MapDispatchToPropsFunction<any,any> = dispatch =>
-  bindActionCreators(
-    {
-      toggleKeyRemappingViaKeyboard:
-        SettingsActions.toggleKeyRemappingViaKeyboard,
-      toggleCreatorMode: SettingsActions.toggleCreatorMode,
-      toggleFastRemap: SettingsActions.toggleFastRemap,
-      toggleHardwareAcceleration: SettingsActions.toggleHardwareAcceleration,
-      setRequireRestart: SettingsActions.requireRestart
-    },
-    dispatch
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+};

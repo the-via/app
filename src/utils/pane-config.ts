@@ -1,38 +1,38 @@
-import ConfigurePane from '../components/panes/configure';
-import DebugPane from '../components/panes/debug';
-import DesignPane from '../components/panes/design';
-import SettingsPane from '../components/panes/settings';
-import TestPane from '../components/panes/test';
+import {ConfigurePane} from '../components/panes/configure';
+import {Debug} from '../components/panes/debug';
+import {DesignTab} from '../components/panes/design';
+import {Settings} from '../components/panes/settings';
+import {Test} from '../components/panes/test';
 
 export default [
   {
     key: 'default',
     component: ConfigurePane,
     title: 'Configure',
-    path: '/'
+    path: '/',
   },
   {
     key: 'test',
-    component: TestPane,
+    component: Test,
     path: '/test',
-    title: 'Key Tester'
+    title: 'Key Tester',
   },
   {
     key: 'design',
-    component: DesignPane,
+    component: DesignTab,
     path: '/design',
-    title: 'Design'
+    title: 'Design',
   },
   {
     key: 'settings',
-    component: SettingsPane,
+    component: Settings,
     path: '/settings',
-    title: 'Settings'
+    title: 'Settings',
   },
   {
     key: 'debug',
-    component: DebugPane,
+    component: Debug,
     path: '/debug',
-    title: 'Debug'
-  }
+    title: 'Debug',
+  },
 ];

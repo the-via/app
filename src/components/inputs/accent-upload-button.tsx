@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {AccentButton} from './accent-button';
 type Props = {onLoad: (file: File) => void; children: string};
 

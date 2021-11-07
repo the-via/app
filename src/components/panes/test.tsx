@@ -1,68 +1,32 @@
-import * as React from 'react';
+import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-const {useState, useEffect} = React;
 import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {connect } from 'react-redux';
-import type {MapDispatchToPropsFunction} from 'react-redux';
-import {bindActionCreators} from 'redux';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
 import {TestKeyboard, TestKeyState} from '../test-keyboard';
-import {
-  matrixKeycodes,
-  getIndexByEvent
-} from '../inputs/musical-key-slider';
-import {
-  getDefinitions,
-  getCustomDefinitions,
-  getBaseDefinitions,
-  getSelectedAPI,
-  getConnectedDevices,
-  getSelectedDefinition,
-  getSelectedKeyDefinitions,
-  getSelectedConnectedDevice
-} from '../../redux/modules/keymap';
-import {actions as SettingsActions} from '../../redux/modules/settings';
-import type {RootState} from '../../redux';
+import {matrixKeycodes, getIndexByEvent} from '../inputs/musical-key-slider';
 import {
   ControlRow,
   Label,
   Detail,
   OverflowCell,
   FlexCell,
-  Grid1Col
+  Grid1Col,
 } from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentButton} from '../inputs/accent-button';
-
-type ReduxState = ReturnType<typeof mapStateToProps>;
-
-type ReduxDispatch = ReturnType<typeof mapDispatchToProps>;
-
-type Props = ReduxState & ReduxDispatch;
-
-const mapDispatchToProps: MapDispatchToPropsFunction<any, any> = dispatch => {
-  return bindActionCreators(
-    {
-      setTestMatrixEnabled: SettingsActions.setTestMatrixEnabled
-    },
-    dispatch
-  );
-};
-const mapStateToProps = ({keymap, settings}: RootState) => ({
-  api: getSelectedAPI(keymap),
-  connectedDevices: getConnectedDevices(keymap),
-  selectedDefinition: getSelectedDefinition(keymap),
-  allDefinitions: Object.entries(getDefinitions(keymap)),
-  remoteDefinitions: Object.entries(getBaseDefinitions(keymap)),
-  localDefinitions: Object.entries(getCustomDefinitions(keymap)),
-  keyDefinitions: getSelectedKeyDefinitions(keymap),
-  isTestMatrixEnabled: settings.isTestMatrixEnabled,
-  canUseMatrixState:
-    !!getSelectedConnectedDevice(keymap) &&
-    PROTOCOL_GAMMA <= getSelectedConnectedDevice(keymap).protocol
-});
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedDefinition,
+  getSelectedKeyDefinitions,
+} from 'src/store/definitionsSlice';
+import {
+  getIsTestMatrixEnabled,
+  setTestMatrixEnabled,
+} from 'src/store/settingsSlice';
 
 const Container = styled.div`
   display: flex;
@@ -83,12 +47,28 @@ let startTest = false;
 const invertTestKeyState = (s: TestKeyState) =>
   s === TestKeyState.KeyDown ? TestKeyState.KeyUp : TestKeyState.KeyDown;
 
-function Test(props: Props) {
+export const Test: FC = () => {
+  const dispatch = useDispatch();
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
+  const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+
+  // TODO: really need to find a way to clean these nulls up. createEntityAdapter maybe?
+  if (!selectedDevice || !selectedDefinition || !keyDefinitions) {
+    return null;
+  }
+
+  const {api, protocol} = selectedDevice;
+  const canUseMatrixState = PROTOCOL_GAMMA <= protocol;
+
   const [dimensions, setDimensions] = useState({
     width: 1280,
-    height: 900
+    height: 900,
   });
-  const [selectedKeys, setSelectedKeys] = useState({} as {[key: string]: TestKeyState});
+  const [selectedKeys, setSelectedKeys] = useState(
+    {} as {[key: string]: TestKeyState},
+  );
   let flat = [] as number[];
 
   // If pressed key is our target key then set to true
@@ -98,9 +78,9 @@ function Test(props: Props) {
       !startTest &&
       selectedKeys[getIndexByEvent(evt) ?? -1] !== TestKeyState.KeyDown
     ) {
-      setSelectedKeys(selectedKeys => ({
+      setSelectedKeys((selectedKeys) => ({
         ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyDown
+        [getIndexByEvent(evt)]: TestKeyState.KeyDown,
       }));
     }
   }
@@ -112,22 +92,21 @@ function Test(props: Props) {
       !startTest &&
       selectedKeys[getIndexByEvent(evt)] !== TestKeyState.KeyUp
     ) {
-      setSelectedKeys(selectedKeys => ({
+      setSelectedKeys((selectedKeys) => ({
         ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyUp
+        [getIndexByEvent(evt)]: TestKeyState.KeyUp,
       }));
     }
   };
 
-  async function useMatrixTest() {
-    const {api, selectedDefinition} = props;
-    if (startTest && props.api && selectedDefinition) {
+  const useMatrixTest = async () => {
+    if (startTest && api && selectedDefinition) {
       const {cols, rows} = selectedDefinition.matrix;
       const bytesPerRow = Math.ceil(cols / 8);
       try {
         const newFlat = (await api.getKeyboardValue(
           KeyboardValue.SWITCH_MATRIX_STATE,
-          bytesPerRow * rows
+          bytesPerRow * rows,
         )) as number[];
 
         const keysChanges =
@@ -140,7 +119,7 @@ function Test(props: Props) {
           useMatrixTest();
           return;
         }
-        setSelectedKeys(selectedKeys => {
+        setSelectedKeys((selectedKeys) => {
           const newPressedKeys = newFlat.reduce(
             (res, val, byteIdx) => {
               const xor = val ^ (flat[byteIdx] || 0);
@@ -163,19 +142,19 @@ function Test(props: Props) {
             },
             Array.isArray(selectedKeys) && selectedKeys.length === rows * cols
               ? [...selectedKeys]
-              : Array(rows * cols).fill(TestKeyState.Initial)
+              : Array(rows * cols).fill(TestKeyState.Initial),
           );
-          return newPressedKeys as any as  {[key: string]: TestKeyState};
+          return newPressedKeys as any as {[key: string]: TestKeyState};
         });
         flat = newFlat;
         await api.timeout(20);
         useMatrixTest();
       } catch (e) {
         startTest = false;
-        props.setTestMatrixEnabled(false);
+        dispatch(setTestMatrixEnabled(false));
       }
     }
-  }
+  };
 
   const onClickHandler = () => {
     flat = [];
@@ -194,28 +173,31 @@ function Test(props: Props) {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const flexRef = React.useRef(null);
+  const flexRef = useRef(null);
   useResizeObserver(
     flexRef,
     ({contentRect}) =>
       flexRef.current &&
       setDimensions({
         width: contentRect.width,
-        height: contentRect.height
-      })
+        height: contentRect.height,
+      }),
   );
   const pressedKeys =
-    !props.isTestMatrixEnabled || !props.keyDefinitions
+    !isTestMatrixEnabled || !keyDefinitions
       ? selectedKeys
-      : props.keyDefinitions.map(
-          ({row, col}: {row: number;col: number}) =>
-            selectedKeys[(row * props.selectedDefinition.matrix.cols + col) as keyof typeof selectedKeys]
+      : keyDefinitions.map(
+          ({row, col}: {row: number; col: number}) =>
+            selectedKeys[
+              (row * selectedDefinition.matrix.cols +
+                col) as keyof typeof selectedKeys
+            ],
         );
-  const testDefinition = props.isTestMatrixEnabled
-    ? props.selectedDefinition
+  const testDefinition = isTestMatrixEnabled
+    ? selectedDefinition
     : fullKeyboardDefinition;
-  const testKeys = props.isTestMatrixEnabled
-    ? props.keyDefinitions
+  const testKeys = isTestMatrixEnabled
+    ? keyDefinitions
     : fullKeyboardDefinition.layouts.keys;
   return (
     <TestPane>
@@ -225,7 +207,7 @@ function Test(props: Props) {
             definition={testDefinition}
             keys={testKeys}
             pressedKeys={pressedKeys}
-            matrixKeycodes={props.isTestMatrixEnabled ? [] : matrixKeycodes}
+            matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
             containerDimensions={dimensions}
           />
         </FlexCell>
@@ -237,16 +219,16 @@ function Test(props: Props) {
                 <AccentButton onClick={onClickHandler}>Reset</AccentButton>
               </Detail>
             </ControlRow>
-            {props.canUseMatrixState && props.selectedDefinition ? (
+            {canUseMatrixState && selectedDefinition ? (
               <ControlRow>
                 <Label>Test Matrix</Label>
                 <Detail>
                   <AccentSlider
-                    isChecked={props.isTestMatrixEnabled}
-                    onChange={val => {
+                    isChecked={isTestMatrixEnabled}
+                    onChange={(val) => {
                       startTest = val;
 
-                      props.setTestMatrixEnabled(val);
+                      dispatch(setTestMatrixEnabled(val));
 
                       if (val) {
                         setSelectedKeys({});
@@ -264,6 +246,4 @@ function Test(props: Props) {
       </Grid1Col>
     </TestPane>
   );
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Test);
+};

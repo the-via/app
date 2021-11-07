@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {AccentSlider} from './accent-slider';
 import basicKeyToByte from '../../utils/key-to-byte.json5';
 let drums: any;
@@ -6,7 +6,7 @@ let square: any;
 let pipe: any;
 let ac: any;
 
-// TODO: get this working or bin it?
+// TODO: get this working in browser
 
 //const SoundFont = require('soundfont-player');
 //const callOnce = fn => {
@@ -153,7 +153,7 @@ export const matrixKeycodes = [
   basicKeyToByte.KC_DOWN,
   basicKeyToByte.KC_RGHT,
   basicKeyToByte.KC_P0,
-  basicKeyToByte.KC_PDOT
+  basicKeyToByte.KC_PDOT,
 ];
 
 const evtToKeyByte = {
@@ -282,12 +282,14 @@ const evtToKeyByte = {
   NumpadEnter: basicKeyToByte.KC_PENT,
   NumpadEqual: basicKeyToByte.KC_PEQL,
   NumpadMultiply: basicKeyToByte.KC_PAST,
-  NumpadSubtract: basicKeyToByte.KC_PMNS
+  NumpadSubtract: basicKeyToByte.KC_PMNS,
 };
 
-export function getIndexByEvent(evt: KeyboardEvent): number  {
+export function getIndexByEvent(evt: KeyboardEvent): number {
   const code = evt.code;
-  const byte = evtToKeyByte[code as keyof typeof evtToKeyByte]  || evtToKeyByte[evt.key as keyof typeof evtToKeyByte];
+  const byte =
+    evtToKeyByte[code as keyof typeof evtToKeyByte] ||
+    evtToKeyByte[evt.key as keyof typeof evtToKeyByte];
   if (byte) {
     return matrixKeycodes.indexOf(byte);
   }
@@ -295,79 +297,11 @@ export function getIndexByEvent(evt: KeyboardEvent): number  {
 }
 
 const codes = [
-  17,
-  18,
-  91,
-  32,
-  93,
-  18,
-  37,
-  40,
-  39,
-  16,
-  90,
-  88,
-  67,
-  86,
-  66,
-  78,
-  77,
-  188,
-  190,
-  191,
-  38,
-  17,
-  65,
-  83,
-  68,
-  70,
-  71,
-  72,
-  74,
-  75,
-  76,
-  186,
-  222,
-  13,
-  9,
-  81,
-  87,
-  69,
-  82,
-  84,
-  89,
-  85,
-  73,
-  79,
-  80,
-  219,
-  221,
-  220,
-  192,
-  49,
-  50,
-  51,
-  52,
-  53,
-  54,
-  55,
-  56,
-  57,
-  48,
-  189,
-  187,
-  8,
-  112,
-  113,
-  114,
-  115,
-  116,
-  117,
-  118,
-  119,
-  120,
-  121,
-  123
+  17, 18, 91, 32, 93, 18, 37, 40, 39, 16, 90, 88, 67, 86, 66, 78, 77, 188, 190,
+  191, 38, 17, 65, 83, 68, 70, 71, 72, 74, 75, 76, 186, 222, 13, 9, 81, 87, 69,
+  82, 84, 89, 85, 73, 79, 80, 219, 221, 220, 192, 49, 50, 51, 52, 53, 54, 55,
+  56, 57, 48, 189, 187, 8, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121,
+  123,
 ];
 
 const keyHandler: (e: KeyboardEvent) => void = (e) => {
@@ -395,7 +329,7 @@ export function MusicalKeySlider(props: any) {
       <AccentSlider
         {...props}
         isChecked={false}
-        onChange={arg =>
+        onChange={(arg) =>
           arg
             ? window.addEventListener('keydown', keyHandler)
             : window.removeEventListener('keydown', keyHandler)

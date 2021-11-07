@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 export const HiddenInput = styled.input`
@@ -20,7 +20,7 @@ const Slider = styled.span<{isChecked?: boolean}>`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${props =>
+  background-color: ${(props) =>
     props.isChecked ? 'var(--color_accent)' : 'var(--color_dark-grey)'};
   -webkit-transition: 0.4s;
   transition: 0.4s;
@@ -33,13 +33,13 @@ const Slider = styled.span<{isChecked?: boolean}>`
     left: 4px;
     bottom: 4px;
     border-radius: 4px;
-    background-color: ${props =>
+    background-color: ${(props) =>
       !props.isChecked
         ? 'var(--color_medium-grey)'
         : 'var(--color_light-grey)'};
     -webkit-transition: 0.4s;
     transition: 0.4s;
-    ${props => (props.isChecked ? 'transform: translateX(26px)' : '')};
+    ${(props) => (props.isChecked ? 'transform: translateX(26px)' : '')};
   }
 `;
 
@@ -49,7 +49,7 @@ type Props = {
 };
 
 export function AccentSlider(props: Props) {
-  const { isChecked, onChange } = props;
+  const {isChecked, onChange} = props;
 
   const [isHiddenChecked, setIsHiddenChecked] = React.useState(isChecked);
 
@@ -65,7 +65,11 @@ export function AccentSlider(props: Props) {
 
   return (
     <Switch>
-      <HiddenInput type="checkbox" checked={isHiddenChecked} onChange={hiddenOnChange} />
+      <HiddenInput
+        type="checkbox"
+        checked={isHiddenChecked}
+        onChange={hiddenOnChange}
+      />
       <Slider isChecked={isHiddenChecked} />
     </Switch>
   );

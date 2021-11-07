@@ -25,7 +25,7 @@ const Item = styled.div<{selected?: boolean}>`
   }
 `;
 
-export const AutocompleteItem: React.FC<any> = ({
+export const AutocompleteItem: React.VFC<any> = ({
   selected,
   entity: {label, code},
 }) => (
@@ -34,7 +34,7 @@ export const AutocompleteItem: React.FC<any> = ({
   </Item>
 );
 
-export const AutocompleteLoading: React.FC<{}> = () => <div>Loading</div>;
+export const AutocompleteLoading: React.VFC<{}> = () => <div>Loading</div>;
 export const findKeycodes = (token: string) => {
   const uToken = token.toUpperCase();
   return getAutocompleteKeycodes()

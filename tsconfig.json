@@ -5,6 +5,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
+    /* TODO: make paths work properly so we don't have to make everything relative */
     "baseUrl": "./",
     /* paths - import rewriting/resolving */
     "paths": {

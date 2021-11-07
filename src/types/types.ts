@@ -1,8 +1,10 @@
-import type {KeyboardAPI} from 'src/utils/keyboard-api';
+import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
+  DefinitionVersion,
   KeyboardDefinitionIndex,
-  VIADefinitionV2,
-  VIADefinitionV3,
+  KeyboardDictionary,
+  LightingValue,
+  VIAKey,
 } from 'via-reader';
 
 export type HIDColor = {
@@ -10,7 +12,7 @@ export type HIDColor = {
   sat: number;
 };
 
-export type LightingData = {
+export type LightingData = Partial<{[key in LightingValue]: number[]}> & {
   customColors?: HIDColor[];
 };
 
@@ -22,6 +24,14 @@ export type Device = {
   usagePage?: number;
   path: string;
 };
+
+export type Keymap = number[];
+export type Layer = {
+  keymap: Keymap;
+  isLoaded: boolean;
+};
+
+export type DeviceLayerMap = {[devicePath: string]: Layer[]};
 
 export type WebVIADevice = Device & {
   _device: HIDDevice;
@@ -38,6 +48,22 @@ export type ConnectedDevices = {
   [devicePath: string]: ConnectedDevice;
 };
 
+export type Key = Pick<
+  VIAKey,
+  'x' | 'x2' | 'y' | 'y2' | 'w' | 'w2' | 'h' | 'h2' | 'r' | 'rx' | 'ry'
+> & {
+  c: string;
+  t: string;
+  selected: boolean;
+  macroExpression?: string;
+  centerLabel?: string;
+  topLabel?: string;
+  bottomLabel?: string;
+  label?: string;
+  id: number;
+  onClick?: (id: number) => void;
+};
+
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
   showDesignTab: boolean;
@@ -50,16 +76,6 @@ export type StoreData = {
   definitions: KeyboardDictionary;
   settings: Settings;
 };
-
-// TODO: should the following be moved to Reader along with KeyboardDictionary?
-export type DefinitionVersionMap = {v2: VIADefinitionV2; v3: VIADefinitionV3};
-
-// Is DefinitionMap a better name?
-export type KeyboardDictionary = Record<string, DefinitionVersionMap>;
-
-// Couldn't use an enum because babel uses isolated modules
-export type DefinitionVersion =
-  keyof KeyboardDictionary[keyof KeyboardDictionary];
 
 export type VendorProductIdMap = Record<number, {v2: boolean; v3: boolean}>;
 

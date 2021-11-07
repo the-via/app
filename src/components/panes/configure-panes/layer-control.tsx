@@ -1,21 +1,12 @@
-import * as React from 'react';
-import styled from 'styled-components';
+import React, {useMemo} from 'react';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
 import {
-  getSelectedLayerIndex,
   getNumberOfLayers,
-} from '../../../redux/modules/keymap';
-import {actions} from '../../../redux/modules/keymap';
-import type {RootState} from '../../../redux';
-import {connect} from 'react-redux';
-
-type OwnProps = {};
-
-const mapStateToProps = (state: RootState) => ({
-  numberOfLayers: getNumberOfLayers(state.keymap),
-  selectedLayerIndex: getSelectedLayerIndex(state.keymap),
-});
-
-const mapDispatchToProps = {setLayer: actions.setLayer};
+  getSelectedLayerIndex,
+  setLayer,
+} from 'src/store/keymapSlice';
+import styled from 'styled-components';
 
 const Container = styled.div`
   position: absolute;
@@ -47,44 +38,32 @@ const LayerButton = styled.button<{selected?: boolean}>`
   }
 `;
 
-type Props = OwnProps &
-  ReturnType<typeof mapStateToProps> &
-  typeof mapDispatchToProps;
+export const LayerControl = () => {
+  const dispatch = useDispatch();
+  const numberOfLayers = useAppSelector(getNumberOfLayers);
+  const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
 
-export class LayerControlComponent extends React.Component<Props> {
-  get minLayer() {
-    return 0;
-  }
+  const Layers = useMemo(
+    () =>
+      new Array(numberOfLayers)
+        .fill(0)
+        .map((_, idx) => idx)
+        .map((layerLabel) => (
+          <LayerButton
+            key={layerLabel}
+            selected={layerLabel === selectedLayerIndex}
+            onClick={() => dispatch(setLayer(layerLabel))}
+          >
+            {layerLabel}
+          </LayerButton>
+        )),
+    [numberOfLayers, selectedLayerIndex],
+  );
 
-  get maxLayer() {
-    return this.props.numberOfLayers - 1;
-  }
-
-  render() {
-    const {selectedLayerIndex, setLayer, numberOfLayers} = this.props;
-
-    const Layers = new Array(numberOfLayers)
-      .fill(0)
-      .map((val, idx) => idx)
-      .map((layerLabel) => (
-        <LayerButton
-          key={layerLabel}
-          selected={layerLabel === selectedLayerIndex}
-          onClick={() => setLayer(layerLabel)}
-        >
-          {layerLabel}
-        </LayerButton>
-      ));
-    return (
-      <Container>
-        <Label>Layer</Label>
-        {Layers}
-      </Container>
-    );
-  }
-}
-
-export const LayerControl = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(LayerControlComponent);
+  return (
+    <Container>
+      <Label>Layer</Label>
+      {Layers}
+    </Container>
+  );
+};

@@ -1,16 +1,7 @@
-import type {RootState} from '../redux';
+import React, {memo, MouseEventHandler} from 'react';
 import type {KeyColor} from '../utils/themes';
-import {connect} from 'react-redux';
 import styled from 'styled-components';
-import * as React from 'react';
 import partition from 'lodash.partition';
-import {
-  getSelectedKeyDefinitions,
-  getSelectedDefinition,
-  getSelectedKeymap,
-  getSelectedKey,
-  actions,
-} from '../redux/modules/keymap';
 import {
   getLabelForByte,
   isUserKeycodeByte,
@@ -29,7 +20,19 @@ import type {
   KeyColorType,
 } from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
-import type {MouseEventHandler} from 'react';
+import type {RootState} from 'src/store';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedDefinition,
+  getSelectedKeyDefinitions,
+} from 'src/store/definitionsSlice';
+import {
+  getSelectedKey,
+  getSelectedKeymap,
+  updateSelectedKey,
+} from 'src/store/keymapSlice';
+import {useDispatch} from 'react-redux';
+import type {Key} from 'src/types/types';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -266,7 +269,7 @@ export const chooseInnerKeyContainer = (props: {
     : InnerKeyContainer;
 };
 const noop = (...args: any[]) => {};
-export const KeyBG = React.memo(
+export const KeyBG = memo(
   ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
@@ -297,7 +300,8 @@ export const KeyBG = React.memo(
     );
   },
 );
-const Key = React.memo(
+
+const KeyComponent = memo(
   ({
     x,
     x2,
@@ -320,7 +324,7 @@ const Key = React.memo(
     label = undefined,
     id,
     onClick = noop,
-  }: any) => {
+  }: Key) => {
     const isSmall = topLabel !== undefined || centerLabel !== undefined;
     const ChosenInnerKeyContainer = chooseInnerKeyContainer({
       topLabel,
@@ -328,7 +332,7 @@ const Key = React.memo(
     });
     const ChosenInnerKey = chooseInnerKey({topLabel, centerLabel});
     const legends = isSmall && !centerLabel ? [topLabel, bottomLabel] : [label];
-    const tooltipData = getTooltipData({macroExpression, label});
+    const tooltipData = label && getTooltipData({macroExpression, label});
     const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
       onClick(id);
@@ -337,7 +341,7 @@ const Key = React.memo(
     return (
       <RotationContainer selected={selected} r={r} rx={rx} ry={ry}>
         <KeyContainer
-          id={id}
+          id={id.toString()}
           {...tooltipData}
           selected={selected}
           style={getKeyContainerPosition({w, h, x, y})}
@@ -348,10 +352,10 @@ const Key = React.memo(
               <OuterSecondaryKey
                 backgroundColor={getDarkenedColor(c)}
                 style={getKeyContainerPosition({
-                  w: w2,
+                  w: w2 || 0,
                   x: x2 || 0,
                   y: y2 || 0,
-                  h: h2,
+                  h: h2 || 0,
                 })}
               >
                 <ChosenInnerKey
@@ -400,23 +404,12 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
 });
 
-type ReduxProps = {
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
-  macros: RootState['macros'];
-  matrixKeycodes?: number[];
-  keys?: VIAKey[];
-  selectedKey: number | null;
-};
-
-type OwnProps = {
-  updateSelectedKey: (index: number) => void;
+type PositionedKeyboardProps = {
   selectable: boolean;
   containerDimensions?: any;
   showMatrix?: boolean;
   selectedOptionKeys?: number[];
 };
-
-type PositionedKeyboardProps = OwnProps & ReduxProps;
 
 const getTooltipData = ({
   macroExpression,
@@ -489,21 +482,22 @@ const AnchorContainer = styled.div`
   width: 100%;
 `;
 
-const PositionedKeyboard = (props: PositionedKeyboardProps) => {
-  const {
-    selectedDefinition,
-    selectedKey,
-    matrixKeycodes = [],
-    macros,
-    selectable,
-    updateSelectedKey,
-    keys,
-    containerDimensions,
-  } = props;
+export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
+  const {selectable, containerDimensions} = props;
+  const dispatch = useDispatch();
+
+  const selectedKey = useAppSelector(getSelectedKey);
+  const matrixKeycodes = useAppSelector(
+    (state) => getSelectedKeymap(state) || [],
+  );
+  const macros = useAppSelector((state) => state.macros);
+  const keys = useAppSelector(getSelectedKeyDefinitions);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition || !keys) {
     return null;
   }
   const {width, height} = selectedDefinition.layouts;
+
   return (
     <div>
       <KeyboardFrame
@@ -517,7 +511,7 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
             return (
-              <Key
+              <KeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -528,7 +522,12 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
-                  onClick: selectable ? updateSelectedKey : noop,
+                  onClick: selectable
+                    ? (id) => {
+                        console.log(id);
+                        dispatch(updateSelectedKey(id));
+                      }
+                    : noop,
                 }}
                 key={index}
                 id={index}
@@ -541,28 +540,18 @@ const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  selectedDefinition: getSelectedDefinition(state.keymap),
-  keys: getSelectedKeyDefinitions(state.keymap),
-  macros: state.macros,
-  matrixKeycodes: getSelectedKeymap(state.keymap),
-  selectedKey: getSelectedKey(state.keymap),
-});
-
-export const BlankPositionedKeyboard = (
-  props: {
-    selectedKey?: number;
-    selectedOptionKeys?: number[];
-    containerDimensions: any;
-    showMatrix?: boolean;
-  } & Pick<ReduxProps, 'selectedDefinition'>,
-) => (
+export const BlankPositionedKeyboard = (props: {
+  selectedKey?: number;
+  selectedOptionKeys?: number[];
+  containerDimensions: any;
+  showMatrix?: boolean;
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
+}) => (
   <BlankPositionedKeyboardComponent
     {...props}
     selectable={false}
     selectedKey={props.selectedKey === undefined ? null : props.selectedKey}
     macros={{expressions: [], isFeatureSupported: false}}
-    updateSelectedKey={() => {}}
   />
 );
 
@@ -687,6 +676,7 @@ const getTraversalOrder = (arr: VIAKey[]): VIAKey[] => {
   }
 };
 
+// TODO: This code is shared across components, move to shared module?
 export const getNextKey = (
   currIndex: number,
   keys: VIAKey[],
@@ -699,39 +689,43 @@ export const getNextKey = (
     : keys.indexOf(sortedKeys[(sortedIndex + 1) % sortedKeys.length]);
 };
 
-const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
+const BlankPositionedKeyboardComponent = (
+  props: PositionedKeyboardProps & {
+    selectedKey: number | null;
+    macros: RootState['macros'];
+  },
+) => {
   const {
     containerDimensions,
-    matrixKeycodes = [],
-    selectedDefinition,
-    macros,
     selectable,
     selectedKey,
     selectedOptionKeys = [],
     showMatrix = false,
+    macros,
   } = props;
   const pressedKeys = {};
 
-  if (!selectedDefinition) {
+  const matrixKeycodes = useAppSelector(getSelectedKeymap);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+
+  if (!selectedDefinition || !matrixKeycodes) {
     return null;
   }
 
   const {width, height, keys, optionKeys} = selectedDefinition.layouts;
 
-  const displayedOptionKeys = React.useMemo(() => {
-    if (optionKeys) {
-      return Object.entries(optionKeys).flatMap(([key, options]) => {
+  // This was previously memoised, but removed because it produced an inconsistent number of hooks error
+  // because the memo was not called when selectedDefinition was null
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(([key, options]) => {
         const optionKey = parseInt(key);
 
         // If a selection option has been set for this optionKey, use that
         return selectedOptionKeys[optionKey]
           ? options[selectedOptionKeys[optionKey]]
           : options[0];
-      });
-    } else {
-      return [];
-    }
-  }, [optionKeys, selectedDefinition, selectedOptionKeys]);
+      })
+    : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
   const {rows, cols} = selectedDefinition.matrix;
@@ -750,7 +744,7 @@ const BlankPositionedKeyboardComponent = (props: PositionedKeyboardProps) => {
           ) : null}
           {displayedKeys.map((k, index) => {
             return (
-              <Key
+              <KeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -780,7 +774,7 @@ type MatrixProps = {
   rowKeys: number[][][];
   colKeys: number[][][];
 };
-const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
+const Matrix: React.VFC<MatrixProps> = ({rowKeys, colKeys}) => (
   <SVG>
     {rowKeys.map((arr, index) => (
       <RowLine
@@ -816,7 +810,3 @@ const ColLine = styled.polyline`
   stroke-opacity: 0.4;
   stroke-linecap: round;
 `;
-
-export const ConnectedPositionedKeyboard = connect(mapStateToProps, {
-  updateSelectedKey: actions.updateSelectedKey,
-})(PositionedKeyboard);

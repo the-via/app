@@ -1,8 +1,15 @@
-import * as React from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import {getLightingDefinition, isVIADefinitionV2, LightingValue} from 'via-reader';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import {
+  getLightingDefinition,
+  isVIADefinitionV2,
+  LightingValue,
+} from 'via-reader';
 import {LightingControl, ControlMeta} from './lighting-control';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedLightingData} from 'src/store/lightingSlice';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import type {FC} from 'react';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -23,7 +30,7 @@ const AccentText = styled.span`
 
 type AdvancedControlMeta = [
   LightingValue,
-  string | React.FC<any>,
+  string | React.VFC<any>,
   {type: string} & Partial<{min?: number; max?: number}>,
 ];
 
@@ -35,13 +42,24 @@ const RGBControls: ControlMeta[] = [
   ],
   [
     LightingValue.BACKLIGHT_DISABLE_AFTER_TIMEOUT,
-    ({lightingData}) =>
-      ((val) => (
+    () => {
+      const lightingData = useAppSelector(getSelectedLightingData);
+      const valArr =
+        lightingData &&
+        lightingData[LightingValue.BACKLIGHT_DISABLE_AFTER_TIMEOUT];
+      if (!valArr) {
+        return null;
+      }
+
+      return (
         <span>
           LED Sleep Timeout:{' '}
-          <AccentText>{!val ? 'Never' : `After ${val} mins`}</AccentText>
+          <AccentText>
+            {!valArr[0] ? 'Never' : `After ${valArr[0]} mins`}
+          </AccentText>
         </span>
-      ))(lightingData[LightingValue.BACKLIGHT_DISABLE_AFTER_TIMEOUT][0]),
+      );
+    },
     {type: 'range', min: 0, max: 255},
   ],
   [
@@ -85,12 +103,9 @@ const RGBControls: ControlMeta[] = [
     {type: 'row_col'},
   ],
 ];
-export const AdvancedPane: React.FC<{
-  lightingData: any;
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
-  updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
-}> = (props) => {
-  const {selectedDefinition, lightingData, updateBacklightValue} = props;
+export const AdvancedPane: FC = () => {
+  const lightingData = useAppSelector(getSelectedLightingData);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (isVIADefinitionV2(selectedDefinition) && lightingData) {
     const {supportedLightingValues} = getLightingDefinition(
       selectedDefinition.lighting,
@@ -100,12 +115,7 @@ export const AdvancedPane: React.FC<{
         {RGBControls.filter(
           (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: AdvancedControlMeta) => (
-          <LightingControl
-            definition={props.selectedDefinition}
-            lightingData={lightingData}
-            updateBacklightValue={updateBacklightValue}
-            meta={meta}
-          />
+          <LightingControl meta={meta} />
         ))}
       </>
     );

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
 import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
@@ -10,7 +10,6 @@ import type {
   VIAItem,
   VIAControlItem,
 } from 'via-reader';
-// TODO: should this be coming from reader instead?
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 
@@ -20,7 +19,7 @@ type Props = {
 };
 
 export type ControlMeta = [
-  string | React.FC<AdvancedControlProps>,
+  string | React.VFC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;

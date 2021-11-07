@@ -1,4 +1,5 @@
-import * as React from 'react';
+import React from 'react';
+import type {FC} from 'react';
 import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {
@@ -6,9 +7,17 @@ import {
   isVIADefinitionV2,
   LightingValue,
   VIADefinitionV2,
-  VIADefinitionV3
+  VIADefinitionV3,
 } from 'via-reader';
 import {LightingControl} from './lighting-control';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedLightingData,
+  updateBacklightValue,
+  updateCustomColor,
+} from 'src/store/lightingSlice';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
 
 const BacklightControls: [
   LightingValue,
@@ -25,8 +34,9 @@ const BacklightControls: [
     'Effect',
     {
       type: 'select',
-      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) => 
-      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).effects.map(
+      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
+        isVIADefinitionV2(definition) &&
+        getLightingDefinition(definition.lighting).effects.map(
           ([label]) => label,
         ),
     },
@@ -54,7 +64,8 @@ const UnderglowControls: [
     {
       type: 'select',
       getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
-      isVIADefinitionV2(definition) && getLightingDefinition(definition.lighting).underglowEffects.map(
+        isVIADefinitionV2(definition) &&
+        getLightingDefinition(definition.lighting).underglowEffects.map(
           ([label]) => label,
         ),
     },
@@ -66,21 +77,19 @@ const UnderglowControls: [
   ],
 ];
 
-export const GeneralPane: React.FC<{
-  lightingData: any;
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
-  updateBacklightValue: (command: LightingValue, ...values: number[]) => void;
-  updateCustomColor: (color: number, hue: number, sat: number) => void;
-}> = (props) => {
-  const {
-    lightingData,
-    updateCustomColor,
-    updateBacklightValue,
-    selectedDefinition,
-  } = props;
+export const GeneralPane: FC = () => {
+  const dispatch = useDispatch();
+  const lightingData = useAppSelector(getSelectedLightingData);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+
+  if (!lightingData) {
+    return null;
+  }
 
   if (!isVIADefinitionV2(selectedDefinition)) {
-    throw new Error("This lighting component is only compatible with v2 definitions");
+    throw new Error(
+      'This lighting component is only compatible with v2 definitions',
+    );
   }
 
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
@@ -94,11 +103,10 @@ export const GeneralPane: React.FC<{
     const currentUnderglowEffect =
       lightingData[LightingValue.QMK_RGBLIGHT_EFFECT];
     const colorsNeeded =
-      colorsNeededArr[currentEffect && currentEffect[0]] || 0;
+      (currentEffect && colorsNeededArr[currentEffect[0]]) || 0;
     const underglowColorNeeded =
-      underglowColorsNeededArr[
-        currentUnderglowEffect && currentUnderglowEffect[0]
-      ] === 1;
+      currentUnderglowEffect &&
+      underglowColorsNeededArr[currentUnderglowEffect[0]] === 1;
     const useCustomColors = !!lightingData.customColors;
     const showCustomColors = useCustomColors && colorsNeeded > 2;
     return (
@@ -106,45 +114,42 @@ export const GeneralPane: React.FC<{
         {BacklightControls.filter(
           (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: any) => (
-          <LightingControl
-            definition={props.selectedDefinition}
-            lightingData={lightingData}
-            updateBacklightValue={updateBacklightValue}
-            meta={meta}
-          />
+          <LightingControl meta={meta} />
         ))}
         {UnderglowControls.filter(
           (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: any) => (
-          <LightingControl
-            definition={props.selectedDefinition}
-            lightingData={lightingData}
-            updateBacklightValue={updateBacklightValue}
-            meta={meta}
-          />
+          <LightingControl meta={meta} />
         ))}
         {new Array(colorsNeeded)
           .fill(1)
           .map((val, idx) => val + idx)
           .map((val) => {
             let color, setColor;
-            if (showCustomColors) {
+            const command =
+              val === 1
+                ? LightingValue.BACKLIGHT_COLOR_1
+                : LightingValue.BACKLIGHT_COLOR_2;
+            const valArr = lightingData[command];
+            if (showCustomColors && lightingData.customColors) {
               [color, setColor] = [
                 lightingData.customColors[val - 1],
                 (hue: number, sat: number) =>
-                  updateCustomColor(val - 1, hue, sat),
+                  dispatch(updateCustomColor(val - 1, hue, sat)),
+              ];
+            } else if (valArr) {
+              [color, setColor] = [
+                {
+                  hue: valArr[0],
+                  sat: valArr[1],
+                },
+                (hue: number, sat: number) =>
+                  dispatch(updateBacklightValue(command, hue, sat)),
               ];
             } else {
-              const command =
-                val === 1
-                  ? LightingValue.BACKLIGHT_COLOR_1
-                  : LightingValue.BACKLIGHT_COLOR_2;
-              [color, setColor] = [
-                {hue: lightingData[command][0], sat: lightingData[command][1]},
-                (hue: number, sat: number) =>
-                  updateBacklightValue(command, hue, sat),
-              ];
+              return null;
             }
+
             return (
               <ControlRow key={val}>
                 <Label>Color {val}</Label>
@@ -156,9 +161,6 @@ export const GeneralPane: React.FC<{
           })}
         {underglowColorNeeded && (
           <LightingControl
-            definition={props.selectedDefinition}
-            lightingData={lightingData}
-            updateBacklightValue={updateBacklightValue}
             meta={[
               LightingValue.QMK_RGBLIGHT_COLOR,
               'Underglow Color',
