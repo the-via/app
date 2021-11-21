@@ -54,7 +54,6 @@ export const Pane: FC = () => {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const input = createRef<HTMLInputElement>();
 
   const saveLayout = () => {
     const {name, vendorProductId} = selectedDefinition;
@@ -69,17 +68,15 @@ export const Pane: FC = () => {
     };
     const content = stringify(saveFile);
     const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const blob = new Blob([content], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
 
-    /// TODO: REPLACE
-    //    remote.dialog
-    //      .showSaveDialog({
-    //        defaultPath: `*/${defaultFilename}`,
-    //        filters: [{name: 'json', extensions: ['json']}]
-    //      })
-    //      .then(result => {
-    //        const fileName = result.filePath;
-    //        fileName && writeFileSync(fileName, content);
-    //      });
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = defaultFilename;
+
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const loadLayout = (file: Blob) => {
