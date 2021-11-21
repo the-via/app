@@ -6,6 +6,7 @@
     <link rel="preload" as="image" href="/images/chippy.png">
     <link rel="icon" href="/images/chippy.png" />
     <link rel="stylesheet" href="/dist/app.global.css" type="text/css" />
+    <link rel="manifest" href="/manifest.json">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="An app for customizing your keyboard" />
     <title>VIA</title>
@@ -14,6 +15,16 @@
     <div id="root"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script type="module" src="/dist/index.js"></script>
+    <script type="module">
+  navigator.serviceWorker.register('service-worker.js', {
+    scope: './'
+  }).then(function(reg) {
+    debug(reg.scope, 'register');
+    debug('Service worker change, registered the service worker');
+  });
+
+
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
