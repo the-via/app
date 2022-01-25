@@ -31,6 +31,7 @@
     "react-tooltip": "^4.2.21",
     "redux-logger": "^3.0.6",
     "styled-components": "^5.3.0",
+    "ts-node": "^10.4.0",
     "via-keyboards": "git://github.com/the-via/keyboards.git",
     "via-reader": "git://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
   },
