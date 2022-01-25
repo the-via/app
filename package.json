@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "snowpack dev",
-    "build": "via-keyboards public && snowpack build",
+    "build": "via-keyboards public/definitions && snowpack build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\""
