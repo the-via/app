@@ -100,6 +100,7 @@ export const reloadConnectedDevices =
     });
     dispatch(updateConnectedDevices(connectedDevices));
     const validDevicesArr = Object.entries(connectedDevices);
+    await dispatch(reloadDefinitions(connectedDevices));
     if (
       !selectedDevicePath ||
       (!connectedDevices[selectedDevicePath] && validDevicesArr.length > 0)
@@ -109,8 +110,6 @@ export const reloadConnectedDevices =
     } else if (validDevicesArr.length === 0) {
       dispatch(selectDevice(null));
     }
-
-    dispatch(reloadDefinitions(connectedDevices));
   };
 
 export const loadSupportedIds = (): AppThunk => async (dispatch) => {
