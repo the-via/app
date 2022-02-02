@@ -8,10 +8,12 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+  repository_dispatch:
+    types: [definition_update]
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed') || github.event_name == 'repository_dispatch'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
