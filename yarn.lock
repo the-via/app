@@ -7869,7 +7869,7 @@ ts-node-dev@^1.0.0-pre.43, ts-node-dev@^1.0.0-pre.44:
     ts-node "^9.0.0"
     tsconfig "^7.0.0"
 
-ts-node@^10.4.0:
+ts-node@10.4.0, ts-node@^10.4.0:
   version "10.4.0"
   resolved "https://registry.yarnpkg.com/ts-node/-/ts-node-10.4.0.tgz#680f88945885f4e6cf450e7f0d6223dd404895f7"
   integrity sha512-g0FlPvvCXSIO1JDF6S232P5jPYqBkRL9qly81ZgAOSU7rwI0stphCgd2kLiCrU9DjQCrJMWEqcNSjQL02s6d8A==
@@ -8000,7 +8000,7 @@ typescript@3.9.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.4.tgz#5aa0a54904b51b96dfd67870ce2db70251802f10"
   integrity sha512-9OL+r0KVHqsYVH7K18IBR9hhC82YwLNlpSZfQDupGcfg8goB9p/s/9Okcy+ztnTeHR2U68xq21/igW9xpoGTgA==
 
-typescript@^3.5.3, typescript@^3.8.3:
+typescript@^3.5.3, typescript@^3.6.4, typescript@^3.8.3:
   version "3.9.10"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
@@ -8228,7 +8228,7 @@ verror@1.10.0:
 
 "via-keyboards@git://github.com/the-via/keyboards.git":
   version "0.0.1"
-  resolved "git://github.com/the-via/keyboards.git#2959f1ba97b54dacf4292d7315a0788f7a189dc3"
+  resolved "git://github.com/the-via/keyboards.git#214c3ef69e959252e8499a6ca68caf3c80f94994"
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/glob" "^7.1.1"
@@ -8239,7 +8239,9 @@ verror@1.10.0:
     fs-extra "^9.1.0"
     json-stringify-pretty-compact "^2.0.0"
     rimraf "^3.0.0"
+    ts-node "10.4.0"
     ts-node-dev "^1.0.0-pre.43"
+    typescript "^3.6.4"
     typescript-json-schema "^0.40.0"
     via-reader "git://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f"
     yarn "^1.22.0"
