@@ -14,7 +14,8 @@ import type {
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
-const deviceStore = new Store({
+let deviceStore: Store;
+const defaultStoreData =  {
   definitionIndex: {
     generatedAt: -1,
     version: '2.0.0',
@@ -28,7 +29,13 @@ const deviceStore = new Store({
     disableFastRemap: false,
     disableHardwareAcceleration: false,
   },
-});
+};
+
+function initDeviceStore() {
+  deviceStore = new Store(defaultStoreData);
+}
+
+initDeviceStore();
 
 // TODO: invalidate cache if we change cache structure
 
@@ -64,7 +71,6 @@ export async function syncStore(): Promise<DefinitionIndex> {
       v2vpidMap,
     );
 
-    console.log('++++', json.generatedAt, currentDefinitionIndex?.generatedAt);
     if (json.generatedAt !== currentDefinitionIndex?.generatedAt) {
       console.log(json.generatedAt, currentDefinitionIndex?.generatedAt);
       const newIndex = {
@@ -93,14 +99,29 @@ export const getMissingDefinition = async <
   const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
   const json: DefinitionVersionMap[K] = await response.json();
-  const definitions = deviceStore.get('definitions');
-  deviceStore.set('definitions', {
+  let definitions = deviceStore.get('definitions');
+  const newDefinitions = {
     ...definitions,
     [vpid]: {
       ...definitions[vpid],
       [version]: json,
     },
-  });
+  };
+
+  try {
+    deviceStore.set('definitions', newDefinitions);
+  } catch (err) {
+    // This is likely due to running out of space, so we clear it
+    initDeviceStore();
+    definitions = deviceStore.get('definitions'); 
+    deviceStore.set('definitions', {
+      ...definitions,
+      [vpid]: {
+        ...definitions[vpid],
+        [version]: json,
+      },
+    });
+  }
   return [json, version];
 };
 
