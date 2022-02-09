@@ -112,6 +112,7 @@ export const getMissingDefinition = async <
     deviceStore.set('definitions', newDefinitions);
   } catch (err) {
     // This is likely due to running out of space, so we clear it
+    localStorage.clear();
     initDeviceStore();
     definitions = deviceStore.get('definitions'); 
     deviceStore.set('definitions', {
