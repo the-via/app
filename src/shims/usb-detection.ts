@@ -16,15 +16,17 @@ export class usbDetect {
   static stopMonitoring() {
     this.shouldMonitor = false;
   }
-  private static onConnect = () => {
+  private static onConnect = ({device}: HIDConnectionEvent) => {
+    console.log('Detected Connection');
     if (usbDetect.shouldMonitor) {
-      usbDetect._listeners.change.forEach((f) => f());
+      usbDetect._listeners.change.forEach((f) => f(device));
     }
   };
-  private static onDisconnect = () => {
+  private static onDisconnect = ({device}: HIDConnectionEvent) => {
+    console.log('Detected Disconnection');
     if (usbDetect.shouldMonitor) {
-      usbDetect._listeners.change.forEach((f) => f());
-      usbDetect._listeners.remove.forEach((f) => f());
+      usbDetect._listeners.change.forEach((f) => f(device));
+      usbDetect._listeners.remove.forEach((f) => f(device));
     }
   };
   static on(eventName: USBMonitorEvent, cb: () => void) {

@@ -72,7 +72,6 @@ export async function syncStore(): Promise<DefinitionIndex> {
     );
 
     if (json.generatedAt !== currentDefinitionIndex?.generatedAt) {
-      console.log(json.generatedAt, currentDefinitionIndex?.generatedAt);
       const newIndex = {
         ...json,
         supportedVendorProductIdMap: vpidMap,

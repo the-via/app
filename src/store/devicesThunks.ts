@@ -2,6 +2,7 @@
 
 import {
   getDefinitionsFromStore,
+  getMissingDefinition,
   getSupportedIdsFromStore,
   syncStore,
 } from '../utils/device-store';
@@ -12,6 +13,7 @@ import {
   reloadDefinitions,
   loadLayoutOptions,
   updateDefinitions,
+  getDefinitions,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
 import {updateLightingData} from './lightingSlice';
@@ -26,6 +28,7 @@ import {
   updateSupportedIds,
 } from './devicesSlice';
 import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
+import type {KeyboardDictionary} from 'via-reader';
 
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
@@ -37,11 +40,29 @@ export const selectConnectedDeviceByPath =
     }
   };
 
+const validateDefinitionAvailable = async (
+  {device, requiredDefinitionVersion, vendorProductId}: ConnectedDevice,
+  definitions: KeyboardDictionary,
+) => {
+  const definition =
+    definitions &&
+    definitions[vendorProductId] &&
+    definitions[vendorProductId][requiredDefinitionVersion];
+  if (!definition) {
+    console.log('missing definition: fetching new one');
+    await getMissingDefinition(device, requiredDefinitionVersion);
+  }
+};
+
 // TODO: should we change these other thunks to use the selected device state instead of params?
 // Maybe not? the nice this about this is we don't have to null check the device
 export const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    await validateDefinitionAvailable(
+      connectedDevice,
+      getDefinitions(getState()),
+    );
     dispatch(selectDevice(connectedDevice));
     dispatch(loadMacros(connectedDevice));
     dispatch(loadLayoutOptions());

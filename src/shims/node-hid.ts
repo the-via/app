@@ -41,13 +41,23 @@ const ExtendedHID = {
     return requestedDevice[0];
   },
   getFilteredDevices: async () => {
-    return filterHIDDevices(await navigator.hid.getDevices());
+    try {
+      const hidDevices = filterHIDDevices(await navigator.hid.getDevices());
+      return hidDevices;
+    } catch (e) {
+      return [];
+    }
   },
   devices: async (requestAuthorize = false) => {
     let devices = await ExtendedHID.getFilteredDevices();
     // TODO: This is a hack to avoid spamming the requestDevices popup
     if (devices.length === 0 || requestAuthorize) {
-      await ExtendedHID.requestDevice();
+      try {
+        await ExtendedHID.requestDevice();
+      } catch (e) {
+        // The request seems to fail when the last authorized device is disconnected.
+        return [];
+      }
       devices = await ExtendedHID.getFilteredDevices();
     }
     return devices.map(tagDevice);

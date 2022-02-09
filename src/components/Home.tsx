@@ -158,7 +158,6 @@ export const Home: FC = (props) => {
       startMonitoring();
       dispatch(enableGlobalHotKeys());
       usbDetect.on('change', updateDevicesRepeat);
-      timeoutRepeater(() => dispatch(loadSupportedIds()), 5 * 60000, Infinity);
       dispatch(loadSupportedIds());
       enableKeyPressListener();
     } catch (error) {

@@ -25,11 +25,6 @@ const Container = styled.div`
   pointer-events: none;
 `;
 
-const SlideContainer = styled.div<{showButtons?: boolean}>`
-  transition: 0.4s ease-out;
-  transform: translate3d(${(props) => (props.showButtons ? 0 : 66)}px, 0, 0);
-`;
-
 const KeyboardTitle = styled.label`
   pointer-events: all;
   display: inline-block;
@@ -152,12 +147,15 @@ export const Badge = () => {
 
   const connectedKeyboardDefinitions: ConnectedKeyboardDefinition[] = useMemo(
     () =>
-      Object.entries(connectedDevices).map(([path, device]) => [
-        path,
-        definitions[(device as ConnectedDevice).vendorProductId][
-          (device as ConnectedDevice).requiredDefinitionVersion
-        ],
-      ]),
+      Object.entries(connectedDevices)
+        .map<ConnectedKeyboardDefinition>(([path, device]) => [
+          path,
+          definitions[(device as ConnectedDevice).vendorProductId] &&
+            definitions[(device as ConnectedDevice).vendorProductId][
+              (device as ConnectedDevice).requiredDefinitionVersion
+            ],
+        ])
+        .filter((i) => i[1]),
     [connectedDevices, definitions],
   );
 
