@@ -14,6 +14,7 @@
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@reduxjs/toolkit": "^1.6.1",
     "@types/lodash.partition": "^4.6.6",
+    "@types/raf-schd": "^4.0.1",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
     "connected-react-router": "^6.9.1",
     "downshift": "^6.1.7",
