@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import useResizeObserver from '@react-hook/resize-observer';
+import rafSchd from 'raf-schd'
+import useResizeObserver from 'use-resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
@@ -55,8 +56,8 @@ export const Test: FC = () => {
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
 
   const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
+    width: 0,
+    height: 0,
   });
   const [selectedKeys, setSelectedKeys] = useState(
     {} as {[key: string]: TestKeyState},
@@ -166,21 +167,22 @@ export const Test: FC = () => {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const flexRef = useRef<HTMLDivElement>(null);
-  // FIXME: Won't work on the initial render
-  useResizeObserver(flexRef, ({contentRect}) => {
-    if (!flexRef.current) return;
-
+  const onFlexResize = React.useCallback(({ width, height }) => {
     setDimensions({
-      width: contentRect.width,
-      height: contentRect.height,
+      width,
+      height,
     });
+  }, [setDimensions]);
+
+  const { ref: flexRef } = useResizeObserver({
+    onResize: rafSchd(onFlexResize)
   });
 
   // TODO: really need to find a way to clean these nulls up. createEntityAdapter maybe?
   if (!selectedDevice || !selectedDefinition || !keyDefinitions) {
     return null;
   }
+
   const {api, protocol} = selectedDevice;
   const canUseMatrixState = PROTOCOL_GAMMA <= protocol;
 
