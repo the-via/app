@@ -1,6 +1,7 @@
 import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import useResizeObserver from '@react-hook/resize-observer';
+import rafSchd from 'raf-schd'
+import useResizeObserver from 'use-resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
@@ -54,21 +55,14 @@ export const Test: FC = () => {
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
 
-  // TODO: really need to find a way to clean these nulls up. createEntityAdapter maybe?
-  if (!selectedDevice || !selectedDefinition || !keyDefinitions) {
-    return null;
-  }
-
-  const {api, protocol} = selectedDevice;
-  const canUseMatrixState = PROTOCOL_GAMMA <= protocol;
-
   const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
+    width: 0,
+    height: 0,
   });
   const [selectedKeys, setSelectedKeys] = useState(
     {} as {[key: string]: TestKeyState},
   );
+
   let flat = [] as number[];
 
   // If pressed key is our target key then set to true
@@ -173,16 +167,25 @@ export const Test: FC = () => {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const flexRef = useRef(null);
-  useResizeObserver(
-    flexRef,
-    ({contentRect}) =>
-      flexRef.current &&
-      setDimensions({
-        width: contentRect.width,
-        height: contentRect.height,
-      }),
-  );
+  const onFlexResize = React.useCallback(({ width, height }) => {
+    setDimensions({
+      width,
+      height,
+    });
+  }, [setDimensions]);
+
+  const { ref: flexRef } = useResizeObserver({
+    onResize: rafSchd(onFlexResize)
+  });
+
+  // TODO: really need to find a way to clean these nulls up. createEntityAdapter maybe?
+  if (!selectedDevice || !selectedDefinition || !keyDefinitions) {
+    return null;
+  }
+
+  const {api, protocol} = selectedDevice;
+  const canUseMatrixState = PROTOCOL_GAMMA <= protocol;
+
   const pressedKeys =
     !isTestMatrixEnabled || !keyDefinitions
       ? selectedKeys
