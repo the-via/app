@@ -10,13 +10,14 @@ const filterHIDDevices = (devices: HIDDevice[]) =>
     ),
   );
 
-const getIdentifier = () => (self.crypto && self.crypto.randomUUID()) ||  `via-path:${Math.random()}`;
+const getVIAPathIdentifier = () =>
+  (self.crypto && self.crypto.randomUUID()) || `via-path:${Math.random()}`;
 
 const tagDevice = (device: HIDDevice) => {
   // This is super important in order to have a stable way to identify the same device
   // that was already scanned. It's a bit hacky but https://github.com/WICG/webhid/issues/7
   // ¯\_(ツ)_/¯
-  const path = (device as any).__path || `via-path:${Math.random()}`;
+  const path = (device as any).__path || getVIAPathIdentifier();
   (device as any).__path = path;
   const HIDDevice = {
     _device: device,
