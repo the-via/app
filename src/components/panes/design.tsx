@@ -126,8 +126,12 @@ function importDefinition(
           ),
         );
       }
-    } catch (err) {
-      setErrors([`${err.name}: ${err.message}`]);
+    } catch (err: any) {
+      if (err.name) {
+        setErrors([`${err.name}: ${err.message}`]);
+      } else {
+        setErrors([`${err}`]);
+      }
     }
   };
   reader.readAsBinaryString(file);
