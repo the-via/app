@@ -146,7 +146,10 @@ export const updateLayoutOption =
       Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
     );
     const {api} = device;
-    const options = getSelectedLayoutOptions(state);
+
+    // Clone the existing options into a new array so it can be modified with
+    // the new layout index
+    const options = [...getSelectedLayoutOptions(state)];
     options[index] = val;
 
     const bytes = numIntoBytes(
