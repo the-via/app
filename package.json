@@ -5,7 +5,7 @@
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build-azure": "yarn remove via-keyboards && yarn add git://github.com/the-via/keyboards.git && yarn build"
+    "build-azure": "yarn remove via-keyboards && yarn add https://github.com/the-via/keyboards.git && yarn build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -35,7 +35,7 @@
     "styled-components": "^5.3.0",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
-    "via-keyboards": "git://github.com/the-via/keyboards.git",
+    "via-keyboards": "https://github.com/the-via/keyboards.git",
     "via-reader": "https://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
   },
   "devDependencies": {
