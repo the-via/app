@@ -212,7 +212,7 @@ const topLevelModToString = (modNumber: number): string => {
 
 const parseTopLevelMacro = (inputParts: string[]): number => {
   const topLevelKey = inputParts[0];
-  const parameter = inputParts[1];
+  const parameter = inputParts[1] ?? '';
   let [param1, param2] = ['', ''];
   let layer = 0;
   let mods = 0;
@@ -278,7 +278,7 @@ const parseTopLevelMacro = (inputParts: string[]): number => {
   }
 };
 
-const parseMods = (input: string): number => {
+const parseMods = (input: string = ''): number => {
   const parts = input.split('|').map((s) => s.trim());
   if (
     !parts.reduce((acc, part) => acc && modMasks.hasOwnProperty(part), true)
