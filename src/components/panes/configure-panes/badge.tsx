@@ -164,30 +164,28 @@ export const Badge = () => {
   }
 
   return (
-    <>
-      <Container>
-        <KeyboardTitle onClick={() => setShowList(!showList)}>
-          {selectedDefinition.name}
-          <FontAwesomeIcon
-            icon={faAngleDown}
-            style={{
-              transform: showList ? 'rotate(180deg)' : '',
-              transition: 'transform 0.2s ease-out',
-              marginLeft: '5px',
-            }}
-          />
-        </KeyboardTitle>
-        <KeyboardSelectors
-          show={showList}
-          selectedPath={selectedPath}
-          keyboards={connectedKeyboardDefinitions}
-          onClickOut={() => setShowList(false)}
-          selectKeyboard={(path) => {
-            dispatch(selectConnectedDeviceByPath(path));
-            setShowList(false);
+    <div>
+      <KeyboardTitle onClick={() => setShowList(!showList)}>
+        {selectedDefinition.name}
+        <FontAwesomeIcon
+          icon={faAngleDown}
+          style={{
+            transform: showList ? 'rotate(180deg)' : '',
+            transition: 'transform 0.2s ease-out',
+            marginLeft: '5px',
           }}
         />
-      </Container>
-    </>
+      </KeyboardTitle>
+      <KeyboardSelectors
+        show={showList}
+        selectedPath={selectedPath}
+        keyboards={connectedKeyboardDefinitions}
+        onClickOut={() => setShowList(false)}
+        selectKeyboard={(path) => {
+          dispatch(selectConnectedDeviceByPath(path));
+          setShowList(false);
+        }}
+      />
+    </div>
   );
 };

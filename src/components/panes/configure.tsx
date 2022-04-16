@@ -177,14 +177,16 @@ const ConfigureGrid = () => {
         className="flex flex-col flex-1"
         onClick={() => dispatch(clearSelectedKey())}
       >
-        <LayerControl />
-        <div className="m-4 p-2 border-dark border-2 rounded" ref={flexRef}>
+        <div className="flex px-4 pt-4 items-cener justify-between">
+          <LayerControl />
+          <Badge />
+        </div>
+        <div className="m-3 p-2 border-dark border-2 rounded" ref={flexRef}>
           <PositionedKeyboard
             containerDimensions={dimensions}
             selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
           />
           <ReactTooltip />
-          <Badge />
           {/*
             <SelectedPane />
             */}

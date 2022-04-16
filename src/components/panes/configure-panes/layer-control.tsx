@@ -86,7 +86,7 @@ export const LayerControl = () => {
   );
 
   return (
-    <div className="flex px-4 pt-4 items-center">
+    <div className="flex items-center">
       <div className="uppercase tracking-label mr-6">Layer</div>
       <div className="flex gap-3">{Layers}</div>
     </div>
