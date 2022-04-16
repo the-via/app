@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import cntl from 'cntl';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
@@ -19,7 +20,7 @@ const Label = styled.label`
   color: var(--color_light-grey);
   margin-right: 8px;
 `;
-const LayerButton = styled.button<{selected?: boolean}>`
+const LayerButtonOld = styled.button<{selected?: boolean}>`
   outline: none;
   font-variant-numeric: tabular-nums;
   border: none;
@@ -38,6 +39,30 @@ const LayerButton = styled.button<{selected?: boolean}>`
   }
 `;
 
+interface LayerButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  isSelected?: boolean;
+}
+
+function LayerButton(props: LayerButtonProps): JSX.Element {
+  const {className, isSelected = false, ...buttonProps} = props;
+
+  const buttonClassName = cntl`
+    border-2
+    border-transparent
+    font-bold
+    hover:border-primary
+    px-2
+    rounded-md
+    transition-button
+    ${isSelected ? 'bg-primary' : ''}
+    ${isSelected ? 'text-secondary' : 'text-primary'}
+    ${className}
+  `;
+
+  return <button className={buttonClassName} {...buttonProps} />;
+}
+
 export const LayerControl = () => {
   const dispatch = useDispatch();
   const numberOfLayers = useAppSelector(getNumberOfLayers);
@@ -51,7 +76,7 @@ export const LayerControl = () => {
         .map((layerLabel) => (
           <LayerButton
             key={layerLabel}
-            selected={layerLabel === selectedLayerIndex}
+            isSelected={layerLabel === selectedLayerIndex}
             onClick={() => dispatch(setLayer(layerLabel))}
           >
             {layerLabel}
@@ -61,9 +86,9 @@ export const LayerControl = () => {
   );
 
   return (
-    <Container>
-      <Label>Layer</Label>
-      {Layers}
-    </Container>
+    <div className="flex px-4 pt-4 items-center">
+      <div className="uppercase tracking-label mr-6">Layer</div>
+      <div className="flex gap-3">{Layers}</div>
+    </div>
   );
 };

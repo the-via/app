@@ -3,12 +3,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        accent: 'var(--color-accent)',
-        'accent-active': 'var(--color-accent-active)',
+        primary: 'var(--color-primary)',
+        primaryActive: 'var(--color-primary-active)',
+        secondary: 'var(--color-secondary)',
+        secondaryActive: 'var(--color-secondary-active)',
         light: 'var(--color-light)',
         medium: 'var(--color-medium)',
         dark: 'var(--color-dark)',
         background: 'var(--color-background)',
+      },
+      letterSpacing: {
+        label: '0.125em'
       }
     },
   },

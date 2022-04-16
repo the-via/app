@@ -4,7 +4,7 @@
 
 html,
 body {
-  font-size: 14px;
+  font-size: 15px;
   height: 100%;
 }
 body {
@@ -53,8 +53,16 @@ a:hover {
   --color_jet: #1d1b1b;
   --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 
+  --olivia-mod: #E8C4B8;
+  --olivia-text: #363434;
+
   /* WIP: Tailwind Colors */
-  --color-accent: var(--color_accent);
+  --color-primary: var(--olivia-mod);
+  /* --color-primary-active: var(--olivia-background); */
+  --color-secondary: var(--olivia-text);
+  /* --color-secondary-active: ; */
+
+
   --color-accent-active: var(--color_dark-accent);
   --color-light: var(--color_light-grey);
   --color-medium: var(--color_medium-grey);
@@ -337,4 +345,12 @@ a:hover {
 }
 .rc-slider-handle:focus {
   box-shadow: none;
+}
+
+/*
+ * Tailwind Classes
+ */
+
+.transition-button {
+  @apply transition-all duration-200 ease-out;
 }
