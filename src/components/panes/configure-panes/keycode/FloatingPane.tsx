@@ -16,7 +16,6 @@ const floatingPaneClassName = cntl`
   flex
   flex-col
   left-5
-  m-3
   rounded
   w-1/3
 `;

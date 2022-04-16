@@ -161,35 +161,37 @@ const ConfigureGrid = () => {
   });
   const flexRef = useRef(null);
 
-  useResize(
-    flexRef,
-    (entry) =>
-      flexRef.current &&
+  useResize(flexRef, (entry) => {
+    if (entry && flexRef.current) {
+      console.info('hi', entry.width, entry.height);
       setDimensions({
         width: entry.width,
         height: entry.height,
-      }),
-  );
+      });
+    }
+  });
 
   return (
-    <div className="flex h-full w-full relative">
+    <div className="flex h-full w-full">
       <div
-        className="flex flex-1 relative"
-        ref={flexRef}
+        className="flex flex-col flex-1"
         onClick={() => dispatch(clearSelectedKey())}
       >
-        <PositionedKeyboard
-          containerDimensions={dimensions}
-          selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
-        />
-        <ReactTooltip />
-        {/*
-          <LayerControl />
-*/}
-        <Badge />
-        {/*
-        <SelectedPane />
-*/}
+        <div className="m-4 p-2 border-dark border-2 rounded" ref={flexRef}>
+          <PositionedKeyboard
+            containerDimensions={dimensions}
+            selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
+          />
+          <ReactTooltip />
+          {/*
+            <LayerControl />
+          */}
+          <Badge />
+          {/*
+            <SelectedPane />
+            */}
+        </div>
+        <div className="flex-1 italic">additional settings</div>
       </div>
       <FloatingPane />
       {/*

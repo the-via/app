@@ -42,6 +42,8 @@ export const CSSVarObject = {
   keyYSpacing: 2,
   keyXPos: 52 + 2,
   keyYPos: 54 + 2,
+
+  frameSpacing: 7,
 };
 
 interface KeyboardFrameProps {
@@ -55,30 +57,39 @@ interface KeyboardFrameProps {
   width: number;
 }
 
-const keyboardFrameClassName = cntl`
-  border-2
-  border-dark
-  border-solid
-  h-full
-  origin-left
-  p-1
-  relative
-  rounded-sm
-  w-full
-`;
+// Finds the dimension of a device given a measurement (width [number of
+// columns], height [number of rows]), a similar measurement of a key (key
+// width, key height), and the spacing between keys.
+function calculateDeviceDimension(
+  measurement: number,
+  keyMeasurement: number,
+  keySpacing: number,
+): number {
+  // Multiply the keys by the number of rows/columns and add the number of gaps
+  // that would appear between the keys.
+  return keyMeasurement * measurement + (measurement - 1) * keySpacing;
+}
 
 function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
-  const {children, containerDimensions, _selectable, width} = props;
+  const {
+    children,
+    containerDimensions,
+    height = 1,
+    _selectable,
+    width = 1,
+  } = props;
 
   const scaleTransform = React.useMemo(() => {
-    const multiplier = 1000;
+    const multiplier = 1000000;
 
     if (containerDimensions) {
-      let scale = Math.min(
-        1,
-        containerDimensions.width /
-          ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width),
+      const deviceWidth = calculateDeviceDimension(
+        width,
+        CSSVarObject.keyWidth,
+        CSSVarObject.keyXSpacing,
       );
+
+      let scale = Math.min(1, containerDimensions.width / deviceWidth);
 
       return Math.floor(scale * multiplier) / multiplier;
     } else {
@@ -86,14 +97,29 @@ function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
     }
   }, [containerDimensions]);
 
+  const frameHeight = React.useMemo(() => {
+    return calculateDeviceDimension(
+      height,
+      CSSVarObject.keyHeight,
+      CSSVarObject.keyYSpacing,
+    );
+  }, [height]);
+
   return (
     <div
-      className={keyboardFrameClassName}
+      className="relative"
       style={{
-        transform: `scale(${scaleTransform})`,
+        height: `${frameHeight * scaleTransform}px`,
       }}
     >
-      {children}
+      <div
+        className="h-full w-full origin-top-left"
+        style={{
+          transform: `scale(${scaleTransform})`,
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
