@@ -33,6 +33,7 @@ import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
+import FloatingPane from 'src/components/panes/configure-panes/keycode/FloatingPane';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -171,36 +172,44 @@ const ConfigureGrid = () => {
   );
 
   return (
-    <Grid>
-      <MenuCell>
-        <MenuContainer>
-          {KeyboardRows.map(
-            ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
-              <Row
-                key={idx}
-                onClick={(_) => setRow(idx)}
-                selected={selectedRow === idx}
-              >
-                <IconContainer>
-                  <Icon />
-                </IconContainer>
-                {Title}
-              </Row>
-            ),
-          )}
-        </MenuContainer>
-      </MenuCell>
-
-      <FlexCell ref={flexRef} onClick={() => dispatch(clearSelectedKey())}>
+    <div className="flex h-full w-full relative">
+      <div
+        className="flex flex-1 relative"
+        ref={flexRef}
+        onClick={() => dispatch(clearSelectedKey())}
+      >
         <PositionedKeyboard
           containerDimensions={dimensions}
           selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
         />
         <ReactTooltip />
-        <LayerControl />
+        {/*
+          <LayerControl />
+*/}
         <Badge />
-      </FlexCell>
-      <SelectedPane />
-    </Grid>
+        {/*
+        <SelectedPane />
+*/}
+      </div>
+      <FloatingPane />
+      {/*
+      <div className="flex flex-col align-flex-start gap-4 p-4 border-r border-dark border-solid">
+        {KeyboardRows.map(
+          ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
+            <Row
+              key={idx}
+              onClick={(_) => setRow(idx)}
+              isSelected={selectedRow === idx}
+            >
+              <IconContainer>
+                <Icon />
+              </IconContainer>
+              <span className="whitespace-nowrap">{Title}</span>
+            </Row>
+          ),
+        )}
+      </div>
+*/}
+    </div>
   );
 };

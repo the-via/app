@@ -2,17 +2,18 @@ import React from 'react';
 import styled from 'styled-components';
 import {useLocation} from 'react-router';
 import {Link} from 'react-router-dom';
+import cntl from 'cntl';
 import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowDesignTab} from 'src/store/settingsSlice';
 
-const Container = styled.div`
-  width: 100vw;
-  height: 25px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--color_dark-grey);
-  background-color: var(--color_light-jet);
-  text-align: center;
+const containerClassName = cntl`
+  border-b
+  border-dark
+  border-solid
+  py-3
+  text-center
+  w-full
 `;
 
 const MenuItem = styled.button<{selected?: boolean}>`
@@ -58,7 +59,7 @@ export const UnconnectedGlobalMenu = () => {
 
   return (
     <React.Fragment>
-      <Container>{Panes}</Container>
+      <div className={containerClassName}>{Panes}</div>
     </React.Fragment>
   );
 };

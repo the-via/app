@@ -39,6 +39,7 @@ import {
   enableGlobalHotKeys,
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
+
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 54px);

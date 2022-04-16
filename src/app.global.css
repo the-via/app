@@ -1,5 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body {
+  font-size: 14px;
   height: 100%;
 }
 body {
@@ -47,6 +52,14 @@ a:hover {
   --color_light-jet: #222;
   --color_jet: #1d1b1b;
   --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
+
+  /* WIP: Tailwind Colors */
+  --color-accent: var(--color_accent);
+  --color-accent-active: var(--color_dark-accent);
+  --color-light: var(--color_light-grey);
+  --color-medium: var(--color_medium-grey);
+  --color-dark: var(--color_dark-grey);
+  --color-background: var(--color_light-jet);
 }
 #root {
   background: var(--gradient);

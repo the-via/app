@@ -1,5 +1,6 @@
 import React, {memo, MouseEventHandler} from 'react';
 import type {KeyColor} from '../utils/themes';
+import cntl from 'cntl';
 import styled from 'styled-components';
 import partition from 'lodash.partition';
 import {
@@ -43,38 +44,96 @@ export const CSSVarObject = {
   keyYPos: 54 + 2,
 };
 
-const KeyboardFrame = styled.div<{
-  selectable: boolean;
+interface KeyboardFrameProps {
+  containerDimensions?: {
+    width: number;
+    height: number;
+  };
+  children?: React.ReactNode;
+  height?: number;
+  selectable?: boolean;
   width: number;
-  height: number;
-  containerDimensions: {width: number; height: number};
-}>`
-  pointer-events: ${(props) => (props.selectable ? 'all' : 'none')};
-  width: ${(props) =>
-    CSSVarObject.keyXPos * props.width - CSSVarObject.keyXSpacing}px;
-  height: ${(props) =>
-    CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing}px;
-  background: var(--color_medium-grey);
-  padding: 2px;
-  border-radius: 3px;
-  box-shadow: var(--color_dark-grey) 0 1px 0px 3px;
-  padding: 5px;
-  background: var(--color_light-jet);
-  position: relative;
-  transform: ${(props) => {
-    if (props.containerDimensions) {
-      const ratio = Math.min(
-        1,
-        props.containerDimensions.width /
-          ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
-            CSSVarObject.keyXSpacing +
-            30),
-      );
-      return `scale(${ratio}, ${ratio})`;
-    }
-    return 'initial';
-  }};
+}
+
+const keyboardFrameClassName = cntl`
+  border-2
+  border-dark
+  border-solid
+  h-full
+  origin-left
+  p-1
+  relative
+  rounded-sm
+  w-full
 `;
+
+function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
+  const {children, containerDimensions, _selectable, width} = props;
+
+  const scaleTransform = React.useMemo(() => {
+    const multiplier = 1000;
+
+    if (containerDimensions) {
+      let scale = Math.min(
+        1,
+        containerDimensions.width /
+          ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width),
+      );
+
+      return Math.floor(scale * multiplier) / multiplier;
+    } else {
+      return 1;
+    }
+  }, [containerDimensions]);
+
+  return (
+    <div
+      className={keyboardFrameClassName}
+      style={{
+        transform: `scale(${scaleTransform})`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// const KeyboardFrame = styled.div<{
+//   selectable: boolean;
+//   width: number;
+//   height: number;
+//   containerDimensions: {width: number; height: number};
+// }>`
+//   pointer-events: ${(props) => (props.selectable ? 'all' : 'none')};
+//   /*
+//   width: ${(props) =>
+//     CSSVarObject.keyXPos * props.width - CSSVarObject.keyXSpacing}px;
+//   height: ${(props) =>
+//     CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing}px;
+// */
+//   width: 100%;
+//   height: 100%;
+//   background: var(--color_medium-grey);
+//   padding: 2px;
+//   border-radius: 3px;
+//   box-shadow: var(--color_dark-grey) 0 1px 0px 3px;
+//   padding: 5px;
+//   background: var(--color_light-jet);
+//   position: relative;
+//   transform: ${(props) => {
+//     if (props.containerDimensions) {
+//       const ratio = Math.min(
+//         1,
+//         props.containerDimensions.width /
+//           ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
+//             CSSVarObject.keyXSpacing +
+//             30),
+//       );
+//       return `scale(${ratio}, ${ratio})`;
+//     }
+//     return 'initial';
+//   }};
+// `;
 
 export const BlankKeyboardFrame = styled(KeyboardFrame)`
   padding: 5px;
@@ -499,7 +558,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {width, height} = selectedDefinition.layouts;
 
   return (
-    <div>
+    <div className="flex-1 w-full h-full">
       <KeyboardFrame
         key={selectedDefinition.vendorProductId}
         width={width}

@@ -1,5 +1,9 @@
+import React from 'react';
 import getIconColor from '../icons/get-icon-color';
 import styled from 'styled-components';
+import cntl from 'cntl';
+import type {ButtonHTMLAttributes} from 'react';
+
 export const Grid1Col = styled.div`
   height: 100%;
   width: 100%;
@@ -18,10 +22,6 @@ export const Grid = styled.div`
 export const Cell = styled.div`
   background: var(--color_light-jet);
   border-right: 1px solid var(--color_dark-grey);
-`;
-
-export const MenuCell = styled(Cell)`
-  grid-area: 1 / 1 / 3 / 2;
 `;
 
 export const OverflowCell = styled(Cell)`
@@ -49,11 +49,22 @@ export const FlexCell = styled(Cell)`
   background: var(--gradient);
 `;
 
-export const IconContainer = styled.span`
-  display: inline-block;
-  text-align: center;
-  width: 35px;
+const iconContainerClassName = cntl`
+  flex
+  justify-center
+  text-center
+  w-full
 `;
+
+interface IconContainerProps extends React.HTMLProps<HTMLSpanElement> {}
+
+export function IconContainer(props: IconContainerProps) {
+  const {className = '', ...rest} = props;
+
+  return (
+    <span className={`${iconContainerClassName} ${className}`} {...rest} />
+  );
+}
 
 export const ControlRow = styled.div`
   position: relative;
@@ -89,30 +100,40 @@ export const Detail = styled.span`
   align-items: center;
 `;
 
-export const Row = styled.div<{selected: boolean}>`
-  cursor: pointer;
-  white-space: nowrap;
-  margin-bottom: 15px;
-  font-size: 20px;
-  height: 20px;
-  line-height: 20px;
-  text-transform: uppercase;
-  color: ${props => getIconColor(props.selected).style.color};
-  border-left: 2px solid
-    ${props => (props.selected ? 'var(--color_light-grey)' : 'transparent')};
-
-  svg {
-    height: 20px;
-    vertical-align: middle;
-  }
-
-  &:hover {
-    color: ${props =>
-      props.selected
-        ? getIconColor(props.selected).style.color
-        : 'var(--color_dark-grey)'};
-  }
+const rowClassName = ({isSelected}: {isSelected: boolean}) => cntl`
+  appearance-none
+  gap-4
+  grid
+  grid-cols-[2rem_1fr]
+  items-center
+  justify-center
+  leading-5
+  text-left
+  text-xl
+  uppercase
+  ${isSelected ? 'hover:color-medium' : 'hover:color-dark'}
+  ${isSelected ? 'text-light' : 'text-medium'}
 `;
+
+interface RowProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string;
+  isSelected?: boolean;
+}
+
+export function Row(props: RowProps) {
+  const {className = '', isSelected = false, ...buttonProps} = props;
+
+  return (
+    <button
+      className={`${rowClassName({isSelected})} ${className}`}
+      {...buttonProps}
+    />
+  );
+}
+
+interface RowIconProps extends React.SVGProps<SVGSVGElement> {
+  children: React.SVGProps<SVGSVGElement>;
+}
 
 export const SubmenuRow = styled(Row)`
   padding-left: 8px;
