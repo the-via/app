@@ -195,7 +195,6 @@ const ConfigureGrid = () => {
             */}
         </div>
         <Layouts.Pane />
-        <div className="flex-1 italic">additional settings</div>
       </div>
       <FloatingPane />
       {/*

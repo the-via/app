@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import {title, component} from '../../icons/layouts';
 import {ControlRow, OverflowCell, Label, Detail} from '../grid';
 import {AccentSlider} from '../../inputs/accent-slider';
-import {AccentSelect} from '../../inputs/accent-select';
-import {CenterPane} from '../pane';
 import {
   getSelectedDefinition,
   getSelectedLayoutOptions,
@@ -13,6 +11,8 @@ import {
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
 import type {LayoutLabel} from 'via-reader';
+import ControlLabel from 'src/components/controls/ControlLabel';
+import ControlButton from 'src/components/controls/ControlButton';
 import type {FC} from 'react';
 
 const LayoutControl: React.VFC<{
@@ -28,21 +28,20 @@ const LayoutControl: React.VFC<{
       value: `${idx}`,
     }));
     return (
-      <ControlRow>
-        <Label>{label}</Label>
-        <Detail>
-          <AccentSelect
-            width={150}
-            defaultValue={options[selectedOption]}
-            options={options}
-            onChange={(option) => {
-              if (option) {
-                onChange(+option.value);
-              }
-            }}
-          />
-        </Detail>
-      </ControlRow>
+      <div className="flex items-center gap-6">
+        <ControlLabel>{label}</ControlLabel>
+        {optionLabels.map((option, i) => {
+          return (
+            <ControlButton
+              isSelected={selectedOption === i}
+              key={option}
+              onClick={() => onChange(i)}
+            >
+              {option}
+            </ControlButton>
+          );
+        })}
+      </div>
     );
   } else {
     return (
@@ -59,18 +58,6 @@ const LayoutControl: React.VFC<{
   }
 };
 
-const ContainerPane = styled(CenterPane)`
-  height: 100%;
-  background: var(--color_dark_grey);
-`;
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 0 12px;
-`;
-
 export const Pane: FC = () => {
   const dispatch = useDispatch();
 
@@ -84,23 +71,20 @@ export const Pane: FC = () => {
   const {layouts} = selectedDefinition;
 
   const labels = layouts.labels || [];
+
   return (
-    <OverflowCell>
-      <ContainerPane>
-        <Container>
-          {labels.map((label: LayoutLabel, idx: number) => (
-            <LayoutControl
-              key={idx}
-              onChange={(val) => dispatch(updateLayoutOption(idx, val))}
-              meta={{
-                labels: label,
-                selectedOption: selectedLayoutOptions[idx],
-              }}
-            />
-          ))}
-        </Container>
-      </ContainerPane>
-    </OverflowCell>
+    <div className="m-3">
+      {labels.map((label: LayoutLabel, idx: number) => (
+        <LayoutControl
+          key={idx}
+          onChange={(val) => dispatch(updateLayoutOption(idx, val))}
+          meta={{
+            labels: label,
+            selectedOption: selectedLayoutOptions[idx],
+          }}
+        />
+      ))}
+    </div>
   );
 };
 export const Title = title;

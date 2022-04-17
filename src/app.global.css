@@ -4,7 +4,7 @@
 
 html,
 body {
-  font-size: 15px;
+  font-size: 14px;
   height: 100%;
 }
 body {
@@ -29,16 +29,6 @@ p {
 }
 li {
   list-style: none;
-}
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
-}
-a:hover {
-  opacity: 1;
-  text-decoration: none;
-  cursor: pointer;
 }
 :root {
   --color_accent: #ad7070;

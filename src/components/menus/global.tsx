@@ -9,8 +9,7 @@ import {getShowDesignTab} from 'src/store/settingsSlice';
 import MenuItem from './MenuItem';
 
 const containerClassName = cntl`
-  border-dark
-  border-2
+  bg-secondary
   flex
   gap-12
   mx-auto
