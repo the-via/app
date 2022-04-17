@@ -3,13 +3,13 @@ import cntl from 'cntl';
 import {getKeycodes, getOtherMenu} from 'src/utils/key';
 import KeycodeCategory from './KeycodeCategory';
 import KeycodeCategoryLabel from './KeycodeCategoryLabel';
+import ControlButton from 'src/components/controls/ControlButton';
 
 const KeycodeCategories = getKeycodes()
   .concat(getOtherMenu())
   .filter((menu) => !['Other', 'Mod+_'].includes(menu.label));
 
 const floatingPaneClassName = cntl`
-  bg-background
   border
   border-dark
   bottom-4
@@ -31,9 +31,9 @@ const keycodesListClassName = cntl`
 `;
 
 const searchInputClassName = cntl`
-  bg-background
-  border-medium
-  border
+  bg-inherit
+  border-secondary
+  border-2
   border-solid
   px-2
   py-1
@@ -46,9 +46,12 @@ const searchInputClassName = cntl`
 export default function FloatingPane() {
   const [search, setSearch] = React.useState<string>();
 
-  const onSearchChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  }, []);
+  const onSearchChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearch(e.target.value);
+    },
+    [],
+  );
 
   const Categories = KeycodeCategories.map((keycodeCategory) => {
     return (
@@ -57,21 +60,29 @@ export default function FloatingPane() {
         key={keycodeCategory.label}
         keycodes={keycodeCategory.keycodes}
       >
-        <KeycodeCategoryLabel>
-          {keycodeCategory.label}
-        </KeycodeCategoryLabel>
+        <KeycodeCategoryLabel>{keycodeCategory.label}</KeycodeCategoryLabel>
       </KeycodeCategory>
     );
   });
 
   return (
     <div className={floatingPaneClassName}>
+      <div className="grid grid-flow-col">
+        <div className="flex m-4 items-center justify-center">
+          <ControlButton isSelected={true}>Keymap</ControlButton>
+        </div>
+        <div className="flex items-center justify-center">
+          <ControlButton isSelected={false}>Lighting</ControlButton>
+        </div>
+      </div>
       <div className="m-4">
-        <input className={searchInputClassName} placeholder="Search…" onChange={onSearchChange} />
+        <input
+          className={searchInputClassName}
+          placeholder="Search…"
+          onChange={onSearchChange}
+        />
       </div>
-      <div className={keycodesListClassName}>
-        {Categories}
-      </div>
+      <div className={keycodesListClassName}>{Categories}</div>
     </div>
   );
 }

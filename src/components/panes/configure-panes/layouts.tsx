@@ -28,7 +28,7 @@ const LayoutControl: React.VFC<{
       value: `${idx}`,
     }));
     return (
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 text-right">
         <ControlLabel>{label}</ControlLabel>
         {optionLabels.map((option, i) => {
           return (
@@ -73,7 +73,7 @@ export const Pane: FC = () => {
   const labels = layouts.labels || [];
 
   return (
-    <div className="m-3">
+    <div className="m-3 grid grid-cols-2 gap-4">
       {labels.map((label: LayoutLabel, idx: number) => (
         <LayoutControl
           key={idx}

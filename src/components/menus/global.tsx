@@ -7,12 +7,14 @@ import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowDesignTab} from 'src/store/settingsSlice';
 import MenuItem from './MenuItem';
+import Logo from 'src/components/Logo';
 
 const containerClassName = cntl`
   bg-secondary
   flex
   gap-12
   mx-auto
+  min-w-0
   my-6
   p-3
   rounded-xl
@@ -41,8 +43,12 @@ export const UnconnectedGlobalMenu = () => {
   }, [location, showDesignTab]);
 
   return (
-    <React.Fragment>
+    <div className="mx-8 flex justify-between gap-3">
+      <div className="flex flex-1 items-center justify-start">
+        <Logo className="fill-white w-16" />
+      </div>
       <div className={containerClassName}>{Panes}</div>
-    </React.Fragment>
+      <div className="flex-1" />
+    </div>
   );
 };
