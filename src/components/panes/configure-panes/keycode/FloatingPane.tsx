@@ -18,7 +18,7 @@ const floatingPaneClassName = cntl`
   left-5
   m-8
   rounded
-  w-1/4
+  w-1/3
 `;
 
 const keycodesListClassName = cntl`
@@ -67,12 +67,15 @@ export default function FloatingPane() {
 
   return (
     <div className={floatingPaneClassName}>
-      <div className="grid grid-flow-col">
-        <div className="flex m-4 items-center justify-center">
+      <div className="flex items-center justify-between border-b-2 border-secondary">
+        <div className="m-4">
           <ControlButton isSelected={true}>Keymap</ControlButton>
         </div>
-        <div className="flex items-center justify-center">
+        <div className="m-4">
           <ControlButton isSelected={false}>Lighting</ControlButton>
+        </div>
+        <div className="m-4">
+          <ControlButton isSelected={false}>Layouts</ControlButton>
         </div>
       </div>
       <div className="m-4">
