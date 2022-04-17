@@ -107,7 +107,6 @@ const rowClassName = ({isSelected}: {isSelected: boolean}) => cntl`
   grid-cols-[2rem_1fr]
   items-center
   justify-center
-  leading-5
   text-left
   text-xl
   uppercase

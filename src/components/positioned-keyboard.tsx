@@ -97,28 +97,38 @@ function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
     }
   }, [containerDimensions]);
 
-  const frameHeight = React.useMemo(() => {
-    return calculateDeviceDimension(
+  const [frameHeight, frameWidth] = React.useMemo(() => {
+    const deviceHeight = calculateDeviceDimension(
       height,
       CSSVarObject.keyHeight,
       CSSVarObject.keyYSpacing,
     );
-  }, [height]);
+    const deviceWidth = calculateDeviceDimension(
+      width,
+      CSSVarObject.keyWidth,
+      CSSVarObject.keyXSpacing,
+    );
+    
+    return [deviceHeight, deviceWidth];
+  }, [height, width]);
 
   return (
-    <div
-      className="relative"
-      style={{
-        height: `${frameHeight * scaleTransform}px`,
-      }}
-    >
+    <div className="border-2 rounded-lg border-dark p-3 relative">
       <div
-        className="h-full w-full origin-top-left"
+        className="relative"
         style={{
-          transform: `scale(${scaleTransform})`,
+          height: `${frameHeight * scaleTransform}px`,
+          width: `${frameWidth * scaleTransform}px`,
         }}
       >
-        {children}
+        <div
+          className="h-full w-full origin-top-left"
+          style={{
+            transform: `scale(${scaleTransform})`,
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -584,44 +594,42 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {width, height} = selectedDefinition.layouts;
 
   return (
-    <div className="flex-1 w-full h-full">
-      <KeyboardFrame
-        key={selectedDefinition.vendorProductId}
-        width={width}
-        height={height}
-        selectable={selectable}
-        containerDimensions={containerDimensions}
-      >
-        <AnchorContainer>
-          {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
-          {keys.map((k, index) => {
-            return (
-              <KeyComponent
-                {...{
-                  ...k,
-                  ...getLabel(
-                    matrixKeycodes[index],
-                    k.w,
-                    macros,
-                    selectedDefinition,
-                  ),
-                  ...getColors(k.color),
-                  selected: selectedKey === index,
-                  onClick: selectable
-                    ? (id) => {
-                        console.log(id);
-                        dispatch(updateSelectedKey(id));
-                      }
-                    : noop,
-                }}
-                key={index}
-                id={index}
-              />
-            );
-          })}
-        </AnchorContainer>
-      </KeyboardFrame>
-    </div>
+    <KeyboardFrame
+      key={selectedDefinition.vendorProductId}
+      width={width}
+      height={height}
+      selectable={selectable}
+      containerDimensions={containerDimensions}
+    >
+      <AnchorContainer>
+        {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
+        {keys.map((k, index) => {
+          return (
+            <KeyComponent
+              {...{
+                ...k,
+                ...getLabel(
+                  matrixKeycodes[index],
+                  k.w,
+                  macros,
+                  selectedDefinition,
+                ),
+                ...getColors(k.color),
+                selected: selectedKey === index,
+                onClick: selectable
+                  ? (id) => {
+                      console.log(id);
+                      dispatch(updateSelectedKey(id));
+                    }
+                  : noop,
+              }}
+              key={index}
+              id={index}
+            />
+          );
+        })}
+      </AnchorContainer>
+    </KeyboardFrame>
   );
 };
 

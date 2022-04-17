@@ -24,6 +24,7 @@ import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
+import ConfigControl from './configure-panes/ConfigControl';
 import {Badge} from './configure-panes/badge';
 import {AccentButtonLarge} from '../inputs/accent-button';
 import {useAppSelector} from 'src/store/hooks';
@@ -163,10 +164,11 @@ const ConfigureGrid = () => {
 
   useResize(flexRef, (entry) => {
     if (entry && flexRef.current) {
-      console.info('hi', entry.width, entry.height);
-      setDimensions({
-        width: entry.width,
-        height: entry.height,
+      requestAnimationFrame(() => {
+        setDimensions({
+          width: entry.width,
+          height: entry.height,
+        });
       });
     }
   });
@@ -174,14 +176,15 @@ const ConfigureGrid = () => {
   return (
     <div className="flex h-full w-full">
       <div
-        className="flex flex-col flex-1"
+        className="flex flex-col flex-1 min-w-0"
         onClick={() => dispatch(clearSelectedKey())}
       >
-        <div className="flex px-4 pt-4 items-cener justify-between">
+        <div className="grid grid-cols-3 px-4 mt-8 content-between">
           <LayerControl />
           <Badge />
+          <ConfigControl />
         </div>
-        <div className="m-3 p-2 border-dark border-2 rounded" ref={flexRef}>
+        <div className="m-4 flex justify-center" ref={flexRef}>
           <PositionedKeyboard
             containerDimensions={dimensions}
             selectable={KeyboardRows[selectedRow].Title === 'Keymap'}

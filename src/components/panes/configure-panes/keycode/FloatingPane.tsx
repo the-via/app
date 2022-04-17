@@ -16,8 +16,9 @@ const floatingPaneClassName = cntl`
   flex
   flex-col
   left-5
+  m-8
   rounded
-  w-1/3
+  w-1/4
 `;
 
 const keycodesListClassName = cntl`

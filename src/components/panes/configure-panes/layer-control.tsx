@@ -8,6 +8,8 @@ import {
   setLayer,
 } from 'src/store/keymapSlice';
 import styled from 'styled-components';
+import ControlLabel from 'src/components/controls/ControlLabel';
+import ControlButton from 'src/components/controls/ControlButton';
 
 const Container = styled.div`
   position: absolute;
@@ -44,25 +46,6 @@ interface LayerButtonProps
   isSelected?: boolean;
 }
 
-function LayerButton(props: LayerButtonProps): JSX.Element {
-  const {className, isSelected = false, ...buttonProps} = props;
-
-  const buttonClassName = cntl`
-    border-2
-    border-transparent
-    font-bold
-    hover:border-primary
-    px-2
-    rounded-md
-    transition-button
-    ${isSelected ? 'bg-primary' : ''}
-    ${isSelected ? 'text-secondary' : 'text-primary'}
-    ${className}
-  `;
-
-  return <button className={buttonClassName} {...buttonProps} />;
-}
-
 export const LayerControl = () => {
   const dispatch = useDispatch();
   const numberOfLayers = useAppSelector(getNumberOfLayers);
@@ -74,21 +57,21 @@ export const LayerControl = () => {
         .fill(0)
         .map((_, idx) => idx)
         .map((layerLabel) => (
-          <LayerButton
+          <ControlButton
             key={layerLabel}
             isSelected={layerLabel === selectedLayerIndex}
             onClick={() => dispatch(setLayer(layerLabel))}
           >
             {layerLabel}
-          </LayerButton>
+          </ControlButton>
         )),
     [numberOfLayers, selectedLayerIndex],
   );
 
   return (
     <div className="flex items-center">
-      <div className="uppercase tracking-label mr-6">Layer</div>
-      <div className="flex gap-3">{Layers}</div>
+      <ControlLabel>Layer</ControlLabel>
+      <div className="flex gap-2">{Layers}</div>
     </div>
   );
 };

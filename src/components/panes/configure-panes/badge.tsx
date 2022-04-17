@@ -1,4 +1,5 @@
-import React, {useMemo, useState} from 'react';
+import React, {ButtonHTMLAttributes, useMemo, useState} from 'react';
+import cntl from 'cntl';
 import styled from 'styled-components';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
@@ -25,24 +26,26 @@ const Container = styled.div`
   pointer-events: none;
 `;
 
-const KeyboardTitle = styled.label`
-  pointer-events: all;
-  display: inline-block;
-  background: var(--color_accent);
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  font-size: 18px;
-  text-transform: uppercase;
-  color: var(--color_light-grey);
-  padding: 1px 10px;
-  margin-right: 10px;
-  border: solid 1px var(--color_dark-grey);
-  border-top: none;
-  cursor: pointer;
-  &:hover {
-    background: var(--color_dark-accent);
-  }
+interface BadgeButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+
+const badgeButtonClassName = cntl`
+  bg-primary
+  flex
+  font-bold
+  gap-2
+  items-center
+  px-3
+  py-1
+  rounded-md
+  text-secondary
+  uppercase
 `;
+
+function BadgeButton(props: BadgeButtonProps) {
+  return <button className={badgeButtonClassName} {...props} />;
+}
+
 const KeyboardList = styled.ul<{show: boolean}>`
   padding: 0;
   border: 1px solid var(--color_dark-grey);
@@ -164,9 +167,9 @@ export const Badge = () => {
   }
 
   return (
-    <div>
-      <KeyboardTitle onClick={() => setShowList(!showList)}>
-        {selectedDefinition.name}
+    <div className="relative mx-auto">
+      <BadgeButton onClick={() => setShowList(!showList)}>
+        <span>{selectedDefinition.name}</span>
         <FontAwesomeIcon
           icon={faAngleDown}
           style={{
@@ -175,7 +178,7 @@ export const Badge = () => {
             marginLeft: '5px',
           }}
         />
-      </KeyboardTitle>
+      </BadgeButton>
       <KeyboardSelectors
         show={showList}
         selectedPath={selectedPath}
