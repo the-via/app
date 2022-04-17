@@ -20,7 +20,6 @@ const CircleContainer = styled.div<{
   progress: number | null;
 }>`
   border-radius: 50%;
-  background-color: var(--color_medium-grey);
   height: ${(props) => props.containerHeight}px;
   width: ${(props) => props.containerWidth}px;
   position: relative;
@@ -68,6 +67,7 @@ export default function ChippyLoader(props: Props) {
   return (
     <LoaderContainer {...{containerHeight, containerWidth}}>
       <CircleContainer
+        className="bg-secondary"
         progress={props.progress}
         {...{containerHeight, containerWidth}}
       >

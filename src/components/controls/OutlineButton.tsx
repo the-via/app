@@ -6,16 +6,17 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isSelected?: boolean;
 }
 
-export default function MenuItem(props: Props) {
+export default function OutlineButton(props: Props) {
   const {className, isSelected = false, ...buttonProps} = props;
 
   const buttonClassName = cntl`
     border-2
-    border-transparent
+    border-primary
     font-medium
-    text-lg
-    hover:border-primary
-    px-2
+    hover:bg-primary
+    hover:text-secondary
+    px-4
+    py-2
     rounded-md
     transition-button
     ${isSelected ? 'bg-primary' : ''}
@@ -23,5 +24,5 @@ export default function MenuItem(props: Props) {
     ${className}
   `;
 
-  return <button className={buttonClassName} {...buttonProps} />;
+    return <button className={buttonClassName} {...buttonProps} />;
 }

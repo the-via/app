@@ -15,7 +15,6 @@ import {
   VIADefinitionV3,
 } from 'via-reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
-import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
 import * as Lighting from './configure-panes/lighting';
 import * as Macros from './configure-panes/macros';
@@ -26,7 +25,6 @@ import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import ConfigControl from './configure-panes/ConfigControl';
 import {Badge} from './configure-panes/badge';
-import {AccentButtonLarge} from '../inputs/accent-button';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
@@ -35,15 +33,12 @@ import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import FloatingPane from 'src/components/panes/configure-panes/keycode/FloatingPane';
+import OutlineButton from 'src/components/controls/OutlineButton';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
-`;
-
-const MenuContainer = styled.div`
-  padding: 15px 30px 20px 10px;
 `;
 
 const Rows = [
@@ -118,10 +113,13 @@ function Loader(props: {
     <>
       <ChippyLoader progress={loadProgress || null} />
       {showButton ? (
-        <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
+        <OutlineButton
+          className="text-2xl"
+          onClick={() => dispatch(reloadConnectedDevices())}
+        >
           Authorize device{' '}
           <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
-        </AccentButtonLarge>
+        </OutlineButton>
       ) : (
         <LoadingText isSearching={!selectedDefinition} />
       )}
@@ -138,10 +136,8 @@ export const ConfigurePane = () => {
     <Pane>
       {showLoader ? (
         <Loader
-          {...{
-            loadProgress,
-            selectedDefinition: selectedDefinition ? selectedDefinition : null,
-          }}
+          loadProgress={loadProgress}
+          selectedDefinition={selectedDefinition ? selectedDefinition : null}
         />
       ) : (
         <ConfigureGrid />

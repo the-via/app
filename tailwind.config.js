@@ -4,9 +4,10 @@ module.exports = {
     extend: {
       colors: {
         primary: 'var(--color-primary)',
-        primaryActive: 'var(--color-primary-active)',
+        'primary-accent': 'var(--color-primary-accent)',
         secondary: 'var(--color-secondary)',
-        secondaryActive: 'var(--color-secondary-active)',
+        'secondary-accent': 'var(--color-secondary-accent)',
+
         light: 'var(--color-light)',
         medium: 'var(--color-medium)',
         dark: 'var(--color-dark)',

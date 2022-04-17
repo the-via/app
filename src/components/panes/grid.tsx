@@ -46,7 +46,6 @@ export const FlexCell = styled(Cell)`
   align-items: center;
   padding: 50px 10px;
   position: relative;
-  background: var(--gradient);
 `;
 
 const iconContainerClassName = cntl`

@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import {useLocation} from 'react-router';
 import {Link} from 'react-router-dom';
 import cntl from 'cntl';
@@ -41,9 +40,9 @@ export const UnconnectedGlobalMenu = () => {
   }, [location, showDesignTab]);
 
   return (
-    <div className="flex justify-between border-b-2 border-secondary">
+    <div className="flex justify-between border-b-2 border-b border-secondary">
       <div className="flex items-center justify-start mx-10">
-        <Logo className="fill-white w-16" />
+        <Logo className="fill-primary-accent w-16" />
       </div>
       <div className={containerClassName}>{Panes}</div>
       <div className="flex-1" />

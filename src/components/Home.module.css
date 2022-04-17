@@ -15,13 +15,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #eaeaea;
   position: relative;
   box-shadow: inset #a7a7a7 0 1px 1px;
 }
 
 .home {
-  background: var(--color_jet);
   display: flex;
   flex-direction: column;
   flex-grow: 1;

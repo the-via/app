@@ -7419,7 +7419,7 @@ snowpack-plugin-json5@^1.0.0:
   dependencies:
     json5 "2.1.x"
 
-snowpack@^3.3.7:
+snowpack@^3.8.6:
   version "3.8.8"
   resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.8.8.tgz#237f1c0ad49c68313864f3aa4438db3affee0806"
   integrity sha512-Y/4V8FdzzYpwmJU2TgXRRFytz+GFSliWULK9J5O6C72KyK60w20JKqCdRtVs1S6BuobCedF5vSBD1Gvtm+gsJg==

@@ -2,20 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color_accent: #ad7070;
+  --color_dark-accent: #6d4e4e;
+  --color_light-grey: #d9d9d9;
+  --color_medium-grey: #707070;
+  --color_dark-grey: #414141;
+  --color_light-jet: #222;
+  --color_jet: #1d1b1b;
+  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
+
+  --olivia-primary: #E8C4B8;
+  --olivia-primary-accent: rgb(211, 211, 204);
+  --olivia-secondary: #363434;
+  --olivia-secondary-accent: rgb(31, 30, 28);
+
+  --olive-primary: rgb(144,148,124);
+  --olive-primary-accent: rgb(192, 191, 183);
+  --olive-secondary: rgb(81, 81, 77);
+  --olive-secondary-accent: rgb(28, 27, 23);
+
+  /* WIP: Tailwind Colors */
+  --color-primary: var(--olivia-primary);
+  --color-primary-accent: var(--olivia-primary-accent);
+  --color-secondary: var(--olivia-secondary);
+  --color-secondary-accent: var(--olivia-secondary-accent);
+}
+
 html,
 body {
-  font-size: 14px;
+  font-size: 15px;
   height: 100%;
 }
 body {
   position: relative;
-  color: white;
-  background-color: #232c39;
-  font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif;
+  color: var(--color-primary-accent);
   overflow: hidden;
   margin: 0;
   padding: 0;
   user-select: none;
+
+  /* font-family: 'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif; */
+  font-family: 'Inter';
+  font-family: 'Gotham Rounded';
 }
 h2 {
   margin: 0;
@@ -30,34 +59,8 @@ p {
 li {
   list-style: none;
 }
-:root {
-  --color_accent: #ad7070;
-  --color_dark-accent: #6d4e4e;
-  --color_light-grey: #d9d9d9;
-  --color_medium-grey: #707070;
-  --color_dark-grey: #414141;
-  --color_light-jet: #222;
-  --color_jet: #1d1b1b;
-  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
-
-  --olivia-mod: #E8C4B8;
-  --olivia-text: #363434;
-
-  /* WIP: Tailwind Colors */
-  --color-primary: var(--olivia-mod);
-  /* --color-primary-active: var(--olivia-background); */
-  --color-secondary: var(--olivia-text);
-  /* --color-secondary-active: ; */
-
-
-  --color-accent-active: var(--color_dark-accent);
-  --color-light: var(--color_light-grey);
-  --color-medium: var(--color_medium-grey);
-  --color-dark: var(--color_dark-grey);
-  --color-background: var(--color_light-jet);
-}
 #root {
-  background: var(--gradient);
+  background: var(--color-secondary-accent);
   display: flex;
   flex-direction: column;
   height: 100%;

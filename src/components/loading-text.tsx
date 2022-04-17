@@ -1,14 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const LoadingText = styled.div`
-  font-size: 30px;
-  color: var(--color_light-grey);
-`;
 
 enum LoadingLabel {
-  Searching = 'Searching for devices...',
-  Loading = 'Loading...',
+  Searching = 'Searching for devices…',
+  Loading = 'Loading…'
 }
 
 type Props = {
@@ -17,8 +11,8 @@ type Props = {
 
 export default function (props: Props) {
   return (
-    <LoadingText data-tid="loading-message">
+    <div className="text-2xl italic text-primary-accent" data-tid="loading-message">
       {props.isSearching ? LoadingLabel.Searching : LoadingLabel.Loading}
-    </LoadingText>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ export default function ControlButton(props: Props) {
   const buttonClassName = cntl`
     border-2
     border-transparent
-    font-bold
+    font-medium
     hover:border-primary
     px-2
     rounded-md
