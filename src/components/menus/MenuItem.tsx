@@ -19,7 +19,7 @@ export default function MenuItem(props: Props) {
     rounded-md
     transition-button
     ${isSelected ? 'bg-primary' : ''}
-    ${isSelected ? 'text-secondary' : 'text-primary'}
+    ${isSelected ? 'text-secondary' : 'text-light'}
     ${className}
   `;
 

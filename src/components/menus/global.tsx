@@ -10,13 +10,11 @@ import MenuItem from './MenuItem';
 import Logo from 'src/components/Logo';
 
 const containerClassName = cntl`
-  bg-secondary
   flex
-  gap-12
+  gap-10
   mx-auto
   min-w-0
   my-6
-  p-3
   rounded-xl
 `;
 
@@ -43,8 +41,8 @@ export const UnconnectedGlobalMenu = () => {
   }, [location, showDesignTab]);
 
   return (
-    <div className="mx-8 flex justify-between gap-3">
-      <div className="flex flex-1 items-center justify-start">
+    <div className="flex justify-between border-b-2 border-secondary">
+      <div className="flex items-center justify-start mx-10">
         <Logo className="fill-white w-16" />
       </div>
       <div className={containerClassName}>{Panes}</div>
