@@ -32,7 +32,7 @@ import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
-import FloatingPane from 'src/components/panes/configure-panes/keycode/FloatingPane';
+import FloatingPane from 'src/components/panes/configure-panes/FloatingPane';
 import OutlineButton from 'src/components/controls/OutlineButton';
 
 const Pane = styled(DefaultPane)`
@@ -190,7 +190,6 @@ const ConfigureGrid = () => {
             <SelectedPane />
             */}
         </div>
-        <Layouts.Pane />
       </div>
       <FloatingPane />
       {/*

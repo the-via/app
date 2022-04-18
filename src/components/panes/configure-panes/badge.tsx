@@ -18,19 +18,12 @@ import {
 } from 'src/store/devicesSlice';
 import {selectConnectedDeviceByPath} from 'src/store/devicesThunks';
 
-const Container = styled.div`
-  position: absolute;
-  right: 15px;
-  top: 0px;
-  font-size: 18px;
-  pointer-events: none;
-`;
-
 interface BadgeButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
 const badgeButtonClassName = cntl`
-  bg-primary
+  border-2
+  border-primary
   flex
   font-bold
   gap-2
@@ -38,7 +31,7 @@ const badgeButtonClassName = cntl`
   px-3
   py-1
   rounded-md
-  text-secondary
+  text-primary
   uppercase
 `;
 

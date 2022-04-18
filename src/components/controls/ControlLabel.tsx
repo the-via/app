@@ -3,11 +3,24 @@
  */
 
 import React from 'react';
+import cntl from 'cntl';
 
 interface Props {
+  className?: string;
   children?: React.ReactNode;
 }
 
 export default function ControlLabel(props: Props) {
-  return <div className="uppercase tracking-label mr-4">{props.children}</div>;
+  const {className} = props;
+
+  const controlLabelClassName = cntl`
+    mr-6
+    text-sm
+    tracking-label  
+    font-medium
+    uppercase
+    ${className}
+  `;
+
+  return <div className={controlLabelClassName}>{props.children}</div>;
 }

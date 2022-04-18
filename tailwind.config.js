@@ -14,7 +14,7 @@ module.exports = {
         background: 'var(--color-background)',
       },
       letterSpacing: {
-        label: '0.125em'
+        label: '0.15em'
       }
     },
   },

@@ -3,27 +3,15 @@ import cntl from 'cntl';
 import {getKeycodes, getOtherMenu} from 'src/utils/key';
 import KeycodeCategory from './KeycodeCategory';
 import KeycodeCategoryLabel from './KeycodeCategoryLabel';
-import ControlButton from 'src/components/controls/ControlButton';
 
 const KeycodeCategories = getKeycodes()
   .concat(getOtherMenu())
   .filter((menu) => !['Other', 'Mod+_'].includes(menu.label));
 
-const floatingPaneClassName = cntl`
-  border
-  border-dark
-  bottom-4
-  flex
-  flex-col
-  left-5
-  m-8
-  rounded
-  w-1/3
-`;
-
 const keycodesListClassName = cntl`
   flex
   flex-col
+  flex-1
   px-4
   pb-4
   gap-6
@@ -43,7 +31,10 @@ const searchInputClassName = cntl`
   focus:border-accent
 `;
 
-export default function FloatingPane() {
+interface Props {};
+
+export default function KeymapPane(_props: Props) {
+  console.info('created');
   const [search, setSearch] = React.useState<string>();
 
   const onSearchChange = React.useCallback(
@@ -53,31 +44,22 @@ export default function FloatingPane() {
     [],
   );
 
-  const Categories = KeycodeCategories.map((keycodeCategory) => {
-    return (
-      <KeycodeCategory
-        activeSearch={search}
-        key={keycodeCategory.label}
-        keycodes={keycodeCategory.keycodes}
-      >
-        <KeycodeCategoryLabel>{keycodeCategory.label}</KeycodeCategoryLabel>
-      </KeycodeCategory>
-    );
-  });
+  const Categories = React.useMemo(() => {
+    return KeycodeCategories.map((keycodeCategory) => {
+      return (
+        <KeycodeCategory
+          activeSearch={search}
+          key={keycodeCategory.label}
+          keycodes={keycodeCategory.keycodes}
+        >
+          <KeycodeCategoryLabel>{keycodeCategory.label}</KeycodeCategoryLabel>
+        </KeycodeCategory>
+      );
+    });
+  }, [KeycodeCategories, search]);
 
   return (
-    <div className={floatingPaneClassName}>
-      <div className="flex items-center justify-between border-b-2 border-secondary">
-        <div className="m-4">
-          <ControlButton isSelected={true}>Keymap</ControlButton>
-        </div>
-        <div className="m-4">
-          <ControlButton isSelected={false}>Lighting</ControlButton>
-        </div>
-        <div className="m-4">
-          <ControlButton isSelected={false}>Layouts</ControlButton>
-        </div>
-      </div>
+    <div className="flex flex-col overflow-y-auto">
       <div className="m-4">
         <input
           className={searchInputClassName}

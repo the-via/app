@@ -59,12 +59,14 @@ p {
 li {
   list-style: none;
 }
+
 #root {
   background: var(--color-secondary-accent);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
+
 @font-face {
   font-family: 'Source Code Pro';
   font-style: normal;

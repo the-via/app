@@ -113,7 +113,7 @@ function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
   }, [height, width]);
 
   return (
-    <div className="border-2 rounded-lg border-dark p-3 relative">
+    <div className="border rounded-lg border-secondary p-3 relative">
       <div
         className="relative"
         style={{
