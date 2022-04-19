@@ -17,26 +17,18 @@ import {
   getSelectedDevicePath,
 } from 'src/store/devicesSlice';
 import {selectConnectedDeviceByPath} from 'src/store/devicesThunks';
+import OutlineButton from 'src/components/controls/OutlineButton';
 
 interface BadgeButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
 
-const badgeButtonClassName = cntl`
-  border-2
-  border-primary
-  flex
-  font-bold
-  gap-2
-  items-center
-  px-3
-  py-1
-  rounded-md
-  text-primary
-  uppercase
-`;
-
 function BadgeButton(props: BadgeButtonProps) {
-  return <button className={badgeButtonClassName} {...props} />;
+  return (
+    <OutlineButton
+      className="flex items-center uppercase font-bold tracking-wide text-sm"
+      {...props}
+    />
+  );
 }
 
 const KeyboardList = styled.ul<{show: boolean}>`
@@ -165,10 +157,10 @@ export const Badge = () => {
         <span>{selectedDefinition.name}</span>
         <FontAwesomeIcon
           icon={faAngleDown}
+          className="ml-3"
           style={{
             transform: showList ? 'rotate(180deg)' : '',
             transition: 'transform 0.2s ease-out',
-            marginLeft: '5px',
           }}
         />
       </BadgeButton>

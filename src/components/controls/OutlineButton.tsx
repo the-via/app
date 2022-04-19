@@ -6,23 +6,52 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isSelected?: boolean;
 }
 
-export default function OutlineButton(props: Props) {
+const outlineButtonClassName = cntl`
+  border-2
+  font-medium
+  px-4
+  py-2
+  rounded-md
+  transition-button
+`;
+
+function CoreOutlineButton(props: Props) {
   const {className, isSelected = false, ...buttonProps} = props;
 
   const buttonClassName = cntl`
-    border-2
-    border-primary
-    font-medium
-    hover:bg-primary
-    hover:text-secondary
-    px-4
-    py-2
-    rounded-md
-    transition-button
+    ${outlineButtonClassName}
     ${isSelected ? 'bg-primary' : ''}
     ${isSelected ? 'text-secondary' : 'text-primary'}
     ${className}
   `;
 
-    return <button className={buttonClassName} {...buttonProps} />;
+  return <button className={buttonClassName} {...buttonProps} />;
+}
+
+export default function OutlineButton(props: Props) {
+  const { className: propsClassName, ...restProps } = props;
+
+  const className = cntl`
+    border-primary
+    hover:bg-primary
+    hover:text-secondary
+    ${propsClassName}
+  `;
+
+  return <CoreOutlineButton className={className} {...restProps } />
+}
+
+// FIXME: The name of this component sucks.
+export function OutlineButtonSecondary(props: Props) {
+  const { className: propsClassName, ...restProps } = props;
+
+  const className = cntl`
+    active:bg-primary
+    active:text-secondary
+    border-secondary
+    hover:border-primary
+    ${propsClassName}
+  `;
+
+  return <CoreOutlineButton className={className} {...restProps } />
 }

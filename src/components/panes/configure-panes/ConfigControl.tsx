@@ -11,8 +11,8 @@ export default function ConfigControl(_props: Props) {
     <div className="flex items-center justify-end">
       <ControlLabel>Config</ControlLabel>
       <div className="flex gap-2">
-        <ControlButton title="Save configuration">↓</ControlButton>
-        <ControlButton title="Load configuration">↑</ControlButton>
+        <ControlButton title="Save configuration">Save</ControlButton>
+        <ControlButton title="Load configuration">Load</ControlButton>
       </div>
     </div>
   );

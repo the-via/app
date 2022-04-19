@@ -175,20 +175,23 @@ const ConfigureGrid = () => {
         className="flex flex-col flex-1 min-w-0"
         onClick={() => dispatch(clearSelectedKey())}
       >
-        <div className="grid grid-cols-3 px-4 mt-8 content-between">
-          <LayerControl />
+        <div className="mx-auto mt-8">
           <Badge />
-          <ConfigControl />
         </div>
         <div className="m-4 flex justify-center" ref={flexRef}>
-          <PositionedKeyboard
-            containerDimensions={dimensions}
-            selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
-          />
-          <ReactTooltip />
-          {/*
-            <SelectedPane />
-            */}
+          <div className="border rounded-lg border-secondary p-3 relative" ref={flexRef}>
+            <PositionedKeyboard
+              containerDimensions={dimensions}
+              selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
+            />
+            <ReactTooltip />
+            {/*
+              <SelectedPane />
+              */}
+          </div>
+        </div>
+        <div className="mx-auto">
+          <LayerControl />
         </div>
       </div>
       <FloatingPane />

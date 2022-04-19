@@ -14,13 +14,14 @@ const floatingPaneClassName = cntl`
   left-5
   m-8
   rounded
-  w-1/3
+  w-2/5
 `;
 
 enum ConfigurePanes {
   KEYMAP,
   LIGHTING,
   LAYOUTS,
+  CONFIG
 }
 
 export default function FloatingPane() {
@@ -35,6 +36,8 @@ export default function FloatingPane() {
     ActivePaneComponent = <div>Lighting</div>;
   } else if (activePane === ConfigurePanes.LAYOUTS) {
     ActivePaneComponent = <LayoutPane />;
+  } else if (activePane === ConfigurePanes.CONFIG) {
+    ActivePaneComponent = <div>Config</div>;
   }
 
   return (
@@ -63,6 +66,14 @@ export default function FloatingPane() {
           }}
         >
           Layouts
+        </ControlButton>
+        <ControlButton
+          isSelected={activePane === ConfigurePanes.CONFIG}
+          onClick={() => {
+            setActivePane(ConfigurePanes.CONFIG);
+          }}
+        >
+          Config
         </ControlButton>
       </div>
       {ActivePaneComponent}

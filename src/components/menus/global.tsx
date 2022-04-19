@@ -40,9 +40,9 @@ export const UnconnectedGlobalMenu = () => {
   }, [location, showDesignTab]);
 
   return (
-    <div className="flex justify-between border-b-2 border-b border-secondary">
-      <div className="flex items-center justify-start mx-10">
-        <Logo className="fill-primary-accent w-16" />
+    <div className="flex justify-between border-secondary">
+      <div className="flex items-center justify-start mx-14">
+        <Logo className="fill-primary-accent w-14" />
       </div>
       <div className={containerClassName}>{Panes}</div>
       <div className="flex-1" />

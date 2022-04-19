@@ -113,22 +113,20 @@ function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
   }, [height, width]);
 
   return (
-    <div className="border rounded-lg border-secondary p-3 relative">
+    <div
+      className="relative"
+      style={{
+        height: `${frameHeight * scaleTransform}px`,
+        width: `${frameWidth * scaleTransform}px`,
+      }}
+    >
       <div
-        className="relative"
+        className="h-full w-full origin-top-left"
         style={{
-          height: `${frameHeight * scaleTransform}px`,
-          width: `${frameWidth * scaleTransform}px`,
+          transform: `scale(${scaleTransform})`,
         }}
       >
-        <div
-          className="h-full w-full origin-top-left"
-          style={{
-            transform: `scale(${scaleTransform})`,
-          }}
-        >
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );
