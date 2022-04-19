@@ -12,12 +12,12 @@
   --color_jet: #1d1b1b;
   --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 
-  --olivia-primary: #E8C4B8;
+  --olivia-primary: #e8c4b8;
   --olivia-primary-accent: rgb(211, 211, 204);
   --olivia-secondary: #363434;
   --olivia-secondary-accent: rgb(31, 30, 28);
 
-  --olive-primary: rgb(144,148,124);
+  --olive-primary: rgb(144, 148, 124);
   --olive-primary-accent: rgb(192, 191, 183);
   --olive-secondary: rgb(81, 81, 77);
   --olive-secondary-accent: rgb(28, 27, 23);

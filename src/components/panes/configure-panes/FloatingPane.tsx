@@ -14,7 +14,7 @@ const floatingPaneClassName = cntl`
   left-5
   m-8
   rounded
-  w-2/5
+  w-1/3
 `;
 
 enum ConfigurePanes {

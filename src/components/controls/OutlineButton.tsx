@@ -49,6 +49,7 @@ export function OutlineButtonSecondary(props: Props) {
     active:bg-primary
     active:text-secondary
     border-secondary
+    ease-out
     hover:border-primary
     ${propsClassName}
   `;

@@ -9,5 +9,9 @@ interface Props {
 export default function Keycode(props: Props) {
   const {keycode} = props;
 
-  return <OutlineButtonSecondary>{keycode.name}</OutlineButtonSecondary>;
+  return (
+    <OutlineButtonSecondary className="whitespace-pre-wrap text-sm xl:text-base">
+      {keycode.name}
+    </OutlineButtonSecondary>
+  );
 }

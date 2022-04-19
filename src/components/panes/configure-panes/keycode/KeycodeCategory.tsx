@@ -38,7 +38,7 @@ export default function KeycodeCategory(props: Props) {
   return (
     <div>
       {children}
-      <div className="grid grid-cols-3 gap-5 auto-rows-[4rem]">{Keycodes}</div>
+      <div className="grid grid-cols-3 2xl:grid-cols-4 gap-5 auto-rows-[4rem]">{Keycodes}</div>
     </div>
   );
 }

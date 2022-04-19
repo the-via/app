@@ -20,15 +20,18 @@ const keycodesListClassName = cntl`
 
 const searchInputClassName = cntl`
   bg-inherit
-  border-secondary
   border-2
+  border-secondary
   border-solid
-  px-2
+  focus:border-primary
+  hover:border-primary
+  placeholder:text-secondary
+  px-3
   py-1
   rounded-lg
   text-light
+  transition-button
   w-full
-  focus:border-accent
 `;
 
 interface Props {};
