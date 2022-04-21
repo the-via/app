@@ -12,6 +12,7 @@ import {
 } from 'src/store/lightingSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import ControlLabel from 'src/components/controls/ControlLabel';
 
 export type ControlMeta = [
   LightingValue,
@@ -22,7 +23,19 @@ export type ControlMeta = [
     getOptions: (d: VIADefinitionV2 | VIADefinitionV3) => string[];
   }>,
 ];
+
+interface LabelProps {
+  children?: React.ReactNode;
+}
+
+function Label(props: LabelProps) {
+  return (
+    <div className="font-medium text-sm">{props.children}</div>
+  );
+}
+
 type AdvancedControlProps = {meta: ControlMeta};
+
 export const LightingControl = (props: AdvancedControlProps) => {
   const dispatch = useDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
@@ -37,8 +50,8 @@ export const LightingControl = (props: AdvancedControlProps) => {
   switch (meta.type) {
     case 'slider':
       return (
-        <ControlRow>
-          <Label>{labelContent}</Label>
+        <div>
+          <ControlLabel>{labelContent}</ControlLabel>
           <Detail>
             <AccentSlider
               isChecked={!!valArr[0]}
@@ -47,12 +60,12 @@ export const LightingControl = (props: AdvancedControlProps) => {
               }
             />
           </Detail>
-        </ControlRow>
+        </div>
       );
 
     case 'range':
       return (
-        <ControlRow>
+        <div className="flex justify-between items-center">
           <Label>{labelContent}</Label>
           <Detail>
             <AccentRange
@@ -62,7 +75,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
               onChange={(val) => dispatch(updateBacklightValue(command, val))}
             />
           </Detail>
-        </ControlRow>
+        </div>
       );
     case 'color':
       return (
@@ -86,7 +99,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
         }),
       );
       return (
-        <ControlRow>
+        <div className="flex justify-between items-center">
           <Label>{labelContent}</Label>
           <Detail>
             <AccentSelect
@@ -102,7 +115,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
               )}
             />
           </Detail>
-        </ControlRow>
+        </div>
       );
     }
     case 'row_col':

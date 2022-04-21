@@ -4,6 +4,7 @@ import {getKeycodes, getOtherMenu} from 'src/utils/key';
 import ControlButton from 'src/components/controls/ControlButton';
 import KeymapPane from './keycode/KeymapPane';
 import LayoutPane from './LayoutPane';
+import LightingPane from './LightingPane';
 
 const floatingPaneClassName = cntl`
   border
@@ -33,7 +34,7 @@ export default function FloatingPane() {
   if (activePane === ConfigurePanes.KEYMAP) {
     ActivePaneComponent = <KeymapPane />;
   } else if (activePane === ConfigurePanes.LIGHTING) {
-    ActivePaneComponent = <div>Lighting</div>;
+    ActivePaneComponent = <LightingPane />;
   } else if (activePane === ConfigurePanes.LAYOUTS) {
     ActivePaneComponent = <LayoutPane />;
   } else if (activePane === ConfigurePanes.CONFIG) {
