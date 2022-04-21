@@ -9,7 +9,7 @@ export default function ConfigControl(_props: Props) {
 
   return (
     <div className="flex items-center justify-end">
-      <ControlLabel>Config</ControlLabel>
+      <ControlLabel className="mr-6">Config</ControlLabel>
       <div className="flex gap-2">
         <ControlButton title="Save configuration">Save</ControlButton>
         <ControlButton title="Load configuration">Load</ControlButton>

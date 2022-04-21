@@ -14,7 +14,6 @@ export default function ControlLabel(props: Props) {
   const {className} = props;
 
   const controlLabelClassName = cntl`
-    mr-6
     text-sm
     tracking-label  
     font-medium

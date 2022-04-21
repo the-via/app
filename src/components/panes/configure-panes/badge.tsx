@@ -25,7 +25,7 @@ interface BadgeButtonProps
 function BadgeButton(props: BadgeButtonProps) {
   return (
     <OutlineButton
-      className="flex items-center uppercase font-bold tracking-wide text-sm"
+      className="flex items-center uppercase font-bold text-sm"
       {...props}
     />
   );

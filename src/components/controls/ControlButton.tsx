@@ -1,12 +1,13 @@
 import React from 'react';
 import cntl from 'cntl';
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ControlButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
   isSelected?: boolean;
 }
 
-export default function ControlButton(props: Props) {
+export default function ControlButton(props: ControlButtonProps) {
   const {className, isSelected = false, ...buttonProps} = props;
 
   const buttonClassName = cntl`
@@ -18,9 +19,10 @@ export default function ControlButton(props: Props) {
     rounded-md
     transition-button
     ${isSelected ? 'bg-primary' : ''}
+    ${isSelected ? 'focus-visible:underline' : 'focus-visible:border-primary'}
     ${isSelected ? 'text-secondary' : 'text-primary'}
     ${className}
   `;
 
-    return <button className={buttonClassName} {...buttonProps} />;
+  return <button className={buttonClassName} {...buttonProps} />;
 }

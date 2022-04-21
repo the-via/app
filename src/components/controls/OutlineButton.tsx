@@ -33,6 +33,7 @@ export default function OutlineButton(props: Props) {
 
   const className = cntl`
     border-primary
+    focus:underline
     hover:bg-primary
     hover:text-secondary
     ${propsClassName}
@@ -51,6 +52,7 @@ export function OutlineButtonSecondary(props: Props) {
     border-secondary
     ease-out
     hover:border-primary
+    ${props.isSelected ? 'focus:underline' : 'focus:border-primary'}
     ${propsClassName}
   `;
 

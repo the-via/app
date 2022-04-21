@@ -42,7 +42,7 @@ export default function FloatingPane() {
 
   return (
     <div className={floatingPaneClassName}>
-      <div className="flex items-center justify-between border-b-2 border-secondary p-4">
+      <div className="flex items-center justify-between border-b border-secondary p-4">
         <ControlButton
           isSelected={activePane === ConfigurePanes.KEYMAP}
           onClick={() => {

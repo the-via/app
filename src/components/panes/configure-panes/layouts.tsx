@@ -29,7 +29,7 @@ const LayoutControl: React.VFC<{
     }));
     return (
       <div className="flex items-center gap-6 text-right">
-        <ControlLabel>{label}</ControlLabel>
+        <ControlLabel className="mr-6">{label}</ControlLabel>
         {optionLabels.map((option, i) => {
           return (
             <ControlButton

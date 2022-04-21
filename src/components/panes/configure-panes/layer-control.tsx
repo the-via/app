@@ -70,7 +70,7 @@ export const LayerControl = () => {
 
   return (
     <div className="flex items-center">
-      <ControlLabel>Layer</ControlLabel>
+      <ControlLabel className="mr-6">Layer</ControlLabel>
       <div className="flex gap-2">{Layers}</div>
     </div>
   );

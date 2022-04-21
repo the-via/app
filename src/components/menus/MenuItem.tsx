@@ -1,27 +1,20 @@
 import React from 'react';
 import cntl from 'cntl';
+import ControlButton, {
+  ControlButtonProps,
+} from 'src/components/controls/ControlButton';
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Props extends ControlButtonProps {
   children?: React.ReactNode;
-  isSelected?: boolean;
 }
 
 export default function MenuItem(props: Props) {
-  const {className, isSelected = false, ...buttonProps} = props;
+  const {className, ...buttonProps} = props;
 
   const buttonClassName = cntl`
-    border-2
-    border-transparent
-    font-medium
     text-lg
-    hover:border-primary
-    px-2
-    rounded-md
-    transition-button
-    ${isSelected ? 'bg-primary' : ''}
-    ${isSelected ? 'text-secondary' : 'text-primary'}
     ${className}
   `;
 
-  return <button className={buttonClassName} {...buttonProps} />;
+  return <ControlButton className={buttonClassName} {...buttonProps} />;
 }
