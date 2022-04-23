@@ -3,15 +3,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'var(--color-primary)',
-        'primary-accent': 'var(--color-primary-accent)',
-        secondary: 'var(--color-secondary)',
-        'secondary-accent': 'var(--color-secondary-accent)',
-
+        // TODO remove these colors
         light: 'var(--color-light)',
         medium: 'var(--color-medium)',
         dark: 'var(--color-dark)',
         background: 'var(--color-background)',
+
+        action: 'var(--color-action)',
+        background: 'var(--color-background)',
+        outline: 'var(--color-outline)',
+        text: 'var(--color-text)',
       },
       letterSpacing: {
         label: '0.15em'

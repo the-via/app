@@ -1,20 +1,11 @@
 import React from 'react';
-import ControlLabel from 'src/components/controls/ControlLabel';
+import ControlCategoryLabel, { ControlCategoryLabelProps } from 'src/components/controls/ControlCategoryLabel';
 
-interface Props {
-  children?: React.ReactNode;
-}
+interface KeycodeCategoryLabelProps extends ControlCategoryLabelProps { }
 
-export default function KeycodeCategoryLabel(props: Props) {
-  const { children } = props;
+export default function KeycodeCategoryLabel(props: KeycodeCategoryLabelProps) {
 
   return (
-    <div className="flex relative sticky top-0 items-center mb-4 bg-secondary-accent">
-      <div className="h-px bg-secondary flex-1" />
-      <ControlLabel>
-        <span className="bg-background px-4">{children}</span>
-      </ControlLabel>
-      <div className="h-px bg-secondary flex-1" />
-    </div>
+    <ControlCategoryLabel className="sticky top-0 z-2" {...props} />
   );
 }

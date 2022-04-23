@@ -21,7 +21,7 @@ const Slider = styled.span<{isChecked?: boolean}>`
   right: 0;
   bottom: 0;
   background-color: ${(props) =>
-    props.isChecked ? 'var(--color-primary)' : 'var(--color-secondary)'};
+    props.isChecked ? 'var(--color-action)' : 'var(--color-outline)'};
   -webkit-transition: 0.4s;
   transition: 0.4s;
   border-radius: 4px;
@@ -35,8 +35,8 @@ const Slider = styled.span<{isChecked?: boolean}>`
     border-radius: 4px;
     background-color: ${(props) =>
       !props.isChecked
-        ? 'var(--color-primary)'
-        : 'var(--secondary)'};
+        ? 'var(--color-action)'
+        : 'var(--outline)'};
     -webkit-transition: 0.4s;
     transition: 0.4s;
     ${(props) => (props.isChecked ? 'transform: translateX(26px)' : '')};

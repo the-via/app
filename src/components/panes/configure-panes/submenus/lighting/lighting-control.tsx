@@ -12,7 +12,6 @@ import {
 } from 'src/store/lightingSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
-import ControlLabel from 'src/components/controls/ControlLabel';
 
 export type ControlMeta = [
   LightingValue,
@@ -30,7 +29,7 @@ interface LabelProps {
 
 function Label(props: LabelProps) {
   return (
-    <div className="font-medium text-sm">{props.children}</div>
+    <div className="font-medium">{props.children}</div>
   );
 }
 
@@ -51,7 +50,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
     case 'slider':
       return (
         <div>
-          <ControlLabel>{labelContent}</ControlLabel>
+          <Label>{labelContent}</Label>
           <Detail>
             <AccentSlider
               isChecked={!!valArr[0]}

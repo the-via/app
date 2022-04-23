@@ -21,11 +21,10 @@ const keycodesListClassName = cntl`
 const searchInputClassName = cntl`
   bg-inherit
   border-2
-  border-secondary
-  border-solid
-  focus:border-primary
-  hover:border-primary
-  placeholder:text-secondary
+  border-outline
+  focus:border-action
+  hover:border-action
+  placeholder:text-outline
   px-3
   py-1
   rounded-lg

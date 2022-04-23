@@ -229,27 +229,54 @@ export const BGKeyContainer = styled(KeyContainer)`
   transform: translate3d(0, -4px, 0) scale(0.99);
 `;
 
-const SmallInnerKey = styled.div<{backgroundColor: string}>`
-  height: 100%;
-  position: relative;
-  margin: auto;
-  background-color: ${(props) => props.backgroundColor};
-  line-height: 20px;
-  box-sizing: border-box;
-  border-radius: 3px;
-  font-size: 12px;
-  padding-top: 0;
-`;
 
-const InnerKey = styled.div<{backgroundColor: string}>`
-  height: 100%;
-  margin: auto;
-  background-color: ${(props) => props.backgroundColor};
-  line-height: 20px;
-  box-sizing: border-box;
-  border-radius: 3px;
-  padding-top: 2px;
-`;
+interface SmallInnerKeyProps extends React.HTMLProps<HTMLDivElement> {
+  children?: React.ReactNode;
+}
+
+function SmallInnerKey(props: SmallInnerKeyProps) {
+  const smallInnerKeyClassName = cntl`
+    bg-outline
+    h-full
+    mx-auto
+    pt-0
+    relative
+    rounded
+    text-xs
+  `;
+
+  return (
+    <div className={smallInnerKeyClassName} {...props} />
+  );
+}
+
+interface InnerKeyProps extends React.HTMLProps<HTMLDivElement> {
+  children?: React.ReactNode;
+}
+
+function InnerKey(props: InnerKeyProps) {
+  const innerKeyClassName = cntl`
+    bg-outline
+    h-full
+    mx-auto
+    pt-1
+    rounded
+  `;
+
+  return (
+    <div className={innerKeyClassName} {...props} />
+  );
+}
+
+// const InnerKey = styled.div<{backgroundColor: string}>`
+//   height: 100%;
+//   margin: auto;
+//   background-color: ${(props) => props.backgroundColor};
+//   line-height: 20px;
+//   box-sizing: border-box;
+//   border-radius: 3px;
+//   padding-top: 2px;
+// `;
 
 // Remove after refactoring with flexbox
 const SmallInnerCenterKeyContainer = styled.div`
@@ -307,14 +334,32 @@ export const OuterKey = styled.div<{
   cursor: pointer;
 `;
 
-const Legend = styled.div`
-  font-family: Arial, Helvetica, sans-serif;
-  color: ${(props) => props.color};
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
+
+interface LegendProps extends React.HTMLProps<HTMLDivElement> {
+  children?: React.ReactNode;
+}
+
+function Legend(props: LegendProps) {
+  const legendClassName = cntl`
+    font-semibold
+    truncate
+    text-xs
+    text-action
+  `;
+
+  return (
+    <div className={legendClassName} {...props} />
+  );
+}
+
+// const Legend = styled.div`
+//   font-family: Arial, Helvetica, sans-serif;
+//   color: ${(props) => props.color};
+//   font-weight: bold;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+//   white-space: nowrap;
+// `;
 
 export const getDarkenedColor = (color: string) => {
   const cleanedColor = color.replace('#', '');
@@ -453,7 +498,6 @@ const KeyComponent = memo(
               >
                 <ChosenInnerKey
                   style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
-                  backgroundColor={c}
                 >
                   <ChosenInnerKeyContainer></ChosenInnerKeyContainer>
                 </ChosenInnerKey>

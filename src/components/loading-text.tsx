@@ -11,7 +11,7 @@ type Props = {
 
 export default function (props: Props) {
   return (
-    <div className="text-2xl italic text-primary-accent" data-tid="loading-message">
+    <div className="text-2xl italic text-text" data-tid="loading-message">
       {props.isSearching ? LoadingLabel.Searching : LoadingLabel.Loading}
     </div>
   );

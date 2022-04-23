@@ -14,13 +14,15 @@ export default function ControlButton(props: ControlButtonProps) {
     border-2
     border-transparent
     font-medium
-    hover:border-primary
+    hover:border-action
+    overflow-hidden
     px-2
     rounded-md
+    text-ellipsis
     transition-button
-    ${isSelected ? 'bg-primary' : ''}
-    ${isSelected ? 'focus-visible:underline' : 'focus-visible:border-primary'}
-    ${isSelected ? 'text-secondary' : 'text-primary'}
+    ${isSelected ? 'bg-action' : ''}
+    ${isSelected ? 'focus-visible:underline' : 'focus-visible:border-action'}
+    ${isSelected ? 'text-outline' : 'text-action'}
     ${className}
   `;
 

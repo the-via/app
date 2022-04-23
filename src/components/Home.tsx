@@ -184,6 +184,12 @@ export const Home = (props: HomeProps) => {
     toggleLights();
   }, [selectedDevice]);
 
+  // Update the theme
+  // FIXME: Move this to a component
+  useEffect(() => {
+    document.body.dataset.theme = 'olivia';
+  }, []);
+
   return (
     <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
       {!hasHIDSupport ? (

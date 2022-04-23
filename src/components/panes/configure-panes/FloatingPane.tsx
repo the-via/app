@@ -8,12 +8,13 @@ import LightingPane from './LightingPane';
 
 const floatingPaneClassName = cntl`
   border
-  border-secondary
+  border-outline
   bottom-4
   flex
   flex-col
   left-5
-  m-8
+  m-4
+  xl:m-8
   rounded
   w-1/3
 `;
@@ -43,7 +44,7 @@ export default function FloatingPane() {
 
   return (
     <div className={floatingPaneClassName}>
-      <div className="flex items-center justify-between border-b border-secondary p-4">
+      <div className="flex items-center justify-between border-b border-outline p-4">
         <ControlButton
           isSelected={activePane === ConfigurePanes.KEYMAP}
           onClick={() => {

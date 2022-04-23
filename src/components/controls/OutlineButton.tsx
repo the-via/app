@@ -9,9 +9,11 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const outlineButtonClassName = cntl`
   border-2
   font-medium
+  overflow-hidden
   px-4
   py-2
   rounded-md
+  text-ellipsis
   transition-button
 `;
 
@@ -20,8 +22,8 @@ function CoreOutlineButton(props: Props) {
 
   const buttonClassName = cntl`
     ${outlineButtonClassName}
-    ${isSelected ? 'bg-primary' : ''}
-    ${isSelected ? 'text-secondary' : 'text-primary'}
+    ${isSelected ? 'bg-action' : ''}
+    ${isSelected ? 'text-outline' : 'text-action'}
     ${className}
   `;
 
@@ -32,10 +34,10 @@ export default function OutlineButton(props: Props) {
   const { className: propsClassName, ...restProps } = props;
 
   const className = cntl`
-    border-primary
-    focus:underline
-    hover:bg-primary
-    hover:text-secondary
+    border-action
+    focus-visible:underline
+    hover:bg-action
+    hover:text-outline
     ${propsClassName}
   `;
 
@@ -47,12 +49,12 @@ export function OutlineButtonSecondary(props: Props) {
   const { className: propsClassName, ...restProps } = props;
 
   const className = cntl`
-    active:bg-primary
+    active:bg-action
     active:text-secondary
-    border-secondary
+    border-outline
     ease-out
-    hover:border-primary
-    ${props.isSelected ? 'focus:underline' : 'focus:border-primary'}
+    hover:border-action
+    ${props.isSelected ? 'focus-visible:underline' : 'focus-visible:border-action'}
     ${propsClassName}
   `;
 

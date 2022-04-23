@@ -8,22 +8,22 @@ const customStyles = {
       ...provided,
       '&:hover': {
         backgroundColor: state.isSelected
-          ? 'var(--color_accent)'
+          ? 'var(--color-action)'
           : 'var(--color_dark-grey)',
       },
       ':active': {
         backgroundColor: 'var(--color_dark-grey)',
       },
       background: state.isSelected
-        ? 'var(--color_accent)'
+        ? 'var(--color-action)'
         : state.isFocused
         ? 'var(--color_dark-grey)'
         : 'var(--color_light-jet)',
       color: state.isSelected
         ? 'var(--color_light-jet)'
         : state.isFocused
-        ? 'var(--color_accent)'
-        : 'var(--color_accent)',
+        ? 'var(--color-action)'
+        : 'var(--color-action)',
     };
   },
   container: (provided: any) => ({
@@ -33,41 +33,39 @@ const customStyles = {
   }),
   input: (provided: any) => ({
     ...provided,
-    color: 'var(--color_accent)',
+    color: 'var(--color-action)',
     opacity: 0.5,
   }),
   singleValue: (provided: any) => ({
     ...provided,
-    color: 'var(--color_accent)',
+    color: 'var(--color-action)',
   }),
   dropdownIndicator: (provided: any) => ({
     ...provided,
-    color: 'var(--color_accent)',
+    color: 'var(--color-action)',
   }),
   indicatorSeparator: (provided: any) => ({
     ...provided,
-    backgroundColor: 'var(--color_accent)',
+    backgroundColor: 'var(--color-action)',
   }),
   menuList: (provided: any) => ({
     ...provided,
-    borderColor: 'var(--color_accent)',
-    backgroundColor: 'var(--color_light-jet)',
+    borderColor: 'var(--color-action)',
   }),
   placeholder: (provided: any) => ({
     ...provided,
-    color: 'var(--color_accent)',
+    color: 'var(--color-action)',
   }),
   valueContainer: (provided: any) => ({
     ...provided,
     ':active': {
       backgroundColor: 'var(--color_dark-grey)',
-      borderColor: 'var(--color_accent)',
+      borderColor: 'var(--color-action)',
     },
     '&:hover': {
-      borderColor: 'var(--color_accent)',
+      borderColor: 'var(--color-action)',
     },
-    color: 'var(--color_accent)',
-    background: 'var(--color_light-jet)',
+    color: 'var(--color-action)',
   }),
   control: (provided: any, state: any) => {
     const res = {
@@ -75,14 +73,13 @@ const customStyles = {
       boxShadow: 'none',
       ':active': {
         backgroundColor: 'transparent',
-        borderColor: 'var(--color_accent)',
+        borderColor: 'var(--color-action)',
       },
       '&:hover': {
-        borderColor: 'var(--color_accent)',
+        borderColor: 'var(--color-action)',
       },
-      color: 'var(--color_accent)',
-      borderColor: '1px solid var(--color_accent)',
-      background: 'var(--color_light-jet)',
+      color: 'var(--color-action)',
+      borderColor: '1px solid var(--color-action)',
       overflow: 'hidden',
       width: state.selectProps.width || 250,
     };
