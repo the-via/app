@@ -10,7 +10,7 @@ import {
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
 import type {LayoutLabel} from 'via-reader';
-import ControlLabel from 'src/components/controls/ControlLabel';
+import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
 import ControlButton from 'src/components/controls/ControlButton';
 import type {FC} from 'react';
 
@@ -20,30 +20,25 @@ const LayoutControl: React.VFC<{
 }> = (props) => {
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
+
   if (Array.isArray(labels)) {
     const [label, ...optionLabels] = labels;
-    // const options = optionLabels.map((label, idx) => ({
-    //   label,
-    //   value: `${idx}`,
-    // }));
     return (
-      <div className="p-2">
-        <div className="flex items-center mb-3">
-          <div className="h-px flex-1 bg-secondary" />
-          <div className="tracking-label uppercase text-sm font-medium px-4">{label}</div>
-          <div className="h-px flex-1 bg-secondary" />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
+      <div>
+        <ControlCategoryLabel>{label}</ControlCategoryLabel>
+        <div className="flex">
           {optionLabels.map((option, i) => {
             return (
-              <div className="flex justify-center">
-                <ControlButton
-                  isSelected={selectedOption === i}
-                  key={option}
-                  onClick={() => onChange(i)}
-                >
-                  {option}
-                </ControlButton>
+              <div className="flex flex-1 max-w-1/3">
+                <div className="mx-auto">
+                  <ControlButton
+                    isSelected={selectedOption === i}
+                    key={option}
+                    onClick={() => onChange(i)}
+                  >
+                    {option}
+                  </ControlButton>
+                </div>
               </div>
             );
           })}
@@ -80,7 +75,7 @@ export default function LayoutPane() {
   const labels = layouts.labels || [];
 
   return (
-    <div className="m-3 flex flex-col gap-6">
+    <div className="p-3 flex flex-col gap-6 overflow-y-auto">
       {labels.map((label: LayoutLabel, idx: number) => (
         <LayoutControl
           key={idx}

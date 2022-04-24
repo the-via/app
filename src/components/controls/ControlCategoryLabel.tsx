@@ -23,7 +23,7 @@ export default function ControlCategoryLabel(props: ControlCategoryLabelProps) {
     <div className={controlCategoryLabelClassName}>
       <div className="h-px bg-outline flex-1" />
       <ControlLabel>
-        <span className="bg-background px-4">{children}</span>
+        <span className="bg-background mx-4 rounded-full">{children}</span>
       </ControlLabel>
       <div className="h-px bg-outline flex-1" />
     </div>

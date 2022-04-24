@@ -1,6 +1,5 @@
 import React from 'react';
-import Select from 'react-select';
-import type {Props} from 'react-select';
+import Select, { Props as SelectProps } from 'react-select';
 
 const customStyles = {
   option: (provided: any, state: any) => {
@@ -9,10 +8,10 @@ const customStyles = {
       '&:hover': {
         backgroundColor: state.isSelected
           ? 'var(--color-action)'
-          : 'var(--color_dark-grey)',
+          : null,
       },
       ':active': {
-        backgroundColor: 'var(--color_dark-grey)',
+        backgroundColor: 'var(--color-action)',
       },
       background: state.isSelected
         ? 'var(--color-action)'
@@ -29,7 +28,6 @@ const customStyles = {
   container: (provided: any) => ({
     ...provided,
     lineHeight: 'initial',
-    flex: 1,
   }),
   input: (provided: any) => ({
     ...provided,
@@ -78,15 +76,15 @@ const customStyles = {
       '&:hover': {
         borderColor: 'var(--color-action)',
       },
-      color: 'var(--color-action)',
+      color: 'var(--color-outline)',
       borderColor: '1px solid var(--color-action)',
       overflow: 'hidden',
-      width: state.selectProps.width || 250,
+      width: '100%',
     };
     return res;
   },
 };
 
-export const AccentSelect: React.VFC<Props> = (props) => (
+export const AccentSelect: React.VFC<SelectProps> = (props) => (
   <Select {...props} styles={customStyles} />
 );

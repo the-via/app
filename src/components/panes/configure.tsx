@@ -179,7 +179,7 @@ const ConfigureGrid = () => {
           <Badge />
         </div>
         <div className="m-4 flex justify-center" ref={flexRef}>
-          <div className="border rounded-lg border-outline p-3 relative" ref={flexRef}>
+          <div className="border-2 rounded-lg border-outline p-3 relative" ref={flexRef}>
             <PositionedKeyboard
               containerDimensions={dimensions}
               selectable={KeyboardRows[selectedRow].Title === 'Keymap'}

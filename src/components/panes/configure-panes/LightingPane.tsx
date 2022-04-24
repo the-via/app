@@ -9,7 +9,7 @@ import {
 
 export default function LightingPane() {
   return (
-    <div>
+    <div className="h-full overflow-y-auto">
       <GeneralPane />
       <LayoutPane />
       <AdvancedPane />

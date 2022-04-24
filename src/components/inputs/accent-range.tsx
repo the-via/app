@@ -13,7 +13,7 @@ export const AccentRange: React.VFC<SliderProps> = (props) => (
   <Container>
     <Slider
       {...props}
-      railStyle={{backgroundColor: 'var(--color-secondary)'}}
+      railStyle={{backgroundColor: 'var(--color-outline)'}}
       trackStyle={{backgroundColor: 'var(--color-action)'}}
       handleStyle={{
         borderColor: 'var(--color-action)',

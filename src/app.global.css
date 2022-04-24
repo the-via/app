@@ -33,18 +33,14 @@
 html,
 body {
   @apply h-full;
-  font-size: 14px;
+  font-size: 13px;
 
   @media screen(md) {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   @media screen(lg) {
-    font-size: 16px;
-  }
-
-  @media screen(xl) {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   @media screen(2xl) {
