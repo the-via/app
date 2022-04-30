@@ -5,6 +5,8 @@ import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 
 export default () => {
+  const hasUSBSupport = 'hid' in navigator;
+
   const RouteComponents = PANES.map((pane) => {
     return (
       <Route
@@ -18,8 +20,8 @@ export default () => {
 
   return (
     <Router>
-      <UnconnectedGlobalMenu />
-      <Home>
+      {hasUSBSupport && <UnconnectedGlobalMenu />}
+      <Home hasUSBSupport={hasUSBSupport}>
         <Switch>{RouteComponents}</Switch>
       </Home>
     </Router>
