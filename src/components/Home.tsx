@@ -46,11 +46,11 @@ const timeoutRepeater =
 
 interface HomeProps {
   children?: React.ReactNode;
-  hasUSBSupport: boolean;
+  hasHIDSupport: boolean;
 }
 
 export const Home = (props: HomeProps) => {
-  const { hasUSBSupport } = props;
+  const { hasHIDSupport } = props;
 
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
@@ -156,7 +156,7 @@ export const Home = (props: HomeProps) => {
   const homeElem = createRef<HTMLDivElement>();
 
   useEffect(() => {
-    if (!hasUSBSupport) {
+    if (!hasHIDSupport) {
       return;
     }
 
@@ -186,7 +186,7 @@ export const Home = (props: HomeProps) => {
 
   return (
     <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
-      {!hasUSBSupport ? (
+      {!hasHIDSupport ? (
         <div className={styles.usbError}>
           <div className={styles.usbErrorIcon}>❌</div>
           <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
