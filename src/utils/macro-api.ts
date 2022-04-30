@@ -21,6 +21,9 @@ interface ValidationResult {
 export function validateExpression(expression: string): ValidationResult {
   let unclosedBlockRegex, keycodeBlockRegex;
 
+  // Eval the macro regexes to prevent script errors in browsers that don't
+  // have support for the negative lookbehind feature.
+  // See: https://caniuse.com/js-regexp-lookbehind
   unclosedBlockRegex = eval("/(?<!\\\\)\{(?![^{]*})/");
   keycodeBlockRegex = eval("/(?<!\\\\){(.*?)}/g");
 
