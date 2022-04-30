@@ -19,8 +19,13 @@ interface ValidationResult {
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
 // Empty action blocks can't be persisted, so should fail: {}
 export function validateExpression(expression: string): ValidationResult {
+  let unclosedBlockRegex, keycodeBlockRegex;
+
+  unclosedBlockRegex = eval("/(?<!\\\\)\{(?![^{]*})/");
+  keycodeBlockRegex = eval("/(?<!\\\\){(.*?)}/g");
+
   // Check for unclosed action blocks
-  if (expression.match(/(?<!\\)\{(?![^{]*})/)) {
+  if (expression.match(unclosedBlockRegex)) {
     return {
       isValid: false,
       errorMessage:
@@ -29,7 +34,6 @@ export function validateExpression(expression: string): ValidationResult {
   }
 
   // Validate each block of keyactions
-  const keycodeBlockRegex = /(?<!\\){(.*?)}/g;
   let groups: RegExpExecArray | null = null;
   while ((groups = keycodeBlockRegex.exec(expression))) {
     const csv = groups[1].replace(/\s+/g, ''); // Remove spaces
