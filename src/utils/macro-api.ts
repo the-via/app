@@ -24,8 +24,13 @@ export function validateExpression(expression: string): ValidationResult {
   // Eval the macro regexes to prevent script errors in browsers that don't
   // have support for the negative lookbehind feature.
   // See: https://caniuse.com/js-regexp-lookbehind
-  unclosedBlockRegex = eval("/(?<!\\\\)\{(?![^{]*})/");
-  keycodeBlockRegex = eval("/(?<!\\\\){(.*?)}/g");
+  try {
+    unclosedBlockRegex = eval("/(?<!\\\\)\{(?![^{]*})/");
+    keycodeBlockRegex = eval("/(?<!\\\\){(.*?)}/g");
+  } catch (e) {
+    // TODO: Display a message to the user
+    console.error('Lookbehind support is not supported in this browser.');
+  }
 
   // Check for unclosed action blocks
   if (expression.match(unclosedBlockRegex)) {
