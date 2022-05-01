@@ -33,6 +33,7 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import cntl from 'cntl';
 
 const timeoutRepeater =
   (fn: () => void, timeout: number, numToRepeat = 0) =>
@@ -49,8 +50,20 @@ interface HomeProps {
   hasHIDSupport: boolean;
 }
 
+const usbErrorContainerClassName = cntl`
+  flex
+  flex-col
+  h-full
+  items-center
+  justify-center
+  max-w-xl
+  mx-auto
+  px-4
+  text-center
+`;
+
 export const Home = (props: HomeProps) => {
-  const { hasHIDSupport } = props;
+  const {hasHIDSupport} = props;
 
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
@@ -193,12 +206,12 @@ export const Home = (props: HomeProps) => {
   return (
     <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
       {!hasHIDSupport ? (
-        <div className={styles.usbError}>
-          <div className={styles.usbErrorIcon}>❌</div>
-          <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
-          <p>
-            Looks like there was a problem getting USB detection working. Right
-            now, we only support{' '}
+        <div className={usbErrorContainerClassName}>
+          <div className="text-3xl">❌</div>
+          <h1 className="text-3xl font-semibold my-4">USB Detection Error</h1>
+          <p className="text-xl">
+            Looks like there was a problem with USB detection. Right now, we
+            only support{' '}
             <a
               className={styles.usbErrorWebHIDLink}
               href="https://caniuse.com/?search=webhid"
@@ -206,7 +219,7 @@ export const Home = (props: HomeProps) => {
             >
               browsers that have WebHID enabled
             </a>
-            , so make sure yours is compatible before trying again.
+            .
           </p>
         </div>
       ) : (
