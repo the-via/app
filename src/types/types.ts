@@ -69,6 +69,7 @@ export type Settings = {
   showDesignTab: boolean;
   disableFastRemap: boolean;
   disableHardwareAcceleration: boolean;
+  theme: string; // TODO: Make explicit types?
 };
 
 export type StoreData = {

@@ -25,9 +25,10 @@ const defaultStoreData =  {
   definitions: {},
   settings: {
     allowKeyboardKeyRemapping: false,
-    showDesignTab: false,
     disableFastRemap: false,
     disableHardwareAcceleration: false,
+    showDesignTab: false,
+    theme: 'olivia',
   },
 };
 
