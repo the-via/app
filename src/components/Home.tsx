@@ -44,7 +44,14 @@ const timeoutRepeater =
       }
     }, timeout);
 
-export const Home: FC = (props) => {
+interface HomeProps {
+  children?: React.ReactNode;
+  hasHIDSupport: boolean;
+}
+
+export const Home = (props: HomeProps) => {
+  const { hasHIDSupport } = props;
+
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
@@ -145,25 +152,23 @@ export const Home: FC = (props) => {
   };
 
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
-  const [usbDetectionError, setUsbDetectionError] = useState(false);
 
   const homeElem = createRef<HTMLDivElement>();
 
   useEffect(() => {
+    if (!hasHIDSupport) {
+      return;
+    }
+
     if (homeElem.current) {
       homeElem.current.focus();
     }
 
-    try {
-      startMonitoring();
-      dispatch(enableGlobalHotKeys());
-      usbDetect.on('change', updateDevicesRepeat);
-      dispatch(loadSupportedIds());
-      enableKeyPressListener();
-    } catch (error) {
-      // TODO: check `error` for usb detection issues first?
-      setUsbDetectionError(true);
-    }
+    startMonitoring();
+    dispatch(enableGlobalHotKeys());
+    usbDetect.on('change', updateDevicesRepeat);
+    dispatch(loadSupportedIds());
+    enableKeyPressListener();
 
     return () => {
       // Cleanup function equiv to componentWillUnmount
@@ -181,7 +186,7 @@ export const Home: FC = (props) => {
 
   return (
     <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
-      {usbDetectionError ? (
+      {!hasHIDSupport ? (
         <div className={styles.usbError}>
           <div className={styles.usbErrorIcon}>❌</div>
           <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
