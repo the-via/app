@@ -1,43 +1,17 @@
 import React from 'react';
-import {Pane} from './pane';
-import styled from 'styled-components';
-import {ControlRow, Label, Detail, OverflowCell} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
-import {ErrorMessage} from '../styled';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getAllowKeyboardKeyRemapping,
   getShowDesignTab,
   getDisableFastRemap,
-  getDisableHardwareAcceleration,
-  getRestartRequired,
   toggleCreatorMode,
   toggleFastRemap,
-  toggleHardwareAcceleration,
-  requireRestart,
   toggleKeyRemappingViaKeyboard,
 } from 'src/store/settingsSlice';
 
-const RestartMessage = styled(ErrorMessage)`
-  margin: 0;
-  font-size: 20px;
-`;
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 0 12px;
-`;
-
-const DebugPane = styled(Pane)`
-  display: grid;
-  max-width: 100vw;
-  grid-template-columns: 100vw;
-`;
-
-const version = '3';
+const version = '3.0.0-beta';
 export const Settings = () => {
   const dispatch = useDispatch();
 
@@ -48,67 +22,36 @@ export const Settings = () => {
   );
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
-  const disableHardwareAcceleration = useAppSelector(
-    getDisableHardwareAcceleration,
-  );
-  const restartRequired = useAppSelector(getRestartRequired);
 
   return (
-    <DebugPane>
-      <OverflowCell>
-        <Container>
-          <ControlRow>
-            <Label>VIA Version</Label>
-            <Detail>{version}</Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Show Design tab</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => dispatch(toggleCreatorMode())}
-                isChecked={showDesignTab}
-              />
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Fast Key Mapping</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => dispatch(toggleFastRemap())}
-                isChecked={disableFastRemap}
-              />
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Hardware Acceleration</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => {
-                  dispatch(toggleHardwareAcceleration());
-                  dispatch(requireRestart());
-                }}
-                isChecked={!disableHardwareAcceleration}
-              />
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Allow remapping via keyboard</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}
-                isChecked={allowKeyboardKeyRemapping}
-              />
-            </Detail>
-          </ControlRow>
-          {restartRequired && (
-            <ControlRow>
-              <RestartMessage>
-                VIA requires a restart to finish applying your changes.
-              </RestartMessage>
-            </ControlRow>
-          )}
-        </Container>
-      </OverflowCell>
-    </DebugPane>
+    <div className="h-full max-w-xl p-4 text-lg">
+      <div className="flex flex-col mx-10 gap-8">
+        <div className="flex items-center justify-between">
+          <div className="font-medium">VIA Version</div>
+          <div className="font-medium text-action">{version}</div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="font-medium">Show Design tab</div>
+          <AccentSlider
+            onChange={() => dispatch(toggleCreatorMode())}
+            isChecked={showDesignTab}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="font-medium">Fast Key Mapping</div>
+          <AccentSlider
+            onChange={() => dispatch(toggleFastRemap())}
+            isChecked={disableFastRemap}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="font-medium">Allow remapping via keyboard</div>
+          <AccentSlider
+            onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}
+            isChecked={allowKeyboardKeyRemapping}
+          />
+        </div>
+      </div>
+    </div>
   );
 };
