@@ -32,9 +32,13 @@ export const Settings = () => {
     }
   }, []);
 
+  React.useEffect(() => {
+    document.body.dataset.theme = theme;
+  }, [theme]);
+
   return (
-    <div className="h-full max-w-xl p-4 text-lg">
-      <div className="flex flex-col mx-10 gap-8">
+    <div className="h-full w-full md:w-2/3 max-w-2xl mx-auto text-lg">
+      <div className="flex flex-col mx-10 my-8 gap-8 border-2 border-outline rounded-lg p-8">
         <div className="flex items-center justify-between">
           <div className="font-medium">VIA Version</div>
           <div className="font-medium text-action">{version}</div>
@@ -44,21 +48,29 @@ export const Settings = () => {
           <div className="font-medium text-action capitalize">{theme}</div>
         </div>
         <div className="flex items-center justify-between">
-          <div className="font-medium">Show Design tab</div>
+          <div className="font-medium">Enable Design Feature</div>
           <AccentSlider
             onChange={() => dispatch(toggleCreatorMode())}
             isChecked={showDesignTab}
           />
         </div>
         <div className="flex items-center justify-between">
-          <div className="font-medium">Fast Key Mapping</div>
+          <div className="w-2/3">
+            <div className="font-medium">Fast Key Mapping</div>
+            {/* FIXME: This explanation sucks */}
+            <div className="text-sm">Remap happens from input.</div>
+          </div>
           <AccentSlider
             onChange={() => dispatch(toggleFastRemap())}
             isChecked={disableFastRemap}
           />
         </div>
         <div className="flex items-center justify-between">
-          <div className="font-medium">Allow remapping via keyboard</div>
+          <div className="w-2/3">
+            <div className="font-medium">Key Remapping via Keyboard</div>
+            {/* FIXME: This explanation sucks */}
+            <div className="text-sm">Keyboard will remap from input by keyboard.</div>
+          </div>
           <AccentSlider
             onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}
             isChecked={allowKeyboardKeyRemapping}

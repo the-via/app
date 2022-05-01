@@ -21,6 +21,7 @@ import {
   getAllowGlobalHotKeys,
   getAllowKeyboardKeyRemapping,
   getDisableFastRemap,
+  getTheme,
 } from '../store/settingsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {
@@ -69,6 +70,7 @@ export const Home = (props: HomeProps) => {
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
   );
+  const theme = useAppSelector(getTheme);
   const globalHotKeysAllowed = useAppSelector(getAllowGlobalHotKeys);
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
@@ -169,6 +171,8 @@ export const Home = (props: HomeProps) => {
   const homeElem = createRef<HTMLDivElement>();
 
   useEffect(() => {
+    document.body.dataset.theme = theme;
+
     if (!hasHIDSupport) {
       return;
     }
@@ -196,12 +200,6 @@ export const Home = (props: HomeProps) => {
     dispatch(updateSelectedKeyAction(null));
     toggleLights();
   }, [selectedDevice]);
-
-  // Update the theme
-  // FIXME: Move this to a component
-  useEffect(() => {
-    document.body.dataset.theme = 'olivia';
-  }, []);
 
   return (
     <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>

@@ -1,47 +1,19 @@
 import React from 'react';
-import styled from 'styled-components';
+import cntl from 'cntl';
 
-export const HiddenInput = styled.input`
-  opacity: 0;
-  width: 0;
-  height: 0;
-`;
-
-const Switch = styled.label`
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-`;
-const Slider = styled.span<{isChecked?: boolean}>`
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: ${(props) =>
-    props.isChecked ? 'var(--color-action)' : 'var(--color-outline)'};
-  -webkit-transition: 0.4s;
-  transition: 0.4s;
-  border-radius: 4px;
-  &:before {
-    position: absolute;
-    content: '';
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
-    border-radius: 4px;
-    background-color: ${(props) =>
-      !props.isChecked
-        ? 'var(--color-action)'
-        : 'var(--outline)'};
-    -webkit-transition: 0.4s;
-    transition: 0.4s;
-    ${(props) => (props.isChecked ? 'transform: translateX(26px)' : '')};
-  }
-`;
+function sliderClassName({isChecked}: {isChecked: boolean}) {
+  return cntl`
+    bg-action
+    duration-200
+    ease-out
+    h-6
+    relative
+    rounded-lg
+    transition-all
+    w-6
+    ${isChecked ? '-translate-x-full left-full' : 'translate-x-0 left-0'}
+  `;
+}
 
 type Props = {
   isChecked: boolean;
@@ -63,14 +35,30 @@ export function AccentSlider(props: Props) {
     onChange(!isChecked);
   };
 
+  const labelClassName = cntl`
+    bg-outline
+    border-2
+    cursor-pointer
+    duration-200
+    ease-out
+    p-1
+    relative
+    rounded
+    rounded-lg
+    transition-[border-color]
+    w-16
+    ${isHiddenChecked ? 'border-action' : 'border-outline'}
+  `;
+
   return (
-    <Switch>
-      <HiddenInput
-        type="checkbox"
+    <label className={labelClassName}>
+      <input
         checked={isHiddenChecked}
+        className="display-none opacity-0 w-0 h-0 absolute"
         onChange={hiddenOnChange}
+        type="checkbox"
       />
-      <Slider isChecked={isHiddenChecked} />
-    </Switch>
+      <div className={sliderClassName({isChecked: isHiddenChecked})} />
+    </label>
   );
 }
