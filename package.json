@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "snowpack dev",
+    "dev": "node scripts/build-definitions.js && snowpack dev",
     "build": "via-keyboards public/definitions && snowpack build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
