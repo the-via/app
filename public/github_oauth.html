@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>VIA</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      const authFn = async () => {
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('code')
+      const state = params.get('state')
+      const oauthParams = new URLSearchParams()
+      const authUrl = ''
+      if (code && state && window.opener) {
+        const req = await fetch(authUrl, {
+          method: 'POST',
+          body: `code=${code}`
+        })
+        const resp = await req.json()
+        const message = {token: resp.access_token, state}
+        window.opener.postMessage(message, '*')
+      }
+      window.close()
+    }
+    authFn()
+    </script>
+  </body>
+</html>
