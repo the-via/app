@@ -1,4 +1,4 @@
-import React, {useRef, useState, FC} from 'react';
+import React, {useRef, useState, FC, useEffect} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -11,6 +11,7 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
 import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
+import {getKLEFiles, authGithub} from '../../utils/github';
 import {
   ControlRow,
   Label,
@@ -92,6 +93,7 @@ const ControlGroupHeader = styled.div`
   margin-bottom: 0.5rem;
 `;
 
+
 const TestControls = () => {
   const [isChecked, setIsChecked] = useState(true);
   const [rangeVal, setRangeVal] = useState(0);
@@ -102,6 +104,16 @@ const TestControls = () => {
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
   ];
+
+  useEffect(() => {
+    window.addEventListener('message', async (evt) => {
+      const messageData = evt.data
+      if (messageData.token) {
+        console.log('messageData', messageData)
+        getKLEFiles(messageData.token)
+      }
+    })
+  }, []);
 
   return (
     <ControlGroup>
@@ -244,6 +256,14 @@ export const Debug: FC = () => {
                 />
               </Detail>
             </ControlRow>
+            <ControlRow>
+              <Label>Oauth Login</Label>
+              <Detail>
+                <AccentButton
+                  onClick={authGithub}>
+                  Oauth me
+                </AccentButton>
+                </Detail></ControlRow>
             <ControlRow>
               <Label>Set next key</Label>
               <Detail>
