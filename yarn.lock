@@ -6130,9 +6130,9 @@ pathval@^1.1.1:
   resolved "https://registry.yarnpkg.com/pathval/-/pathval-1.1.1.tgz#8534e77a77ce7ac5a2512ea21e0fdb8fcf6c3d8d"
   integrity sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==
 
-"pelpi@git://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b":
+"pelpi@https://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b":
   version "0.0.2"
-  resolved "git://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b"
+  resolved "https://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b"
   dependencies:
     "@types/node" "^13.11.1"
     chalk "^4.1.0"
@@ -8212,9 +8212,9 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"via-keyboards@git://github.com/the-via/keyboards.git":
+"via-keyboards@https://github.com/the-via/keyboards.git":
   version "0.0.1"
-  resolved "git://github.com/the-via/keyboards.git#214c3ef69e959252e8499a6ca68caf3c80f94994"
+  resolved "https://github.com/the-via/keyboards.git#afb405a7f35fc36b55e45196a1491bde2e345130"
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/glob" "^7.1.1"
@@ -8229,12 +8229,12 @@ verror@1.10.0:
     ts-node-dev "^1.0.0-pre.43"
     typescript "^3.6.4"
     typescript-json-schema "^0.40.0"
-    via-reader "git://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f"
+    via-reader "https://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f"
     yarn "^1.22.0"
 
-"via-reader@git://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88":
+"via-reader@https://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88":
   version "1.0.0"
-  resolved "git://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
+  resolved "https://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
   dependencies:
     "@types/node" "^12.12.11"
     ajv "^6.10.2"
@@ -8245,9 +8245,9 @@ verror@1.10.0:
     util "^0.12.4"
     util-inspect "^0.1.8"
 
-"via-reader@git://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f":
+"via-reader@https://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f":
   version "1.0.0"
-  resolved "git://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f"
+  resolved "https://github.com/the-via/reader.git#f2fbf9cf87adfec271d1953e43ab9c037776535f"
   dependencies:
     "@types/node" "^12.12.11"
     ajv "^6.10.2"
