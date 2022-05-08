@@ -1,4 +1,4 @@
-import React, {useRef, useState, FC, useEffect} from 'react';
+import React, {useRef, useState, FC, useEffect, useCallback} from 'react';
 import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -11,7 +11,7 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
 import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
-import {getKLEFiles, authGithub} from '../../utils/github';
+import {getKLEFiles, authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
   Label,
@@ -93,6 +93,36 @@ const ControlGroupHeader = styled.div`
   margin-bottom: 0.5rem;
 `;
 
+const GithubUserData = () => {
+  const [userData, setUserData] =
+    useState<{login: string; avatar_url: string}>();
+  const clickLogin = useCallback(async () => {
+    await authGithub();
+    const userData = await getUser();
+    setUserData(userData);
+  }, []);
+  return (
+    <ControlGroup>
+      <ControlGroupHeader>GH Integration</ControlGroupHeader>
+      {userData && (
+        <ControlRow>
+          <Label>{userData.login}</Label>
+          <Detail>
+            <img src={userData.avatar_url} width={40} height={40} />
+          </Detail>
+        </ControlRow>
+      )}
+      {!userData && (
+        <ControlRow>
+          <Label>Login</Label>
+          <Detail>
+            <AccentButton onClick={clickLogin}>OAuth me</AccentButton>
+          </Detail>
+        </ControlRow>
+      )}
+    </ControlGroup>
+  );
+};
 
 const TestControls = () => {
   const [isChecked, setIsChecked] = useState(true);
@@ -104,16 +134,6 @@ const TestControls = () => {
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
   ];
-
-  useEffect(() => {
-    window.addEventListener('message', async (evt) => {
-      const messageData = evt.data
-      if (messageData.token) {
-        console.log('messageData', messageData)
-        getKLEFiles(messageData.token)
-      }
-    })
-  }, []);
 
   return (
     <ControlGroup>
@@ -239,6 +259,7 @@ export const Debug: FC = () => {
       </KeyboardPanel>
       <MenuPanel>
         <Container>
+          <GithubUserData />
           <ControlGroup>
             <ControlGroupHeader>Key Testing</ControlGroupHeader>
             <ControlRow>
@@ -256,14 +277,6 @@ export const Debug: FC = () => {
                 />
               </Detail>
             </ControlRow>
-            <ControlRow>
-              <Label>Oauth Login</Label>
-              <Detail>
-                <AccentButton
-                  onClick={authGithub}>
-                  Oauth me
-                </AccentButton>
-                </Detail></ControlRow>
             <ControlRow>
               <Label>Set next key</Label>
               <Detail>
