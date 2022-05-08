@@ -34,6 +34,7 @@ import {
   getDefinitions,
   getCustomDefinitions,
 } from 'src/store/definitionsSlice';
+import TextInput from '../inputs/text-input';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -145,6 +146,12 @@ const TestControls = () => {
   return (
     <ControlGroup>
       <ControlGroupHeader>Controls</ControlGroupHeader>
+      <ControlRow>
+        <Label>Text Input</Label>
+        <Detail>
+          <TextInput />
+        </Detail>
+      </ControlRow>
       <ControlRow>
         <Label>
           {keycode} / {anyKeycodeToString(keycode)}

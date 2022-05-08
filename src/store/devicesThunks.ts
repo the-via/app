@@ -122,9 +122,10 @@ export const reloadConnectedDevices =
     dispatch(updateConnectedDevices(connectedDevices));
     const validDevicesArr = Object.entries(connectedDevices);
     await dispatch(reloadDefinitions(connectedDevices));
+    // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
-      !selectedDevicePath ||
-      (!connectedDevices[selectedDevicePath] && validDevicesArr.length > 0)
+      (!selectedDevicePath || !connectedDevices[selectedDevicePath]) &&
+      validDevicesArr.length > 0
     ) {
       const firstConnectedDevice = validDevicesArr[0][1];
       dispatch(selectConnectedDevice(firstConnectedDevice));

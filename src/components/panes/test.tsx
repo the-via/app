@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import rafSchd from 'raf-schd'
+import rafSchd from 'raf-schd';
 import useResizeObserver from 'use-resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -167,30 +167,32 @@ export const Test: FC = () => {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const onFlexResize = React.useCallback(({ width, height }) => {
-    setDimensions({
-      width,
-      height,
-    });
-  }, [setDimensions]);
+  const onFlexResize = React.useCallback(
+    ({width, height}) => {
+      setDimensions({
+        width,
+        height,
+      });
+    },
+    [setDimensions],
+  );
 
-  const { ref: flexRef } = useResizeObserver({
-    onResize: rafSchd(onFlexResize)
+  const {ref: flexRef} = useResizeObserver({
+    onResize: rafSchd(onFlexResize),
   });
 
-  // TODO: really need to find a way to clean these nulls up. createEntityAdapter maybe?
-  if (!selectedDevice || !selectedDefinition || !keyDefinitions) {
-    return null;
-  }
+  const hasTestMatrixDevice =
+    selectedDevice && selectedDefinition && keyDefinitions;
+  const canUseMatrixState =
+    hasTestMatrixDevice && PROTOCOL_GAMMA <= selectedDevice.protocol;
 
-  const {api, protocol} = selectedDevice;
-  const canUseMatrixState = PROTOCOL_GAMMA <= protocol;
-
+  const api = selectedDevice && selectedDevice.api;
   const pressedKeys =
     !isTestMatrixEnabled || !keyDefinitions
       ? selectedKeys
       : keyDefinitions.map(
           ({row, col}: {row: number; col: number}) =>
+            selectedDefinition &&
             selectedKeys[
               (row * selectedDefinition.matrix.cols +
                 col) as keyof typeof selectedKeys
