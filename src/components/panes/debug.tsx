@@ -101,6 +101,13 @@ const GithubUserData = () => {
     const userData = await getUser();
     setUserData(userData);
   }, []);
+  // Attempt first
+  useEffect(() => {
+    (async () => {
+      const userData = await getUser();
+      setUserData(userData);
+    })();
+  }, []);
   return (
     <ControlGroup>
       <ControlGroupHeader>GH Integration</ControlGroupHeader>
