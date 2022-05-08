@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "route": "/api/*",
+      "methods": ["POST"],
+      "allowedRoles": ["anonymous"]
+    }
+  ]
+}
