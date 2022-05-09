@@ -48,10 +48,6 @@ export const Settings = () => {
   );
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
-  const disableHardwareAcceleration = useAppSelector(
-    getDisableHardwareAcceleration,
-  );
-  const restartRequired = useAppSelector(getRestartRequired);
 
   return (
     <DebugPane>
@@ -80,18 +76,6 @@ export const Settings = () => {
             </Detail>
           </ControlRow>
           <ControlRow>
-            <Label>Hardware Acceleration</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => {
-                  dispatch(toggleHardwareAcceleration());
-                  dispatch(requireRestart());
-                }}
-                isChecked={!disableHardwareAcceleration}
-              />
-            </Detail>
-          </ControlRow>
-          <ControlRow>
             <Label>Allow remapping via keyboard</Label>
             <Detail>
               <AccentSlider
@@ -100,13 +84,6 @@ export const Settings = () => {
               />
             </Detail>
           </ControlRow>
-          {restartRequired && (
-            <ControlRow>
-              <RestartMessage>
-                VIA requires a restart to finish applying your changes.
-              </RestartMessage>
-            </ControlRow>
-          )}
         </Container>
       </OverflowCell>
     </DebugPane>
