@@ -2,6 +2,9 @@ module.exports = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      animation: {
+        bob: 'bob 1.5s ease-in-out 0s infinite alternate'
+      },
       colors: {
         // TODO remove these colors
         light: 'var(--color-light)',

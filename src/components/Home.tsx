@@ -57,7 +57,7 @@ const usbErrorContainerClassName = cntl`
   h-full
   items-center
   justify-center
-  max-w-xl
+  max-w-lg
   mx-auto
   px-4
   text-center
@@ -208,8 +208,8 @@ export const Home = (props: HomeProps) => {
           <div className="text-3xl">❌</div>
           <h1 className="text-3xl font-semibold my-4">USB Detection Error</h1>
           <p className="text-xl">
-            Looks like there was a problem with USB detection. Right now, we
-            only support{' '}
+            There was a problem with USB detection. Right now, VIA
+            only supports{' '}
             <a
               className={styles.usbErrorWebHIDLink}
               href="https://caniuse.com/?search=webhid"

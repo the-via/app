@@ -1,12 +1,10 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import useResize from 'react-resize-observer-hook';
-import styled from 'styled-components';
+import useResize from 'src/hooks/useResize';
 import ChippyLoader from '../chippy-loader';
-import LoadingText from '../loading-text';
-import {Pane as DefaultPane} from './pane';
 import ReactTooltip from 'react-tooltip';
+import cntl from 'cntl';
 import {
   CustomFeaturesV2,
   getLightingDefinition,
@@ -23,7 +21,6 @@ import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
-import ConfigControl from './configure-panes/ConfigControl';
 import {Badge} from './configure-panes/badge';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
@@ -34,12 +31,6 @@ import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import FloatingPane from 'src/components/panes/configure-panes/FloatingPane';
 import OutlineButton from 'src/components/controls/OutlineButton';
-
-const Pane = styled(DefaultPane)`
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-evenly;
-`;
 
 const Rows = [
   Keycode,
@@ -93,37 +84,84 @@ const getRowsForKeyboard = (): typeof Rows => {
   return titles;
 };
 
+const loaderClassName = cntl`
+  absolute
+  bg-background
+  duration-300
+  flex
+  flex-col
+  gap-6
+  h-full
+  items-center
+  justify-center
+  left-0
+  text-center
+  top-0
+  transition-opacity
+  w-full
+  z-10
+`;
+
 function Loader(props: {
   loadProgress: number;
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
 }) {
   const {loadProgress, selectedDefinition} = props;
+  const [fadeOut, setFadeOut] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [showButton, setShowButton] = useState(Boolean(selectedDefinition));
   const dispatch = useDispatch();
 
-  const [showButton, setShowButton] = useState<boolean>(false);
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!selectedDefinition) {
         setShowButton(true);
       }
-    }, 3000);
+    }, 1000);
+
     return () => clearTimeout(timeout);
   }, [selectedDefinition]);
+
+  useEffect(() => {
+    console.info('loaded');
+    if (loadProgress === 1) {
+      setFadeOut(true);
+
+      setTimeout(() => {
+        setFadeOut(false);
+        setHasLoaded(true);
+      }, 500);
+    }
+  }, [loadProgress]);
+
+  if (hasLoaded) {
+    return null;
+  }
+
+  const loaderClassN = cntl`
+    ${loaderClassName}
+    ${fadeOut ? cntl`
+      opacity-0
+    `: ''}
+  `;
+
   return (
-    <>
-      <ChippyLoader progress={loadProgress || null} />
+    <div className={loaderClassN}>
+      <ChippyLoader progress={selectedDefinition ? 1 : loadProgress} />
       {showButton ? (
         <OutlineButton
-          className="text-2xl"
+          className="text-xl"
           onClick={() => dispatch(reloadConnectedDevices())}
         >
           Authorize device{' '}
           <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
         </OutlineButton>
       ) : (
-        <LoadingText isSearching={!selectedDefinition} />
+        <div className="text-xl font-medium text-text" data-tid="loading-message">
+          {selectedDefinition ? 'Loading…' : 'Searching for devices…'}
+        </div>
       )}
-    </>
+    </div>
   );
 }
 
@@ -131,43 +169,43 @@ export const ConfigurePane = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const loadProgress = useAppSelector(getLoadProgress);
 
-  const showLoader = !selectedDefinition || loadProgress !== 1;
   return (
-    <Pane>
-      {showLoader ? (
-        <Loader
-          loadProgress={loadProgress}
-          selectedDefinition={selectedDefinition ? selectedDefinition : null}
-        />
-      ) : (
-        <ConfigureGrid />
-      )}
-    </Pane>
+    <div className="flex flex-col h-full overflow-hidden items-center justify-center">
+      <Loader
+        loadProgress={loadProgress}
+        selectedDefinition={selectedDefinition ? selectedDefinition : null}
+      />
+      <ConfigureGrid />
+    </div>
   );
 };
 
 const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
-  const [selectedRow, setRow] = useState(0);
+  const [selectedRow, _setRow] = useState(0);
   const KeyboardRows = getRowsForKeyboard();
-  const SelectedPane = KeyboardRows[selectedRow].Pane;
+  const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
+    width: 0,
+    height: 0,
   });
   const flexRef = useRef(null);
 
   useResize(flexRef, (entry) => {
-    if (entry && flexRef.current) {
+    if (entry && flexRef?.current) {
       requestAnimationFrame(() => {
         setDimensions({
-          width: entry.width,
-          height: entry.height,
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
         });
       });
     }
   });
+
+  if (!KeyboardRows || !SelectedPane) {
+    return null;
+  }
 
   return (
     <div className="flex h-full w-full">
