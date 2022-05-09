@@ -27,12 +27,6 @@ export const Settings = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
 
   React.useEffect(() => {
-    if (!theme) {
-      dispatch(setTheme('olivia'));
-    }
-  }, []);
-
-  React.useEffect(() => {
     document.body.dataset.theme = theme;
   }, [theme]);
 
