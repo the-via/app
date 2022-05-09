@@ -4,6 +4,7 @@ import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import useResize from 'src/hooks/useResize';
 import ChippyLoader from '../chippy-loader';
 import ReactTooltip from 'react-tooltip';
+import Logo from 'src/components/Logo';
 import cntl from 'cntl';
 import {
   CustomFeaturesV2,
@@ -92,8 +93,6 @@ const loaderClassName = cntl`
   flex-col
   gap-6
   h-full
-  items-center
-  justify-center
   left-0
   text-center
   top-0
@@ -108,7 +107,7 @@ function Loader(props: {
 }) {
   const {loadProgress, selectedDefinition} = props;
   const [fadeOut, setFadeOut] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(Boolean(selectedDefinition));
   const [showButton, setShowButton] = useState(Boolean(selectedDefinition));
   const dispatch = useDispatch();
 
@@ -123,7 +122,6 @@ function Loader(props: {
   }, [selectedDefinition]);
 
   useEffect(() => {
-    console.info('loaded');
     if (loadProgress === 1) {
       setFadeOut(true);
 
@@ -140,14 +138,23 @@ function Loader(props: {
 
   const loaderClassN = cntl`
     ${loaderClassName}
-    ${fadeOut ? cntl`
+    ${
+      fadeOut
+        ? cntl`
       opacity-0
-    `: ''}
+    `
+        : ''
+    }
   `;
 
   return (
     <div className={loaderClassN}>
+      <div className="my-6 mx-auto">
+        <Logo className="fill-text w-14" />
+      </div>
+      <div className="flex-1 flex flex-col justify-center mx-auto gap-6">
       <ChippyLoader progress={selectedDefinition ? 1 : loadProgress} />
+        <div>
       {showButton ? (
         <OutlineButton
           className="text-xl"
@@ -157,10 +164,15 @@ function Loader(props: {
           <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
         </OutlineButton>
       ) : (
-        <div className="text-xl font-medium text-text" data-tid="loading-message">
+            <div
+              className="text-xl font-medium text-text"
+              data-tid="loading-message"
+            >
           {selectedDefinition ? 'Loading…' : 'Searching for devices…'}
         </div>
       )}
+    </div>
+      </div>
     </div>
   );
 }
@@ -217,7 +229,10 @@ const ConfigureGrid = () => {
           <Badge />
         </div>
         <div className="m-4 flex justify-center" ref={flexRef}>
-          <div className="border-2 rounded-lg border-outline p-3 relative" ref={flexRef}>
+          <div
+            className="border-2 rounded-lg border-outline p-3 relative"
+            ref={flexRef}
+          >
             <PositionedKeyboard
               containerDimensions={dimensions}
               selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
