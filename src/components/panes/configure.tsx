@@ -33,6 +33,7 @@ import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
+import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -103,8 +104,13 @@ function Loader(props: {
   const {loadProgress, selectedDefinition} = props;
   const dispatch = useDispatch();
 
+  const connectedDevices = useAppSelector(getConnectedDevices);
+  const supportedIds = useAppSelector(getSupportedIds);
+  const noSupportedIds = !Object.values(supportedIds).length;
+  const noConnectedDevices = !Object.values(connectedDevices).length;
   const [showButton, setShowButton] = useState<boolean>(false);
   useEffect(() => {
+    // TODO: Remove the timeout because it is funky
     const timeout = setTimeout(() => {
       if (!selectedDefinition) {
         setShowButton(true);
@@ -115,10 +121,10 @@ function Loader(props: {
   return (
     <>
       <ChippyLoader progress={loadProgress || null} />
-      {showButton ? (
+      {(showButton || noConnectedDevices) && !noSupportedIds ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
-          Authorize device{' '}
-          <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
+          Authorize device
+          <FontAwesomeIcon style={{marginLeft: '10px'}} icon={faPlus} />
         </AccentButtonLarge>
       ) : (
         <LoadingText isSearching={!selectedDefinition} />
