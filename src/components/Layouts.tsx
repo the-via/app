@@ -58,7 +58,7 @@ function Layouts({
                   });
                 }
               }}
-              value={
+              initialSelectedItem={
                 selectedOptionKeys[layoutKey]
                   ? selectElementOptions[selectedOptionKeys[layoutKey]]
                   : (selectElementOptions[0] as any)

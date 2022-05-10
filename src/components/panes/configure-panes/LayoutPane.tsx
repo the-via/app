@@ -10,9 +10,7 @@ import {
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
 import type {LayoutLabel} from 'via-reader';
-import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
-import ControlButton from 'src/components/controls/ControlButton';
-import type {FC} from 'react';
+import { AccentSelect } from 'src/components/inputs/accent-select';
 
 const LayoutControl: React.VFC<{
   onChange: (val: any) => void;
@@ -21,28 +19,21 @@ const LayoutControl: React.VFC<{
   const {onChange, meta} = props;
   const {labels, selectedOption} = meta;
 
+
   if (Array.isArray(labels)) {
     const [label, ...optionLabels] = labels;
+    const options = optionLabels.map((option) => ({
+      label: option,
+      value: option
+    }));
     return (
-      <div>
-        <ControlCategoryLabel>{label}</ControlCategoryLabel>
-        <div className="flex">
-          {optionLabels.map((option, i) => {
-            return (
-              <div className="flex flex-1 max-w-1/3">
-                <div className="mx-auto">
-                  <ControlButton
-                    isSelected={selectedOption === i}
-                    key={option}
-                    onClick={() => onChange(i)}
-                  >
-                    {option}
-                  </ControlButton>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="flex gap-4 items-center">
+        <div className="font-semibold w-1/2">{label}</div>
+        <AccentSelect
+          initialSelectedItem={options[selectedOption]}
+          onChange={onChange}
+          options={options}
+        />
       </div>
     );
   } else {

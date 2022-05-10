@@ -91,7 +91,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
               }
             }}
             options={options as any}
-            defaultValue={(options as any).find(
+            initialSelectedItem={(options as any).find(
               (p: any) => valArr[0] === p.value,
             )}
           />

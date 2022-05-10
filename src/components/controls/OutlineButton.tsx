@@ -50,7 +50,7 @@ export function OutlineButtonSecondary(props: Props) {
 
   const className = cntl`
     active:bg-action
-    active:text-secondary
+    active:text-outline
     border-outline
     ease-out
     hover:border-action

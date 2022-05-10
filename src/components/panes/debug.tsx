@@ -146,7 +146,7 @@ const TestControls = () => {
         <Label>{+selectionVal}</Label>
         <Detail>
           <AccentSelect
-            defaultValue={selectOptions[selectionVal]}
+            initialSelectedItem={selectOptions[selectionVal]}
             options={selectOptions}
             onChange={(option) => {
               option && setSelectionVal(+option.value);
@@ -278,7 +278,7 @@ export const Debug: FC = () => {
                     onChange={(option) =>
                       option && setSelectedDefinition(+option.value)
                     }
-                    defaultValue={options[0]}
+                    initialSelectedItem={options[0]}
                     options={options}
                   />
                 </Detail>

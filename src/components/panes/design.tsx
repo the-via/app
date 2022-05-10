@@ -272,7 +272,7 @@ export const DesignTab: FC = () => {
                       setSelectedDefinition(+option.value);
                     }
                   }}
-                  value={options[selectedDefinitionIndex]}
+                  initialSelectedItem={options[selectedDefinitionIndex]}
                   options={options}
                 />
               </Detail>

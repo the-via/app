@@ -1,6 +1,4 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import useResize from 'src/hooks/useResize';
 import ChippyLoader from '../chippy-loader';
 import ReactTooltip from 'react-tooltip';
@@ -153,25 +151,24 @@ function Loader(props: {
         <Logo className="fill-text w-14" />
       </div>
       <div className="flex-1 flex flex-col justify-center mx-auto gap-6">
-      <ChippyLoader progress={selectedDefinition ? 1 : loadProgress} />
+        <ChippyLoader progress={selectedDefinition ? 1 : loadProgress} />
         <div>
-      {showButton ? (
-        <OutlineButton
-          className="text-xl"
-          onClick={() => dispatch(reloadConnectedDevices())}
-        >
-          Authorize device{' '}
-          <FontAwesomeIcon style={{marginLeft: '5px'}} icon={faPlus} />
-        </OutlineButton>
-      ) : (
+          {showButton && !selectedDefinition ? (
+            <OutlineButton
+              className="text-xl"
+              onClick={() => dispatch(reloadConnectedDevices())}
+            >
+              Authorize device
+            </OutlineButton>
+          ) : (
             <div
               className="text-xl font-medium text-text"
               data-tid="loading-message"
             >
-          {selectedDefinition ? 'Loading…' : 'Searching for devices…'}
+              {selectedDefinition ? 'Loading…' : 'Searching for devices…'}
+            </div>
+          )}
         </div>
-      )}
-    </div>
       </div>
     </div>
   );

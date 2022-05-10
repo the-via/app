@@ -26,16 +26,16 @@ type Props = {
 
 export default function ChippyLoader(props: Props) {
   const {
-    height = defaultChippy.height,
+    height,
     progress = 0.5,
-    width = defaultChippy.width,
+    width,
   } = props;
 
   return (
     <div className="items-center flex mb-6 justify-center w-full">
-      <div className="animate-bob p-12 relative overflow-hidden rounded-full">
+      <div className="animate-bob p-6 md:p-12 relative overflow-hidden rounded-full">
         <img
-          className="z-10"
+          className="h-[150px] md:h-[175px] w-[150px] md:w-[175px] z-10 transition-button"
           style={{
             height: `${height}px`,
             width: `${width}px`,

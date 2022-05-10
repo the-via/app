@@ -1,90 +1,78 @@
 import React from 'react';
-import Select, { Props as SelectProps } from 'react-select';
+import {useSelect} from 'downshift';
+import cntl from 'cntl';
+import {OutlineButtonSecondary} from 'src/components/controls/OutlineButton';
 
-const customStyles = {
-  option: (provided: any, state: any) => {
-    return {
-      ...provided,
-      '&:hover': {
-        backgroundColor: state.isSelected
-          ? 'var(--color-action)'
-          : null,
-      },
-      ':active': {
-        backgroundColor: 'var(--color-action)',
-      },
-      background: state.isSelected
-        ? 'var(--color-action)'
-        : state.isFocused
-        ? 'var(--color_dark-grey)'
-        : 'var(--color_light-jet)',
-      color: state.isSelected
-        ? 'var(--color_light-jet)'
-        : state.isFocused
-        ? 'var(--color-action)'
-        : 'var(--color-action)',
-    };
-  },
-  container: (provided: any) => ({
-    ...provided,
-    lineHeight: 'initial',
-  }),
-  input: (provided: any) => ({
-    ...provided,
-    color: 'var(--color-action)',
-    opacity: 0.5,
-  }),
-  singleValue: (provided: any) => ({
-    ...provided,
-    color: 'var(--color-action)',
-  }),
-  dropdownIndicator: (provided: any) => ({
-    ...provided,
-    color: 'var(--color-action)',
-  }),
-  indicatorSeparator: (provided: any) => ({
-    ...provided,
-    backgroundColor: 'var(--color-action)',
-  }),
-  menuList: (provided: any) => ({
-    ...provided,
-    borderColor: 'var(--color-action)',
-  }),
-  placeholder: (provided: any) => ({
-    ...provided,
-    color: 'var(--color-action)',
-  }),
-  valueContainer: (provided: any) => ({
-    ...provided,
-    ':active': {
-      backgroundColor: 'var(--color_dark-grey)',
-      borderColor: 'var(--color-action)',
-    },
-    '&:hover': {
-      borderColor: 'var(--color-action)',
-    },
-    color: 'var(--color-action)',
-  }),
-  control: (provided: any, state: any) => {
-    const res = {
-      ...provided,
-      boxShadow: 'none',
-      ':active': {
-        backgroundColor: 'transparent',
-        borderColor: 'var(--color-action)',
-      },
-      '&:hover': {
-        borderColor: 'var(--color-action)',
-      },
-      color: 'var(--color-outline)',
-      borderColor: '1px solid var(--color-action)',
-      overflow: 'hidden',
-      width: '100%',
-    };
-    return res;
-  },
-};
+interface AccentSelectOption {
+  label: string;
+  value: number | string;
+}
 
-export const AccentSelect: React.VFC<SelectProps> = (props) => (
-  <Select {...props} styles={customStyles} />
-);
+interface AccentSelectProps {
+  className?: string;
+  initialSelectedItem?: AccentSelectOption;
+  onChange?: (option: AccentSelectOption) => void;
+  options: AccentSelectOption[];
+}
+
+export function AccentSelect(props: AccentSelectProps) {
+  const {
+    isOpen,
+    selectedItem,
+    getToggleButtonProps,
+    getLabelProps,
+    getMenuProps,
+    highlightedIndex,
+    getItemProps,
+  } = useSelect({
+    initialSelectedItem: props.initialSelectedItem,
+    items: props.options,
+    itemToString: (option) => option?.label ?? '',
+    onSelectedItemChange: (change) => {
+      if (change.selectedItem) {
+        props.onChange?.(change.selectedItem);
+      }
+    },
+  });
+
+  return (
+    <div className={cntl`relative ${props.className ?? ''}`}>
+      <OutlineButtonSecondary {...getToggleButtonProps()} className="w-full">
+        {selectedItem?.label ?? 'Elements'}
+      </OutlineButtonSecondary>
+      {isOpen && (
+        <div
+          {...getMenuProps()}
+          className={cntl`
+          absolute
+          bg-outline
+          flex
+          flex-col
+          max-h-32
+          overflow-y-auto
+          top-full
+          w-full
+          z-10
+        `}
+        >
+          {props.options.map((option, index) => (
+            <button
+              style={
+                highlightedIndex === index ? {backgroundColor: '#bde4ff'} : {}
+              }
+              key={`${option.value}${index}`}
+              {...getItemProps({item: option, index})}
+              className={cntl`
+                px-2
+                py-1
+              `}
+            >
+              <span {...getLabelProps(option)}>{option.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      <div tabIndex={0} />
+    </div>
+  );
+}
