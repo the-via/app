@@ -1,30 +1,29 @@
 import React from 'react';
-import { AccentSlider } from '../../../../inputs/accent-slider';
-import { AccentSelect } from '../../../../inputs/accent-select';
-import { AccentRange } from '../../../../inputs/accent-range';
-import { ControlRow, Detail } from '../../../grid';
-import type { VIADefinitionV2, VIADefinitionV3, LightingValue } from 'via-reader';
-import { ArrayColorPicker } from '../../../../inputs/color-picker';
-import { useDispatch } from 'react-redux';
+import {AccentSlider} from '../../../../inputs/accent-slider';
+import ControlSelect from 'src/components/controls/ControlSelect';
+import {AccentRange} from '../../../../inputs/accent-range';
+import {ControlRow, Detail} from '../../../grid';
+import type {VIADefinitionV2, VIADefinitionV3, LightingValue} from 'via-reader';
+import {ArrayColorPicker} from '../../../../inputs/color-picker';
+import {useDispatch} from 'react-redux';
 import {
   getSelectedLightingData,
   updateBacklightValue,
 } from 'src/store/lightingSlice';
-import { useAppSelector } from 'src/store/hooks';
-import { getSelectedDefinition } from 'src/store/definitionsSlice';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
 
 export type ControlMeta = [
   LightingValue,
   string | React.VFC<AdvancedControlProps>,
-  { type: string } & Partial<{
+  {type: string} & Partial<{
     min: number;
     max: number;
     getOptions: (d: VIADefinitionV2 | VIADefinitionV3) => string[];
   }>,
 ];
 
-
-type AdvancedControlProps = { meta: ControlMeta };
+type AdvancedControlProps = {meta: ControlMeta};
 
 export const LightingControl = (props: AdvancedControlProps) => {
   const dispatch = useDispatch();
@@ -70,30 +69,28 @@ export const LightingControl = (props: AdvancedControlProps) => {
               dispatch(updateBacklightValue(command, hue, sat))
             }
           />
-
         );
       }
 
       case 'select': {
-        const options = ((meta as any).getOptions(definition) as string[]).map(
-          (label, value) => ({
+        const options =
+          meta.getOptions?.(definition)?.map((label, value) => ({
             value,
             label,
-          }),
-        );
+          })) ?? [];
 
         return (
-          <AccentSelect
+          <ControlSelect
             className="w-1/2"
-            onChange={(option) => {
-              if (option) {
-                dispatch(updateBacklightValue(command, +option.value));
+            onChange={(selectedValue) => {
+              if (selectedValue) {
+                dispatch(updateBacklightValue(command, +selectedValue));
               }
             }}
-            options={options as any}
-            initialSelectedItem={(options as any).find(
-              (p: any) => valArr[0] === p.value,
-            )}
+            options={options}
+            defaultValue={
+              options.find((p: any) => valArr[0] === p.value)?.value
+            }
           />
         );
       }
@@ -120,9 +117,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
 
   return (
     <div className="flex gap-4 items-center">
-      <div className="font-medium w-1/2">
-        {labelContent}
-      </div>
+      <div className="font-medium w-1/2">{labelContent}</div>
       {LightingControlInput}
     </div>
   );

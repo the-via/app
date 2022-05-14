@@ -1,7 +1,12 @@
+/*
+ * nOTE: This component isn't complete and isn't intended to. Instead, it's
+ * used to show that you should be using the <ControlSelect> component instead.
+ */
+
 import React from 'react';
-import {useSelect} from 'downshift';
+import { useSelect } from 'downshift';
 import cntl from 'cntl';
-import {OutlineButtonSecondary} from 'src/components/controls/OutlineButton';
+import { OutlineButtonSecondary } from 'src/components/controls/OutlineButton';
 
 interface AccentSelectOption {
   label: string;
@@ -14,6 +19,7 @@ interface AccentSelectProps {
   onChange?: (option: AccentSelectOption) => void;
   options: AccentSelectOption[];
 }
+
 
 export function AccentSelect(props: AccentSelectProps) {
   const {
@@ -58,10 +64,10 @@ export function AccentSelect(props: AccentSelectProps) {
           {props.options.map((option, index) => (
             <button
               style={
-                highlightedIndex === index ? {backgroundColor: '#bde4ff'} : {}
+                highlightedIndex === index ? { backgroundColor: '#bde4ff' } : {}
               }
               key={`${option.value}${index}`}
-              {...getItemProps({item: option, index})}
+              {...getItemProps({ item: option, index })}
               className={cntl`
                 px-2
                 py-1
