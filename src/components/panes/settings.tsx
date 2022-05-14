@@ -12,6 +12,19 @@ import {
   getTheme,
   setTheme,
 } from 'src/store/settingsSlice';
+import ControlSelect from '../controls/ControlSelect';
+
+const THEMES = [
+  'olivia',
+  'olive',
+  'noire'
+];
+
+const ThemeOptions = THEMES.map((theme) => ({
+  // FIXME: Need to capitalize each word of multi-word themes
+  label: theme.replace(/^\w/, (c) => c.toUpperCase()),
+  value: theme
+}));
 
 const version = '3.0.0-beta';
 export const Settings = () => {
@@ -39,7 +52,12 @@ export const Settings = () => {
         </div>
         <div className="flex items-center justify-between">
           <div className="font-medium">Theme</div>
-          <div className="font-medium text-action capitalize">{theme}</div>
+          <ControlSelect defaultValue={theme} onChange={(selectedValue) => {
+            // This is me being lazy
+            document.body.dataset.theme = selectedValue;
+
+            dispatch(setTheme(selectedValue));
+          }} options={ThemeOptions} />
         </div>
         <div className="flex items-center justify-between">
           <div className="font-medium">Enable Design Feature</div>
