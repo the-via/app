@@ -18,7 +18,7 @@ interface ControlSelectProps extends SelectProps {
 // All bg- styles are used for displaying the down chevron
 const controlSelectClassName = cntl`
   appearance-none
-  bg-[length:1rem_1rem]
+  bg-[length:0.8rem]
   bg-[right_1rem_center]
   bg-background
   bg-no-repeat

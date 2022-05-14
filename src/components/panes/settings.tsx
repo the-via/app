@@ -14,16 +14,12 @@ import {
 } from 'src/store/settingsSlice';
 import ControlSelect from '../controls/ControlSelect';
 
-const THEMES = [
-  'olivia',
-  'olive',
-  'noire'
-];
+const THEMES = ['olivia', 'olive', 'noire'];
 
 const ThemeOptions = THEMES.map((theme) => ({
   // FIXME: Need to capitalize each word of multi-word themes
   label: theme.replace(/^\w/, (c) => c.toUpperCase()),
-  value: theme
+  value: theme,
 }));
 
 const version = '3.0.0-beta';
@@ -52,12 +48,19 @@ export const Settings = () => {
         </div>
         <div className="flex items-center justify-between">
           <div className="font-medium">Theme</div>
-          <ControlSelect defaultValue={theme} onChange={(selectedValue) => {
-            // This is me being lazy
-            document.body.dataset.theme = selectedValue;
+          <ControlSelect
+            className="w-1/4"
+            defaultValue={theme}
+            onChange={(selectedValue) => {
+              // This is me being lazy: some components read colors dynamically
+              // from document.body and won't be able to read updated colors
+              // until the they've triggered.
+              document.body.dataset.theme = selectedValue;
 
-            dispatch(setTheme(selectedValue));
-          }} options={ThemeOptions} />
+              dispatch(setTheme(selectedValue));
+            }}
+            options={ThemeOptions}
+          />
         </div>
         <div className="flex items-center justify-between">
           <div className="font-medium">Enable Design Feature</div>
@@ -81,7 +84,9 @@ export const Settings = () => {
           <div className="w-2/3">
             <div className="font-medium">Key Remapping via Keyboard</div>
             {/* FIXME: This explanation sucks */}
-            <div className="text-sm">Keyboard will remap from input by keyboard.</div>
+            <div className="text-sm">
+              Keyboard will remap from input by keyboard.
+            </div>
           </div>
           <AccentSlider
             onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}

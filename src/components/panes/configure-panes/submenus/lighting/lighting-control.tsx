@@ -2,7 +2,6 @@ import React from 'react';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import ControlSelect from 'src/components/controls/ControlSelect';
 import {AccentRange} from '../../../../inputs/accent-range';
-import {ControlRow, Detail} from '../../../grid';
 import type {VIADefinitionV2, VIADefinitionV3, LightingValue} from 'via-reader';
 import {ArrayColorPicker} from '../../../../inputs/color-picker';
 import {useDispatch} from 'react-redux';
@@ -74,7 +73,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
 
       case 'select': {
         const options =
-          meta.getOptions?.(definition)?.map((label, value) => ({
+          meta.getOptions?.(definition).map((label, value) => ({
             value,
             label,
           })) ?? [];
@@ -82,15 +81,11 @@ export const LightingControl = (props: AdvancedControlProps) => {
         return (
           <ControlSelect
             className="w-1/2"
+            defaultValue={valArr[0]}
             onChange={(selectedValue) => {
-              if (selectedValue) {
-                dispatch(updateBacklightValue(command, +selectedValue));
-              }
+              dispatch(updateBacklightValue(command, +selectedValue));
             }}
             options={options}
-            defaultValue={
-              options.find((p: any) => valArr[0] === p.value)?.value
-            }
           />
         );
       }
