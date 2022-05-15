@@ -1,6 +1,5 @@
 import React from 'react';
-import Slider from 'rc-slider';
-import type {SliderProps} from 'rc-slider';
+import Slider, { SliderProps} from 'rc-slider';
 import styled from 'styled-components';
 
 const Container = styled.span`
@@ -12,13 +11,13 @@ const Container = styled.span`
 export const AccentRange: React.VFC<SliderProps> = (props) => (
   <Container>
     <Slider
-      {...props}
       railStyle={{backgroundColor: 'var(--color-outline)'}}
       trackStyle={{backgroundColor: 'var(--color-action)'}}
       handleStyle={{
         borderColor: 'var(--color-action)',
         backgroundColor: 'var(--color-action)',
       }}
+      {...props}
     />
   </Container>
 );

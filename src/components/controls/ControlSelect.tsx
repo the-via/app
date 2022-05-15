@@ -24,12 +24,17 @@ const controlSelectClassName = cntl`
   bg-no-repeat
   border-2
   border-action
+  cursor-pointer
+  focus-visible:underline
   font-medium
+  hover:bg-action
+  hover:text-outline
   pl-4
   pr-12
   py-2
   rounded-md
   text-action
+  transition-button
   truncate
 `;
 

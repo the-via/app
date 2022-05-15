@@ -1,7 +1,7 @@
 import React from 'react';
-import type { FC } from 'react';
-import { ColorPicker } from '../../../../inputs/color-picker';
-import { ControlRow, Label, Detail } from '../../../grid';
+import type {FC} from 'react';
+import {ColorPicker} from '../../../../inputs/color-picker';
+import {ControlRow, Label, Detail} from '../../../grid';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
@@ -9,74 +9,74 @@ import {
   VIADefinitionV2,
   VIADefinitionV3,
 } from 'via-reader';
-import { LightingControl } from './lighting-control';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from 'src/store/hooks';
+import {LightingControl} from './lighting-control';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
 import {
   getSelectedLightingData,
   updateBacklightValue,
   updateCustomColor,
 } from 'src/store/lightingSlice';
-import { getSelectedDefinition } from 'src/store/definitionsSlice';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
 
 const BacklightControls: [
   LightingValue,
   string,
-  { type: string } & Record<string, any>,
+  {type: string} & Record<string, any>,
 ][] = [
-    [
-      LightingValue.BACKLIGHT_BRIGHTNESS,
-      'Brightness',
-      { type: 'range', min: 0, max: 255 },
-    ],
-    [
-      LightingValue.BACKLIGHT_EFFECT,
-      'Effect',
-      {
-        type: 'select',
-        getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
-          isVIADefinitionV2(definition) &&
-          getLightingDefinition(definition.lighting).effects.map(
-            ([label]) => label,
-          ),
-      },
-    ],
-    [
-      LightingValue.BACKLIGHT_EFFECT_SPEED,
-      'Effect Speed',
-      { type: 'range', min: 0, max: 3 },
-    ],
-  ];
+  [
+    LightingValue.BACKLIGHT_BRIGHTNESS,
+    'Brightness',
+    {type: 'range', min: 0, max: 255},
+  ],
+  [
+    LightingValue.BACKLIGHT_EFFECT,
+    'Effect',
+    {
+      type: 'select',
+      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
+        isVIADefinitionV2(definition) &&
+        getLightingDefinition(definition.lighting).effects.map(
+          ([label]) => label,
+        ),
+    },
+  ],
+  [
+    LightingValue.BACKLIGHT_EFFECT_SPEED,
+    'Effect Speed',
+    {type: 'range', min: 0, max: 3},
+  ],
+];
 
 const UnderglowControls: [
   LightingValue,
   string,
-  { type: string } & Record<string, any>,
+  {type: string} & Record<string, any>,
 ][] = [
-    [
-      LightingValue.QMK_RGBLIGHT_BRIGHTNESS,
-      'Underglow Brightness',
-      { type: 'range', min: 0, max: 255 },
-    ],
-    [
-      LightingValue.QMK_RGBLIGHT_EFFECT,
-      'Underglow Effect',
-      {
-        type: 'select',
-        getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
-          isVIADefinitionV2(definition) &&
-          getLightingDefinition(definition.lighting).underglowEffects.map(
-            ([label]) => label,
-          ),
-      },
-    ],
-    [
-      LightingValue.QMK_RGBLIGHT_EFFECT_SPEED,
-      'Underglow Effect Speed',
-      { type: 'range', min: 0, max: 3 },
-    ],
-  ];
+  [
+    LightingValue.QMK_RGBLIGHT_BRIGHTNESS,
+    'Underglow Brightness',
+    {type: 'range', min: 0, max: 255},
+  ],
+  [
+    LightingValue.QMK_RGBLIGHT_EFFECT,
+    'Underglow Effect',
+    {
+      type: 'select',
+      getOptions: (definition: VIADefinitionV2 | VIADefinitionV3) =>
+        isVIADefinitionV2(definition) &&
+        getLightingDefinition(definition.lighting).underglowEffects.map(
+          ([label]) => label,
+        ),
+    },
+  ],
+  [
+    LightingValue.QMK_RGBLIGHT_EFFECT_SPEED,
+    'Underglow Effect Speed',
+    {type: 'range', min: 0, max: 3},
+  ],
+];
 
 export const GeneralPane: FC = () => {
   const dispatch = useDispatch();
@@ -94,7 +94,7 @@ export const GeneralPane: FC = () => {
   }
 
   const lightingDefinition = getLightingDefinition(selectedDefinition.lighting);
-  const { supportedLightingValues } = lightingDefinition;
+  const {supportedLightingValues} = lightingDefinition;
 
   if (lightingDefinition.supportedLightingValues.length !== 0) {
     const colorsNeededArr = lightingDefinition.effects.map(([_, num]) => num);
@@ -156,12 +156,10 @@ export const GeneralPane: FC = () => {
               }
 
               return (
-                <ControlRow key={val}>
-                  <Label>Color {val}</Label>
-                  <Detail>
-                    <ColorPicker color={color} setColor={setColor} />
-                  </Detail>
-                </ControlRow>
+                <div className="flex gap-4 items-center justify-between">
+                  <div className="font-medium w-1/2">Color {val}</div>
+                  <ColorPicker color={color} setColor={setColor} />
+                </div>
               );
             })}
           {underglowColorNeeded && (
@@ -169,7 +167,7 @@ export const GeneralPane: FC = () => {
               meta={[
                 LightingValue.QMK_RGBLIGHT_COLOR,
                 'Underglow Color',
-                { type: 'color' },
+                {type: 'color'},
               ]}
             />
           )}

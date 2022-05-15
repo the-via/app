@@ -8,6 +8,7 @@ import {
   calcRadialHue,
   calcRadialMagnitude,
 } from '../../utils/color-math';
+import cntl from 'cntl';
 
 type Color = {
   hue: number;
@@ -24,18 +25,33 @@ type State = {
   showPicker: boolean;
 };
 
-export const ColorThumbnail = styled.div`
-  display: inline-block;
-  height: 20px;
-  width: 30px;
-  border-radius: 2px;
-  background: ${(props) => props.color};
-  border: 2px solid var(--color_dark-grey);
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-`;
+interface ColorThumbnailProps extends React.HTMLProps<HTMLDivElement> {
+  color: string;
+};
+
+export function ColorThumbnail(props: ColorThumbnailProps) {
+  const { color, className, ...restProps } = props;
+
+  const colorThumbnailClassName = cntl`
+    border-2
+    border-outline
+    cursor-pointer
+    h-full
+    rounded-md
+    hover:border-action
+    transition-button
+    w-full
+    ${className}
+  `;
+
+  const style = {
+    backgroundColor: color
+  };
+
+  return (
+    <div className={colorThumbnailClassName} style={style} {...restProps} />
+  );
+}
 
 const Container = styled.div`
   border: 4px solid var(--color_dark-grey);
@@ -194,7 +210,7 @@ export class ColorPicker extends Component<Props, State> {
   render() {
     const color = this.getRGB(this.props.color);
     return (
-      <>
+      <div className="w-10 h-8 relative">
         <ColorThumbnail
           ref={this.colorThumbnail}
           onClick={this.onThumbnailClick}
@@ -223,7 +239,7 @@ export class ColorPicker extends Component<Props, State> {
             </Container>
           </PickerContainer>
         )}
-      </>
+      </div>
     );
   }
 }

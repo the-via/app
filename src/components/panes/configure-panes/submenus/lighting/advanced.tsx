@@ -10,6 +10,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getSelectedLightingData} from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
+import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -52,73 +53,81 @@ const RGBControls: ControlMeta[] = [
       }
 
       return (
-        <span>
+        <div>
           LED Sleep Timeout:{' '}
-          <AccentText>
+          <div className="font-normal text-sm">
             {!valArr[0] ? 'Never' : `After ${valArr[0]} mins`}
-          </AccentText>
-        </span>
+          </div>
+        </div>
       );
     },
     {type: 'range', min: 0, max: 255},
   ],
   [
     LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_COLOR,
-    'Caps Lock indicator color',
+    'Caps Lock Indicator Color',
     {type: 'color'},
   ],
   [
     LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_ROW_COL,
-    'Caps Lock indicator',
+    'Caps Lock Indicator',
     {type: 'row_col'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_1_INDICATOR_COLOR,
-    'Layer 1 indicator color',
+    'Layer 1 Indicator Color',
     {type: 'color'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_1_INDICATOR_ROW_COL,
-    'Layer 1 indicator',
+    'Layer 1 Indicator',
     {type: 'row_col'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_2_INDICATOR_COLOR,
-    'Layer 2 indicator color',
+    'Layer 2 Indicator Color',
     {type: 'color'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_2_INDICATOR_ROW_COL,
-    'Layer 2 indicator',
+    'Layer 2 Indicator',
     {type: 'row_col'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_3_INDICATOR_COLOR,
-    'Layer 3 indicator color',
+    'Layer 3 Indicator Color',
     {type: 'color'},
   ],
   [
     LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL,
-    'Layer 3 indicator',
+    'Layer 3 Indicator',
     {type: 'row_col'},
   ],
 ];
 export const AdvancedPane: FC = () => {
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  if (isVIADefinitionV2(selectedDefinition) && lightingData) {
-    const {supportedLightingValues} = getLightingDefinition(
-      selectedDefinition.lighting,
-    );
-    return (
-      <>
+
+  const selectedDefinitionIsVIADefinition = isVIADefinitionV2(selectedDefinition);
+
+  if (!selectedDefinitionIsVIADefinition || !lightingData) {
+    return null;
+  }
+
+  const {supportedLightingValues} = getLightingDefinition(
+    selectedDefinition.lighting,
+  );
+
+  return (
+    <div className="m-4">
+      <ControlCategoryLabel>Advanced</ControlCategoryLabel>
+      <div className="flex flex-col gap-8">
         {RGBControls.filter(
           (control) => supportedLightingValues.indexOf(control[0]) !== -1,
         ).map((meta: AdvancedControlMeta) => (
           <LightingControl meta={meta} />
         ))}
-      </>
-    );
-  }
-  return null;
+      </div>
+    </div>
+  );
 };

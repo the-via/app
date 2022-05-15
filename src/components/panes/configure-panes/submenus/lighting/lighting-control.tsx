@@ -111,7 +111,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
   }
 
   return (
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-4 justify-between items-center">
       <div className="font-medium w-1/2">{labelContent}</div>
       {LightingControlInput}
     </div>
