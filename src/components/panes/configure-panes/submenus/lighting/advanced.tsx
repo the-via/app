@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
@@ -7,10 +6,16 @@ import {
 } from 'via-reader';
 import {LightingControl, ControlMeta} from './lighting-control';
 import {useAppSelector} from 'src/store/hooks';
-import {getSelectedLightingData} from 'src/store/lightingSlice';
+import {
+  getSelectedLightingData,
+  updateBacklightValue,
+} from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
 import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
+import {useDispatch} from 'react-redux';
+import {AccentSlider} from 'src/components/inputs/accent-slider';
+import {ArrayColorPicker} from 'src/components/inputs/color-picker';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -25,15 +30,59 @@ export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL,
 ];
 
-const AccentText = styled.span`
-  color: var(--color_accent);
-`;
-
 type AdvancedControlMeta = [
   LightingValue,
   string | React.VFC<any>,
   {type: string} & Partial<{min?: number; max?: number}>,
 ];
+
+interface IndicatorControlProps {
+  children: React.ReactNode;
+  colorCommand: LightingValue;
+  indicatorCommand: LightingValue;
+}
+
+function IndicatorControl(props: IndicatorControlProps) {
+  const {children, colorCommand, indicatorCommand} = props;
+  const dispatch = useDispatch();
+
+  const lightingData = useAppSelector(getSelectedLightingData);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+
+  const colorValues = lightingData?.[colorCommand] as [number, number];
+  const indicatorValues = lightingData?.[indicatorCommand];
+
+  if (!colorValues || !indicatorValues || !selectedDefinition) {
+    return null;
+  }
+
+  const indiciatorEnabled = indicatorValues[0] === 254;
+
+  return (
+    <div className="flex gap-4 justify-between items-center">
+      <div className="font-medium w-1/2">{children}</div>
+      <div className="flex gap-4 items-center">
+        {indiciatorEnabled && (
+          <ArrayColorPicker
+            color={colorValues}
+            setColor={(hue, sat) =>
+              dispatch(updateBacklightValue(colorCommand, hue, sat))
+            }
+          />
+        )}
+        <AccentSlider
+          defaultChecked={indiciatorEnabled}
+          onChange={(isChecked) => {
+            const newIndicatorValues = isChecked ? [254, 254] : [255, 255];
+            dispatch(
+              updateBacklightValue(indicatorCommand, ...newIndicatorValues),
+            );
+          }}
+        />
+      </div>
+    </div>
+  );
+}
 
 const RGBControls: ControlMeta[] = [
   [
@@ -63,52 +112,13 @@ const RGBControls: ControlMeta[] = [
     },
     {type: 'range', min: 0, max: 255},
   ],
-  [
-    LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_COLOR,
-    'Caps Lock Indicator Color',
-    {type: 'color'},
-  ],
-  [
-    LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_ROW_COL,
-    'Caps Lock Indicator',
-    {type: 'row_col'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_1_INDICATOR_COLOR,
-    'Layer 1 Indicator Color',
-    {type: 'color'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_1_INDICATOR_ROW_COL,
-    'Layer 1 Indicator',
-    {type: 'row_col'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_2_INDICATOR_COLOR,
-    'Layer 2 Indicator Color',
-    {type: 'color'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_2_INDICATOR_ROW_COL,
-    'Layer 2 Indicator',
-    {type: 'row_col'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_3_INDICATOR_COLOR,
-    'Layer 3 Indicator Color',
-    {type: 'color'},
-  ],
-  [
-    LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL,
-    'Layer 3 Indicator',
-    {type: 'row_col'},
-  ],
 ];
 export const AdvancedPane: FC = () => {
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
-  const selectedDefinitionIsVIADefinition = isVIADefinitionV2(selectedDefinition);
+  const selectedDefinitionIsVIADefinition =
+    isVIADefinitionV2(selectedDefinition);
 
   if (!selectedDefinitionIsVIADefinition || !lightingData) {
     return null;
@@ -116,6 +126,22 @@ export const AdvancedPane: FC = () => {
 
   const {supportedLightingValues} = getLightingDefinition(
     selectedDefinition.lighting,
+  );
+
+  const isCapsLockIndicatorEnabled = supportedLightingValues.includes(
+    LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_ROW_COL,
+  );
+
+  const isLayer1IndicatorEnabled = supportedLightingValues.includes(
+    LightingValue.BACKLIGHT_LAYER_1_INDICATOR_ROW_COL,
+  );
+
+  const isLayer2IndicatorEnabled = supportedLightingValues.includes(
+    LightingValue.BACKLIGHT_LAYER_2_INDICATOR_ROW_COL,
+  );
+
+  const isLayer3IndicatorEnabled = supportedLightingValues.includes(
+    LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL,
   );
 
   return (
@@ -127,6 +153,40 @@ export const AdvancedPane: FC = () => {
         ).map((meta: AdvancedControlMeta) => (
           <LightingControl meta={meta} />
         ))}
+        {isCapsLockIndicatorEnabled && (
+          <IndicatorControl
+            colorCommand={LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_COLOR}
+            indicatorCommand={
+              LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_ROW_COL
+            }
+          >
+            Caps Lock Indicator
+          </IndicatorControl>
+        )}
+        {isLayer1IndicatorEnabled && (
+          <IndicatorControl
+            colorCommand={LightingValue.BACKLIGHT_LAYER_1_INDICATOR_COLOR}
+            indicatorCommand={LightingValue.BACKLIGHT_LAYER_1_INDICATOR_ROW_COL}
+          >
+            Layer 1 Indicator
+          </IndicatorControl>
+        )}
+        {isLayer2IndicatorEnabled && (
+          <IndicatorControl
+            colorCommand={LightingValue.BACKLIGHT_LAYER_2_INDICATOR_COLOR}
+            indicatorCommand={LightingValue.BACKLIGHT_LAYER_2_INDICATOR_ROW_COL}
+          >
+            Layer 2 Indicator
+          </IndicatorControl>
+        )}
+        {isLayer3IndicatorEnabled && (
+          <IndicatorControl
+            colorCommand={LightingValue.BACKLIGHT_LAYER_3_INDICATOR_COLOR}
+            indicatorCommand={LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL}
+          >
+            Layer 3 Indicator
+          </IndicatorControl>
+        )}
       </div>
     </div>
   );

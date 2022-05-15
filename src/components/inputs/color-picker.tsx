@@ -209,8 +209,9 @@ export class ColorPicker extends Component<Props, State> {
 
   render() {
     const color = this.getRGB(this.props.color);
+
     return (
-      <div className="w-10 h-8 relative">
+      <div className="w-8 h-8 relative">
         <ColorThumbnail
           ref={this.colorThumbnail}
           onClick={this.onThumbnailClick}

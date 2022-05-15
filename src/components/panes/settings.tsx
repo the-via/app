@@ -14,7 +14,7 @@ import {
 } from 'src/store/settingsSlice';
 import ControlSelect from '../controls/ControlSelect';
 
-const THEMES = ['olivia', 'olive', 'noire'];
+const THEMES = ['noire', 'olive', 'olivia'];
 
 const ThemeOptions = THEMES.map((theme) => ({
   // FIXME: Need to capitalize each word of multi-word themes
@@ -22,7 +22,7 @@ const ThemeOptions = THEMES.map((theme) => ({
   value: theme,
 }));
 
-const version = '3.0.0-beta';
+const version = '3.0.0-alpha';
 export const Settings = () => {
   const dispatch = useDispatch();
   const theme = useAppSelector(getTheme);
@@ -63,7 +63,7 @@ export const Settings = () => {
           />
         </div>
         <div className="flex items-center justify-between">
-          <div className="font-medium">Enable Design Feature</div>
+          <div className="font-medium">Design Mode</div>
           <AccentSlider
             onChange={() => dispatch(toggleCreatorMode())}
             isChecked={showDesignTab}
@@ -72,8 +72,7 @@ export const Settings = () => {
         <div className="flex items-center justify-between">
           <div className="w-2/3">
             <div className="font-medium">Fast Key Mapping</div>
-            {/* FIXME: This explanation sucks */}
-            <div className="text-sm">Remap happens from input.</div>
+            <div className="text-sm">Auto-selects next key after updating keymap</div>
           </div>
           <AccentSlider
             onChange={() => dispatch(toggleFastRemap())}
@@ -82,10 +81,10 @@ export const Settings = () => {
         </div>
         <div className="flex items-center justify-between">
           <div className="w-2/3">
-            <div className="font-medium">Key Remapping via Keyboard</div>
+            <div className="font-medium">Passthrough Key Remapping</div>
             {/* FIXME: This explanation sucks */}
             <div className="text-sm">
-              Keyboard will remap from input by keyboard.
+              Allow updating keymap with keyboard input
             </div>
           </div>
           <AccentSlider

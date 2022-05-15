@@ -80,7 +80,7 @@ export default function ControlSelect(props: ControlSelectProps) {
       <ChevronDown
         style={{
           // # is reserved for URLs
-          fill: actionColor.replace(/#/, '%23'),
+          fill: actionColor.replace(/#/, '%23')
         }}
       />
     );

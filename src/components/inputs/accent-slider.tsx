@@ -12,28 +12,36 @@ function sliderClassName({isChecked}: {isChecked: boolean}) {
     transition-all
     w-6
     ${isChecked ? '-translate-x-full left-full' : 'translate-x-0 left-0'}
+    ${
+      isChecked
+        ? 'group-hover:-translate-x-[calc(100%_+_3px)]'
+        : 'group-hover:translate-x-[3px]'
+    }
   `;
 }
 
-type Props = {
-  isChecked: boolean;
+export interface AccentSliderProps {
+  defaultChecked?: boolean;
+  /** @deprecated: prefer defaultChecked */
+  isChecked?: boolean;
   onChange: (val: boolean) => void;
-};
+}
 
-export function AccentSlider(props: Props) {
-  const {isChecked, onChange} = props;
+export function AccentSlider(props: AccentSliderProps) {
+  const {defaultChecked, onChange} = props;
+  const [isChecked, setIsChecked] = React.useState(
+    defaultChecked || props.isChecked || false,
+  );
 
-  const [isHiddenChecked, setIsHiddenChecked] = React.useState(isChecked);
+  const handleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const isChecked = e.target.checked;
 
-  // If the parent isChecked changes, update our local checked state
-  React.useEffect(() => {
-    setIsHiddenChecked(isChecked);
-  }, [isChecked]);
-
-  const hiddenOnChange = React.useCallback(() => {
-    setIsHiddenChecked((prevIsHiddenChecked) => !prevIsHiddenChecked);
-    onChange(!isHiddenChecked);
-  }, [isHiddenChecked]);
+      setIsChecked(isChecked);
+      onChange(isChecked);
+    },
+    [setIsChecked, onChange],
+  );
 
   const labelClassName = cntl`
     bg-outline
@@ -41,24 +49,25 @@ export function AccentSlider(props: Props) {
     cursor-pointer
     duration-200
     ease-out
+    group
     p-1
     relative
     rounded
     rounded-lg
     transition-[border-color]
     w-16
-    ${isHiddenChecked ? 'border-action' : 'border-outline'}
+    ${isChecked ? 'border-action' : 'border-outline'}
   `;
 
   return (
     <label className={labelClassName}>
       <input
-        checked={isHiddenChecked}
+        checked={isChecked}
         className="display-none opacity-0 w-0 h-0 absolute"
-        onChange={hiddenOnChange}
+        onChange={handleChange}
         type="checkbox"
       />
-      <div className={sliderClassName({isChecked: isHiddenChecked})} />
+      <div className={sliderClassName({isChecked})} />
     </label>
   );
 }
