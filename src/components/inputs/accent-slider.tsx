@@ -30,10 +30,10 @@ export function AccentSlider(props: Props) {
     setIsHiddenChecked(isChecked);
   }, [isChecked]);
 
-  const hiddenOnChange = () => {
-    setIsHiddenChecked(!isChecked);
-    onChange(!isChecked);
-  };
+  const hiddenOnChange = React.useCallback(() => {
+    setIsHiddenChecked((prevIsHiddenChecked) => !prevIsHiddenChecked);
+    onChange(!isHiddenChecked);
+  }, [isHiddenChecked]);
 
   const labelClassName = cntl`
     bg-outline
