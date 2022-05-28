@@ -22,8 +22,6 @@ export enum TestKeyState {
   KeyUp,
 }
 
-type t = Omit<Key, 'selected' | 'onClick'>;
-
 type TestKey = Omit<Key, 'selected'> & {
   keyState: TestKeyState;
 };
@@ -76,15 +74,14 @@ const TestKeyComponent = React.memo(
                   h: h2 || 0,
                 })}
               >
-                <ChosenInnerKey backgroundColor={c}>
+                <ChosenInnerKey>
                   <ChosenInnerKeyContainer></ChosenInnerKeyContainer>
                 </ChosenInnerKey>
               </OuterSecondaryKey>
             </>
           ) : null}
-          <OuterKey backgroundColor={getDarkenedColor(c)}>
+          <OuterKey backgroundClassName="bg-action">
             <ChosenInnerKey
-              backgroundColor={c}
               style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
             >
               <ChosenInnerKeyContainer>

@@ -19,7 +19,6 @@ import * as SaveLoad from './configure-panes/save-load';
 import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
-import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
@@ -30,6 +29,7 @@ import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import FloatingPane from 'src/components/panes/configure-panes/FloatingPane';
 import OutlineButton from 'src/components/controls/OutlineButton';
+import ConfigureKeyboardControls from './configure-panes/KeyboardControls';
 
 const Rows = [
   Keycode,
@@ -235,34 +235,11 @@ const ConfigureGrid = () => {
               selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
             />
             <ReactTooltip />
-            {/*
-              <SelectedPane />
-              */}
           </div>
         </div>
-        <div className="mx-auto">
-          <LayerControl />
-        </div>
+        <ConfigureKeyboardControls dimensions={dimensions} />
       </div>
       <FloatingPane />
-      {/*
-      <div className="flex flex-col align-flex-start gap-4 p-4 border-r border-dark border-solid">
-        {KeyboardRows.map(
-          ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
-            <Row
-              key={idx}
-              onClick={(_) => setRow(idx)}
-              isSelected={selectedRow === idx}
-            >
-              <IconContainer>
-                <Icon />
-              </IconContainer>
-              <span className="whitespace-nowrap">{Title}</span>
-            </Row>
-          ),
-        )}
-      </div>
-*/}
     </div>
   );
 };

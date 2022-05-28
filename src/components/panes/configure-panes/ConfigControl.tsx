@@ -1,18 +1,22 @@
 import React from 'react';
-import ControlLabel from 'src/components/controls/ControlLabel';
+import ArrowDown from 'src/components/icons/arrow-down';
+import ArrowUp from 'src/components/icons/arrow-up';
 import ControlButton from 'src/components/controls/ControlButton';
+import ControlLabel from 'src/components/controls/ControlLabel';
 
-interface Props {}
+interface ConfigControlProps {}
 
-export default function ConfigControl(_props: Props) {
-  // TODO: Wire up Save & Load
-
+export default function ConfigControl(_props: ConfigControlProps) {
   return (
-    <div className="flex items-center justify-end">
-      <ControlLabel className="mr-6">Config</ControlLabel>
-      <div className="flex gap-2">
-        <ControlButton title="Save configuration">Save</ControlButton>
-        <ControlButton title="Load configuration">Load</ControlButton>
+    <div className="flex items-center">
+      <ControlLabel className="mr-4">Config</ControlLabel>
+      <div className="flex items-center gap-2">
+        <ControlButton className="!px-px" title="Save config">
+          <ArrowDown />
+        </ControlButton>
+        <ControlButton className="!px-px" title="Upload config">
+          <ArrowUp />
+        </ControlButton>
       </div>
     </div>
   );

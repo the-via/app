@@ -23,9 +23,9 @@ const floatingPaneClassName = cntl`
 
 enum ConfigurePanes {
   KEYMAP,
-  MACRO,
   LIGHTING,
   LAYOUTS,
+  MACRO,
 }
 
 export default function FloatingPane() {
@@ -41,8 +41,8 @@ export default function FloatingPane() {
     ActivePaneComponent = <LightingPane />;
   } else if (activePane === ConfigurePanes.LAYOUTS) {
     ActivePaneComponent = <LayoutPane />;
-  } else if (activePane === ConfigurePanes.CONFIG) {
-    ActivePaneComponent = <div>Config</div>;
+  } else if (activePane === ConfigurePanes.MACRO) {
+    ActivePaneComponent = <div>Macros</div>;
   }
 
   const hasLayouts = selectedLayoutOptions.length > 0;
@@ -77,9 +77,9 @@ export default function FloatingPane() {
           </ControlButton>
         )}
         <ControlButton
-          isSelected={activePane === ConfigurePanes.LIGHTING}
+          isSelected={activePane === ConfigurePanes.MACRO}
           onClick={() => {
-            setActivePane(ConfigurePanes.LIGHTING);
+            setActivePane(ConfigurePanes.MACRO);
           }}
         >
           Macros

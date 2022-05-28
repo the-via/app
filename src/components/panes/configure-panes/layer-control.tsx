@@ -61,6 +61,7 @@ export const LayerControl = () => {
             key={layerLabel}
             isSelected={layerLabel === selectedLayerIndex}
             onClick={() => dispatch(setLayer(layerLabel))}
+            title={`Switch to layer ${layerLabel}`}
           >
             {layerLabel}
           </ControlButton>
@@ -70,7 +71,7 @@ export const LayerControl = () => {
 
   return (
     <div className="flex items-center">
-      <ControlLabel className="mr-6">Layer</ControlLabel>
+      <ControlLabel className="mr-4">Layer</ControlLabel>
       <div className="flex gap-2">{Layers}</div>
     </div>
   );

@@ -60,7 +60,7 @@ interface KeyboardFrameProps {
 // Finds the dimension of a device given a measurement (width [number of
 // columns], height [number of rows]), a similar measurement of a key (key
 // width, key height), and the spacing between keys.
-function calculateDeviceDimension(
+export function calculateDeviceDimension(
   measurement: number,
   keyMeasurement: number,
   keySpacing: number,
@@ -70,46 +70,60 @@ function calculateDeviceDimension(
   return keyMeasurement * measurement + (measurement - 1) * keySpacing;
 }
 
-function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
-  const {
-    children,
-    containerDimensions,
-    height = 1,
-    _selectable,
-    width = 1,
-  } = props;
+export function getScaleTransform(
+  containerDimensions: KeyboardFrameProps['containerDimensions'],
+  width: number,
+) {
+  const multiplier = 1000000;
 
-  const scaleTransform = React.useMemo(() => {
-    const multiplier = 1000000;
-
-    if (containerDimensions) {
-      const deviceWidth = calculateDeviceDimension(
-        width,
-        CSSVarObject.keyWidth,
-        CSSVarObject.keyXSpacing,
-      );
-
-      let scale = Math.min(1, containerDimensions.width / deviceWidth);
-
-      return Math.floor(scale * multiplier) / multiplier;
-    } else {
-      return 1;
-    }
-  }, [containerDimensions]);
-
-  const [frameHeight, frameWidth] = React.useMemo(() => {
-    const deviceHeight = calculateDeviceDimension(
-      height,
-      CSSVarObject.keyHeight,
-      CSSVarObject.keyYSpacing,
-    );
+  if (containerDimensions) {
     const deviceWidth = calculateDeviceDimension(
       width,
       CSSVarObject.keyWidth,
       CSSVarObject.keyXSpacing,
     );
 
-    return [deviceHeight, deviceWidth];
+    let scale = Math.min(1, containerDimensions.width / deviceWidth);
+
+    return Math.floor(scale * multiplier) / multiplier;
+  } else {
+    return 1;
+  }
+}
+
+export function getDeviceDimensions(
+  height: number = 1,
+  width: number = 1,
+): number[] {
+  const deviceHeight = calculateDeviceDimension(
+    height,
+    CSSVarObject.keyHeight,
+    CSSVarObject.keyYSpacing,
+  );
+  const deviceWidth = calculateDeviceDimension(
+    width,
+    CSSVarObject.keyWidth,
+    CSSVarObject.keyXSpacing,
+  );
+
+  return [deviceHeight, deviceWidth];
+}
+
+function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
+  const {
+    children,
+    containerDimensions,
+    height = 1,
+    // selectable,
+    width = 1,
+  } = props;
+
+  const scaleTransform = React.useMemo(() => {
+    return getScaleTransform(containerDimensions, width);
+  }, [containerDimensions]);
+
+  const [frameHeight, frameWidth] = React.useMemo(() => {
+    return getDeviceDimensions(height, width);
   }, [height, width]);
 
   return (
@@ -306,13 +320,13 @@ export const OuterSecondaryKey = styled.div<{
   position: absolute;
 `;
 
-interface OuterKeyProps extends React.HTMLProps<HTMLDivElement> {}
-export function OuterKey(props: OuterKeyProps) {
-  const {selected, ...rest} = props;
+interface OuterKeyProps extends React.HTMLProps<HTMLDivElement> {
+  backgroundClassName?: string;
+}
 
-  // animation-iteration-count: infinite;
-  // animation-direction: alternate;
-  // animation-timing-function: ease-in-out;
+export function OuterKey(props: OuterKeyProps) {
+  const {backgroundClassName, selected, ...rest} = props;
+
   return (
     <div className={cntl`h-full w-full p-[2px_6px_9px]`}>
       <div
@@ -327,6 +341,7 @@ export function OuterKey(props: OuterKeyProps) {
         rounded-sm
         w-full
         -z-[1]
+        ${backgroundClassName}
       `}
       ></div>
       <div
@@ -349,7 +364,7 @@ interface LegendProps extends React.HTMLProps<HTMLDivElement> {
 
 function Legend(props: LegendProps) {
   const legendClassName = cntl`
-    font-medium
+    font-semibold
     truncate
     text-xxs
     text-action
@@ -511,7 +526,9 @@ const KeyComponent = memo(
             </>
           ) : null}
           <OuterKey selected={selected}>
-            <ChosenInnerKey style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}>
+            <ChosenInnerKey
+              style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
+            >
               <ChosenInnerKeyContainer>
                 {getLegends(legends, t)}
               </ChosenInnerKeyContainer>

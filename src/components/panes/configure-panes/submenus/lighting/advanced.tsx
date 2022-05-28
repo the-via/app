@@ -17,6 +17,7 @@ import {useDispatch} from 'react-redux';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ArrayColorPicker} from 'src/components/inputs/color-picker';
 import ColorInput from 'src/components/inputs/color-input';
+import cntl from 'cntl';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -59,13 +60,20 @@ function IndicatorControl(props: IndicatorControlProps) {
 
   const indiciatorEnabled = indicatorValues[0] === 254;
 
+  const inputClassName = cntl`
+    transition-button
+    ${!indiciatorEnabled ? 'opacity-0' : ''}
+    ${!indiciatorEnabled ? 'pointer-events-none' : ''}
+  `;
+
   return (
     <div className="grid grid-cols-2 gap-4 items-center">
       <div className="font-medium">{children}</div>
       <div className="justify-self-end flex gap-4 items-center">
-        {indiciatorEnabled && (
+        {(
           <>
             <ColorInput
+              className={inputClassName}
               hue={colorValues[0]}
               sat={colorValues[1]}
               // TODO: throttle
@@ -74,13 +82,15 @@ function IndicatorControl(props: IndicatorControlProps) {
                 dispatch(updateBacklightValue(colorCommand, hue, sat));
               }}
             />
-            <ArrayColorPicker
-              color={colorValues}
-              setColor={(hue, sat) => {
-                console.info('custom', hue, sat);
-                dispatch(updateBacklightValue(colorCommand, hue, sat))
-              }}
-            />
+            { indiciatorEnabled && (
+              <ArrayColorPicker
+                color={colorValues}
+                setColor={(hue, sat) => {
+                  console.info('custom', hue, sat);
+                  dispatch(updateBacklightValue(colorCommand, hue, sat))
+                }}
+              />
+            )}
           </>
         )}
         <AccentSlider
