@@ -20,15 +20,17 @@ function sliderClassName({isChecked}: {isChecked: boolean}) {
   `;
 }
 
-export interface AccentSliderProps {
-  defaultChecked?: boolean;
+export interface AccentSliderProps extends Omit<
+  React.HTMLProps<HTMLLabelElement>,
+  'onChange'
+> {
   /** @deprecated: prefer defaultChecked */
   isChecked?: boolean;
   onChange: (val: boolean) => void;
 }
 
 export function AccentSlider(props: AccentSliderProps) {
-  const {defaultChecked, onChange} = props;
+  const {className, defaultChecked, onChange} = props;
   const [isChecked, setIsChecked] = React.useState(
     defaultChecked || props.isChecked || false,
   );
@@ -57,6 +59,7 @@ export function AccentSlider(props: AccentSliderProps) {
     transition-[border-color]
     w-16
     ${isChecked ? 'border-action' : 'border-outline'}
+    ${className}
   `;
 
   return (

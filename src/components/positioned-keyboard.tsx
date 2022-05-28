@@ -108,7 +108,7 @@ function KeyboardFrame(props: KeyboardFrameProps): JSX.Element {
       CSSVarObject.keyWidth,
       CSSVarObject.keyXSpacing,
     );
-    
+
     return [deviceHeight, deviceWidth];
   }, [height, width]);
 
@@ -229,7 +229,6 @@ export const BGKeyContainer = styled(KeyContainer)`
   transform: translate3d(0, -4px, 0) scale(0.99);
 `;
 
-
 interface SmallInnerKeyProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
 }
@@ -245,9 +244,7 @@ function SmallInnerKey(props: SmallInnerKeyProps) {
     text-xs
   `;
 
-  return (
-    <div className={smallInnerKeyClassName} {...props} />
-  );
+  return <div className={smallInnerKeyClassName} {...props} />;
 }
 
 interface InnerKeyProps extends React.HTMLProps<HTMLDivElement> {
@@ -263,9 +260,7 @@ function InnerKey(props: InnerKeyProps) {
     rounded
   `;
 
-  return (
-    <div className={innerKeyClassName} {...props} />
-  );
+  return <div className={innerKeyClassName} {...props} />;
 }
 
 // const InnerKey = styled.div<{backgroundColor: string}>`
@@ -297,7 +292,6 @@ export const OuterSecondaryKey = styled.div<{
   selected?: boolean;
   backgroundColor: string;
 }>`
-  background-color: ${(props) => props.backgroundColor};
   padding-top: 2px;
   padding-bottom: 9px;
   padding-left: 6px;
@@ -312,28 +306,42 @@ export const OuterSecondaryKey = styled.div<{
   position: absolute;
 `;
 
-export const OuterKey = styled.div<{
-  selected?: boolean;
-  backgroundColor: string;
-}>`
-  background-color: ${(props) => props.backgroundColor};
-  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
-  padding-top: 2px;
-  padding-bottom: 9px;
-  padding-left: 6px;
-  padding-right: 6px;
-  height: 100%;
-  border-radius: 3px;
-  box-sizing: border-box;
-  display: block;
-  margin-right: 2px;
-  width: 100%;
-  cursor: pointer;
-`;
+interface OuterKeyProps extends React.HTMLProps<HTMLDivElement> {}
+export function OuterKey(props: OuterKeyProps) {
+  const {selected, ...rest} = props;
 
+  // animation-iteration-count: infinite;
+  // animation-direction: alternate;
+  // animation-timing-function: ease-in-out;
+  return (
+    <div className={cntl`h-full w-full p-[2px_6px_9px]`}>
+      <div
+        className={cntl`
+        absolute
+        bg-outline
+        brightness-[0.8]
+        cursor-pointer
+        h-full
+        inset-0
+        p-[2px_6px_9px]
+        rounded-sm
+        w-full
+        -z-[1]
+      `}
+      ></div>
+      <div
+        className={cntl`
+        bg-outline
+        h-full
+        p-px
+        rounded-sm
+        w-full
+      `}
+        {...rest}
+      />
+    </div>
+  );
+}
 
 interface LegendProps extends React.HTMLProps<HTMLDivElement> {
   children?: React.ReactNode;
@@ -341,15 +349,13 @@ interface LegendProps extends React.HTMLProps<HTMLDivElement> {
 
 function Legend(props: LegendProps) {
   const legendClassName = cntl`
-    font-semibold
+    font-medium
     truncate
-    text-xs
+    text-xxs
     text-action
   `;
 
-  return (
-    <div className={legendClassName} {...props} />
-  );
+  return <div className={legendClassName} {...props} />;
 }
 
 // const Legend = styled.div`
@@ -432,7 +438,7 @@ export const KeyBG = memo(
               />
             </>
           ) : null}
-          <OuterKey backgroundColor={backColor}></OuterKey>
+          <OuterKey></OuterKey>
         </BGKeyContainer>
       </RotationContainer>
     );
@@ -504,11 +510,8 @@ const KeyComponent = memo(
               </OuterSecondaryKey>
             </>
           ) : null}
-          <OuterKey selected={selected} backgroundColor={getDarkenedColor(c)}>
-            <ChosenInnerKey
-              style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
-              backgroundColor={c}
-            >
+          <OuterKey selected={selected}>
+            <ChosenInnerKey style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}>
               <ChosenInnerKeyContainer>
                 {getLegends(legends, t)}
               </ChosenInnerKeyContainer>

@@ -59,21 +59,21 @@ body {
   font-family: 'Gotham Rounded';
 }
 
-body[data-theme="olivia"] {
+body[data-theme='olivia'] {
   --color-action: var(--olivia-rose);
   --color-background: var(--olivia-jet-dark);
   --color-outline: var(--olivia-jet);
   --color-text: var(--olivia-alpha);
 }
 
-body[data-theme="olive"] {
+body[data-theme='olive'] {
   --color-action: var(--olive-green);
   --color-background: var(--olive-mod-dark);
   --color-outline: var(--olive-mod);
   --color-text: var(--olive-alpha);
 }
 
-body[data-theme="noire"] {
+body[data-theme='noire'] {
   --color-action: var(--noire-cream);
   --color-background: var(--noire-slate-dark);
   --color-outline: var(--noire-slate);
@@ -370,12 +370,10 @@ li {
   box-shadow: none;
 }
 
-/*
- * Tailwind Classes
- */
-
-.transition-button {
-  @apply transition-all duration-200 ease-out;
+@layer components {
+  .transition-button {
+    @apply transition-all duration-200 ease-out;
+  }
 }
 
 /*

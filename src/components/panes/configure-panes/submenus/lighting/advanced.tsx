@@ -16,6 +16,7 @@ import ControlCategoryLabel from 'src/components/controls/ControlCategoryLabel';
 import {useDispatch} from 'react-redux';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ArrayColorPicker} from 'src/components/inputs/color-picker';
+import ColorInput from 'src/components/inputs/color-input';
 
 export const AdvancedLightingValues = [
   LightingValue.BACKLIGHT_DISABLE_WHEN_USB_SUSPENDED,
@@ -59,16 +60,28 @@ function IndicatorControl(props: IndicatorControlProps) {
   const indiciatorEnabled = indicatorValues[0] === 254;
 
   return (
-    <div className="flex gap-4 justify-between items-center">
-      <div className="font-medium w-1/2">{children}</div>
-      <div className="flex gap-4 items-center">
+    <div className="grid grid-cols-2 gap-4 items-center">
+      <div className="font-medium">{children}</div>
+      <div className="justify-self-end flex gap-4 items-center">
         {indiciatorEnabled && (
-          <ArrayColorPicker
-            color={colorValues}
-            setColor={(hue, sat) =>
-              dispatch(updateBacklightValue(colorCommand, hue, sat))
-            }
-          />
+          <>
+            <ColorInput
+              hue={colorValues[0]}
+              sat={colorValues[1]}
+              // TODO: throttle
+              onChange={(hue, sat) => {
+                console.info('input', hue, sat);
+                dispatch(updateBacklightValue(colorCommand, hue, sat));
+              }}
+            />
+            <ArrayColorPicker
+              color={colorValues}
+              setColor={(hue, sat) => {
+                console.info('custom', hue, sat);
+                dispatch(updateBacklightValue(colorCommand, hue, sat))
+              }}
+            />
+          </>
         )}
         <AccentSlider
           defaultChecked={indiciatorEnabled}
@@ -160,7 +173,7 @@ export const AdvancedPane: FC = () => {
               LightingValue.BACKLIGHT_CAPS_LOCK_INDICATOR_ROW_COL
             }
           >
-            Caps Lock Indicator
+            Caps Lock Lighting
           </IndicatorControl>
         )}
         {isLayer1IndicatorEnabled && (
@@ -168,7 +181,7 @@ export const AdvancedPane: FC = () => {
             colorCommand={LightingValue.BACKLIGHT_LAYER_1_INDICATOR_COLOR}
             indicatorCommand={LightingValue.BACKLIGHT_LAYER_1_INDICATOR_ROW_COL}
           >
-            Layer 1 Indicator
+            Layer 1 Lighting
           </IndicatorControl>
         )}
         {isLayer2IndicatorEnabled && (
@@ -176,7 +189,7 @@ export const AdvancedPane: FC = () => {
             colorCommand={LightingValue.BACKLIGHT_LAYER_2_INDICATOR_COLOR}
             indicatorCommand={LightingValue.BACKLIGHT_LAYER_2_INDICATOR_ROW_COL}
           >
-            Layer 2 Indicator
+            Layer 2 Lighting
           </IndicatorControl>
         )}
         {isLayer3IndicatorEnabled && (
@@ -184,7 +197,7 @@ export const AdvancedPane: FC = () => {
             colorCommand={LightingValue.BACKLIGHT_LAYER_3_INDICATOR_COLOR}
             indicatorCommand={LightingValue.BACKLIGHT_LAYER_3_INDICATOR_ROW_COL}
           >
-            Layer 3 Indicator
+            Layer 3 Lighting
           </IndicatorControl>
         )}
       </div>

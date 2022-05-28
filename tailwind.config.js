@@ -19,6 +19,9 @@ module.exports = {
       },
       letterSpacing: {
         label: '0.15em'
+      },
+      fontSize: {
+        'xxs': '0.725rem'
       }
     },
   },

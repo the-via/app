@@ -41,6 +41,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
       case 'slider': {
         return (
           <AccentSlider
+            className="justify-self-end"
             isChecked={!!valArr[0]}
             onChange={(val: boolean) =>
               dispatch(updateBacklightValue(command, +val))
@@ -80,7 +81,6 @@ export const LightingControl = (props: AdvancedControlProps) => {
 
         return (
           <ControlSelect
-            className="w-1/2"
             defaultValue={valArr[0]}
             onChange={(selectedValue) => {
               dispatch(updateBacklightValue(command, +selectedValue));
@@ -111,8 +111,8 @@ export const LightingControl = (props: AdvancedControlProps) => {
   }
 
   return (
-    <div className="flex gap-4 justify-between items-center">
-      <div className="font-medium w-1/2">{labelContent}</div>
+    <div className="grid grid-cols-2 gap-4 items-center">
+      <div className="font-medium">{labelContent}</div>
       {LightingControlInput}
     </div>
   );

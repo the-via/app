@@ -75,6 +75,7 @@ export default function ControlSelect(props: ControlSelectProps) {
   const selectStyle = React.useMemo(() => {
     const bodyStyle = getComputedStyle(document.body);
     const actionColor = bodyStyle.getPropertyValue('--color-action').trim();
+    const outlineColor = bodyStyle.getPropertyValue('--color-outline').trim();
 
     const ChevronDownFillAction = (
       <ChevronDown

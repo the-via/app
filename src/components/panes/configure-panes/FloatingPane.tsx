@@ -5,9 +5,11 @@ import ControlButton from 'src/components/controls/ControlButton';
 import KeymapPane from './keycode/KeymapPane';
 import LayoutPane from './LayoutPane';
 import LightingPane from './LightingPane';
+import { getSelectedLayoutOptions } from 'src/store/definitionsSlice';
+import { useAppSelector } from 'src/store/hooks';
 
 const floatingPaneClassName = cntl`
-  border
+  border-2
   border-outline
   bottom-4
   flex
@@ -21,15 +23,16 @@ const floatingPaneClassName = cntl`
 
 enum ConfigurePanes {
   KEYMAP,
+  MACRO,
   LIGHTING,
   LAYOUTS,
-  CONFIG
 }
 
 export default function FloatingPane() {
   const [activePane, setActivePane] = React.useState<ConfigurePanes>(
     ConfigurePanes.KEYMAP,
   );
+  const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
 
   let ActivePaneComponent = null;
   if (activePane === ConfigurePanes.KEYMAP) {
@@ -42,9 +45,11 @@ export default function FloatingPane() {
     ActivePaneComponent = <div>Config</div>;
   }
 
+  const hasLayouts = selectedLayoutOptions.length > 0;
+
   return (
     <div className={floatingPaneClassName}>
-      <div className="flex items-center justify-between border-b border-outline p-4">
+      <div className="flex items-center justify-around p-4">
         <ControlButton
           isSelected={activePane === ConfigurePanes.KEYMAP}
           onClick={() => {
@@ -61,21 +66,23 @@ export default function FloatingPane() {
         >
           Lighting
         </ControlButton>
+        { hasLayouts && (
+          <ControlButton
+            isSelected={activePane === ConfigurePanes.LAYOUTS}
+            onClick={() => {
+              setActivePane(ConfigurePanes.LAYOUTS);
+            }}
+          >
+            Layouts
+          </ControlButton>
+        )}
         <ControlButton
-          isSelected={activePane === ConfigurePanes.LAYOUTS}
+          isSelected={activePane === ConfigurePanes.LIGHTING}
           onClick={() => {
-            setActivePane(ConfigurePanes.LAYOUTS);
+            setActivePane(ConfigurePanes.LIGHTING);
           }}
         >
-          Layouts
-        </ControlButton>
-        <ControlButton
-          isSelected={activePane === ConfigurePanes.CONFIG}
-          onClick={() => {
-            setActivePane(ConfigurePanes.CONFIG);
-          }}
-        >
-          Config
+          Macros
         </ControlButton>
       </div>
       {ActivePaneComponent}
