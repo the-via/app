@@ -693,6 +693,8 @@ const BlankPositionedKeyboardComponent = (
   props: PositionedKeyboardProps & {
     selectedKey: number | null;
     macros: RootState['macros'];
+    selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
+    matrixKeycodes?: number[];
   },
 ) => {
   const {
@@ -701,16 +703,12 @@ const BlankPositionedKeyboardComponent = (
     selectedKey,
     selectedOptionKeys = [],
     showMatrix = false,
+    selectedDefinition,
+    matrixKeycodes = [],
     macros,
   } = props;
+  if (!selectedDefinition) return null;
   const pressedKeys = {};
-
-  const matrixKeycodes = useAppSelector(getSelectedKeymap);
-  const selectedDefinition = useAppSelector(getSelectedDefinition);
-
-  if (!selectedDefinition || !matrixKeycodes) {
-    return null;
-  }
 
   const {width, height, keys, optionKeys} = selectedDefinition.layouts;
 

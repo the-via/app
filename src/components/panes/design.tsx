@@ -110,7 +110,7 @@ function importDefinition(
 
         dispatch(
           ensureSupportedId({
-            productId: res.vendorProductId as number,
+            productId: definition.vendorProductId as number,
             version,
           }),
         );
