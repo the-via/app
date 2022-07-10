@@ -39,12 +39,6 @@ const DebugPane = styled(Pane)`
 
 export const Settings = () => {
   const dispatch = useDispatch();
-
-  // TODO: we could actually just grab all these from state.settings and then destructure.
-  // Only advantage of this approach is indiviual memoisation. Worth?
-  const allowKeyboardKeyRemapping = useAppSelector(
-    getAllowKeyboardKeyRemapping,
-  );
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
 
@@ -67,15 +61,6 @@ export const Settings = () => {
               <AccentSlider
                 onChange={() => dispatch(toggleFastRemap())}
                 isChecked={!disableFastRemap}
-              />
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Allow remapping via keyboard</Label>
-            <Detail>
-              <AccentSlider
-                onChange={() => dispatch(toggleKeyRemappingViaKeyboard())}
-                isChecked={allowKeyboardKeyRemapping}
               />
             </Detail>
           </ControlRow>
