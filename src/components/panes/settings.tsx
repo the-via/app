@@ -66,7 +66,7 @@ export const Settings = () => {
             <Detail>
               <AccentSlider
                 onChange={() => dispatch(toggleFastRemap())}
-                isChecked={disableFastRemap}
+                isChecked={!disableFastRemap}
               />
             </Detail>
           </ControlRow>
