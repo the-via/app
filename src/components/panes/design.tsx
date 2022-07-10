@@ -250,10 +250,10 @@ export const DesignTab: FC = () => {
             </Detail>
           </ControlRow>
           <ControlRow>
-            <Label>Enabled legacy mode (V2 definitions)</Label>
+            <Label>Use V3 definitions (via/next)</Label>
             <Detail>
               <AccentSlider
-                isChecked={definitionVersion === 'v2'}
+                isChecked={definitionVersion === 'v3'}
                 onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
               />
             </Detail>

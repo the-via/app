@@ -37,7 +37,6 @@ const DebugPane = styled(Pane)`
   grid-template-columns: 100vw;
 `;
 
-const version = '3';
 export const Settings = () => {
   const dispatch = useDispatch();
 
@@ -53,10 +52,6 @@ export const Settings = () => {
     <DebugPane>
       <OverflowCell>
         <Container>
-          <ControlRow>
-            <Label>VIA Version</Label>
-            <Detail>{version}</Detail>
-          </ControlRow>
           <ControlRow>
             <Label>Show Design tab</Label>
             <Detail>
