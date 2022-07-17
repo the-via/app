@@ -63,7 +63,7 @@
     "chai": "^4.3.4",
     "concurrently": "^7.1.0",
     "http2-proxy": "^5.0.53",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7",
     "snowpack-plugin-json5": "^1.0.0",
