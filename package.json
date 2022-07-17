@@ -37,7 +37,7 @@
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
     "via-keyboards": "https://github.com/the-via/keyboards.git",
-    "via-reader": "https://github.com/the-via/reader.git#ed2d5eb1811205a393c3f3d0eaa7b5461db3db88"
+    "via-reader": "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
