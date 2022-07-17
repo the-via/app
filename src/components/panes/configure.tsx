@@ -34,6 +34,7 @@ import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
+import {isElectron} from 'src/utils/running-context';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -121,7 +122,7 @@ function Loader(props: {
   return (
     <>
       <ChippyLoader progress={loadProgress || null} />
-      {(showButton || noConnectedDevices) && !noSupportedIds ? (
+      {(showButton || noConnectedDevices) && !noSupportedIds && !isElectron ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device
           <FontAwesomeIcon style={{marginLeft: '10px'}} icon={faPlus} />

@@ -16,6 +16,7 @@ import {
   getSelectedDevicePath,
 } from 'src/store/devicesSlice';
 import {selectConnectedDeviceByPath} from 'src/store/devicesThunks';
+import {isElectron} from 'src/utils/running-context';
 
 const Container = styled.div`
   position: absolute;
@@ -128,10 +129,12 @@ const KeyboardSelectors: React.VFC<{
             </KeyboardButton>
           );
         })}
-        <KeyboardButton onClick={requestAndChangeDevice}>
-          Authorize New
-          <FontAwesomeIcon icon={faPlus} style={{marginLeft: '10px'}} />
-        </KeyboardButton>
+        {!isElectron && (
+          <KeyboardButton onClick={requestAndChangeDevice}>
+            Authorize New
+            <FontAwesomeIcon icon={faPlus} style={{marginLeft: '10px'}} />
+          </KeyboardButton>
+        )}
       </KeyboardList>
     </>
   );
