@@ -151,17 +151,54 @@ const InnerKey = styled.div<{backgroundColor: string}>`
 `;
 
 // Remove after refactoring with flexbox
+const InnerKeyContainer = styled.div`
+  position: absolute;
+  padding-left: 5px;
+  width: 100%;
+`;
+
+export const OuterEncoderKey = styled.div<{
+  selected?: boolean;
+  backgroundColor: string;
+}>`
+  overflow: hidden;
+  background-color: var(--color_dark-accent);
+  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: block;
+  margin-right: 2px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const InnerEncoderKey = styled.div<{backgroundColor: string}>`
+  width: 90%;
+  height: 90%;
+  border: 2px solid var(--color_accent);
+  background-color: #363434;
+  color: #e8c4b8;
+  box-sizing: border-box;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+// Remove after refactoring with flexbox
+const InnerEncoderKeyContainer = styled.div``;
+
+// Remove after refactoring with flexbox
 const SmallInnerCenterKeyContainer = styled.div`
   position: absolute;
   padding-left: 2px;
   top: 10px;
-  width: 100%;
-`;
-
-// Remove after refactoring with flexbox
-const InnerKeyContainer = styled.div`
-  position: absolute;
-  padding-left: 5px;
   width: 100%;
 `;
 
@@ -296,11 +333,13 @@ export const KeyBG = memo(
   },
 );
 const EncoderKeyComponent = memo(
-  ({selected, label = undefined, onClick = noop}: any) => {
+  ({selected, offset, label = undefined, onClick = noop}: any) => {
     const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
       onClick(1);
     };
+    const oc = 'var(--color_accent)';
+    const ic = 'var(--color_accent)';
     return (
       <RotationContainer
         selected={selected}
@@ -308,10 +347,21 @@ const EncoderKeyComponent = memo(
       >
         <KeyContainer
           selected={selected}
-          style={getKeyContainerPosition({w: 1, h: 1, x: 2, y: 2})}
+          style={getKeyContainerPosition({
+            w: 1,
+            h: 1,
+            x: 6 + offset,
+            y: -0.5,
+          })}
           onClick={containerOnClick}
         >
-          {label}
+          <OuterEncoderKey backgroundColor={oc}>
+            <InnerEncoderKey backgroundColor={ic}>
+              <InnerEncoderKeyContainer>
+                <Legend>{label}</Legend>
+              </InnerEncoderKeyContainer>
+            </InnerEncoderKey>
+          </OuterEncoderKey>
         </KeyContainer>
       </RotationContainer>
     );
@@ -567,8 +617,8 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
               />
             );
           })}
-          {encoders.map((l) => (
-            <EncoderKeyComponent label={l} />
+          {encoders.map((l, i) => (
+            <EncoderKeyComponent label={l} offset={i} />
           ))}
         </AnchorContainer>
       </KeyboardFrame>
