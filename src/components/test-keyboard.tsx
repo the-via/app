@@ -9,6 +9,7 @@ import {
   getLabel,
   getLegends,
   OuterSecondaryKey,
+  getRotationContainerTransform,
   getKeyContainerPosition,
   RotationContainer,
   BlankKeyboardFrame,
@@ -60,7 +61,10 @@ const TestKeyComponent = React.memo(
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
 
     return (
-      <RotationContainer selected={false} r={r} rx={rx} ry={ry}>
+      <RotationContainer
+        selected={false}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
         <TestKeyContainer
           id={id.toString()}
           style={getKeyContainerTransform({keyState, x, y, w, h})}

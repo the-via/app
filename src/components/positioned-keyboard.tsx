@@ -118,18 +118,10 @@ export const KeyContainer = styled.div<{selected: boolean}>`
 `;
 
 export const RotationContainer = styled.div<{
-  r: number;
-  rx: number;
-  ry: number;
   selected?: boolean;
 }>`
   position: absolute;
   ${(props) => (props.selected ? 'z-index:2;' : '')}
-  transform: ${(props) => `rotate3d(0,0,1,${props.r}deg)`};
-  transform-origin: ${(props) =>
-    `${CSSVarObject.keyXPos * props.rx}px ${
-      CSSVarObject.keyYPos * props.ry
-    }px`};
 `;
 
 export const BGKeyContainer = styled(KeyContainer)`
@@ -274,7 +266,10 @@ export const KeyBG = memo(
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
     return (
-      <RotationContainer r={r} rx={rx} ry={ry} selected={true}>
+      <RotationContainer
+        selected={true}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
         <BGKeyContainer
           selected={true}
           style={{
@@ -296,6 +291,28 @@ export const KeyBG = memo(
           ) : null}
           <OuterKey backgroundColor={backColor}></OuterKey>
         </BGKeyContainer>
+      </RotationContainer>
+    );
+  },
+);
+const EncoderKeyComponent = memo(
+  ({selected, label = undefined, onClick = noop}: any) => {
+    const containerOnClick: MouseEventHandler = (evt) => {
+      evt.stopPropagation();
+      onClick(1);
+    };
+    return (
+      <RotationContainer
+        selected={selected}
+        style={{...getRotationContainerTransform({r: 0, rx: 0, ry: 0})}}
+      >
+        <KeyContainer
+          selected={selected}
+          style={getKeyContainerPosition({w: 1, h: 1, x: 2, y: 2})}
+          onClick={containerOnClick}
+        >
+          {label}
+        </KeyContainer>
       </RotationContainer>
     );
   },
@@ -339,7 +356,10 @@ const KeyComponent = memo(
     };
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     return (
-      <RotationContainer selected={selected} r={r} rx={rx} ry={ry}>
+      <RotationContainer
+        selected={selected}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
         <KeyContainer
           id={id.toString()}
           {...tooltipData}
@@ -383,6 +403,12 @@ const KeyComponent = memo(
   },
 );
 
+type KeyRotation = {
+  r: number;
+  rx: number;
+  ry: number;
+};
+
 type KeyPosition = {
   x: number;
   y: number;
@@ -390,6 +416,12 @@ type KeyPosition = {
   h: number;
 };
 
+export const getRotationContainerTransform = ({r, rx, ry}: KeyRotation) => ({
+  transform: `rotate3d(0,0,1,${r}deg)`,
+  transformOrigin: `${CSSVarObject.keyXPos * rx}px ${
+    CSSVarObject.keyYPos * ry
+  }px`,
+});
 export const getBGKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   left: CSSVarObject.keyXPos * x - 1,
   top: CSSVarObject.keyYPos * y - 1,
@@ -492,6 +524,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   );
   const macros = useAppSelector((state) => state.macros);
   const keys = useAppSelector(getSelectedKeyDefinitions);
+  const encoders = [1, 2];
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition || !keys) {
     return null;
@@ -534,6 +567,9 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
               />
             );
           })}
+          {encoders.map((l) => (
+            <EncoderKeyComponent label={l} />
+          ))}
         </AnchorContainer>
       </KeyboardFrame>
     </div>
