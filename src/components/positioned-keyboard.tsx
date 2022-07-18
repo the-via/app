@@ -183,7 +183,7 @@ export const OuterEncoderKey = styled.div<{
 const InnerEncoderKey = styled.div<{backgroundColor: string}>`
   width: 90%;
   height: 90%;
-  border: 2px solid var(--color_accent);
+  border: solid var(--color_accent);
   background-color: #363434;
   color: #e8c4b8;
   box-sizing: border-box;
@@ -342,6 +342,12 @@ const EncoderKeyComponent = memo(
     };
     const oc = 'var(--color_accent)';
     const ic = 'var(--color_accent)';
+    const keyContainerStyle = getKeyContainerPosition({
+      w: 2,
+      h: 2,
+      x: -4 + 2 * offset,
+      y: 0.5,
+    });
     return (
       <RotationContainer
         selected={selected}
@@ -349,15 +355,13 @@ const EncoderKeyComponent = memo(
       >
         <KeyContainer
           selected={selected}
-          style={getKeyContainerPosition({
-            w: 1.5,
-            h: 1.5,
-            x: -4 + 2 * offset,
-            y: 0.5,
-          })}
+          style={keyContainerStyle}
           onClick={containerOnClick}
         >
-          <OuterEncoderKey backgroundColor={oc}>
+          <OuterEncoderKey
+            backgroundColor={oc}
+            style={{borderWidth: `${~~(keyContainerStyle.height / 18)}px`}}
+          >
             <InnerEncoderKey backgroundColor={ic}>
               <InnerEncoderKeyContainer>
                 <Legend>{label}</Legend>
