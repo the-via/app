@@ -162,6 +162,8 @@ export const OuterEncoderKey = styled.div<{
   backgroundColor: string;
 }>`
   overflow: hidden;
+  border: 2px solid var(--color_accent);
+  border-style: dotted;
   background-color: var(--color_dark-accent);
   animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
   animation-iteration-count: infinite;
@@ -348,10 +350,10 @@ const EncoderKeyComponent = memo(
         <KeyContainer
           selected={selected}
           style={getKeyContainerPosition({
-            w: 1,
-            h: 1,
-            x: 6 + offset,
-            y: -0.5,
+            w: 1.5,
+            h: 1.5,
+            x: -4 + 2 * offset,
+            y: 0.5,
           })}
           onClick={containerOnClick}
         >
