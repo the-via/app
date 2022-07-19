@@ -331,8 +331,8 @@ export const KeyBG = memo(
   ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0, ei}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
-    const radiusStyle = ei ? {borderRadius: '50%', overflow: 'hidden'} : {};
-    console.log(ei);
+    const radiusStyle =
+      ei !== undefined ? {borderRadius: '50%', overflow: 'hidden'} : {};
     return (
       <RotationContainer
         selected={true}
@@ -624,7 +624,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
     (state) => getSelectedKeymap(state) || [],
   );
   const macros = useAppSelector((state) => state.macros);
-  const keys: (VIAKey & {ei?: string})[] = useAppSelector(
+  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
   );
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -645,7 +645,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
         <AnchorContainer>
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
-            return k['ei'] ? (
+            return k['ei'] !== undefined ? (
               <EncoderKeyComponent
                 {...{
                   ...k,

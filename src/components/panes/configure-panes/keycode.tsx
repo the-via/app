@@ -126,8 +126,8 @@ export const Pane: FC = () => {
     },
     [],
   ); // componentWillUnmount equiv
-  console.log(selectedKey);
-  if (selectedKey !== null && keys[selectedKey].ei) {
+
+  if (selectedKey !== null && keys[selectedKey].ei !== undefined) {
     return <EncoderPane.Pane />;
   }
   return <KeycodePane />;

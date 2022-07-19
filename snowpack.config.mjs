@@ -64,7 +64,6 @@ export default {
         });
       },
     },
-
   ],
   optimize: {
     /* Example: Bundle your final build: */
@@ -75,6 +74,7 @@ export default {
     target: 'es2018',
   },
   packageOptions: {
+    knownEntrypoints: ['react-is'],
     /* ... */
   },
   devOptions: {

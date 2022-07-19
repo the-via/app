@@ -3,7 +3,7 @@ import type {LightingValue, MatrixInfo} from 'via-reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 
-const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10];
+const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11];
 
 export const isValidProtocolVersion = (version: number) =>
   VALID_PROTOCOL_VERSIONS.includes(version);

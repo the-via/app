@@ -8514,9 +8514,9 @@
     "via-reader" "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
     "yarn" "^1.22.0"
 
-"via-reader@https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3":
-  "integrity" "sha512-1y5WZBx9P3NnQL8bnJrpo51Hl63tAyM8txz/uHYng22GrKEKjPiMOwyw3XytCSzmBem/nWVxjWUv2B4TYSu7cA=="
-  "resolved" "git+ssh://git@github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+"via-reader@https://github.com/the-via/reader.git#36ca7c554bea80f591b5a230c8f9c83be34b6f3f":
+  "integrity" "sha512-Bpp72zBF9ERqaGuQv5NULlZodjOIN5MJ1m75oaY4vGwg//v6eHPhQvxgqK6bvbKTkYQvLkLJ3SfcHRam13dn4Q=="
+  "resolved" "git+ssh://git@github.com/the-via/reader.git#36ca7c554bea80f591b5a230c8f9c83be34b6f3f"
   "version" "1.0.0"
   dependencies:
     "@types/glob" "^7.2.0"
@@ -8529,9 +8529,9 @@
     "util" "^0.12.4"
     "util-inspect" "^0.1.8"
 
-"via-reader@https://github.com/the-via/reader.git#c456eb04b668ef39b8fa6ed2cafa295fa6e2d41c":
-  "integrity" "sha512-esHGGWEoOmmIOxyPPHKqebfQI7aDHQeUNyy6O5mjbt7Ln97l8KLJD89wBAg3SDNj3FFQU5B0t8lQlblsYGYj4g=="
-  "resolved" "git+ssh://git@github.com/the-via/reader.git#c456eb04b668ef39b8fa6ed2cafa295fa6e2d41c"
+"via-reader@https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3":
+  "integrity" "sha512-1y5WZBx9P3NnQL8bnJrpo51Hl63tAyM8txz/uHYng22GrKEKjPiMOwyw3XytCSzmBem/nWVxjWUv2B4TYSu7cA=="
+  "resolved" "git+ssh://git@github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
   "version" "1.0.0"
   dependencies:
     "@types/glob" "^7.2.0"

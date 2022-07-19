@@ -37,7 +37,7 @@ export const Pane: FC = () => {
   const [ccwValue, setCCWValue] = useState<number>(null);
   const selectedKey = useAppSelector(getSelectedKey);
   const dispatch = useDispatch();
-  const keys: (VIAKey & {ei?: string})[] = useAppSelector(
+  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
   );
   const matrixKeycodes = useAppSelector(
@@ -49,12 +49,12 @@ export const Pane: FC = () => {
   }
   const val = matrixKeycodes[selectedKey];
   const encoderKey = keys[selectedKey];
-  const canClick = encoderKey.col === 0 && encoderKey.row === 0;
+  const canClick = encoderKey.col !== -1 && encoderKey.row !== -1;
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const setEncoderValue = (type: 'ccw' | 'cw' | 'click', val: number) => {
     if (selectedDevice && selectedDevice.api && encoderKey.ei !== undefined) {
       const {api} = selectedDevice;
-      const encoderId = +encoderKey.ei.slice(1);
+      const encoderId = +encoderKey.ei;
       switch (type) {
         case 'ccw': {
           api.setEncoderValue(layer, encoderId, false, val);
@@ -80,19 +80,18 @@ export const Pane: FC = () => {
     setCCWValue(ccw);
   };
   useEffect(() => {
-    throw new Error();
     if (
       encoderKey !== undefined &&
-      encoderKey.ei &&
+      encoderKey.ei !== undefined &&
       selectedDevice &&
       selectedDevice.api
     ) {
-      const encoderId = +encoderKey.ei.slice(1);
+      const encoderId = +encoderKey.ei;
       loadValues(layer, encoderId, selectedDevice.api);
     }
   }, [encoderKey, selectedDevice, layer]);
 
-  if (!val) {
+  if (selectedDevice && selectedDevice.protocol < 10) {
     return null;
   }
   return (

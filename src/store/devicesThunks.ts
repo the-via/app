@@ -68,10 +68,10 @@ export const selectConnectedDevice =
     dispatch(loadLayoutOptions());
 
     const {protocol} = connectedDevice;
-    if (protocol < 10) {
+    if (protocol < 11) {
       dispatch(updateLightingData(connectedDevice));
     }
-    if (protocol >= 10) {
+    if (protocol >= 11) {
       dispatch(updateV3MenuData(connectedDevice));
     }
 
@@ -104,7 +104,7 @@ export const reloadConnectedDevices =
           api: new KeyboardAPI(device),
           device,
           protocol,
-          requiredDefinitionVersion: protocol >= 10 ? 'v3' : 'v2',
+          requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
           vendorProductId: getVendorProductId(
             device.vendorId,
             device.productId,
