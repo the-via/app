@@ -8529,6 +8529,21 @@
     "util" "^0.12.4"
     "util-inspect" "^0.1.8"
 
+"via-reader@https://github.com/the-via/reader.git#c456eb04b668ef39b8fa6ed2cafa295fa6e2d41c":
+  "integrity" "sha512-esHGGWEoOmmIOxyPPHKqebfQI7aDHQeUNyy6O5mjbt7Ln97l8KLJD89wBAg3SDNj3FFQU5B0t8lQlblsYGYj4g=="
+  "resolved" "git+ssh://git@github.com/the-via/reader.git#c456eb04b668ef39b8fa6ed2cafa295fa6e2d41c"
+  "version" "1.0.0"
+  dependencies:
+    "@types/glob" "^7.2.0"
+    "@types/node" "^12.12.11"
+    "ajv" "^6.10.2"
+    "core-js" "^3.4.1"
+    "husky" "^3.1.0"
+    "invariant" "^2.2.4"
+    "typescript" "3.9.4"
+    "util" "^0.12.4"
+    "util-inspect" "^0.1.8"
+
 "vm2@^3.9.2":
   "integrity" "sha512-AuECTSvwu2OHLAZYhG716YzwodKCIJxB6u1zG7PgSQwIgAlEaoXH52bxdcvT8GkGjnYK7r7yWDW0m0sOsPuBjQ=="
   "resolved" "https://registry.npmjs.org/vm2/-/vm2-3.9.10.tgz"

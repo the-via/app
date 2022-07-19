@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"yarn dev\" \"npm --prefix api start\"",
+    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && snowpack dev",
     "build": "via-keyboards public/definitions && snowpack build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
@@ -37,7 +37,7 @@
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
     "via-keyboards": "https://github.com/the-via/keyboards.git",
-    "via-reader": "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+    "via-reader": "https://github.com/the-via/reader.git#c456eb04b668ef39b8fa6ed2cafa295fa6e2d41c"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",

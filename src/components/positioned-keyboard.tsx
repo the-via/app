@@ -269,6 +269,24 @@ export const getDarkenedColor = (color: string) => {
   return res;
 };
 
+export const getEncoderLegends = (
+  labels: (string | void)[],
+  t: string,
+): JSX.Element[] => {
+  return labels.map((label) => {
+    const splitLabels = (label || '').split(' ');
+    const minifiedLabel = splitLabels.map((l) => l[0]).join('');
+    return (
+      <Legend
+        key={label || ''}
+        color={'#E8C4B8'}
+        style={{fontSize: '8px', textAlign: 'center'}}
+      >
+        {minifiedLabel}
+      </Legend>
+    );
+  });
+};
 export const getLegends = (
   labels: (string | void)[],
   t: string,
@@ -301,9 +319,11 @@ export const chooseInnerKeyContainer = (props: {
 };
 const noop = (...args: any[]) => {};
 export const KeyBG = memo(
-  ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0}: any) => {
+  ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0, ei}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
+    const radiusStyle = ei ? {borderRadius: '50%', overflow: 'hidden'} : {};
+    console.log(ei);
     return (
       <RotationContainer
         selected={true}
@@ -313,6 +333,7 @@ export const KeyBG = memo(
           selected={true}
           style={{
             ...getBGKeyContainerPosition({w, h, x, y}),
+            ...radiusStyle,
           }}
         >
           {hasSecondKey ? (
@@ -335,23 +356,37 @@ export const KeyBG = memo(
   },
 );
 const EncoderKeyComponent = memo(
-  ({selected, offset, label = undefined, onClick = noop}: any) => {
+  ({
+    x,
+    y,
+    w,
+    h,
+    c,
+    t,
+    r = 0,
+    rx = 0,
+    ry = 0,
+    label,
+    selected,
+    id,
+    onClick = noop,
+  }: any) => {
     const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
-      onClick(1);
+      onClick(id);
     };
     const oc = 'var(--color_accent)';
     const ic = 'var(--color_accent)';
     const keyContainerStyle = getKeyContainerPosition({
-      w: 2,
-      h: 2,
-      x: -4 + 2 * offset,
-      y: 0.5,
+      w,
+      h,
+      x,
+      y,
     });
     return (
       <RotationContainer
         selected={selected}
-        style={{...getRotationContainerTransform({r: 0, rx: 0, ry: 0})}}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
       >
         <KeyContainer
           selected={selected}
@@ -362,9 +397,9 @@ const EncoderKeyComponent = memo(
             backgroundColor={oc}
             style={{borderWidth: `${~~(keyContainerStyle.height / 18)}px`}}
           >
-            <InnerEncoderKey backgroundColor={ic}>
+            <InnerEncoderKey backgroundColor={c}>
               <InnerEncoderKeyContainer>
-                <Legend>{label}</Legend>
+                {getEncoderLegends([label], t)}
               </InnerEncoderKeyContainer>
             </InnerEncoderKey>
           </OuterEncoderKey>
@@ -599,7 +634,29 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
         <AnchorContainer>
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
-            return (
+            return k['ei'] ? (
+              <EncoderKeyComponent
+                {...{
+                  ...k,
+                  ...getLabel(
+                    matrixKeycodes[index],
+                    k.w,
+                    macros,
+                    selectedDefinition,
+                  ),
+                  ...getColors(k.color),
+                  selected: selectedKey === index,
+                  onClick: selectable
+                    ? (id) => {
+                        console.log(id);
+                        dispatch(updateSelectedKey(id));
+                      }
+                    : noop,
+                }}
+                key={index}
+                id={index}
+              />
+            ) : (
               <KeyComponent
                 {...{
                   ...k,
@@ -623,9 +680,6 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
               />
             );
           })}
-          {encoders.map((l, i) => (
-            <EncoderKeyComponent label={l} offset={i} />
-          ))}
         </AnchorContainer>
       </KeyboardFrame>
     </div>

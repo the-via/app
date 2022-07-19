@@ -119,6 +119,7 @@ const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
 export const Pane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
   const dispatch = useDispatch();
+  const keys = useAppSelector(getSelectedKeyDefinitions);
   useEffect(
     () => () => {
       dispatch(updateSelectedKey(null));
@@ -126,7 +127,7 @@ export const Pane: FC = () => {
     [],
   ); // componentWillUnmount equiv
   console.log(selectedKey);
-  if (selectedKey !== null) {
+  if (selectedKey !== null && keys[selectedKey].ei) {
     return <EncoderPane.Pane />;
   }
   return <KeycodePane />;
