@@ -18,6 +18,7 @@ import type {
   VIADefinitionV3,
   VIAKey,
   KeyColorType,
+  Result,
 } from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
@@ -33,6 +34,7 @@ import {
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
+import {getBoundingBox} from 'src/utils/key-math';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -615,6 +617,18 @@ const AnchorContainer = styled.div`
   width: 100%;
 `;
 
+export const calculateKeyboardFrameDimensions = (keys: Partial<Result>[]) => {
+  const boundingBoxes = keys.map(getBoundingBox as any) as any[];
+  const minX = Math.min(...boundingBoxes.map((b) => b.xStart));
+  const minY = Math.min(...boundingBoxes.map((b) => b.yStart));
+  const width = Math.max(...boundingBoxes.map((b) => b.xEnd)) - minX;
+  const height = Math.max(...boundingBoxes.map((b) => b.yEnd)) - minY;
+  return {
+    width,
+    height,
+  };
+};
+
 export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {selectable, containerDimensions} = props;
   const dispatch = useDispatch();
@@ -631,7 +645,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   if (!selectedDefinition || !keys) {
     return null;
   }
-  const {width, height} = selectedDefinition.layouts;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
 
   return (
     <div>
@@ -645,30 +659,10 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
         <AnchorContainer>
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
-            return k['ei'] !== undefined ? (
-              <EncoderKeyComponent
-                {...{
-                  ...k,
-                  ...getLabel(
-                    matrixKeycodes[index],
-                    k.w,
-                    macros,
-                    selectedDefinition,
-                  ),
-                  ...getColors(k.color),
-                  selected: selectedKey === index,
-                  onClick: selectable
-                    ? (id) => {
-                        console.log(id);
-                        dispatch(updateSelectedKey(id));
-                      }
-                    : noop,
-                }}
-                key={index}
-                id={index}
-              />
-            ) : (
-              <KeyComponent
+            const KeyboardKeyComponent =
+              k['ei'] !== undefined ? EncoderKeyComponent : KeyComponent;
+            return (
+              <KeyboardKeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -867,7 +861,7 @@ const BlankPositionedKeyboardComponent = (
   if (!selectedDefinition) return null;
   const pressedKeys = {};
 
-  const {width, height, keys, optionKeys} = selectedDefinition.layouts;
+  const {keys, optionKeys} = selectedDefinition.layouts;
 
   // This was previously memoised, but removed because it produced an inconsistent number of hooks error
   // because the memo was not called when selectedDefinition was null
@@ -883,6 +877,7 @@ const BlankPositionedKeyboardComponent = (
     : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
+  const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
   const {rows, cols} = selectedDefinition.matrix;
   return (
     <div>
@@ -898,8 +893,10 @@ const BlankPositionedKeyboardComponent = (
             <KeyBG {...displayedKeys[selectedKey]} />
           ) : null}
           {displayedKeys.map((k, index) => {
+            const KeyboardKeyComponent =
+              k['ei'] !== undefined ? EncoderKeyComponent : KeyComponent;
             return (
-              <KeyComponent
+              <KeyboardKeyComponent
                 {...{
                   ...k,
                   ...getLabel(

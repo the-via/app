@@ -13,6 +13,7 @@ import {
   getKeyContainerPosition,
   RotationContainer,
   BlankKeyboardFrame,
+  calculateKeyboardFrameDimensions,
 } from './positioned-keyboard';
 import type {VIAKey} from 'via-reader';
 import type {Key} from 'src/types/types';
@@ -111,7 +112,7 @@ export const TestKeyboard = (props: any) => {
   const macros = {expressions: [], isFeatureSupported: false};
   const {pressedKeys, keys, containerDimensions, matrixKeycodes, definition} =
     props;
-  const {width, height} = definition.layouts;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
   return (
     <div>
       <BlankKeyboardFrame
