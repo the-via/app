@@ -164,7 +164,12 @@ export const OuterEncoderKey = styled.div<{
   overflow: hidden;
   border: 2px solid var(--color_accent);
   border-style: dotted;
-  background-color: var(--color_dark-accent);
+  border-color: ${(props) =>
+    props.selected ? `var(--color_accent)` : props.backgroundColor};
+  background-color: ${(props) =>
+    props.selected
+      ? `var(--color_dark-accent)`
+      : getDarkenedColor(props.backgroundColor)};
   animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
   animation-iteration-count: infinite;
   animation-direction: alternate;
@@ -180,10 +185,14 @@ export const OuterEncoderKey = styled.div<{
   justify-content: center;
   align-items: center;
 `;
-const InnerEncoderKey = styled.div<{backgroundColor: string}>`
+const InnerEncoderKey = styled.div<{
+  backgroundColor: string;
+  selected: boolean;
+}>`
   width: 90%;
   height: 90%;
-  border: solid var(--color_accent);
+  background-color: ${(props) =>
+    props.selected ? `var(--color_accent)` : props.backgroundColor};
   background-color: #363434;
   color: #e8c4b8;
   box-sizing: border-box;
@@ -370,7 +379,7 @@ const EncoderKeyComponent = memo(
     selected,
     id,
     onClick = noop,
-  }: any) => {
+  }: Key) => {
     const containerOnClick: MouseEventHandler = (evt) => {
       evt.stopPropagation();
       onClick(id);
@@ -394,10 +403,11 @@ const EncoderKeyComponent = memo(
           onClick={containerOnClick}
         >
           <OuterEncoderKey
-            backgroundColor={oc}
+            backgroundColor={c}
+            selected={selected}
             style={{borderWidth: `${~~(keyContainerStyle.height / 18)}px`}}
           >
-            <InnerEncoderKey backgroundColor={c}>
+            <InnerEncoderKey selected={selected} backgroundColor={c}>
               <InnerEncoderKeyContainer>
                 {getEncoderLegends([label], t)}
               </InnerEncoderKeyContainer>
@@ -614,8 +624,9 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
     (state) => getSelectedKeymap(state) || [],
   );
   const macros = useAppSelector((state) => state.macros);
-  const keys = useAppSelector(getSelectedKeyDefinitions);
-  const encoders = [1, 2];
+  const keys: (VIAKey & {ei?: string})[] = useAppSelector(
+    getSelectedKeyDefinitions,
+  );
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition || !keys) {
     return null;

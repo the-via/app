@@ -30,6 +30,8 @@ const DYNAMIC_KEYMAP_MACRO_RESET = 0x10;
 const DYNAMIC_KEYMAP_GET_LAYER_COUNT = 0x11;
 const DYNAMIC_KEYMAP_GET_BUFFER = 0x12;
 const DYNAMIC_KEYMAP_SET_BUFFER = 0x13;
+const DYNAMIC_KEYMAP_GET_ENCODER = 0x14;
+const DYNAMIC_KEYMAP_SET_ENCODER = 0x15;
 
 // DEPRECATED:
 const BACKLIGHT_CONFIG_SET_VALUE = 0x07;
@@ -322,6 +324,29 @@ export class KeyboardAPI {
   async setKeyboardValue(command: KeyboardValue, ...rest: number[]) {
     const bytes = [command, ...rest];
     await this.hidCommand(SET_KEYBOARD_VALUE, bytes);
+  }
+
+  async getEncoderValue(
+    layer: number,
+    id: number,
+    isClockwise: boolean,
+  ): Promise<number> {
+    const bytes = [layer, id, +isClockwise];
+    const res: number[] = await this.hidCommand(
+      DYNAMIC_KEYMAP_GET_ENCODER,
+      bytes,
+    );
+    return shiftTo16Bit([res[4], res[5]]);
+  }
+
+  async setEncoderValue(
+    layer: number,
+    id: number,
+    isClockwise: boolean,
+    keycode: number,
+  ): Promise<void> {
+    const bytes = [layer, id, +isClockwise, ...shiftFrom16Bit(keycode)];
+    await this.hidCommand(DYNAMIC_KEYMAP_SET_ENCODER, bytes);
   }
 
   async getCustomMenuValue(commandBytes: number[]): Promise<number[]> {
