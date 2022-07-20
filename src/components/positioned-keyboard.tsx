@@ -20,6 +20,7 @@ import type {
   KeyColorType,
   Result,
 } from 'via-reader';
+import {getBoundingBox} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';
@@ -34,7 +35,6 @@ import {
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
-import {getBoundingBox} from 'src/utils/key-math';
 import {
   getBGKeyContainerPosition,
   getKeyContainerPosition,
@@ -570,7 +570,8 @@ export function calculatePointPosition({
 }
 
 const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
-  const rowKeys = keys
+  const matrixKeys = keys.filter((key) => key['ei'] === undefined);
+  const rowKeys = matrixKeys
     .reduce(
       (sumKeys, key) => {
         sumKeys[key.row][key.col] = calculatePointPosition(key);
@@ -581,7 +582,7 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
         .map(() => Array(cols).fill(0)),
     )
     .map((arr) => arr.sort((a, b) => a[0] - b[0]));
-  const colKeys = keys
+  const colKeys = matrixKeys
     .reduce(
       (sumKeys, key) => {
         sumKeys[key.col][key.row] = calculatePointPosition(key);
