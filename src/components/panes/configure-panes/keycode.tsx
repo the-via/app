@@ -4,6 +4,7 @@ import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
+import * as EncoderPane from './encoder';
 import {
   keycodeInMaster,
   getByteForCode,
@@ -116,6 +117,23 @@ const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
 
 export const Pane: FC = () => {
+  const selectedKey = useAppSelector(getSelectedKey);
+  const dispatch = useDispatch();
+  const keys = useAppSelector(getSelectedKeyDefinitions);
+  useEffect(
+    () => () => {
+      dispatch(updateSelectedKey(null));
+    },
+    [],
+  ); // componentWillUnmount equiv
+
+  if (selectedKey !== null && keys[selectedKey].ei !== undefined) {
+    return <EncoderPane.Pane />;
+  }
+  return <KeycodePane />;
+};
+
+export const KeycodePane: FC = () => {
   const dispatch = useDispatch();
   const macros = useAppSelector((state) => state.macros);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -135,13 +153,6 @@ export const Pane: FC = () => {
   );
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
-
-  useEffect(
-    () => () => {
-      dispatch(updateSelectedKey(null));
-    },
-    [],
-  ); // componentWillUnmount equiv
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {

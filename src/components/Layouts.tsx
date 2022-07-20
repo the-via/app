@@ -7,7 +7,7 @@ import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 interface Props {
   definition: VIADefinitionV2 | VIADefinitionV3;
   onLayoutChange: (newSelectedOptionKeys: number[]) => void;
-  RowComponent?: React.ComponentType;
+  RowComponent?: React.JSXElementConstructor<any>;
 }
 
 function Layouts({

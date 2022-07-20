@@ -83,7 +83,7 @@ export const updateV3MenuData =
     }
     const {menus = []} = definition;
     const commands = menus.flatMap(extractCommands);
-    if (commands.length !== 0 && protocol >= 10) {
+    if (commands.length !== 0 && protocol >= 11) {
       let props = {};
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
         command: name,

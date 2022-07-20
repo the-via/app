@@ -61,6 +61,7 @@ export type Key = Pick<
   bottomLabel?: string;
   label?: string;
   id: number;
+  ei?: number;
   onClick?: (id: number) => void;
 };
 

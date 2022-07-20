@@ -11,16 +11,16 @@ const CUSTOM_COMMAND_GET_VALUE = 0x14;
 const CUSTOM_COMMAND_SET_VALUE = 0x15;
 const CUSTOM_COMMAND_SAVE = 0x16;
 
-export const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10];
+export const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11];
 
-export class KeyboardAPIV10 extends KeyboardAPI {
+export class KeyboardAPIV11 extends KeyboardAPI {
   async getCustomValue(
     channelId: number,
-    commandId: number
+    commandId: number,
   ): Promise<number[]> {
     const res = await this.hidCommand(CUSTOM_COMMAND_GET_VALUE, [
       channelId,
-      commandId
+      commandId,
     ]);
     return res.slice(1, 2);
   }
@@ -32,7 +32,7 @@ export class KeyboardAPIV10 extends KeyboardAPI {
   ): Promise<void> {
     await this.hidCommand(
       CUSTOM_COMMAND_SET_VALUE,
-      [channelId, commandId].concat(args)
+      [channelId, commandId].concat(args),
     );
   }
 

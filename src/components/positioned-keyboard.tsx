@@ -18,7 +18,9 @@ import type {
   VIADefinitionV3,
   VIAKey,
   KeyColorType,
+  Result,
 } from 'via-reader';
+import {getBoundingBox} from 'via-reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';
@@ -33,6 +35,20 @@ import {
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
+import {
+  getBGKeyContainerPosition,
+  getKeyContainerPosition,
+  getLegends,
+  getRotationContainerTransform,
+  KeyContainer,
+  noop,
+  RotationContainer,
+} from './positioned-keyboard/base';
+import {
+  EncoderKeyComponent,
+  InnerEncoderKeyContainer,
+} from './positioned-keyboard/encoder-key';
+import {Matrix} from './positioned-keyboard/matrix';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -95,43 +111,6 @@ export const BlankKeyboardFrame = styled(KeyboardFrame)`
   }};
 `;
 
-export const KeyContainer = styled.div<{selected: boolean}>`
-  position: absolute;
-  box-sizing: border-box;
-  transition: transform 0.2s ease-out;
-  user-select: none;
-  transform: ${(props) =>
-    props.selected
-      ? 'translate3d(0, -4px, 0) scale(0.99)'
-      : 'translate3d(0,0,0)'};
-  :hover {
-    transform: ${(props) =>
-      props.selected
-        ? 'translate3d(0, -4px, 0) scale(0.99)'
-        : 'translate3d(0,-4px,0)'};
-  }
-  animation-name: select-glow;
-  animation-duration: ${(props) => (props.selected ? 1.5 : 0)}s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
-`;
-
-export const RotationContainer = styled.div<{
-  r: number;
-  rx: number;
-  ry: number;
-  selected?: boolean;
-}>`
-  position: absolute;
-  ${(props) => (props.selected ? 'z-index:2;' : '')}
-  transform: ${(props) => `rotate3d(0,0,1,${props.r}deg)`};
-  transform-origin: ${(props) =>
-    `${CSSVarObject.keyXPos * props.rx}px ${
-      CSSVarObject.keyYPos * props.ry
-    }px`};
-`;
-
 export const BGKeyContainer = styled(KeyContainer)`
   transform: translate3d(0, -4px, 0) scale(0.99);
 `;
@@ -159,17 +138,45 @@ const InnerKey = styled.div<{backgroundColor: string}>`
 `;
 
 // Remove after refactoring with flexbox
+const InnerKeyContainer = styled.div`
+  position: absolute;
+  padding-left: 5px;
+  width: 100%;
+`;
+
+export const OuterEncoderKey = styled.div<{
+  selected?: boolean;
+  backgroundColor: string;
+}>`
+  overflow: hidden;
+  border: 2px solid var(--color_accent);
+  border-style: dotted;
+  border-color: ${(props) =>
+    props.selected ? `var(--color_accent)` : props.backgroundColor};
+  background-color: ${(props) =>
+    props.selected
+      ? `var(--color_dark-accent)`
+      : getDarkenedColor(props.backgroundColor)};
+  animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: block;
+  margin-right: 2px;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+// Remove after refactoring with flexbox
 const SmallInnerCenterKeyContainer = styled.div`
   position: absolute;
   padding-left: 2px;
   top: 10px;
-  width: 100%;
-`;
-
-// Remove after refactoring with flexbox
-const InnerKeyContainer = styled.div`
-  position: absolute;
-  padding-left: 5px;
   width: 100%;
 `;
 
@@ -214,15 +221,6 @@ export const OuterKey = styled.div<{
   cursor: pointer;
 `;
 
-const Legend = styled.div`
-  font-family: Arial, Helvetica, sans-serif;
-  color: ${(props) => props.color};
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
 export const getDarkenedColor = (color: string) => {
   const cleanedColor = color.replace('#', '');
   const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
@@ -236,17 +234,6 @@ export const getDarkenedColor = (color: string) => {
     '0',
   )}`;
   return res;
-};
-
-export const getLegends = (
-  labels: (string | void)[],
-  t: string,
-): JSX.Element[] => {
-  return labels.map((label) => (
-    <Legend key={label || ''} color={t}>
-      {(label || '').length > 15 ? 'ADV' : label || ''}
-    </Legend>
-  ));
 };
 
 export const chooseInnerKey = (props: {
@@ -268,17 +255,22 @@ export const chooseInnerKeyContainer = (props: {
     ? SmallInnerCenterKeyContainer
     : InnerKeyContainer;
 };
-const noop = (...args: any[]) => {};
 export const KeyBG = memo(
-  ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0}: any) => {
+  ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0, ei}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     const backColor = 'var(--color_accent)';
+    const radiusStyle =
+      ei !== undefined ? {borderRadius: '50%', overflow: 'hidden'} : {};
     return (
-      <RotationContainer r={r} rx={rx} ry={ry} selected={true}>
+      <RotationContainer
+        selected={true}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
         <BGKeyContainer
           selected={true}
           style={{
             ...getBGKeyContainerPosition({w, h, x, y}),
+            ...radiusStyle,
           }}
         >
           {hasSecondKey ? (
@@ -339,7 +331,10 @@ const KeyComponent = memo(
     };
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     return (
-      <RotationContainer selected={selected} r={r} rx={rx} ry={ry}>
+      <RotationContainer
+        selected={selected}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
         <KeyContainer
           id={id.toString()}
           {...tooltipData}
@@ -382,27 +377,6 @@ const KeyComponent = memo(
     );
   },
 );
-
-type KeyPosition = {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
-
-export const getBGKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
-  left: CSSVarObject.keyXPos * x - 1,
-  top: CSSVarObject.keyYPos * y - 1,
-  width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing + 2,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing + 2,
-});
-
-export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
-  left: CSSVarObject.keyXPos * x,
-  top: CSSVarObject.keyYPos * y,
-  width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
-});
 
 type PositionedKeyboardProps = {
   selectable: boolean;
@@ -482,6 +456,18 @@ const AnchorContainer = styled.div`
   width: 100%;
 `;
 
+export const calculateKeyboardFrameDimensions = (keys: Partial<Result>[]) => {
+  const boundingBoxes = keys.map(getBoundingBox as any) as any[];
+  const minX = Math.min(...boundingBoxes.map((b) => b.xStart));
+  const minY = Math.min(...boundingBoxes.map((b) => b.yStart));
+  const width = Math.max(...boundingBoxes.map((b) => b.xEnd)) - minX;
+  const height = Math.max(...boundingBoxes.map((b) => b.yEnd)) - minY;
+  return {
+    width,
+    height,
+  };
+};
+
 export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const {selectable, containerDimensions} = props;
   const dispatch = useDispatch();
@@ -491,12 +477,14 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
     (state) => getSelectedKeymap(state) || [],
   );
   const macros = useAppSelector((state) => state.macros);
-  const keys = useAppSelector(getSelectedKeyDefinitions);
+  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
+    getSelectedKeyDefinitions,
+  );
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   if (!selectedDefinition || !keys) {
     return null;
   }
-  const {width, height} = selectedDefinition.layouts;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
 
   return (
     <div>
@@ -510,8 +498,10 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
         <AnchorContainer>
           {selectedKey !== null ? <KeyBG {...keys[selectedKey]} /> : null}
           {keys.map((k, index) => {
+            const KeyboardKeyComponent =
+              k['ei'] !== undefined ? EncoderKeyComponent : KeyComponent;
             return (
-              <KeyComponent
+              <KeyboardKeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -524,7 +514,6 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   selected: selectedKey === index,
                   onClick: selectable
                     ? (id) => {
-                        console.log(id);
                         dispatch(updateSelectedKey(id));
                       }
                     : noop,
@@ -581,7 +570,8 @@ export function calculatePointPosition({
 }
 
 const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
-  const rowKeys = keys
+  const matrixKeys = keys.filter((key) => key['ei'] === undefined);
+  const rowKeys = matrixKeys
     .reduce(
       (sumKeys, key) => {
         sumKeys[key.row][key.col] = calculatePointPosition(key);
@@ -592,7 +582,7 @@ const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
         .map(() => Array(cols).fill(0)),
     )
     .map((arr) => arr.sort((a, b) => a[0] - b[0]));
-  const colKeys = keys
+  const colKeys = matrixKeys
     .reduce(
       (sumKeys, key) => {
         sumKeys[key.col][key.row] = calculatePointPosition(key);
@@ -710,7 +700,7 @@ const BlankPositionedKeyboardComponent = (
   if (!selectedDefinition) return null;
   const pressedKeys = {};
 
-  const {width, height, keys, optionKeys} = selectedDefinition.layouts;
+  const {keys, optionKeys} = selectedDefinition.layouts;
 
   // This was previously memoised, but removed because it produced an inconsistent number of hooks error
   // because the memo was not called when selectedDefinition was null
@@ -726,6 +716,7 @@ const BlankPositionedKeyboardComponent = (
     : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
+  const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
   const {rows, cols} = selectedDefinition.matrix;
   return (
     <div>
@@ -741,8 +732,10 @@ const BlankPositionedKeyboardComponent = (
             <KeyBG {...displayedKeys[selectedKey]} />
           ) : null}
           {displayedKeys.map((k, index) => {
+            const KeyboardKeyComponent =
+              k['ei'] !== undefined ? EncoderKeyComponent : KeyComponent;
             return (
-              <KeyComponent
+              <KeyboardKeyComponent
                 {...{
                   ...k,
                   ...getLabel(
@@ -767,44 +760,3 @@ const BlankPositionedKeyboardComponent = (
     </div>
   );
 };
-
-type MatrixProps = {
-  rowKeys: number[][][];
-  colKeys: number[][][];
-};
-const Matrix: React.VFC<MatrixProps> = ({rowKeys, colKeys}) => (
-  <SVG>
-    {rowKeys.map((arr, index) => (
-      <RowLine
-        points={arr.map((point) => (point || []).join(',')).join(' ')}
-        key={index}
-      />
-    ))}
-    {colKeys.map((arr, index) => (
-      <ColLine
-        points={arr.map((point) => (point || []).join(',')).join(' ')}
-        key={index}
-      />
-    ))}
-  </SVG>
-);
-
-const SVG = styled.svg`
-  transform: rotateZ(0);
-  width: 100%;
-  height: 100%;
-`;
-const RowLine = styled.polyline`
-  stroke: var(--color_accent);
-  stroke-width: 3;
-  fill-opacity: 0;
-  stroke-opacity: 0.4;
-  stroke-linecap: round;
-`;
-const ColLine = styled.polyline`
-  stroke: var(--color_light-grey);
-  stroke-width: 3;
-  fill-opacity: 0;
-  stroke-opacity: 0.4;
-  stroke-linecap: round;
-`;

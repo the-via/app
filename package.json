@@ -6,13 +6,13 @@
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build-azure": "yarn remove via-keyboards && yarn add https://github.com/the-via/keyboards.git && yarn build"
+    "build:azure": "yarn remove via-keyboards && yarn add https://github.com/the-via/keyboards.git && yarn build"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.3",
-    "@fortawesome/fontawesome-svg-core": "^1.2.35",
-    "@fortawesome/free-solid-svg-icons": "^5.15.3",
-    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@fortawesome/fontawesome-free": "^6.1.1",
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@reduxjs/toolkit": "^1.6.1",
     "@types/lodash.partition": "^4.6.6",
     "@types/raf-schd": "^4.0.1",
@@ -37,7 +37,7 @@
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
     "via-keyboards": "https://github.com/the-via/keyboards.git",
-    "via-reader": "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+    "via-reader": "https://github.com/the-via/reader.git#8fa5a26bb2606dcd495022ba48898b2ad3cced29"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
@@ -49,8 +49,8 @@
     "@testing-library/react": "^11.2.6",
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
-    "@types/react": "^17.0.4",
-    "@types/react-dom": "^17.0.3",
+    "@types/react": "^18.0.4",
+    "@types/react-dom": "^18.0.3",
     "@types/react-router": "^5.1.16",
     "@types/react-router-dom": "^5.1.8",
     "@types/react-select": "^4.0.17",
