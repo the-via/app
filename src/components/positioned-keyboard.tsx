@@ -35,6 +35,20 @@ import {
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
 import {getBoundingBox} from 'src/utils/key-math';
+import {
+  getBGKeyContainerPosition,
+  getKeyContainerPosition,
+  getLegends,
+  getRotationContainerTransform,
+  KeyContainer,
+  noop,
+  RotationContainer,
+} from './positioned-keyboard/base';
+import {
+  EncoderKeyComponent,
+  InnerEncoderKeyContainer,
+} from './positioned-keyboard/encoder-key';
+import {Matrix} from './positioned-keyboard/matrix';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -95,35 +109,6 @@ export const BlankKeyboardFrame = styled(KeyboardFrame)`
     }
     return 'initial';
   }};
-`;
-
-export const KeyContainer = styled.div<{selected: boolean}>`
-  position: absolute;
-  box-sizing: border-box;
-  transition: transform 0.2s ease-out;
-  user-select: none;
-  transform: ${(props) =>
-    props.selected
-      ? 'translate3d(0, -4px, 0) scale(0.99)'
-      : 'translate3d(0,0,0)'};
-  :hover {
-    transform: ${(props) =>
-      props.selected
-        ? 'translate3d(0, -4px, 0) scale(0.99)'
-        : 'translate3d(0,-4px,0)'};
-  }
-  animation-name: select-glow;
-  animation-duration: ${(props) => (props.selected ? 1.5 : 0)}s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
-`;
-
-export const RotationContainer = styled.div<{
-  selected?: boolean;
-}>`
-  position: absolute;
-  ${(props) => (props.selected ? 'z-index:2;' : '')}
 `;
 
 export const BGKeyContainer = styled(KeyContainer)`
@@ -187,26 +172,6 @@ export const OuterEncoderKey = styled.div<{
   justify-content: center;
   align-items: center;
 `;
-const InnerEncoderKey = styled.div<{
-  backgroundColor: string;
-  selected: boolean;
-}>`
-  width: 90%;
-  height: 90%;
-  background-color: ${(props) =>
-    props.selected ? `var(--color_accent)` : props.backgroundColor};
-  background-color: #363434;
-  color: #e8c4b8;
-  box-sizing: border-box;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-// Remove after refactoring with flexbox
-const InnerEncoderKeyContainer = styled.div``;
-
 // Remove after refactoring with flexbox
 const SmallInnerCenterKeyContainer = styled.div`
   position: absolute;
@@ -256,15 +221,6 @@ export const OuterKey = styled.div<{
   cursor: pointer;
 `;
 
-const Legend = styled.div`
-  font-family: Arial, Helvetica, sans-serif;
-  color: ${(props) => props.color};
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
 export const getDarkenedColor = (color: string) => {
   const cleanedColor = color.replace('#', '');
   const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
@@ -278,35 +234,6 @@ export const getDarkenedColor = (color: string) => {
     '0',
   )}`;
   return res;
-};
-
-export const getEncoderLegends = (
-  labels: (string | void)[],
-  t: string,
-): JSX.Element[] => {
-  return labels.map((label) => {
-    const splitLabels = (label || '').split(' ');
-    const minifiedLabel = splitLabels.map((l) => l[0]).join('');
-    return (
-      <Legend
-        key={label || ''}
-        color={'#E8C4B8'}
-        style={{fontSize: '8px', textAlign: 'center'}}
-      >
-        {minifiedLabel}
-      </Legend>
-    );
-  });
-};
-export const getLegends = (
-  labels: (string | void)[],
-  t: string,
-): JSX.Element[] => {
-  return labels.map((label) => (
-    <Legend key={label || ''} color={t}>
-      {(label || '').length > 15 ? 'ADV' : label || ''}
-    </Legend>
-  ));
 };
 
 export const chooseInnerKey = (props: {
@@ -328,7 +255,6 @@ export const chooseInnerKeyContainer = (props: {
     ? SmallInnerCenterKeyContainer
     : InnerKeyContainer;
 };
-const noop = (...args: any[]) => {};
 export const KeyBG = memo(
   ({x, x2, y, y2, w, w2, h, h2, r = 0, rx = 0, ry = 0, ei}: any) => {
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
@@ -362,60 +288,6 @@ export const KeyBG = memo(
           ) : null}
           <OuterKey backgroundColor={backColor}></OuterKey>
         </BGKeyContainer>
-      </RotationContainer>
-    );
-  },
-);
-const EncoderKeyComponent = memo(
-  ({
-    x,
-    y,
-    w,
-    h,
-    c,
-    t,
-    r = 0,
-    rx = 0,
-    ry = 0,
-    label,
-    selected,
-    id,
-    onClick = noop,
-  }: Key) => {
-    const containerOnClick: MouseEventHandler = (evt) => {
-      evt.stopPropagation();
-      onClick(id);
-    };
-    const oc = 'var(--color_accent)';
-    const ic = 'var(--color_accent)';
-    const keyContainerStyle = getKeyContainerPosition({
-      w,
-      h,
-      x,
-      y,
-    });
-    return (
-      <RotationContainer
-        selected={selected}
-        style={{...getRotationContainerTransform({r, rx, ry})}}
-      >
-        <KeyContainer
-          selected={selected}
-          style={keyContainerStyle}
-          onClick={containerOnClick}
-        >
-          <OuterEncoderKey
-            backgroundColor={c}
-            selected={selected}
-            style={{borderWidth: `${~~(keyContainerStyle.height / 18)}px`}}
-          >
-            <InnerEncoderKey selected={selected} backgroundColor={c}>
-              <InnerEncoderKeyContainer>
-                {getEncoderLegends([label], t)}
-              </InnerEncoderKeyContainer>
-            </InnerEncoderKey>
-          </OuterEncoderKey>
-        </KeyContainer>
       </RotationContainer>
     );
   },
@@ -505,39 +377,6 @@ const KeyComponent = memo(
     );
   },
 );
-
-type KeyRotation = {
-  r: number;
-  rx: number;
-  ry: number;
-};
-
-type KeyPosition = {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-};
-
-export const getRotationContainerTransform = ({r, rx, ry}: KeyRotation) => ({
-  transform: `rotate3d(0,0,1,${r}deg)`,
-  transformOrigin: `${CSSVarObject.keyXPos * rx}px ${
-    CSSVarObject.keyYPos * ry
-  }px`,
-});
-export const getBGKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
-  left: CSSVarObject.keyXPos * x - 1,
-  top: CSSVarObject.keyYPos * y - 1,
-  width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing + 2,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing + 2,
-});
-
-export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
-  left: CSSVarObject.keyXPos * x,
-  top: CSSVarObject.keyYPos * y,
-  width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing,
-  height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
-});
 
 type PositionedKeyboardProps = {
   selectable: boolean;
@@ -675,7 +514,6 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                   selected: selectedKey === index,
                   onClick: selectable
                     ? (id) => {
-                        console.log(id);
                         dispatch(updateSelectedKey(id));
                       }
                     : noop,
@@ -921,44 +759,3 @@ const BlankPositionedKeyboardComponent = (
     </div>
   );
 };
-
-type MatrixProps = {
-  rowKeys: number[][][];
-  colKeys: number[][][];
-};
-const Matrix: React.VFC<MatrixProps> = ({rowKeys, colKeys}) => (
-  <SVG>
-    {rowKeys.map((arr, index) => (
-      <RowLine
-        points={arr.map((point) => (point || []).join(',')).join(' ')}
-        key={index}
-      />
-    ))}
-    {colKeys.map((arr, index) => (
-      <ColLine
-        points={arr.map((point) => (point || []).join(',')).join(' ')}
-        key={index}
-      />
-    ))}
-  </SVG>
-);
-
-const SVG = styled.svg`
-  transform: rotateZ(0);
-  width: 100%;
-  height: 100%;
-`;
-const RowLine = styled.polyline`
-  stroke: var(--color_accent);
-  stroke-width: 3;
-  fill-opacity: 0;
-  stroke-opacity: 0.4;
-  stroke-linecap: round;
-`;
-const ColLine = styled.polyline`
-  stroke: var(--color_light-grey);
-  stroke-width: 3;
-  fill-opacity: 0;
-  stroke-opacity: 0.4;
-  stroke-linecap: round;
-`;

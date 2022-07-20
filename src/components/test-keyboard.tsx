@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {MouseEventHandler, memo} from 'react';
 import styled from 'styled-components';
 import {
   chooseInnerKey,
@@ -7,16 +7,25 @@ import {
   getDarkenedColor,
   OuterKey,
   getLabel,
-  getLegends,
   OuterSecondaryKey,
-  getRotationContainerTransform,
-  getKeyContainerPosition,
-  RotationContainer,
   BlankKeyboardFrame,
   calculateKeyboardFrameDimensions,
 } from './positioned-keyboard';
 import type {VIAKey} from 'via-reader';
 import type {Key} from 'src/types/types';
+import {
+  getKeyContainerPosition,
+  getLegends,
+  getRotationContainerTransform,
+  noop,
+  RotationContainer,
+} from './positioned-keyboard/base';
+import {
+  getEncoderLegends,
+  InnerEncoderKey,
+  InnerEncoderKeyContainer,
+  OuterEncoderKey,
+} from './positioned-keyboard/encoder-key';
 
 export enum TestKeyState {
   Initial,
@@ -30,6 +39,61 @@ type TestKey = Omit<Key, 'selected'> & {
   keyState: TestKeyState;
 };
 
+export const TestEncoderKeyComponent = memo(
+  ({
+    x,
+    y,
+    w,
+    h,
+    c,
+    t,
+    id,
+    keyState = TestKeyState.Initial,
+    label,
+    onClick = noop,
+    r = 0,
+    rx = 0,
+    ry = 0,
+  }: TestKey) => {
+    const selected = false;
+    const containerOnClick: MouseEventHandler = (evt) => {
+      evt.stopPropagation();
+      onClick(id);
+    };
+    const keyContainerStyle = getKeyContainerPosition({
+      w,
+      h,
+      x,
+      y,
+    });
+    return (
+      <RotationContainer
+        selected={selected}
+        style={{...getRotationContainerTransform({r, rx, ry})}}
+      >
+        <TestKeyContainer
+          id={id.toString()}
+          style={{
+            ...getKeyContainerTransform({keyState, x, y, w, h}),
+            ...{opacity: 0.1},
+          }}
+        >
+          <OuterEncoderKey
+            backgroundColor={c}
+            selected={selected}
+            style={{borderWidth: `${~~(keyContainerStyle.height / 18)}px`}}
+          >
+            <InnerEncoderKey selected={false} backgroundColor={c}>
+              <InnerEncoderKeyContainer>
+                {getEncoderLegends([label], t)}
+              </InnerEncoderKeyContainer>
+            </InnerEncoderKey>
+          </OuterEncoderKey>
+        </TestKeyContainer>
+      </RotationContainer>
+    );
+  },
+);
 const TestKeyComponent = React.memo(
   ({
     x,
@@ -110,8 +174,7 @@ const testKeyColor = {
 
 export const TestKeyboard = (props: any) => {
   const macros = {expressions: [], isFeatureSupported: false};
-  const {pressedKeys, keys, containerDimensions, matrixKeycodes, definition} =
-    props;
+  const {pressedKeys, keys, containerDimensions, matrixKeycodes} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   return (
     <div>
@@ -122,8 +185,10 @@ export const TestKeyboard = (props: any) => {
         selectable={false}
       >
         {(keys as VIAKey[]).map((k, index) => {
+          const KeyboardKeyComponent =
+            k['ei'] !== undefined ? TestEncoderKeyComponent : TestKeyComponent;
           return (
-            <TestKeyComponent
+            <KeyboardKeyComponent
               {...{
                 ...k,
                 ...getLabel(matrixKeycodes[index], k.w, macros, null),
@@ -161,6 +226,7 @@ const getKeyContainerTransform = ({
   filter: keyState !== TestKeyState.Initial ? 'saturate(1)' : 'saturate(0)',
   opacity: keyState === TestKeyState.KeyUp ? 1 : 0.4,
 });
+
 const TestKeyContainer = styled.div`
   position: absolute;
   box-sizing: border-box;
