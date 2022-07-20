@@ -1940,6 +1940,13 @@
   "resolved" "https://registry.npmjs.org/@types/w3c-web-hid/-/w3c-web-hid-1.0.3.tgz"
   "version" "1.0.3"
 
+"@types/webscopeio__react-textarea-autocomplete@^4.7.2":
+  "integrity" "sha512-e1DZGD+eH19BnllTWCGXAdrMa2kI53wEMuhn/d+wUmnu8//ZI6BiuK/EPdw07fI4+tlyo5qdPZdXdpkoXHJVOw=="
+  "resolved" "https://registry.npmjs.org/@types/webscopeio__react-textarea-autocomplete/-/webscopeio__react-textarea-autocomplete-4.7.2.tgz"
+  "version" "4.7.2"
+  dependencies:
+    "@types/react" "*"
+
 "@types/ws@^7.4.0":
   "integrity" "sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww=="
   "resolved" "https://registry.npmjs.org/@types/ws/-/ws-7.4.7.tgz"

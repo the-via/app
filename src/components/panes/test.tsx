@@ -168,11 +168,12 @@ export const Test: FC = () => {
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
   const onFlexResize = React.useCallback(
-    ({width, height}) => {
-      setDimensions({
-        width,
-        height,
-      });
+    ({width, height}: {width?: number; height?: number}) => {
+      if (width !== undefined && height !== undefined)
+        setDimensions({
+          width,
+          height,
+        });
     },
     [setDimensions],
   );

@@ -58,6 +58,7 @@
     "@types/snowpack-env": "^2.3.3",
     "@types/styled-components": "^5.1.11",
     "@types/w3c-web-hid": "^1.0.1",
+    "@types/webscopeio__react-textarea-autocomplete": "^4.7.2",
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
     "concurrently": "^7.1.0",

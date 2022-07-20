@@ -8,6 +8,8 @@ export const PelpiToggleInput: React.VFC<
   }>
 > = (props) => {
   return (
-    <AccentButton onClick={props.setValue}>{props.meta.label}</AccentButton>
+    <AccentButton onClick={() => props.setValue(0)}>
+      {props.meta.label}
+    </AccentButton>
   );
 };

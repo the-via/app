@@ -33,8 +33,8 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const [cwValue, setCWValue] = useState<number>(null);
-  const [ccwValue, setCCWValue] = useState<number>(null);
+  const [cwValue, setCWValue] = useState<number>();
+  const [ccwValue, setCCWValue] = useState<number>();
   const selectedKey = useAppSelector(getSelectedKey);
   const dispatch = useDispatch();
   const keys: (VIAKey & {ei?: number})[] = useAppSelector(
@@ -91,7 +91,11 @@ export const Pane: FC = () => {
     }
   }, [encoderKey, selectedDevice, layer]);
 
-  if (selectedDevice && selectedDevice.protocol < 10) {
+  if (
+    (selectedDevice && selectedDevice.protocol < 10) ||
+    ccwValue === undefined ||
+    cwValue === undefined
+  ) {
     return null;
   }
   return (
