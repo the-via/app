@@ -1,15 +1,12 @@
 {
-  "engines": {
-    "node": ">=16.0.0 < 17.0.0"
-  },
   "scripts": {
-    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
+    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"yarn dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && snowpack dev",
     "build": "via-keyboards public/definitions && snowpack build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:azure": "npm uninstall via-keyboards && npm install --save https://github.com/the-via/keyboards.git && npm run build"
+    "build-azure": "yarn remove via-keyboards && yarn add https://github.com/the-via/keyboards.git && yarn build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.3",
@@ -19,7 +16,7 @@
     "@reduxjs/toolkit": "^1.6.1",
     "@types/lodash.partition": "^4.6.6",
     "@types/raf-schd": "^4.0.1",
-    "@webscopeio/react-textarea-autocomplete": "^4.9.1",
+    "@webscopeio/react-textarea-autocomplete": "^4.7.3",
     "connected-react-router": "^6.9.1",
     "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
@@ -27,8 +24,8 @@
     "pelpi": "https://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b",
     "raf-schd": "^4.0.3",
     "rc-slider": "^9.7.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
     "react-redux": "^7.2.4",
     "react-resize-observer-hook": "^0.0.2",
     "react-router": "^5.2.0",
@@ -39,7 +36,7 @@
     "styled-components": "^5.3.5",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
-    "via-keyboards": "github:the-via/keyboards",
+    "via-keyboards": "https://github.com/the-via/keyboards.git",
     "via-reader": "https://github.com/the-via/reader.git#36ca7c554bea80f591b5a230c8f9c83be34b6f3f"
   },
   "devDependencies": {
@@ -52,8 +49,8 @@
     "@testing-library/react": "^11.2.6",
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
-    "@types/react": "^18.0.6",
-    "@types/react-dom": "^18.0.6",
+    "@types/react": "^17.0.4",
+    "@types/react-dom": "^17.0.3",
     "@types/react-router": "^5.1.16",
     "@types/react-router-dom": "^5.1.8",
     "@types/react-select": "^4.0.17",
@@ -61,7 +58,7 @@
     "@types/snowpack-env": "^2.3.3",
     "@types/styled-components": "^5.1.11",
     "@types/w3c-web-hid": "^1.0.1",
-    "@types/webscopeio__react-textarea-autocomplete": "^4.7.2",
+    "@types/webscopeio__react-textarea-autocomplete": "^4.7.1",
     "@web/test-runner": "^0.13.3",
     "chai": "^4.3.4",
     "concurrently": "^7.1.0",
@@ -70,6 +67,7 @@
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7",
     "snowpack-plugin-json5": "^1.0.0",
-    "typescript": "^4.6.2"
+    "typescript": "^4.6.2",
+    "yarn": "^1.22.18"
   }
 }
