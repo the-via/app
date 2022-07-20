@@ -1,7 +1,7 @@
 {
   "engines": {
-    "node": ">=18.0",
-    "npm": ">=8.0"
+    "node": ">=16.0",
+    "npm": ">=7.0"
   },
   "scripts": {
     "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
