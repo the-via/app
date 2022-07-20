@@ -1,4 +1,8 @@
 {
+  "engines": {
+    "node": ">=16.0",
+    "npm": ">=7.0"
+  },
   "scripts": {
     "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && snowpack dev",
