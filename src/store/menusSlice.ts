@@ -13,7 +13,10 @@ import {
   getSelectedDevicePath,
 } from './devicesSlice';
 import {getCommonMenus} from 'src/utils/device-store';
-import {makeCustomMenu} from 'src/components/panes/configure-panes/custom/menu-generator';
+import {
+  makeCustomMenu,
+  makeCustomMenus,
+} from 'src/components/panes/configure-panes/custom/menu-generator';
 
 type CustomMenuData = {
   [commandName: string]: number[];
@@ -236,6 +239,6 @@ export const getV3MenuComponents = createSelector(
         isVIAMenu(menu)
           ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
           : menu,
-      );
+      ) as (string | ReturnType<typeof makeCustomMenus>)[];
   },
 );
