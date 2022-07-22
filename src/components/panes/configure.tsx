@@ -69,7 +69,10 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
 
 const getRowsForKeyboard = (): typeof Rows => {
   const showMacros = useAppSelector(getIsMacroFeatureSupported);
-  const v3Menus = useAppSelector(getV3MenuComponents);
+  const v3Menus = useAppSelector(getV3MenuComponents) as (
+    | string
+    | ReturnType<typeof makeCustomMenus>
+  )[];
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   if (!selectedDefinition) {
