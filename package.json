@@ -1,4 +1,5 @@
 {
+  "license": "GPL-3.0",
   "scripts": {
     "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"yarn dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && snowpack dev",
