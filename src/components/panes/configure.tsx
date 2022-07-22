@@ -100,6 +100,7 @@ const getRowsForKeyboardV3 = (
     [BuiltInMenuModule.Keymap]: Keycode,
     [BuiltInMenuModule.Macros]: Macros,
     [BuiltInMenuModule.SaveLoad]: SaveLoad,
+    [BuiltInMenuModule.Layouts]: Layouts,
     'via/*': [Keycode, Macros, SaveLoad],
   };
   const rows = menus.flatMap((menu, idx) => {
