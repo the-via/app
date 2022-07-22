@@ -1321,9 +1321,17 @@ export function getKeycodes(): IKeycodeMenu[] {
   ];
 }
 
-const categoriesForKeycodeModule = (keycodeModule: BuiltInKeycodeModule) =>
+export const categoriesForKeycodeModule = (
+  keycodeModule: BuiltInKeycodeModule,
+) =>
   ({
-    [BuiltInKeycodeModule.VIAKeycodes]: ['Basic', 'Media', 'Macro', 'Special'],
+    [BuiltInKeycodeModule.VIAKeycodes]: [
+      'Basic',
+      'Media',
+      'Macro',
+      'Layers',
+      'Special',
+    ],
     [BuiltInKeycodeModule.WTLighting]: ['Lighting'],
     [BuiltInKeycodeModule.QMKLighting]: ['QMK Lighting'],
   }[keycodeModule]);

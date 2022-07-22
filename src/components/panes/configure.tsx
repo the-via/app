@@ -11,8 +11,10 @@ import {
   CustomFeaturesV2,
   getLightingDefinition,
   isVIADefinitionV2,
+  isVIADefinitionV3,
   VIADefinitionV2,
   VIADefinitionV3,
+  BuiltInMenuModule,
 } from 'via-reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
@@ -22,7 +24,10 @@ import * as Macros from './configure-panes/macros';
 import * as SaveLoad from './configure-panes/save-load';
 import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
-import {makeCustomMenus} from './configure-panes/custom/menu-generator';
+import {
+  makeCustomMenu,
+  makeCustomMenus,
+} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
 import {AccentButtonLarge} from '../inputs/accent-button';
@@ -71,8 +76,66 @@ const getRowsForKeyboard = (): typeof Rows => {
 
   if (!selectedDefinition) {
     return [];
+  } else if (isVIADefinitionV2(selectedDefinition)) {
+    return getRowsForKeyboardV2(selectedDefinition, showMacros);
+  } else if (isVIADefinitionV3(selectedDefinition)) {
+    return getRowsForKeyboardV3(selectedDefinition, showMacros);
+  } else {
+    return [];
+  }
+};
+
+type BuiltInMenu =
+  | typeof Keycode
+  | typeof Macros
+  | typeof SaveLoad
+  | typeof Layouts;
+
+const getRowsForKeyboardV3 = (
+  selectedDefinition: VIADefinitionV3,
+  showMacros: boolean,
+): typeof Rows => {
+  const {layouts, menus} = selectedDefinition;
+  const builtInMenusMap = {
+    [BuiltInMenuModule.Keymap]: Keycode,
+    [BuiltInMenuModule.Macros]: Macros,
+    [BuiltInMenuModule.SaveLoad]: SaveLoad,
+    'via/*': [Keycode, Macros, SaveLoad],
+  };
+  const rows = menus.flatMap((menu, idx) => {
+    if (
+      typeof menu === 'string' &&
+      Object.keys(builtInMenusMap).includes(menu)
+    ) {
+      // Load from built-in menus
+      const foundMenu = (builtInMenusMap as any)[menu] as BuiltInMenu;
+      return foundMenu;
+    } else if (typeof menu !== 'string') {
+      return makeCustomMenu(menu, idx);
+    } else {
+      throw new Error('Encountered bad key for menus property');
+    }
+  });
+  let removeList: typeof Rows = [];
+  // LAYOUTS IS INFERRED, filter out if doesn't exist
+  if (
+    !(layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0)
+  ) {
+    removeList = [...removeList, Layouts];
   }
 
+  if (!showMacros) {
+    removeList = [...removeList, Macros];
+  }
+
+  let filteredRows = rows.filter((row) => !removeList.includes(row));
+  return filteredRows;
+};
+
+const getRowsForKeyboardV2 = (
+  selectedDefinition: VIADefinitionV2,
+  showMacros: boolean,
+): typeof Rows => {
   const {layouts} = selectedDefinition;
   let titles: typeof Rows = [Keycode];
   if (layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0) {
@@ -90,10 +153,7 @@ const getRowsForKeyboard = (): typeof Rows => {
     if (customFeatures) {
       titles = [...titles, ...getCustomPanes(customFeatures)];
     }
-  } else if (customMenus) {
-    titles = [...titles, ...makeCustomMenus(customMenus)];
   }
-
   titles = [...titles, SaveLoad];
   return titles;
 };
@@ -159,8 +219,6 @@ const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
   const [selectedRow, setRow] = useState(0);
-  const KeyboardRows = getRowsForKeyboard();
-  const SelectedPane = KeyboardRows[selectedRow].Pane;
   const [dimensions, setDimensions] = useState({
     width: 1280,
     height: 900,
@@ -176,12 +234,15 @@ const ConfigureGrid = () => {
         height: entry.height,
       }),
   );
+  const KeyboardRows = getRowsForKeyboard();
+  const SelectedPane = KeyboardRows[selectedRow]?.Pane;
+  const selectedTitle = KeyboardRows[selectedRow]?.Title;
 
   return (
     <Grid>
       <MenuCell>
         <MenuContainer>
-          {KeyboardRows.map(
+          {(KeyboardRows || []).map(
             ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
               <Row
                 key={idx}
@@ -201,13 +262,13 @@ const ConfigureGrid = () => {
       <FlexCell ref={flexRef} onClick={() => dispatch(clearSelectedKey())}>
         <PositionedKeyboard
           containerDimensions={dimensions}
-          selectable={KeyboardRows[selectedRow].Title === 'Keymap'}
+          selectable={selectedTitle === 'Keymap'}
         />
         <ReactTooltip />
         <LayerControl />
         <Badge />
       </FlexCell>
-      <SelectedPane />
+      {SelectedPane && <SelectedPane />}
     </Grid>
   );
 };

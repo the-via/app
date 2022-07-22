@@ -12,6 +12,7 @@ import {
   getOtherMenu,
   IKeycode,
   IKeycodeMenu,
+  categoriesForKeycodeModule,
 } from '../../../utils/key';
 import {ErrorMessage} from '../../styled';
 import {
@@ -19,6 +20,7 @@ import {
   getLightingDefinition,
   isVIADefinitionV3,
   isVIADefinitionV2,
+  VIADefinitionV3,
 } from 'via-reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
 import {getNextKey} from '../../positioned-keyboard';
@@ -156,7 +158,7 @@ export const KeycodePane: FC = () => {
 
   const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
-      return [];
+      return getEnabledMenusV3(selectedDefinition);
     }
     const {lighting, customKeycodes} = selectedDefinition;
     const {keycodes} = getLightingDefinition(lighting);
@@ -178,6 +180,18 @@ export const KeycodePane: FC = () => {
           ({label}) => label !== 'Custom',
         ),
       );
+  };
+  const getEnabledMenusV3 = (definition: VIADefinitionV3): IKeycodeMenu[] => {
+    const keycodes = definition.keycodes || [];
+    const allowedKeycodes = keycodes.flatMap((keycodeName) =>
+      categoriesForKeycodeModule(keycodeName),
+    );
+    if ((selectedDefinition.customKeycodes || []).length !== 0) {
+      allowedKeycodes.push('Custom');
+    }
+    return KeycodeCategories.filter((category) =>
+      allowedKeycodes.includes(category.label),
+    );
   };
 
   const renderMacroError = () => {

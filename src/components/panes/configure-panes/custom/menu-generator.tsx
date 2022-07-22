@@ -171,8 +171,9 @@ export const Title = title;
 
 export type IdTag = {_id: string};
 export type MapIntoArr<A, C> = A extends (infer B)[] ? (C & B)[] : any;
-export type IntersectKey<A, B extends keyof A, C> = A &
-  {[K in B]: MapIntoArr<A[B], C>};
+export type IntersectKey<A, B extends keyof A, C> = A & {
+  [K in B]: MapIntoArr<A[B], C>;
+};
 export type TagWithId<A, B extends {content: any}> =
   | (IdTag & A)
   | IntersectKey<B, 'content', IdTag>;
@@ -241,12 +242,14 @@ export function menuComponentGenerator(menus: any) {
   }));
 }
 
-export const makeCustomMenus = (menus: VIAMenu[]) =>
-  menus.map((menu, idx) => ({
+export const makeCustomMenu = (menu: VIAMenu, idx: number) => {
+  return {
     Title: menu.label,
     // Allow icon to be configurable
     Icon: CustomIcon,
     Pane: (props: any) => (
       <Pane {...props} key={`${menu.label}-${idx}`} viaMenu={menu} />
     ),
-  }));
+  };
+};
+export const makeCustomMenus = (menus: VIAMenu[]) => menus.map(makeCustomMenu);
