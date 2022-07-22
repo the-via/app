@@ -34,7 +34,7 @@ import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
-import {getV3Menus} from 'src/store/menusSlice';
+import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
@@ -69,7 +69,7 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
 
 const getRowsForKeyboard = (): typeof Rows => {
   const showMacros = useAppSelector(getIsMacroFeatureSupported);
-  const v3Menus = useAppSelector(getV3Menus) as (string | VIAMenu)[];
+  const v3Menus = useAppSelector(getV3MenuComponents);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   if (!selectedDefinition) {
@@ -92,7 +92,7 @@ type BuiltInMenu =
 const getRowsForKeyboardV3 = (
   selectedDefinition: VIADefinitionV3,
   showMacros: boolean,
-  menus: (string | VIAMenu)[],
+  menus: (string | ReturnType<typeof makeCustomMenus>)[],
 ): typeof Rows => {
   const {layouts} = selectedDefinition;
   const builtInMenusMap = {
@@ -102,7 +102,7 @@ const getRowsForKeyboardV3 = (
     [BuiltInMenuModule.Layouts]: Layouts,
     'via/*': [Keycode, Macros, SaveLoad],
   };
-  const rows = menus.flatMap((menu, idx) => {
+  const rows: typeof Rows = menus.flatMap((menu: any) => {
     if (
       typeof menu === 'string' &&
       Object.keys(builtInMenusMap).includes(menu)
@@ -110,10 +110,11 @@ const getRowsForKeyboardV3 = (
       // Load from built-in menus
       const foundMenu = (builtInMenusMap as any)[menu] as BuiltInMenu;
       return foundMenu;
-    } else if (typeof menu !== 'string') {
-      return menu;
+    } else if (typeof menu === 'string') {
+      console.error(`Encountered bad key for menus property: ${menu}`);
+      return [];
     } else {
-      throw new Error(`Encountered bad key for menus property: ${menu}`);
+      return menu;
     }
   });
   let removeList: typeof Rows = [];

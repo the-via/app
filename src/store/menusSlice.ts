@@ -217,6 +217,22 @@ export const getV3Menus = createSelector(
     return (definition.menus || [])
       .flatMap(tryResolveCommonMenu)
       .map((menu, idx) =>
+        isVIAMenu(menu) ? compileMenu('custom_menu', 3, menu, idx) : menu,
+      );
+  },
+);
+
+export const getV3MenuComponents = createSelector(
+  getSelectedDefinition,
+  (definition) => {
+    if (!definition || !isVIADefinitionV3(definition)) {
+      return [];
+    }
+
+    // TODO: handle Common menus (built ins in here too?)
+    return (definition.menus || [])
+      .flatMap(tryResolveCommonMenu)
+      .map((menu, idx) =>
         isVIAMenu(menu)
           ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
           : menu,
