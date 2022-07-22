@@ -163,15 +163,50 @@ export const getSelectedCustomMenuData = createSelector(
   (map, path) => path && map[path],
 );
 
-export const getCustomCommands = createSelector(
+export const getV3Menus = createSelector(
   getSelectedDefinition,
   (definition) => {
+    if (!definition || !isVIADefinitionV3(definition)) {
+      return [];
+    }
+
+    // TODO: handle Common menus (built ins in here too?)
+    return (definition.menus || [])
+      .flatMap(tryResolveCommonMenu)
+      .map((menu, idx) =>
+        isVIAMenu(menu) ? compileMenu('custom_menu', 3, menu, idx) : menu,
+      );
+  },
+);
+
+export const getV3MenuComponents = createSelector(
+  getSelectedDefinition,
+  (definition) => {
+    if (!definition || !isVIADefinitionV3(definition)) {
+      return [];
+    }
+
+    // TODO: handle Common menus (built ins in here too?)
+    return (definition.menus || [])
+      .flatMap(tryResolveCommonMenu)
+      .map((menu, idx) =>
+        isVIAMenu(menu)
+          ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
+          : menu,
+      ) as (string | ReturnType<typeof makeCustomMenus>)[];
+  },
+);
+
+export const getCustomCommands = createSelector(
+  getSelectedDefinition,
+  getV3Menus,
+  (definition, v3Menus) => {
     if (!definition) {
       return [];
     }
     const menus = isVIADefinitionV2(definition)
       ? definition.customMenus
-      : definition.menus;
+      : v3Menus;
 
     if (menus === undefined) {
       return [];
@@ -208,37 +243,3 @@ const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
               ),
       };
 };
-
-export const getV3Menus = createSelector(
-  getSelectedDefinition,
-  (definition) => {
-    if (!definition || !isVIADefinitionV3(definition)) {
-      return [];
-    }
-
-    // TODO: handle Common menus (built ins in here too?)
-    return (definition.menus || [])
-      .flatMap(tryResolveCommonMenu)
-      .map((menu, idx) =>
-        isVIAMenu(menu) ? compileMenu('custom_menu', 3, menu, idx) : menu,
-      );
-  },
-);
-
-export const getV3MenuComponents = createSelector(
-  getSelectedDefinition,
-  (definition) => {
-    if (!definition || !isVIADefinitionV3(definition)) {
-      return [];
-    }
-
-    // TODO: handle Common menus (built ins in here too?)
-    return (definition.menus || [])
-      .flatMap(tryResolveCommonMenu)
-      .map((menu, idx) =>
-        isVIAMenu(menu)
-          ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
-          : menu,
-      ) as (string | ReturnType<typeof makeCustomMenus>)[];
-  },
-);
