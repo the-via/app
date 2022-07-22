@@ -25,10 +25,7 @@ import * as Macros from './configure-panes/macros';
 import * as SaveLoad from './configure-panes/save-load';
 import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
-import {
-  makeCustomMenu,
-  makeCustomMenus,
-} from './configure-panes/custom/menu-generator';
+import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
 import {AccentButtonLarge} from '../inputs/accent-button';
@@ -37,11 +34,10 @@ import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
-import {getCustomMenus} from 'src/store/menusSlice';
+import {getV3Menus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
-import {getCommonMenus} from 'src/utils/device-store';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -73,7 +69,7 @@ function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
 
 const getRowsForKeyboard = (): typeof Rows => {
   const showMacros = useAppSelector(getIsMacroFeatureSupported);
-  const customMenus = useAppSelector(getCustomMenus);
+  const v3Menus = useAppSelector(getV3Menus) as (string | VIAMenu)[];
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   if (!selectedDefinition) {
@@ -81,7 +77,7 @@ const getRowsForKeyboard = (): typeof Rows => {
   } else if (isVIADefinitionV2(selectedDefinition)) {
     return getRowsForKeyboardV2(selectedDefinition, showMacros);
   } else if (isVIADefinitionV3(selectedDefinition)) {
-    return getRowsForKeyboardV3(selectedDefinition, showMacros);
+    return getRowsForKeyboardV3(selectedDefinition, showMacros, v3Menus);
   } else {
     return [];
   }
@@ -96,8 +92,9 @@ type BuiltInMenu =
 const getRowsForKeyboardV3 = (
   selectedDefinition: VIADefinitionV3,
   showMacros: boolean,
+  menus: (string | VIAMenu)[],
 ): typeof Rows => {
-  const {layouts, menus} = selectedDefinition;
+  const {layouts} = selectedDefinition;
   const builtInMenusMap = {
     [BuiltInMenuModule.Keymap]: Keycode,
     [BuiltInMenuModule.Macros]: Macros,
@@ -105,7 +102,6 @@ const getRowsForKeyboardV3 = (
     [BuiltInMenuModule.Layouts]: Layouts,
     'via/*': [Keycode, Macros, SaveLoad],
   };
-  const commonMenus = getCommonMenus();
   const rows = menus.flatMap((menu, idx) => {
     if (
       typeof menu === 'string' &&
@@ -114,19 +110,10 @@ const getRowsForKeyboardV3 = (
       // Load from built-in menus
       const foundMenu = (builtInMenusMap as any)[menu] as BuiltInMenu;
       return foundMenu;
-    } else if (
-      typeof menu === 'string' &&
-      /^core\//.test(menu) &&
-      Object.keys(commonMenus).includes(menu.replace(/^core\//, ''))
-    ) {
-      const moduleMenus = commonMenus[menu.replace(/^core\//, '')] as VIAMenu[];
-      return moduleMenus.map((menu, moduleMenuIdx) =>
-        makeCustomMenu(menu, 100 * idx + moduleMenuIdx),
-      );
     } else if (typeof menu !== 'string') {
-      return makeCustomMenu(menu, idx);
+      return menu;
     } else {
-      throw new Error('Encountered bad key for menus property');
+      throw new Error(`Encountered bad key for menus property: ${menu}`);
     }
   });
   let removeList: typeof Rows = [];
@@ -141,7 +128,9 @@ const getRowsForKeyboardV3 = (
     removeList = [...removeList, Macros];
   }
 
-  let filteredRows = rows.filter((row) => !removeList.includes(row));
+  let filteredRows = rows.filter(
+    (row: any) => !removeList.includes(row),
+  ) as typeof Rows;
   return filteredRows;
 };
 

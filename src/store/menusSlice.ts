@@ -1,12 +1,19 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevice} from '../types/types';
-import {isVIADefinitionV2, isVIADefinitionV3, isVIAMenu} from 'via-reader';
+import type {CommonMenusMap, ConnectedDevice} from '../types/types';
+import {
+  isVIADefinitionV2,
+  isVIADefinitionV3,
+  isVIAMenu,
+  VIAMenu,
+} from 'via-reader';
 import type {AppThunk, RootState} from './index';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
 } from './devicesSlice';
+import {getCommonMenus} from 'src/utils/device-store';
+import {makeCustomMenu} from 'src/components/panes/configure-panes/custom/menu-generator';
 
 type CustomMenuData = {
   [commandName: string]: number[];
@@ -15,10 +22,12 @@ type CustomMenuDataMap = {[devicePath: string]: CustomMenuData};
 
 export type MenusState = {
   customMenuDataMap: CustomMenuDataMap;
+  commonMenusMap: CommonMenusMap;
 };
 
 const initialState: MenusState = {
   customMenuDataMap: {},
+  commonMenusMap: {},
 };
 
 const menusSlice = createSlice({
@@ -31,6 +40,13 @@ const menusSlice = createSlice({
     ) => {
       const {devicePath, menuData} = action.payload;
       state.customMenuDataMap[devicePath] = menuData;
+    },
+    updateCommonMenus: (
+      state,
+      action: PayloadAction<{commonMenuMap: CommonMenusMap}>,
+    ) => {
+      const {commonMenuMap} = action.payload;
+      state.commonMenusMap = commonMenuMap;
     },
     updateCustomMenuData: (state, action: PayloadAction<CustomMenuDataMap>) => {
       state.customMenuDataMap = {...state.customMenuDataMap, ...action.payload};
@@ -71,6 +87,16 @@ export const updateCustomMenuValue =
     api.commitCustomMenu(channel);
   };
 
+// COMMON MENU IDENTIFIER RESOLCES INTO ACTUAL MODULE
+export const tryResolveCommonMenu = (id: VIAMenu | string) => {
+  // Only convert to menu object if it is found in common menus, else return
+  const coreMenuPrefixRegex = /^core\//;
+  if (typeof id === 'string' && coreMenuPrefixRegex.test(id)) {
+    return getCommonMenus()[id.replace(coreMenuPrefixRegex, '')] || id;
+  }
+  return id;
+};
+
 export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
@@ -81,7 +107,7 @@ export const updateV3MenuData =
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
-    const {menus = []} = definition;
+    const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
     if (commands.length !== 0 && protocol >= 11) {
       let props = {};
@@ -122,6 +148,9 @@ const extractCommands = (menuOrControls: any) => {
     : [];
 };
 
+export const getCommonMenusDataMap = (state: RootState) =>
+  state.menus.commonMenusMap;
+
 export const getCustomMenuDataMap = (state: RootState) =>
   state.menus.customMenuDataMap;
 
@@ -154,44 +183,43 @@ export const getCustomCommands = createSelector(
   },
 );
 
-export const getCustomMenus = createSelector(
+const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
+  console.log('compiling menu');
+  return depth === 0
+    ? val
+    : {
+        ...val,
+        _id: `${partial}_${idx}`,
+        content:
+          val.label !== undefined
+            ? val.content.map((contentVal: any, contentIdx: number) =>
+                compileMenu(
+                  `${partial}_${contentIdx}`,
+                  depth - 1,
+                  contentVal,
+                  idx,
+                ),
+              )
+            : val.content.map((contentVal: any, contentIdx: number) =>
+                compileMenu(`${partial}_${contentIdx}`, depth, contentVal, idx),
+              ),
+      };
+};
+
+export const getV3Menus = createSelector(
   getSelectedDefinition,
   (definition) => {
     if (!definition || !isVIADefinitionV3(definition)) {
       return [];
     }
 
-    const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
-      console.log('compiling menu');
-      return depth === 0
-        ? val
-        : {
-            ...val,
-            _id: `${partial}_${idx}`,
-            content:
-              val.label !== undefined
-                ? val.content.map((contentVal: any, contentIdx: number) =>
-                    compileMenu(
-                      `${partial}_${contentIdx}`,
-                      depth - 1,
-                      contentVal,
-                      idx,
-                    ),
-                  )
-                : val.content.map((contentVal: any, contentIdx: number) =>
-                    compileMenu(
-                      `${partial}_${contentIdx}`,
-                      depth,
-                      contentVal,
-                      idx,
-                    ),
-                  ),
-          };
-    };
-
     // TODO: handle Common menus (built ins in here too?)
     return (definition.menus || [])
-      .filter((menu) => isVIAMenu(menu))
-      .map((val, idx) => compileMenu('custom_menu', 3, val, idx));
+      .flatMap(tryResolveCommonMenu)
+      .map((menu, idx) =>
+        isVIAMenu(menu)
+          ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
+          : menu,
+      );
   },
 );
