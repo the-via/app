@@ -254,7 +254,7 @@ export const DesignTab: FC = () => {
             <Detail>
               <AccentSlider
                 isChecked={definitionVersion === 'v3'}
-                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
+                onChange={(val) => dispatch(selectVersion(val ? 'v3' : 'v2'))}
               />
             </Detail>
           </ControlRow>
