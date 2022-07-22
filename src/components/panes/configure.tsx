@@ -15,6 +15,7 @@ import {
   VIADefinitionV2,
   VIADefinitionV3,
   BuiltInMenuModule,
+  VIAMenu,
 } from 'via-reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
@@ -40,6 +41,7 @@ import {getCustomMenus} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
+import {getCommonMenus} from 'src/utils/device-store';
 
 const Pane = styled(DefaultPane)`
   flex-direction: column;
@@ -103,6 +105,7 @@ const getRowsForKeyboardV3 = (
     [BuiltInMenuModule.Layouts]: Layouts,
     'via/*': [Keycode, Macros, SaveLoad],
   };
+  const commonMenus = getCommonMenus();
   const rows = menus.flatMap((menu, idx) => {
     if (
       typeof menu === 'string' &&
@@ -111,6 +114,15 @@ const getRowsForKeyboardV3 = (
       // Load from built-in menus
       const foundMenu = (builtInMenusMap as any)[menu] as BuiltInMenu;
       return foundMenu;
+    } else if (
+      typeof menu === 'string' &&
+      /^core\//.test(menu) &&
+      Object.keys(commonMenus).includes(menu.replace(/^core\//, ''))
+    ) {
+      const moduleMenus = commonMenus[menu.replace(/^core\//, '')] as VIAMenu[];
+      return moduleMenus.map((menu, moduleMenuIdx) =>
+        makeCustomMenu(menu, 100 * idx + moduleMenuIdx),
+      );
     } else if (typeof menu !== 'string') {
       return makeCustomMenu(menu, idx);
     } else {

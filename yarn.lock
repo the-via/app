@@ -8344,7 +8344,7 @@ verror@1.10.0:
 
 "via-keyboards@https://github.com/the-via/keyboards.git":
   version "0.0.1"
-  resolved "https://github.com/the-via/keyboards.git#328540be994ed2627f07ffc7fde0d26af9098e3e"
+  resolved "https://github.com/the-via/keyboards.git#d02c9b0af343e13b276d2c044959d82c627b06f7"
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/glob" "^7.1.1"

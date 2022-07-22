@@ -5,6 +5,7 @@ import type {
   KeyboardDictionary,
   LightingValue,
   VIAKey,
+  VIAMenu,
 } from 'via-reader';
 
 export type HIDColor = {
@@ -72,10 +73,15 @@ export type Settings = {
   disableHardwareAcceleration: boolean;
 };
 
+export type CommonMenusMap = {
+  [menu: string]: VIAMenu[];
+};
+
 export type StoreData = {
   definitionIndex: DefinitionIndex;
   definitions: KeyboardDictionary;
   settings: Settings;
+  commonMenus: CommonMenusMap;
 };
 
 export type VendorProductIdMap = Record<number, {v2: boolean; v3: boolean}>;
