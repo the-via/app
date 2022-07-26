@@ -41,10 +41,14 @@ export const loadMacros =
     if (protocol < 8) {
       dispatch(setMacrosNotSupported());
     } else {
-      const macroApi = new MacroAPI(api);
-      if (macroApi) {
-        const macros = await macroApi.readMacroExpressions();
-        dispatch(loadMacrosSuccess(macros));
+      try {
+        const macroApi = new MacroAPI(api);
+        if (macroApi) {
+          const macros = await macroApi.readMacroExpressions();
+          dispatch(loadMacrosSuccess(macros));
+        }
+      } catch (err) {
+        dispatch(setMacrosNotSupported());
       }
     }
   };

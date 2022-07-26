@@ -25,8 +25,8 @@ export function validateExpression(expression: string): ValidationResult {
   // have support for the negative lookbehind feature.
   // See: https://caniuse.com/js-regexp-lookbehind
   try {
-    unclosedBlockRegex = eval("/(?<!\\\\)\{(?![^{]*})/");
-    keycodeBlockRegex = eval("/(?<!\\\\){(.*?)}/g");
+    unclosedBlockRegex = eval('/(?<!\\\\){(?![^{]*})/');
+    keycodeBlockRegex = eval('/(?<!\\\\){(.*?)}/g');
   } catch (e) {
     // TODO: Display a message to the user
     console.error('Lookbehind support is not supported in this browser.');
@@ -91,6 +91,11 @@ export class MacroAPI {
     const expressions: string[] = [];
     let currentExpression = [];
     let currentChord = [];
+
+    // If macroCount is 0, macros are disabled
+    if (macroCount === 0) {
+      throw Error('Macros are disabled');
+    }
 
     while (i < bytes.length && macroId < macroCount) {
       let byte = bytes[i];

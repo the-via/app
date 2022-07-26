@@ -31,7 +31,11 @@ import {Badge} from './configure-panes/badge';
 import {AccentButtonLarge} from '../inputs/accent-button';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
-import {clearSelectedKey, getLoadProgress} from 'src/store/keymapSlice';
+import {
+  clearSelectedKey,
+  getLoadProgress,
+  getNumberOfLayers,
+} from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {getV3MenuComponents} from 'src/store/menusSlice';
@@ -71,13 +75,19 @@ const getRowsForKeyboard = (): typeof Rows => {
   const showMacros = useAppSelector(getIsMacroFeatureSupported);
   const v3Menus = useAppSelector(getV3MenuComponents);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const numberOfLayers = useAppSelector(getNumberOfLayers);
 
   if (!selectedDefinition) {
     return [];
   } else if (isVIADefinitionV2(selectedDefinition)) {
-    return getRowsForKeyboardV2(selectedDefinition, showMacros);
+    return getRowsForKeyboardV2(selectedDefinition, showMacros, numberOfLayers);
   } else if (isVIADefinitionV3(selectedDefinition)) {
-    return getRowsForKeyboardV3(selectedDefinition, showMacros, v3Menus);
+    return getRowsForKeyboardV3(
+      selectedDefinition,
+      showMacros,
+      numberOfLayers,
+      v3Menus,
+    );
   } else {
     return [];
   }
@@ -89,12 +99,40 @@ type BuiltInMenu =
   | typeof SaveLoad
   | typeof Layouts;
 
+const filterInferredRows = (
+  selectedDefinition: VIADefinitionV3 | VIADefinitionV2,
+  showMacros: boolean,
+  numberOfLayers: number,
+  rows: typeof Rows,
+): typeof Rows => {
+  const {layouts} = selectedDefinition;
+  let removeList: typeof Rows = [];
+  // LAYOUTS IS INFERRED, filter out if doesn't exist
+  if (
+    !(layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0)
+  ) {
+    removeList = [...removeList, Layouts];
+  }
+
+  if (numberOfLayers === 0) {
+    removeList = [...removeList, Keycode, SaveLoad];
+  }
+
+  if (!showMacros) {
+    removeList = [...removeList, Macros];
+  }
+  let filteredRows = rows.filter(
+    (row) => !removeList.includes(row),
+  ) as typeof Rows;
+  return filteredRows;
+};
+
 const getRowsForKeyboardV3 = (
   selectedDefinition: VIADefinitionV3,
   showMacros: boolean,
+  numberOfLayers: number,
   menus: (string | ReturnType<typeof makeCustomMenus>)[],
 ): typeof Rows => {
-  const {layouts} = selectedDefinition;
   const builtInMenusMap = {
     [BuiltInMenuModule.Keymap]: Keycode,
     [BuiltInMenuModule.Macros]: Macros,
@@ -117,48 +155,37 @@ const getRowsForKeyboardV3 = (
       return menu;
     }
   });
-  let removeList: typeof Rows = [];
-  // LAYOUTS IS INFERRED, filter out if doesn't exist
-  if (
-    !(layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0)
-  ) {
-    removeList = [...removeList, Layouts];
-  }
 
-  if (!showMacros) {
-    removeList = [...removeList, Macros];
-  }
-
-  let filteredRows = rows.filter(
-    (row: any) => !removeList.includes(row),
-  ) as typeof Rows;
-  return filteredRows;
+  return filterInferredRows(
+    selectedDefinition,
+    showMacros,
+    numberOfLayers,
+    rows,
+  );
 };
 
 const getRowsForKeyboardV2 = (
   selectedDefinition: VIADefinitionV2,
   showMacros: boolean,
+  numberOfLayers: number,
 ): typeof Rows => {
-  const {layouts} = selectedDefinition;
-  let titles: typeof Rows = [Keycode];
-  if (layouts.optionKeys && Object.entries(layouts.optionKeys).length !== 0) {
-    titles = [...titles, Layouts];
-  }
-  if (showMacros) {
-    titles = [...titles, Macros];
-  }
+  let rows: typeof Rows = [Keycode, Layouts, Macros, SaveLoad];
   if (isVIADefinitionV2(selectedDefinition)) {
     const {lighting, customFeatures} = selectedDefinition;
     const {supportedLightingValues} = getLightingDefinition(lighting);
     if (supportedLightingValues.length !== 0) {
-      titles = [...titles, Lighting];
+      rows = [...rows, Lighting];
     }
     if (customFeatures) {
-      titles = [...titles, ...getCustomPanes(customFeatures)];
+      rows = [...rows, ...getCustomPanes(customFeatures)];
     }
   }
-  titles = [...titles, SaveLoad];
-  return titles;
+  return filterInferredRows(
+    selectedDefinition,
+    showMacros,
+    numberOfLayers,
+    rows,
+  );
 };
 
 function Loader(props: {
