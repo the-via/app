@@ -115,7 +115,10 @@ export const getSelectedOptionKeys = createSelector(
   (layoutOptions, definition) =>
     definition &&
     layoutOptions.flatMap(
-      (option, idx) => definition.layouts.optionKeys[idx][option],
+      (option, idx) =>
+        (definition.layouts.optionKeys[idx] &&
+          definition.layouts.optionKeys[idx][option]) ||
+        [],
     ),
 );
 
