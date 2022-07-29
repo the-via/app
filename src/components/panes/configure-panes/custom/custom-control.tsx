@@ -98,10 +98,14 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
     }
     case 'dropdown': {
       const selectOptions = options.map(
-        ([label, value]: [string, number], idx: number) => ({
-          value: value || idx,
-          label,
-        }),
+        (option: [string, number] | string, idx: number) => {
+          const [label, value] =
+            typeof option === 'string' ? [option, idx] : option;
+          return {
+            value: value || idx,
+            label,
+          };
+        },
       );
       return (
         <AccentSelect
