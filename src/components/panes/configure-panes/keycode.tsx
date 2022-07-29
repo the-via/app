@@ -32,6 +32,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
+  getNumberOfLayers,
   getSelectedKey,
   getSelectedKeymap,
   updateKey as updateKeyAction,
@@ -144,6 +145,7 @@ export const KeycodePane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
+  const layerCount = useAppSelector(getNumberOfLayers);
 
   // TODO: improve typing so we can get rid of this
   if (!selectedDefinition || !selectedDevice || !matrixKeycodes) {
@@ -156,9 +158,9 @@ export const KeycodePane: FC = () => {
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
-  const getEnabledMenus = (): IKeycodeMenu[] => {
+  const getEnabledMenus = (layerCount: number): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
-      return getEnabledMenusV3(selectedDefinition);
+      return getEnabledMenusV3(selectedDefinition, layerCount);
     }
     const {lighting, customKeycodes} = selectedDefinition;
     const {keycodes} = getLightingDefinition(lighting);
@@ -181,8 +183,14 @@ export const KeycodePane: FC = () => {
         ),
       );
   };
-  const getEnabledMenusV3 = (definition: VIADefinitionV3): IKeycodeMenu[] => {
-    const keycodes = definition.keycodes || [];
+  const getEnabledMenusV3 = (
+    definition: VIADefinitionV3,
+    layerCount: number,
+  ): IKeycodeMenu[] => {
+    const defaultKeycodes = layerCount
+      ? KeycodeCategories.map((category) => category.label)
+      : [];
+    const keycodes = ['default' as const, ...(definition.keycodes || [])];
     const allowedKeycodes = keycodes.flatMap((keycodeName) =>
       categoriesForKeycodeModule(keycodeName),
     );
@@ -205,10 +213,10 @@ export const KeycodePane: FC = () => {
     );
   };
 
-  const renderCategories = () => {
+  const renderCategories = (layerCount: number) => {
     return (
       <MenuContainer>
-        {getEnabledMenus().map(({label}) => (
+        {getEnabledMenus(layerCount).map(({label}) => (
           <SubmenuRow
             selected={label === selectedCategory}
             onClick={(_) => setSelectedCategory(label)}
@@ -351,7 +359,7 @@ export const KeycodePane: FC = () => {
 
   return (
     <>
-      <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
+      <SubmenuOverflowCell>{renderCategories(layerCount)}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}

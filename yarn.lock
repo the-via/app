@@ -8362,9 +8362,9 @@ verror@1.10.0:
     via-reader "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
     yarn "^1.22.0"
 
-"via-reader@https://github.com/the-via/reader.git#8fa5a26bb2606dcd495022ba48898b2ad3cced29":
+"via-reader@https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8":
   version "1.0.0"
-  resolved "https://github.com/the-via/reader.git#8fa5a26bb2606dcd495022ba48898b2ad3cced29"
+  resolved "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
   dependencies:
     "@types/glob" "^7.2.0"
     "@types/node" "^12.12.11"

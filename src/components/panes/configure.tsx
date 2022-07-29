@@ -14,8 +14,6 @@ import {
   isVIADefinitionV3,
   VIADefinitionV2,
   VIADefinitionV3,
-  BuiltInMenuModule,
-  VIAMenu,
 } from 'via-reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
@@ -82,22 +80,19 @@ const getRowsForKeyboard = (): typeof Rows => {
   } else if (isVIADefinitionV2(selectedDefinition)) {
     return getRowsForKeyboardV2(selectedDefinition, showMacros, numberOfLayers);
   } else if (isVIADefinitionV3(selectedDefinition)) {
-    return getRowsForKeyboardV3(
-      selectedDefinition,
-      showMacros,
-      numberOfLayers,
-      v3Menus,
-    );
+    return [
+      ...filterInferredRows(selectedDefinition, showMacros, numberOfLayers, [
+        Keycode,
+        Layouts,
+        Macros,
+        SaveLoad,
+      ]),
+      ...v3Menus,
+    ];
   } else {
     return [];
   }
 };
-
-type BuiltInMenu =
-  | typeof Keycode
-  | typeof Macros
-  | typeof SaveLoad
-  | typeof Layouts;
 
 const filterInferredRows = (
   selectedDefinition: VIADefinitionV3 | VIADefinitionV2,
@@ -125,43 +120,6 @@ const filterInferredRows = (
     (row) => !removeList.includes(row),
   ) as typeof Rows;
   return filteredRows;
-};
-
-const getRowsForKeyboardV3 = (
-  selectedDefinition: VIADefinitionV3,
-  showMacros: boolean,
-  numberOfLayers: number,
-  menus: (string | ReturnType<typeof makeCustomMenus>)[],
-): typeof Rows => {
-  const builtInMenusMap = {
-    [BuiltInMenuModule.Keymap]: Keycode,
-    [BuiltInMenuModule.Macros]: Macros,
-    [BuiltInMenuModule.SaveLoad]: SaveLoad,
-    [BuiltInMenuModule.Layouts]: Layouts,
-    'via/*': [Keycode, Macros, SaveLoad],
-  };
-  const rows: typeof Rows = menus.flatMap((menu: any) => {
-    if (
-      typeof menu === 'string' &&
-      Object.keys(builtInMenusMap).includes(menu)
-    ) {
-      // Load from built-in menus
-      const foundMenu = (builtInMenusMap as any)[menu] as BuiltInMenu;
-      return foundMenu;
-    } else if (typeof menu === 'string') {
-      console.error(`Encountered bad key for menus property: ${menu}`);
-      return [];
-    } else {
-      return menu;
-    }
-  });
-
-  return filterInferredRows(
-    selectedDefinition,
-    showMacros,
-    numberOfLayers,
-    rows,
-  );
 };
 
 const getRowsForKeyboardV2 = (

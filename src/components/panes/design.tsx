@@ -3,6 +3,7 @@ import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
+import {getCommonMenus} from 'src/utils/device-store';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
@@ -106,6 +107,21 @@ function importDefinition(
             : isVIADefinitionV3(res)
             ? res
             : keyboardDefinitionV3ToVIADefinitionV3(res);
+
+        if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
+          const commonMenuKeys = Object.keys(getCommonMenus());
+          const lookupFailedKeys = (res.menus || []).filter((menu) => {
+            if (typeof menu === 'string') {
+              return !commonMenuKeys.includes(menu);
+            }
+            return false;
+          });
+          if (lookupFailedKeys.length) {
+            throw Error(
+              `Menu key lookup failed for: ${lookupFailedKeys.join(', ')}`,
+            );
+          }
+        }
         dispatch(loadDefinition({definition, version}));
 
         dispatch(

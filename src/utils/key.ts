@@ -1322,16 +1322,10 @@ export function getKeycodes(): IKeycodeMenu[] {
 }
 
 export const categoriesForKeycodeModule = (
-  keycodeModule: BuiltInKeycodeModule,
+  keycodeModule: BuiltInKeycodeModule | 'default',
 ) =>
   ({
-    [BuiltInKeycodeModule.VIAKeycodes]: [
-      'Basic',
-      'Media',
-      'Macro',
-      'Layers',
-      'Special',
-    ],
+    default: ['Basic', 'Media', 'Macro', 'Layers', 'Special'],
     [BuiltInKeycodeModule.WTLighting]: ['Lighting'],
     [BuiltInKeycodeModule.QMKLighting]: ['QMK Lighting'],
   }[keycodeModule]);
@@ -1343,9 +1337,7 @@ export const getKeycodesForKeyboard = (
   let includeList: string[] = [];
   if ('lighting' in definition) {
     const {keycodes} = getLightingDefinition(definition.lighting);
-    includeList = categoriesForKeycodeModule(
-      BuiltInKeycodeModule.VIAKeycodes,
-    ).concat(
+    includeList = categoriesForKeycodeModule('default').concat(
       keycodes === KeycodeType.None
         ? []
         : keycodes === KeycodeType.QMK

@@ -91,11 +91,13 @@ export const updateCustomMenuValue =
   };
 
 // COMMON MENU IDENTIFIER RESOLCES INTO ACTUAL MODULE
-export const tryResolveCommonMenu = (id: VIAMenu | string) => {
+export const tryResolveCommonMenu = (
+  id: VIAMenu | string,
+): VIAMenu | VIAMenu[] => {
   // Only convert to menu object if it is found in common menus, else return
-  const coreMenuPrefixRegex = /^core\//;
-  if (typeof id === 'string' && coreMenuPrefixRegex.test(id)) {
-    return getCommonMenus()[id.replace(coreMenuPrefixRegex, '')] || id;
+  const commonMenus = getCommonMenus();
+  if (typeof id === 'string') {
+    return commonMenus[id] || id;
   }
   return id;
 };
@@ -189,11 +191,11 @@ export const getV3MenuComponents = createSelector(
     // TODO: handle Common menus (built ins in here too?)
     return (definition.menus || [])
       .flatMap(tryResolveCommonMenu)
-      .map((menu, idx) =>
+      .map((menu: any, idx) =>
         isVIAMenu(menu)
           ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
           : menu,
-      ) as (string | ReturnType<typeof makeCustomMenus>)[];
+      ) as ReturnType<typeof makeCustomMenus>;
   },
 );
 
