@@ -1,12 +1,16 @@
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faLightbulb, faMicrochip} from '@fortawesome/free-solid-svg-icons';
+import {
+  faDisplay,
+  faHeadphones,
+  faLightbulb,
+  faMicrochip,
+} from '@fortawesome/free-solid-svg-icons';
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';
-import CustomIcon from './icon';
 import {evalExpr} from 'pelpi';
 import type {
   VIAMenu,
@@ -235,22 +239,37 @@ export function menuLabeler(menus: any, prefix: string = ''): any {
   );
 }
 
-export function menuComponentGenerator(menus: any) {
-  const labeledMenus = menuLabeler(menus, 'cmenu');
-  return labeledMenus.map((menu: any) => ({
-    Icon: component,
-    Title: title,
-    Pane: (props: any) => <Pane {...props} key={menu._id} viaMenu={menu} />,
-  }));
-}
+const iconKeywords = [
+  {
+    icon: faLightbulb,
+    keywords: ['light', 'rgb'],
+  },
+  {
+    icon: faHeadphones,
+    keywords: ['audio', 'sound'],
+  },
+  {
+    icon: faDisplay,
+    keywords: ['display', 'oled', 'lcd'],
+  },
+];
+
+const getIconFromLabel = (menu: VIAMenu) => {
+  const label = menu.label.toLowerCase();
+  const defaultIcon = {icon: faMicrochip};
+  return (
+    iconKeywords.find((icon) =>
+      icon.keywords.some((keyword) => label.includes(keyword)),
+    ) || defaultIcon
+  ).icon;
+};
 
 export const makeCustomMenu = (menu: VIAMenu, idx: number) => {
   const label = menu.label.toLowerCase();
-  const faIcon = label.includes('light') ? faLightbulb : faMicrochip;
   return {
     Title: menu.label,
     // Allow icon to be configurable
-    Icon: () => <FontAwesomeIcon icon={faIcon} />,
+    Icon: () => <FontAwesomeIcon icon={getIconFromLabel(menu)} />,
     Pane: (props: any) => (
       <Pane {...props} key={`${menu.label}-${idx}`} viaMenu={menu} />
     ),
