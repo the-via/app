@@ -1,7 +1,7 @@
 
 
 # usevia.app
- 
+[![Azure Static Web Apps CI/CD](https://github.com/the-via/app/actions/workflows/azure.yml/badge.svg)](https://github.com/the-via/app/actions/workflows/azure.yml)
 
 <img src="public/images/chippy.png" width="300"/>
 
