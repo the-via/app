@@ -265,7 +265,6 @@ const getIconFromLabel = (menu: VIAMenu) => {
 };
 
 export const makeCustomMenu = (menu: VIAMenu, idx: number) => {
-  const label = menu.label.toLowerCase();
   return {
     Title: menu.label,
     // Allow icon to be configurable
