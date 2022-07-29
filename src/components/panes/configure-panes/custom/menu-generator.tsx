@@ -1,3 +1,5 @@
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faLightbulb, faMicrochip} from '@fortawesome/free-solid-svg-icons';
 import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
@@ -243,10 +245,12 @@ export function menuComponentGenerator(menus: any) {
 }
 
 export const makeCustomMenu = (menu: VIAMenu, idx: number) => {
+  const label = menu.label.toLowerCase();
+  const faIcon = label.includes('light') ? faLightbulb : faMicrochip;
   return {
     Title: menu.label,
     // Allow icon to be configurable
-    Icon: CustomIcon,
+    Icon: () => <FontAwesomeIcon icon={faIcon} />,
     Pane: (props: any) => (
       <Pane {...props} key={`${menu.label}-${idx}`} viaMenu={menu} />
     ),
