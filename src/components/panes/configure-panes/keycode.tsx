@@ -325,7 +325,8 @@ export const KeycodePane: FC = () => {
       }
       case 'Custom': {
         if (
-          !isVIADefinitionV2(selectedDefinition) ||
+          (!isVIADefinitionV2(selectedDefinition) &&
+            !isVIADefinitionV3(selectedDefinition)) ||
           !selectedDefinition.customKeycodes
         ) {
           return null;
