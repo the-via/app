@@ -164,6 +164,7 @@ export const Test: FC = () => {
       startTest = false;
       window.removeEventListener('keydown', downHandler);
       window.removeEventListener('keyup', upHandler);
+      dispatch(setTestMatrixEnabled(false));
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
