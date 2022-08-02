@@ -11,7 +11,8 @@ const filterHIDDevices = (devices: HIDDevice[]) =>
   );
 
 const getVIAPathIdentifier = () =>
-  (self.crypto && self.crypto.randomUUID()) || `via-path:${Math.random()}`;
+  (self.crypto && self.crypto.randomUUID && self.crypto.randomUUID()) ||
+  `via-path:${Math.random()}`;
 
 const tagDevice = (device: HIDDevice) => {
   // This is super important in order to have a stable way to identify the same device
