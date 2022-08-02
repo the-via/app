@@ -136,9 +136,13 @@ export class MacroAPI {
               currentChord.push((byteToKey as any)[byte]);
               break;
             case KeyAction.Up: // Seek to the last keyup and write the keydown stack
-              while (bytes[i + 2] === KeyAction.Up && i < bytes.length) {
+              while (
+                bytes[i + 2] === KeyActionPrefix &&
+                bytes[i + 3] === KeyAction.Up &&
+                i < bytes.length
+              ) {
                 // Peek ahead for another keyup
-                i += 2;
+                i += 3;
               }
               currentExpression.push(`{${currentChord.join(',')}}`);
 
@@ -148,8 +152,9 @@ export class MacroAPI {
             case KeyAction.Delay:
               let delayBytes = [];
               byte = bytes[++i];
-              while (byte !== DelayTerminator) {
+              while (byte !== DelayTerminator && i < bytes.length) {
                 delayBytes.push(byte);
+                byte = bytes[++i];
               }
               const delayValue = delayBytes.reduce((acc, byte) => {
                 acc += String.fromCharCode(byte);
@@ -199,8 +204,10 @@ export class MacroAPI {
           // If it's a delay value
           if (/\d+/.test(block)) {
             bytes.push(
-              ...[KeyActionPrefix, KeyAction.Delay],
+              KeyActionPrefix,
+              KeyAction.Delay,
               ...block.split('').map((char) => char.charCodeAt(0)),
+              DelayTerminator,
             );
           } else {
             // Otherwise handle as a keycode block
