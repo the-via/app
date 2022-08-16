@@ -185,7 +185,7 @@ function shorten(str: string) {
 }
 
 export function isUserKeycodeByte(byte: number) {
-  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
+  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER31;
 }
 
 export function getUserKeycodeIndex(byte: number) {
