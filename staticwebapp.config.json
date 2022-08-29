@@ -4,6 +4,24 @@
       "route": "/api/*",
       "methods": ["POST"],
       "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/css/*",
+      "headers": {
+        "cache-control": "public, max-age=604800"
+      }
+    },
+    {
+      "route": "/fonts/*",
+      "headers": {
+        "cache-control": "public, max-age=604800"
+      }
+    },
+    {
+      "route": "/js/*",
+      "headers": {
+        "cache-control": "public, max-age=604800"
+      }
     }
   ],
   "platform": {
