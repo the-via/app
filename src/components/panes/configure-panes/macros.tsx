@@ -47,11 +47,6 @@ export const Pane: FC = () => {
     dispatch(saveMacros(selectedDevice, newMacros));
   };
 
-  const validateExpression =
-    selectedDevice && selectedDevice.protocol >= 11
-      ? validateMacroExpressionV11
-      : validateMacroExpression;
-
   const macroMenus = useMemo(
     () =>
       Array(16)
@@ -81,7 +76,7 @@ export const Pane: FC = () => {
               macroExpressions={macroExpressions}
               selectedMacro={selectedMacro}
               saveMacros={saveMacro}
-              validateExpression={validateExpression}
+              protocol={selectedDevice ? selectedDevice.protocol : -1}
               key={selectedMacro}
             />
           </Container>

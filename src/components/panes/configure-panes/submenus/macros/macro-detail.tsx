@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {ErrorMessage} from '../../../../styled';
-import type {MacroValidator} from '../../../../../utils/macro-api/macro-api';
+import {
+  MacroValidator,
+  validateMacroExpression,
+} from '../../../../../utils/macro-api/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import {
@@ -11,6 +14,7 @@ import {
   AutocompleteLoading,
   findKeycodes,
 } from '../../../../../components/inputs/autocomplete-keycode';
+import {validateMacroExpressionV11} from 'src/utils/macro-api/macro-api.v11';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -21,7 +25,9 @@ const ToastErrorMessage = styled(ErrorMessage)`
     display: none;
   }
 `;
-const Message = styled.div``;
+const Message = styled.div`
+  color: var(--color_accent);
+`;
 const Link = styled.a`
   font-size: 18x !important;
   color: var(--color_accent);
@@ -66,7 +72,7 @@ type Props = {
   macroExpressions: string[];
   selectedMacro: number;
   saveMacros: (macro: string) => void;
-  validateExpression: MacroValidator;
+  protocol: number;
 };
 export const MacroDetailPane: React.VFC<Props> = (props) => {
   const enterToken = '{KC_ENT}';
@@ -83,7 +89,10 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   );
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;
-    const validationResult = props.validateExpression(value);
+    const validationResult =
+      props.protocol >= 11
+        ? validateMacroExpressionV11(value)
+        : validateMacroExpression(value);
     if (validationResult.isValid) {
       props.saveMacros(value);
       setErrorMessage(undefined);
@@ -165,18 +174,19 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           <ToastErrorMessage>{errorMessage}</ToastErrorMessage>
           <Message>
             Enter text directly, or wrap{' '}
-            <Link
-              href="https://beta.docs.qmk.fm/features/keycodes_basic"
-              target="_blank"
-            >
+            <Link href="https://docs.qmk.fm/#/keycodes_basic" target="_blank">
               Basic Keycodes
             </Link>{' '}
-            in {'{}'}.
+            in {'{}'}
           </Message>
-          <Message>
-            Single tap: {'{KC_XXX}'}. Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}.
-          </Message>
-          <Message>Type ? to search for keycodes.</Message>
+          <Message>Single tap: {'{KC_XXX}'}</Message>
+          <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
+          {props.protocol >= 11 ? (
+            <Message>Delay (ms): {'{NNNN}'} </Message>
+          ) : (
+            ''
+          )}
+          <Message>Type ? to search for keycodes</Message>
         </DescriptionLabel>
         <Detail>
           <AccentButton
