@@ -91,4 +91,5 @@ export type DefinitionIndex = Pick<
   'generatedAt' | 'version' | 'theme'
 > & {
   supportedVendorProductIdMap: VendorProductIdMap;
+  hash: string;
 };

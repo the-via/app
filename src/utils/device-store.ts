@@ -19,6 +19,7 @@ let deviceStore: Store;
 const defaultStoreData = {
   definitionIndex: {
     generatedAt: -1,
+    hash: '',
     version: '2.0.0',
     theme: getTheme(),
     supportedVendorProductIdMap: {},
@@ -47,43 +48,48 @@ export async function syncStore(): Promise<DefinitionIndex> {
 
   // TODO: fall back to cache if can't hit endpoint, notify user
   try {
+    // Get hash file
+    const hash = await (await fetch('/definitions/hash.json')).json();
+
+    if (hash === currentDefinitionIndex.hash) {
+      return currentDefinitionIndex;
+    }
     // Get definition index file
     const response = await fetch('/definitions/supported_kbs.json', {
       cache: 'reload',
     });
     const json: KeyboardDefinitionIndex = await response.json();
 
-    if (json.generatedAt !== currentDefinitionIndex?.generatedAt) {
-      await setCommonMenus();
-      // TODO: maybe we should just export this shape from keyboards repo
-      // v3 is a superset of v2 - if the def is avail in v2, it is also avail in v3
-      const v2vpidMap = json.vendorProductIds.v2.reduce(
-        (acc: VendorProductIdMap, id) => {
-          acc[id] = acc[id] || {};
-          acc[id].v2 = acc[id].v3 = true;
-          return acc;
-        },
-        {},
-      );
+    await setCommonMenus();
+    // TODO: maybe we should just export this shape from keyboards repo
+    // v3 is a superset of v2 - if the def is avail in v2, it is also avail in v3
+    const v2vpidMap = json.vendorProductIds.v2.reduce(
+      (acc: VendorProductIdMap, id) => {
+        acc[id] = acc[id] || {};
+        acc[id].v2 = acc[id].v3 = true;
+        return acc;
+      },
+      {},
+    );
 
-      const vpidMap = json.vendorProductIds.v3.reduce(
-        (acc: VendorProductIdMap, def) => {
-          acc[def] = acc[def] || {};
-          acc[def].v3 = true;
-          return acc;
-        },
-        v2vpidMap,
-      );
+    const vpidMap = json.vendorProductIds.v3.reduce(
+      (acc: VendorProductIdMap, def) => {
+        acc[def] = acc[def] || {};
+        acc[def].v3 = true;
+        return acc;
+      },
+      v2vpidMap,
+    );
 
-      const newIndex = {
-        ...json,
-        supportedVendorProductIdMap: vpidMap,
-      };
-      deviceStore.set('definitionIndex', newIndex);
-      deviceStore.set('definitions', {});
+    const newIndex = {
+      ...json,
+      hash,
+      supportedVendorProductIdMap: vpidMap,
+    };
+    deviceStore.set('definitionIndex', newIndex);
+    deviceStore.set('definitions', {});
 
-      return newIndex;
-    }
+    return newIndex;
   } catch (e) {
     console.warn(e);
   }
