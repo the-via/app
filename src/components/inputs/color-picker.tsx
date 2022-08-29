@@ -17,6 +17,7 @@ type Color = {
 type Props = {
   color: Color;
   setColor: (hue: number, sat: number) => void;
+  triggerComponent?: React.FC<{}>;
 };
 
 type State = {
@@ -192,14 +193,13 @@ export class ColorPicker extends Component<Props, State> {
   };
 
   render() {
+    const {triggerComponent: TriggerComponent = ColorThumbnail} = this.props;
     const color = this.getRGB(this.props.color);
     return (
       <>
-        <ColorThumbnail
-          ref={this.colorThumbnail}
-          onClick={this.onThumbnailClick}
-          color={color}
-        />
+        <div ref={this.colorThumbnail} onClick={this.onThumbnailClick}>
+          <TriggerComponent onClick={this.onThumbnailClick} color={color} />
+        </div>
         {this.state.showPicker && (
           <PickerContainer
             ref={this.pickerContainer}

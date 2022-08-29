@@ -49,6 +49,7 @@ import {
   InnerEncoderKeyContainer,
 } from './positioned-keyboard/encoder-key';
 import {Matrix} from './positioned-keyboard/matrix';
+import {ColorPicker} from './inputs/color-picker';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -501,25 +502,33 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
             const KeyboardKeyComponent =
               k['ei'] !== undefined ? EncoderKeyComponent : KeyComponent;
             return (
-              <KeyboardKeyComponent
-                {...{
-                  ...k,
-                  ...getLabel(
-                    matrixKeycodes[index],
-                    k.w,
-                    macros,
-                    selectedDefinition,
-                  ),
-                  ...getColors(k.color),
-                  selected: selectedKey === index,
-                  onClick: selectable
-                    ? (id) => {
-                        dispatch(updateSelectedKey(id));
-                      }
-                    : noop,
+              <ColorPicker
+                color={{hue: 20, sat: 20}}
+                setColor={(c) => {
+                  console.log(c);
                 }}
-                key={index}
-                id={index}
+                triggerComponent={() => (
+                  <KeyboardKeyComponent
+                    {...{
+                      ...k,
+                      ...getLabel(
+                        matrixKeycodes[index],
+                        k.w,
+                        macros,
+                        selectedDefinition,
+                      ),
+                      ...getColors(k.color),
+                      selected: selectedKey === index,
+                      onClick: selectable
+                        ? (id) => {
+                            dispatch(updateSelectedKey(id));
+                          }
+                        : noop,
+                    }}
+                    key={index}
+                    id={index}
+                  />
+                )}
               />
             );
           })}
