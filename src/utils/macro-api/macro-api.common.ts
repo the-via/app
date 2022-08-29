@@ -5,6 +5,11 @@ export type ValidationResult = {
   errorMessage?: string;
 };
 
+export interface IMacroAPI {
+  readMacroExpressions(): Promise<string[]>;
+  writeMacroExpressions(expressions: string[]): void;
+}
+
 // Corresponds to 'magic codes' in qmk sendstring
 export enum KeyAction {
   Tap = 1, // \x01

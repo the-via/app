@@ -8031,7 +8031,7 @@ treeverse@^1.0.4:
   resolved "https://registry.yarnpkg.com/treeverse/-/treeverse-1.0.4.tgz#a6b0ebf98a1bca6846ddc7ecbc900df08cb9cd5f"
   integrity sha512-whw60l7r+8ZU8Tu/Uc2yxtc4ZTZbR/PF3u1IPNKGQ6p8EICLb3Z2lAgoqw9bqYd8IkgnsaOcLzYHFckjqNsf0g==
 
-ts-node-dev@^1.0.0-pre.43, ts-node-dev@^1.0.0-pre.44:
+ts-node-dev@^1.0.0-pre.44:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ts-node-dev/-/ts-node-dev-1.1.8.tgz#95520d8ab9d45fffa854d6668e2f8f9286241066"
   integrity sha512-Q/m3vEwzYwLZKmV6/0VlFxcZzVV/xcgOt+Tx/VjaaRHyiBcFlV0541yrT09QjzzCxlDZ34OzKjrFAynlmtflEg==
@@ -8045,6 +8045,22 @@ ts-node-dev@^1.0.0-pre.43, ts-node-dev@^1.0.0-pre.44:
     source-map-support "^0.5.12"
     tree-kill "^1.2.2"
     ts-node "^9.0.0"
+    tsconfig "^7.0.0"
+
+ts-node-dev@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ts-node-dev/-/ts-node-dev-2.0.0.tgz#bdd53e17ab3b5d822ef519928dc6b4a7e0f13065"
+  integrity sha512-ywMrhCfH6M75yftYvrvNarLEY+SUXtUvU8/0Z6llrHQVBx12GiFk5sStF8UdfE/yfzk9IAq7O5EEbTQsxlBI8w==
+  dependencies:
+    chokidar "^3.5.1"
+    dynamic-dedupe "^0.3.0"
+    minimist "^1.2.6"
+    mkdirp "^1.0.4"
+    resolve "^1.0.0"
+    rimraf "^2.6.1"
+    source-map-support "^0.5.12"
+    tree-kill "^1.2.2"
+    ts-node "^10.4.0"
     tsconfig "^7.0.0"
 
 ts-node@10.4.0:
@@ -8425,7 +8441,7 @@ verror@1.10.0:
 
 "via-keyboards@https://github.com/the-via/keyboards.git":
   version "0.0.1"
-  resolved "https://github.com/the-via/keyboards.git#d02c9b0af343e13b276d2c044959d82c627b06f7"
+  resolved "https://github.com/the-via/keyboards.git#eb776d543e87861529716f143a2d76a746a2efb1"
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/glob" "^7.1.1"
@@ -8437,19 +8453,19 @@ verror@1.10.0:
     json-stringify-pretty-compact "^2.0.0"
     rimraf "^3.0.0"
     ts-node "10.4.0"
-    ts-node-dev "^1.0.0-pre.43"
+    ts-node-dev "^2.0.0"
     typescript "^3.6.4"
     typescript-json-schema "^0.40.0"
-    via-reader "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+    via-reader "https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005"
     yarn "^1.22.0"
 
-"via-reader@https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8":
+"via-reader@https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005":
   version "1.0.0"
-  resolved "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
+  resolved "https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005"
   dependencies:
     "@types/glob" "^7.2.0"
     "@types/node" "^12.12.11"
-    ajv "^6.10.2"
+    ajv "^6.12.3"
     core-js "^3.4.1"
     husky "^3.1.0"
     invariant "^2.2.4"
@@ -8457,9 +8473,9 @@ verror@1.10.0:
     util "^0.12.4"
     util-inspect "^0.1.8"
 
-"via-reader@https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3":
+"via-reader@https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8":
   version "1.0.0"
-  resolved "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+  resolved "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
   dependencies:
     "@types/glob" "^7.2.0"
     "@types/node" "^12.12.11"

@@ -6,6 +6,7 @@ import {
   KeyAction,
   ValidationResult,
   getByte,
+  IMacroAPI,
 } from './macro-api.common';
 
 export type MacroValidator = typeof validateMacroExpression;
@@ -69,7 +70,7 @@ export function validateMacroExpression(expression: string): ValidationResult {
   };
 }
 
-export class MacroAPI {
+export class MacroAPI implements IMacroAPI {
   constructor(private keyboardApi: KeyboardAPI) {}
 
   async readMacroExpressions(): Promise<string[]> {

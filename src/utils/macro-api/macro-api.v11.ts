@@ -8,6 +8,7 @@ import {
   KeyAction,
   ValidationResult,
   buildKeyActionBytes,
+  IMacroAPI,
 } from './macro-api.common';
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
@@ -83,7 +84,7 @@ export function validateMacroExpressionV11(
   };
 }
 
-export class MacroAPIV11 {
+export class MacroAPIV11 implements IMacroAPI {
   constructor(private keyboardApi: KeyboardAPI) {}
 
   async readMacroExpressions(): Promise<string[]> {

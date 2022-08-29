@@ -3,10 +3,6 @@ import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {ErrorMessage} from '../../../../styled';
-import {
-  MacroValidator,
-  validateMacroExpression,
-} from '../../../../../utils/macro-api/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import {
@@ -14,7 +10,7 @@ import {
   AutocompleteLoading,
   findKeycodes,
 } from '../../../../../components/inputs/autocomplete-keycode';
-import {validateMacroExpressionV11} from 'src/utils/macro-api/macro-api.v11';
+import {getMacroValidator} from 'src/utils/macro-api';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -89,10 +85,8 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   );
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;
-    const validationResult =
-      props.protocol >= 11
-        ? validateMacroExpressionV11(value)
-        : validateMacroExpression(value);
+    const validate = getMacroValidator(props.protocol);
+    const validationResult = validate(value);
     if (validationResult.isValid) {
       props.saveMacros(value);
       setErrorMessage(undefined);
