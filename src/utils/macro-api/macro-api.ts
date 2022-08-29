@@ -1,24 +1,18 @@
-import {byteToKey} from './key';
-import {isAutocompleteKeycode} from './autocomplete-keycodes';
-import type {KeyboardAPI} from './keyboard-api';
-import basicKeyToByte from './key-to-byte.json5';
+import {byteToKey} from '../key';
+import {isAutocompleteKeycode} from '../autocomplete-keycodes';
+import type {KeyboardAPI} from '../keyboard-api';
+import {
+  MacroTerminator,
+  KeyAction,
+  ValidationResult,
+  getByte,
+} from './macro-api.common';
 
-// Corresponds to 'magic codes' in qmk sendstring
-enum KeyAction {
-  Tap = 1, // \x01
-  Down = 2, // \x02
-  Up = 3, // \x03
-}
-const MacroTerminator = 0;
-
-interface ValidationResult {
-  isValid: boolean;
-  errorMessage?: string;
-}
+export type MacroValidator = typeof validateMacroExpression;
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
 // Empty action blocks can't be persisted, so should fail: {}
-export function validateExpression(expression: string): ValidationResult {
+export function validateMacroExpression(expression: string): ValidationResult {
   let unclosedBlockRegex, keycodeBlockRegex;
 
   // Eval the macro regexes to prevent script errors in browsers that don't
@@ -73,10 +67,6 @@ export function validateExpression(expression: string): ValidationResult {
     isValid: true,
     errorMessage: undefined,
   };
-}
-
-function getByte(keycode: string): number {
-  return basicKeyToByte[keycode.toUpperCase()];
 }
 
 export class MacroAPI {
@@ -141,7 +131,7 @@ export class MacroAPI {
 
   async writeMacroExpressions(expressions: string[]) {
     const macroBytes = expressions.flatMap((expression) => {
-      const validationResult = validateExpression(expression);
+      const validationResult = validateMacroExpression(expression);
       if (!validationResult.isValid) {
         throw validationResult.errorMessage;
       }

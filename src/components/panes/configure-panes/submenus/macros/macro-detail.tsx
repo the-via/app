@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {ErrorMessage} from '../../../../styled';
-import {validateExpression} from '../../../../../utils/macro-api';
+import type {MacroValidator} from '../../../../../utils/macro-api/macro-api';
 import {AccentButton} from '../../../../inputs/accent-button';
 import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
 import {
@@ -11,7 +11,6 @@ import {
   AutocompleteLoading,
   findKeycodes,
 } from '../../../../../components/inputs/autocomplete-keycode';
-import type {RootState} from 'src/store';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -67,6 +66,7 @@ type Props = {
   macroExpressions: string[];
   selectedMacro: number;
   saveMacros: (macro: string) => void;
+  validateExpression: MacroValidator;
 };
 export const MacroDetailPane: React.VFC<Props> = (props) => {
   const enterToken = '{KC_ENT}';
@@ -83,7 +83,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   );
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;
-    const validationResult = validateExpression(value);
+    const validationResult = props.validateExpression(value);
     if (validationResult.isValid) {
       props.saveMacros(value);
       setErrorMessage(undefined);

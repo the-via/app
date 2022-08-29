@@ -1,27 +1,20 @@
-import {byteToKey} from './key';
-import {isAutocompleteKeycode} from './autocomplete-keycodes';
-import type {KeyboardAPI} from './keyboard-api';
-import basicKeyToByte from './key-to-byte.json5';
-
-// Corresponds to 'magic codes' in qmk sendstring
-enum KeyAction {
-  Tap = 1, // \x01
-  Down = 2, // \x02
-  Up = 3, // \x03
-  Delay = 4, // \x04
-}
-const KeyActionPrefix = 1; // \x01
-const DelayTerminator = 124; // '|';
-const MacroTerminator = 0;
-
-interface ValidationResult {
-  isValid: boolean;
-  errorMessage?: string;
-}
+import {byteToKey} from '../key';
+import {isAutocompleteKeycode} from '../autocomplete-keycodes';
+import type {KeyboardAPI} from '../keyboard-api';
+import {
+  DelayTerminator,
+  KeyActionPrefix,
+  MacroTerminator,
+  KeyAction,
+  ValidationResult,
+  buildKeyActionBytes,
+} from './macro-api.common';
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
 // Empty action blocks can't be persisted, so should fail: {}
-export function validateExpression(expression: string): ValidationResult {
+export function validateMacroExpressionV11(
+  expression: string,
+): ValidationResult {
   let unclosedBlockRegex, keycodeBlockRegex;
 
   // Eval the macro regexes to prevent script errors in browsers that don't
@@ -90,15 +83,7 @@ export function validateExpression(expression: string): ValidationResult {
   };
 }
 
-function getByte(keycode: string): number {
-  return basicKeyToByte[keycode.toUpperCase()];
-}
-
-function buildKeyActionBytes(keyaction: KeyAction, keycode: string) {
-  return [KeyActionPrefix, keyaction, getByte(keycode)];
-}
-
-export class MacroAPI {
+export class MacroAPIV11 {
   constructor(private keyboardApi: KeyboardAPI) {}
 
   async readMacroExpressions(): Promise<string[]> {
@@ -182,11 +167,9 @@ export class MacroAPI {
     return expressions;
   }
 
-  // TODO: limit delay to 4 digits max
-
   async writeMacroExpressions(expressions: string[]) {
     const macroBytes = expressions.flatMap((expression) => {
-      const validationResult = validateExpression(expression);
+      const validationResult = validateMacroExpressionV11(expression);
       if (!validationResult.isValid) {
         throw validationResult.errorMessage;
       }
