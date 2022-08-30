@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {getMacroAPI} from 'src/utils/macro-api';
 import type {ConnectedDevice} from '../types/types';
-import {MacroAPI} from '../utils/macro-api';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
@@ -42,7 +42,7 @@ export const loadMacros =
       dispatch(setMacrosNotSupported());
     } else {
       try {
-        const macroApi = new MacroAPI(api);
+        const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const macros = await macroApi.readMacroExpressions();
           dispatch(loadMacrosSuccess(macros));
@@ -56,8 +56,8 @@ export const loadMacros =
 export const saveMacros =
   (connectedDevice: ConnectedDevice, macros: string[]): AppThunk =>
   async (dispatch) => {
-    const {api} = connectedDevice;
-    const macroApi = new MacroAPI(api);
+    const {api, protocol} = connectedDevice;
+    const macroApi = getMacroAPI(protocol, api);
     if (macroApi) {
       await macroApi.writeMacroExpressions(macros);
       dispatch(saveMacrosSuccess(macros));

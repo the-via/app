@@ -1140,6 +1140,87 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.3.1.tgz#b50a781709c81e10701004214340f25475a171a0"
   integrity sha512-zMM9Ds+SawiUkakS7y94Ymqx+S0ORzpG3frZirN3l+UlXUmSUR7hF4wxCVqW+ei94JzV5kt0uXBcoOEAuiydrw==
 
+"@microsoft/applicationinsights-analytics-js@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-analytics-js/-/applicationinsights-analytics-js-2.8.6.tgz#719c93505f970ff93b0f262ff3e59e6d4171bf74"
+  integrity sha512-EMRpJhz3j+luS/mLWudY/o9pqgr/AUEj6MAuLpFsaKZlUHAiEu3nhseB3TCZxyiGiHrl3Hx5ggkwgJQso56kcw==
+  dependencies:
+    "@microsoft/applicationinsights-common" "2.8.6"
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-channel-js@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-channel-js/-/applicationinsights-channel-js-2.8.6.tgz#8726eb2e433924f1d7fd465338349dabe1569a1e"
+  integrity sha512-b89KNT2TWC8stlE1puLpEHHjEp5d4ylhgc3i2UwGhMojxmBWejCPQTM3vgu5oW34/i4Ld6+YX6cyRwXdLGUn5Q==
+  dependencies:
+    "@microsoft/applicationinsights-common" "2.8.6"
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-common@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-common/-/applicationinsights-common-2.8.6.tgz#8c2a6c36ec9ec969b30aff00b5fad8aa627204fa"
+  integrity sha512-SVEK3PmKRLSjIXBIv9ncJSuQbrha6/Qm0LCv8ZknRCX1H4yFlt7YzPfpeAj6cM9nErISf8Gxmce9VQT4FYuPIw==
+  dependencies:
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-core-js@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-core-js/-/applicationinsights-core-js-2.8.6.tgz#4f0f9ad809aacfc96cb882139b69b3625519c51a"
+  integrity sha512-rL+ceda1Y6HaHBe1vIbNT/f5JGuHiD5Ydq+DoAfu56o13wyJu4sao3QKaabgaIM59pPO+3BMeGsK8NNUGYaT3w==
+  dependencies:
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-dependencies-js@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-dependencies-js/-/applicationinsights-dependencies-js-2.8.6.tgz#491e73a8b57f5674f11b513b126691c336bf3668"
+  integrity sha512-OjaO/rl/GLPCV4VYxIZITs5hDTb51pYn/rSy1Xb6rCrNOpSrWUq7f+giJKxcY8W2CVEz6j/8eLirl+C3EVJgnQ==
+  dependencies:
+    "@microsoft/applicationinsights-common" "2.8.6"
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-properties-js@2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-properties-js/-/applicationinsights-properties-js-2.8.6.tgz#07a7e5d50d066a132719de48e2c5f617b01c484b"
+  integrity sha512-cywtw1igdrR/3qgSeRTdohm3HG+nakPZuOEt+3VW0zapkL5MG+wI8J/BfXaeWdDEtehHrcugIXRG7CYJNJZmEA==
+  dependencies:
+    "@microsoft/applicationinsights-common" "2.8.6"
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/applicationinsights-shims@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-shims/-/applicationinsights-shims-2.0.1.tgz#5d72fb7aaf4056c4fda54f9d7c93ccf8ca9bcbfd"
+  integrity sha512-G0MXf6R6HndRbDy9BbEj0zrLeuhwt2nsXk2zKtF0TnYo39KgYqhYC2ayIzKPTm2KAE+xzD7rgyLdZnrcRvt9WQ==
+
+"@microsoft/applicationinsights-web@^2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/applicationinsights-web/-/applicationinsights-web-2.8.6.tgz#f28f002c08a0e6a1b0796e77eefd23828b356e0f"
+  integrity sha512-aEZwluLDkStx/s2tsRkNe7dSVpfgLHOOFzDacfq/cVs7uEZF0Mj5/M4sFsPYGhqmx5eAMiv+tt/IUXw+kAW8Xw==
+  dependencies:
+    "@microsoft/applicationinsights-analytics-js" "2.8.6"
+    "@microsoft/applicationinsights-channel-js" "2.8.6"
+    "@microsoft/applicationinsights-common" "2.8.6"
+    "@microsoft/applicationinsights-core-js" "2.8.6"
+    "@microsoft/applicationinsights-dependencies-js" "2.8.6"
+    "@microsoft/applicationinsights-properties-js" "2.8.6"
+    "@microsoft/applicationinsights-shims" "2.0.1"
+    "@microsoft/dynamicproto-js" "^1.1.6"
+
+"@microsoft/dynamicproto-js@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@microsoft/dynamicproto-js/-/dynamicproto-js-1.1.6.tgz#6fe03468862861f5f88ac4c3959a652b3797f1bc"
+  integrity sha512-D1Oivw1A4bIXhzBIy3/BBPn3p2On+kpO2NiYt9shICDK7L/w+cR6FFBUsBZ05l6iqzTeL+Jm8lAYn0g6G7DmDg==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -7950,7 +8031,7 @@ treeverse@^1.0.4:
   resolved "https://registry.yarnpkg.com/treeverse/-/treeverse-1.0.4.tgz#a6b0ebf98a1bca6846ddc7ecbc900df08cb9cd5f"
   integrity sha512-whw60l7r+8ZU8Tu/Uc2yxtc4ZTZbR/PF3u1IPNKGQ6p8EICLb3Z2lAgoqw9bqYd8IkgnsaOcLzYHFckjqNsf0g==
 
-ts-node-dev@^1.0.0-pre.43, ts-node-dev@^1.0.0-pre.44:
+ts-node-dev@^1.0.0-pre.44:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ts-node-dev/-/ts-node-dev-1.1.8.tgz#95520d8ab9d45fffa854d6668e2f8f9286241066"
   integrity sha512-Q/m3vEwzYwLZKmV6/0VlFxcZzVV/xcgOt+Tx/VjaaRHyiBcFlV0541yrT09QjzzCxlDZ34OzKjrFAynlmtflEg==
@@ -7964,6 +8045,22 @@ ts-node-dev@^1.0.0-pre.43, ts-node-dev@^1.0.0-pre.44:
     source-map-support "^0.5.12"
     tree-kill "^1.2.2"
     ts-node "^9.0.0"
+    tsconfig "^7.0.0"
+
+ts-node-dev@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ts-node-dev/-/ts-node-dev-2.0.0.tgz#bdd53e17ab3b5d822ef519928dc6b4a7e0f13065"
+  integrity sha512-ywMrhCfH6M75yftYvrvNarLEY+SUXtUvU8/0Z6llrHQVBx12GiFk5sStF8UdfE/yfzk9IAq7O5EEbTQsxlBI8w==
+  dependencies:
+    chokidar "^3.5.1"
+    dynamic-dedupe "^0.3.0"
+    minimist "^1.2.6"
+    mkdirp "^1.0.4"
+    resolve "^1.0.0"
+    rimraf "^2.6.1"
+    source-map-support "^0.5.12"
+    tree-kill "^1.2.2"
+    ts-node "^10.4.0"
     tsconfig "^7.0.0"
 
 ts-node@10.4.0:
@@ -8344,7 +8441,7 @@ verror@1.10.0:
 
 "via-keyboards@https://github.com/the-via/keyboards.git":
   version "0.0.1"
-  resolved "https://github.com/the-via/keyboards.git#d02c9b0af343e13b276d2c044959d82c627b06f7"
+  resolved "https://github.com/the-via/keyboards.git#eb776d543e87861529716f143a2d76a746a2efb1"
   dependencies:
     "@types/bluebird" "^3.5.28"
     "@types/glob" "^7.1.1"
@@ -8356,19 +8453,19 @@ verror@1.10.0:
     json-stringify-pretty-compact "^2.0.0"
     rimraf "^3.0.0"
     ts-node "10.4.0"
-    ts-node-dev "^1.0.0-pre.43"
+    ts-node-dev "^2.0.0"
     typescript "^3.6.4"
     typescript-json-schema "^0.40.0"
-    via-reader "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+    via-reader "https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005"
     yarn "^1.22.0"
 
-"via-reader@https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8":
+"via-reader@https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005":
   version "1.0.0"
-  resolved "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
+  resolved "https://github.com/the-via/reader.git#118221e19054de2f04805042ebde33d64d84b005"
   dependencies:
     "@types/glob" "^7.2.0"
     "@types/node" "^12.12.11"
-    ajv "^6.10.2"
+    ajv "^6.12.3"
     core-js "^3.4.1"
     husky "^3.1.0"
     invariant "^2.2.4"
@@ -8376,9 +8473,9 @@ verror@1.10.0:
     util "^0.12.4"
     util-inspect "^0.1.8"
 
-"via-reader@https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3":
+"via-reader@https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8":
   version "1.0.0"
-  resolved "https://github.com/the-via/reader.git#b4d7c58ade1b338310bd883068e3a21c18c42eb3"
+  resolved "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
   dependencies:
     "@types/glob" "^7.2.0"
     "@types/node" "^12.12.11"
