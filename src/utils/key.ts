@@ -185,7 +185,7 @@ function shorten(str: string) {
 }
 
 export function isUserKeycodeByte(byte: number) {
-  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
+  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER31;
 }
 
 export function getUserKeycodeIndex(byte: number) {
@@ -1316,6 +1316,22 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'User13', code: 'USER13', title: 'Custom Keycode 13'},
         {name: 'User14', code: 'USER14', title: 'Custom Keycode 14'},
         {name: 'User15', code: 'USER15', title: 'Custom Keycode 15'},
+        {name: 'User16', code: 'USER16', title: 'Custom Keycode 16'},
+        {name: 'User17', code: 'USER17', title: 'Custom Keycode 17'},
+        {name: 'User18', code: 'USER18', title: 'Custom Keycode 18'},
+        {name: 'User19', code: 'USER19', title: 'Custom Keycode 19'},
+        {name: 'User20', code: 'USER20', title: 'Custom Keycode 20'},
+        {name: 'User21', code: 'USER21', title: 'Custom Keycode 21'},
+        {name: 'User22', code: 'USER22', title: 'Custom Keycode 22'},
+        {name: 'User23', code: 'USER23', title: 'Custom Keycode 23'},
+        {name: 'User24', code: 'USER24', title: 'Custom Keycode 24'},
+        {name: 'User25', code: 'USER25', title: 'Custom Keycode 25'},
+        {name: 'User26', code: 'USER26', title: 'Custom Keycode 26'},
+        {name: 'User27', code: 'USER27', title: 'Custom Keycode 27'},
+        {name: 'User28', code: 'USER28', title: 'Custom Keycode 28'},
+        {name: 'User29', code: 'USER29', title: 'Custom Keycode 29'},
+        {name: 'User30', code: 'USER30', title: 'Custom Keycode 30'},
+        {name: 'User31', code: 'USER31', title: 'Custom Keycode 31'},
       ],
     },
   ];
