@@ -1,4 +1,6 @@
 import React from 'react';
+import {getBasicKeyToByte} from 'src/store/definitionsSlice';
+import {useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
 import KeycodeTextInput from '../../../../inputs/keycode-text-input';
 
@@ -26,35 +28,41 @@ type Props = {
   onChange: (encoderIdx: number, behavior: number, newValue: number) => void;
 };
 
-export class EncoderCustomConfig extends React.Component<Props> {
-  handleInputChange = (newValue: number, behaviorIdx: number) => {
-    const {encoderIdx, onChange} = this.props;
+export const EncoderCustomConfig = (props: Props) => {
+  const {
+    encoderIdx,
+    onChange,
+    title,
+    behaviors: [cw, ccw, press],
+  } = props;
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const handleInputChange = (newValue: number, behaviorIdx: number) => {
     onChange(encoderIdx, behaviorIdx, newValue);
   };
 
-  render() {
-    const {
-      title,
-      behaviors: [cw, ccw, press],
-    } = this.props;
-    return (
-      <RowDiv>
-        <LabelText>{title}</LabelText>
-        <KeyInput
-          defaultValue={cw}
-          onBlur={(newValue: any) => this.handleInputChange(newValue, 0)}
-        />
-        <KeyInput
-          defaultValue={ccw}
-          onBlur={(newValue: any) => this.handleInputChange(newValue, 1)}
-        />
-        <KeyInput
-          defaultValue={press}
-          onBlur={(newValue: any) => this.handleInputChange(newValue, 2)}
-        />
-      </RowDiv>
-    );
-  }
-}
+  return (
+    <RowDiv>
+      <LabelText>{title}</LabelText>
+      <KeyInput
+        defaultValue={cw}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
+        onBlur={(newValue: any) => handleInputChange(newValue, 0)}
+      />
+      <KeyInput
+        defaultValue={ccw}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
+        onBlur={(newValue: any) => handleInputChange(newValue, 1)}
+      />
+      <KeyInput
+        defaultValue={press}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
+        onBlur={(newValue: any) => handleInputChange(newValue, 2)}
+      />
+    </RowDiv>
+  );
+};
 
 export default EncoderCustomConfig;

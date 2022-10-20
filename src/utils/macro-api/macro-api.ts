@@ -1,4 +1,3 @@
-import {byteToKey} from '../key';
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
 import {
@@ -72,7 +71,10 @@ export function validateMacroExpression(expression: string): ValidationResult {
 }
 
 export class MacroAPI implements IMacroAPI {
-  constructor(private keyboardApi: KeyboardAPI) {}
+  constructor(
+    private keyboardApi: KeyboardAPI,
+    private byteToKey: Record<number, string>,
+  ) {}
 
   async readMacroExpressions(): Promise<string[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
@@ -99,11 +101,11 @@ export class MacroAPI implements IMacroAPI {
           break;
         case KeyAction.Tap: // Encode as {KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentExpression.push(`{${(byteToKey as any)[byte]}}`);
+          currentExpression.push(`{${(this.byteToKey as any)[byte]}}`);
           break;
         case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentChord.push((byteToKey as any)[byte]);
+          currentChord.push((this.byteToKey as any)[byte]);
           break;
         case KeyAction.Up: // Seek to the last keyup and write the keydown stack
           while (bytes[i + 2] === KeyAction.Up && i < bytes.length) {

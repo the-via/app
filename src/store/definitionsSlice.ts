@@ -19,6 +19,8 @@ import {
   getSelectedConnectedDevice,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
+import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
+import {getByteToKey} from 'src/utils/key';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -95,6 +97,18 @@ export const getSelectedDefinition = createSelector(
     definitions[connectedDevice.vendorProductId][
       connectedDevice.requiredDefinitionVersion
     ],
+);
+
+export const getBasicKeyToByte = createSelector(
+  getSelectedConnectedDevice,
+  (connectedDevice) => {
+    const basicKeyToByte = connectedDevice
+      ? getBasicKeyDict(connectedDevice?.protocol)
+      : {};
+    return connectedDevice
+      ? {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)}
+      : {basicKeyToByte: {}, byteToKey: {}};
+  },
 );
 
 export const getSelectedLayoutOptions = createSelector(

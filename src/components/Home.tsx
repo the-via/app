@@ -30,6 +30,7 @@ import {
   updateSelectedKey as updateSelectedKeyAction,
 } from 'src/store/keymapSlice';
 import {
+  getBasicKeyToByte,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -50,7 +51,7 @@ interface HomeProps {
 }
 
 export const Home = (props: HomeProps) => {
-  const { hasHIDSupport } = props;
+  const {hasHIDSupport} = props;
 
   const dispatch = useDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
@@ -63,6 +64,7 @@ export const Home = (props: HomeProps) => {
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
@@ -98,7 +100,7 @@ export const Home = (props: HomeProps) => {
     ) {
       const keycode = mapEvtToKeycode(evt);
       if (keycode) {
-        updateSelectedKey(getByteForCode(keycode));
+        updateSelectedKey(getByteForCode(keycode, basicKeyToByte));
       }
     }
   };
@@ -151,7 +153,7 @@ export const Home = (props: HomeProps) => {
     }
   };
 
-  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
+  const [, setSelectedTitle] = useState<string | null>(null);
 
   const homeElem = createRef<HTMLDivElement>();
 

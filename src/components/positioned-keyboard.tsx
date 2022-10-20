@@ -25,6 +25,7 @@ import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';
 import {
+  getBasicKeyToByte,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -403,15 +404,22 @@ export const getLabel = (
   width: number,
   macros: RootState['macros'],
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
 ) => {
   let label: string = '';
-  if (isUserKeycodeByte(keycodeByte) && selectedDefinition?.customKeycodes) {
-    const userKeycodeIdx = getUserKeycodeIndex(keycodeByte);
+  if (
+    isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
+    selectedDefinition?.customKeycodes
+  ) {
+    const userKeycodeIdx = getUserKeycodeIndex(keycodeByte, basicKeyToByte);
     label = getShortNameForKeycode(
       selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
     );
   } else if (keycodeByte) {
-    label = getLabelForByte(keycodeByte, width * 100) ?? '';
+    label =
+      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
+      '';
   }
   let macroExpression: string | undefined;
   if (isMacro(label)) {
@@ -473,6 +481,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const dispatch = useDispatch();
 
   const selectedKey = useAppSelector(getSelectedKey);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -509,6 +518,8 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                     k.w,
                     macros,
                     selectedDefinition,
+                    basicKeyToByte,
+                    byteToKey,
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
@@ -697,6 +708,7 @@ const BlankPositionedKeyboardComponent = (
     matrixKeycodes = [],
     macros,
   } = props;
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) return null;
   const pressedKeys = {};
 
@@ -743,6 +755,8 @@ const BlankPositionedKeyboardComponent = (
                     k.w,
                     macros,
                     selectedDefinition,
+                    basicKeyToByte,
+                    byteToKey,
                   ),
                   ...getColors(k.color),
                   selected: (pressedKeys as any)[index],

@@ -33,6 +33,7 @@ import {
   getBaseDefinitions,
   getDefinitions,
   getCustomDefinitions,
+  getBasicKeyToByte,
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 
@@ -95,8 +96,10 @@ const ControlGroupHeader = styled.div`
 `;
 
 const GithubUserData = () => {
-  const [userData, setUserData] =
-    useState<{login: string; avatar_url: string}>();
+  const [userData, setUserData] = useState<{
+    login: string;
+    avatar_url: string;
+  }>();
   const clickLogin = useCallback(async () => {
     await authGithub();
     const userData = await getUser();
@@ -138,6 +141,7 @@ const TestControls = () => {
   const [colorVal, setColorVal] = useState<[number, number]>([0, 0]);
   const [selectionVal, setSelectionVal] = useState(0);
   const [keycode, setKeycode] = useState(0);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const selectOptions = [
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
@@ -154,7 +158,7 @@ const TestControls = () => {
       </ControlRow>
       <ControlRow>
         <Label>
-          {keycode} / {anyKeycodeToString(keycode)}
+          {keycode} / {anyKeycodeToString(keycode, basicKeyToByte, byteToKey)}
         </Label>
         <Detail>
           <PelpiKeycodeInput value={keycode} setValue={setKeycode} meta={{}} />

@@ -1,4 +1,3 @@
-import basicKeyToByte from './key-to-byte/default.json5';
 import {
   advancedKeycodeToString,
   advancedStringToKeycode,
@@ -52,14 +51,17 @@ export function isMacro(label: string) {
 }
 
 // Maps the byte value to the keycode
-export function getByteForCode(code: string) {
+export function getByteForCode(
+  code: string,
+  basicKeyToByte: Record<string, number>,
+) {
   const byte: number | undefined = basicKeyToByte[code];
   if (byte !== undefined) {
     return byte;
   } else if (isLayerCode(code)) {
     return getByteForLayerCode(code);
-  } else if (advancedStringToKeycode(code) !== null) {
-    return advancedStringToKeycode(code);
+  } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
+    return advancedStringToKeycode(code, basicKeyToByte);
   }
   throw `Could not find byte for ${code}`;
 }
@@ -134,46 +136,42 @@ export const keycodesList = getKeycodes().reduce<IKeycode[]>(
   [],
 );
 
-console.log(
-  'correct list',
-  Object.keys(basicKeyToByte).filter((key) =>
-    keycodesList.map(({code}) => code).includes(key),
-  ),
-);
-console.log(
-  'missing list',
-  Object.keys(basicKeyToByte).filter(
-    (key) => !keycodesList.map(({code}) => code).includes(key),
-  ),
-);
-
-export const byteToKey = Object.keys(basicKeyToByte).reduce((p, n) => {
-  const key = basicKeyToByte[n];
-  if (key in p) {
-    const basicKeycode = keycodesList.find(({code}) => code === n);
-    if (basicKeycode) {
-      return {...p, [key]: basicKeycode.code};
+export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
+  Object.keys(basicKeyToByte).reduce((p, n) => {
+    const key = basicKeyToByte[n];
+    if (key in p) {
+      const basicKeycode = keycodesList.find(({code}) => code === n);
+      if (basicKeycode) {
+        return {...p, [key]: basicKeycode.code};
+      }
+      return p;
     }
-    console.log('skipping:', n);
-    return p;
-  }
-  return {...p, [key]: n};
-}, {} as {[key: number]: string});
+    return {...p, [key]: n};
+  }, {} as {[key: number]: string});
 
-export function getCodeForByte(byte: number) {
+export function getCodeForByte(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) {
   const keycode = byteToKey[byte];
   if (keycode) {
     return keycode;
   } else if (isLayerKey(byte)) {
     return getCodeForLayerByte(byte);
-  } else if (advancedKeycodeToString(byte) !== null) {
-    return advancedKeycodeToString(byte);
+  } else if (
+    advancedKeycodeToString(byte, basicKeyToByte, byteToKey) !== null
+  ) {
+    return advancedKeycodeToString(byte, basicKeyToByte, byteToKey);
   } else {
     return '0x' + Number(byte).toString(16);
   }
 }
 
-export function keycodeInMaster(keycode: string) {
+export function keycodeInMaster(
+  keycode: string,
+  basicKeyToByte: Record<string, number>,
+) {
   return keycode in basicKeyToByte || isLayerCode(keycode);
 }
 
@@ -184,16 +182,27 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isUserKeycodeByte(byte: number) {
+export function isUserKeycodeByte(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
   return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
 }
 
-export function getUserKeycodeIndex(byte: number) {
+export function getUserKeycodeIndex(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
   return byte - basicKeyToByte.USER00;
 }
 
-export function getLabelForByte(byte: number, size = 100) {
-  const keycode = getCodeForByte(byte);
+export function getLabelForByte(
+  byte: number,
+  size = 100,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) {
+  const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
     return keycode;
@@ -604,14 +613,24 @@ function isLayerKey(byte: number) {
   );
 }
 
-export function getKeycodeForByte(byte: number) {
+export function getKeycodeForByte(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) {
   const keycode = byteToKey[byte];
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
-  const advancedString = advancedKeycodeToString(byte);
+  const advancedString = advancedKeycodeToString(
+    byte,
+    basicKeyToByte,
+    byteToKey,
+  );
   return (basicKeycode && basicKeycode.code) || advancedString || keycode;
 }
 
-export function getOtherMenu(): IKeycodeMenu {
+export function getOtherMenu(
+  basicKeyToByte: Record<string, number>,
+): IKeycodeMenu {
   const keycodes = Object.keys(basicKeyToByte)
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({

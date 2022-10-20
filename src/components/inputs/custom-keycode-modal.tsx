@@ -2,7 +2,6 @@ import React, {useState, VFC} from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
-import basicKeyToByte from '../../utils/key-to-byte/default.json5';
 import {
   anyKeycodeToString,
   advancedStringToKeycode,
@@ -11,7 +10,10 @@ import {useCombobox} from 'downshift';
 import TextInput from './text-input';
 import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
 import {useAppSelector} from 'src/store/hooks';
-import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {
+  getBasicKeyToByte,
+  getSelectedDefinition,
+} from 'src/store/definitionsSlice';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -84,24 +86,36 @@ function isHex(input: string): boolean {
 }
 
 // This is hella basic 💁‍♀️💁‍♂️
-function inputIsBasicByte(input: string): boolean {
+function inputIsBasicByte(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): boolean {
   const keyCode = input.trim().toUpperCase();
   return keyCode in basicKeyToByte;
 }
 
-function basicByteFromInput(input: string): number {
+function basicByteFromInput(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): number {
   const keyCode = input.trim().toUpperCase();
   return basicKeyToByte[keyCode];
 }
 
-function inputIsAdvancedKeyCode(input: string): boolean {
+function inputIsAdvancedKeyCode(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): boolean {
   const keyCode = input.trim().toUpperCase();
-  return advancedStringToKeycode(keyCode) !== 0;
+  return advancedStringToKeycode(keyCode, basicKeyToByte) !== 0;
 }
 
-function advancedKeyCodeFromInput(input: string): number {
+function advancedKeyCodeFromInput(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): number {
   const keyCode = input.trim().toUpperCase();
-  return advancedStringToKeycode(keyCode);
+  return advancedStringToKeycode(keyCode, basicKeyToByte);
 }
 
 function inputIsHex(input: string): boolean {
@@ -113,21 +127,27 @@ function hexFromInput(input: string): number {
   return parseInt(lowercased, 16);
 }
 
-function inputIsValid(input: string): boolean {
+function inputIsValid(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): boolean {
   return (
-    inputIsBasicByte(input) ||
-    inputIsAdvancedKeyCode(input) ||
+    inputIsBasicByte(input, basicKeyToByte) ||
+    inputIsAdvancedKeyCode(input, basicKeyToByte) ||
     inputIsHex(input)
   );
 }
 
-function keycodeFromInput(input: string): number | null {
-  if (inputIsBasicByte(input)) {
-    return basicByteFromInput(input);
+function keycodeFromInput(
+  input: string,
+  basicKeyToByte: Record<string, number>,
+): number | null {
+  if (inputIsBasicByte(input, basicKeyToByte)) {
+    return basicByteFromInput(input, basicKeyToByte);
   }
 
-  if (inputIsAdvancedKeyCode(input)) {
-    return advancedKeyCodeFromInput(input);
+  if (inputIsAdvancedKeyCode(input, basicKeyToByte)) {
+    return advancedKeyCodeFromInput(input, basicKeyToByte);
   }
 
   if (inputIsHex(input)) {
@@ -146,6 +166,7 @@ const getInputItems = (arr: IKeycode[]) =>
 // Connect component with redux here:
 export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
     return null;
   }
@@ -153,7 +174,12 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
     getKeycodesForKeyboard(selectedDefinition),
   );
   const [inputItems, setInputItems] = useState(supportedInputItems);
-  const defaultInput = anyKeycodeToString(props.defaultValue as number);
+  const defaultInput = anyKeycodeToString(
+    props.defaultValue as number,
+    basicKeyToByte,
+    byteToKey,
+  );
+
   const {
     getMenuProps,
     getComboboxProps,
@@ -179,7 +205,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
     },
   });
 
-  const isValid = inputIsValid(inputValue);
+  const isValid = inputIsValid(inputValue, basicKeyToByte);
   return (
     <ModalBackground>
       <ModalContainer>
@@ -216,7 +242,9 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           <AccentButton
             disabled={!isValid}
             onClick={() => {
-              props.onConfirm(keycodeFromInput(inputValue as any) as any);
+              props.onConfirm(
+                keycodeFromInput(inputValue as any, basicKeyToByte) as any,
+              );
             }}
           >
             Confirm

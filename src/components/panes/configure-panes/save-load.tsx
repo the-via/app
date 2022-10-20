@@ -8,7 +8,10 @@ import {getByteForCode, getCodeForByte} from '../../../utils/key';
 import {title, component} from '../../icons/save';
 import {CenterPane} from '../pane';
 import {Detail, Label, OverflowCell, ControlRow} from '../grid';
-import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {
+  getBasicKeyToByte,
+  getSelectedDefinition,
+} from 'src/store/definitionsSlice';
 import {
   getSelectedRawLayers,
   saveRawKeymapToDevice,
@@ -46,6 +49,7 @@ export const Pane: FC = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
 
   // TODO: improve typing so we can remove this
   if (!selectedDefinition || !selectedDevice) {
@@ -62,8 +66,11 @@ export const Pane: FC = () => {
       vendorProductId,
       macros: [...macros.expressions],
       layers: rawLayers.map(
-        (layer) =>
-          layer.keymap.map((keyByte: number) => getCodeForByte(keyByte) || ''), // TODO: should empty string be empty keycode instead?
+        (layer: {keymap: number[]}) =>
+          layer.keymap.map(
+            (keyByte: number) =>
+              getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+          ), // TODO: should empty string be empty keycode instead?
       ),
     };
     const content = stringify(saveFile);
@@ -124,7 +131,7 @@ export const Pane: FC = () => {
       }
 
       const keymap: number[][] = saveFile.layers.map((layer) =>
-        layer.map((key) => getByteForCode(`${key}`)),
+        layer.map((key) => getByteForCode(`${key}`, basicKeyToByte)),
       );
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));

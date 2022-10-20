@@ -9,8 +9,6 @@ import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
 import {saveMacros} from '../../../store/macrosSlice';
 import {useDispatch} from 'react-redux';
 import type {FC} from 'react';
-import {validateMacroExpressionV11} from 'src/utils/macro-api/macro-api.v11';
-import {validateMacroExpression} from 'src/utils/macro-api/macro-api';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -64,6 +62,9 @@ export const Pane: FC = () => {
     [selectedMacro],
   );
 
+  if (!selectedDevice) {
+    return null;
+  }
   return (
     <>
       <SubmenuOverflowCell>

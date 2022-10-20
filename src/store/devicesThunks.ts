@@ -14,6 +14,7 @@ import {
   loadLayoutOptions,
   updateDefinitions,
   getDefinitions,
+  getBasicKeyToByte,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
 import {updateLightingData} from './lightingSlice';
@@ -63,8 +64,9 @@ export const selectConnectedDevice =
       connectedDevice,
       getDefinitions(getState()),
     );
+    const {basicKeyToByte} = getBasicKeyToByte(getState());
     dispatch(selectDevice(connectedDevice));
-    dispatch(loadMacros(connectedDevice));
+    dispatch(loadMacros(connectedDevice, basicKeyToByte));
     dispatch(loadLayoutOptions());
 
     const {protocol} = connectedDevice;

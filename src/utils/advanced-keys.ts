@@ -1,6 +1,3 @@
-import basicKeyToByte from './key-to-byte/default.json5';
-import {byteToKey} from './key';
-
 const quantumRanges = {
   QK_MODS: 0x0100,
   QK_RMODS_MIN: 0x1000,
@@ -119,23 +116,29 @@ const valueToRange = Object.entries(quantumRanges)
 // Everything else can use the KC mods
 // This is some brute forcey stuff, but it works.
 // If it returns 0, it means validation failed
-export const advancedStringToKeycode = (inputString: string): number => {
+export const advancedStringToKeycode = (
+  inputString: string,
+  basicKeyToByte: Record<string, number>,
+): number => {
   const upperString = inputString.toUpperCase();
   const parts = upperString.split(/\(|\)/).map((part) => part.trim());
   if (Object.keys(topLevelMacroToValue).includes(parts[0])) {
-    return parseTopLevelMacro(parts);
+    return parseTopLevelMacro(parts, basicKeyToByte);
   } else if (Object.keys(modifierKeyToValue).includes(parts[0])) {
-    return parseModifierCode(parts);
+    return parseModifierCode(parts, basicKeyToByte);
   }
   return 0;
 };
 
 export const advancedKeycodeToString = (
   inputKeycode: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
 ): string | null => {
   /* Find the range we are in first */
   let lastRange = null;
   let lastValue: number = -1;
+  const btk = byteToKey;
   for (let [value, rangeName] of valueToRange) {
     if (inputKeycode < value) {
       break;
@@ -145,7 +148,7 @@ export const advancedKeycodeToString = (
   }
   const topLevelModKeys = ['QK_MODS', 'QK_RMODS_MIN'];
   if (topLevelModKeys.includes(lastRange as string)) {
-    return topLevelModToString(inputKeycode);
+    return topLevelModToString(inputKeycode, basicKeyToByte, byteToKey);
   }
   let humanReadable: string | null =
     (topLevelValueToMacro as any)[lastValue] + '(';
@@ -163,7 +166,7 @@ export const advancedKeycodeToString = (
       break;
     case 'QK_LAYER_TAP':
       layer = remainder >> 8;
-      keycode = byteToKey[remainder & 0xff];
+      keycode = btk[remainder & 0xff];
       humanReadable += layer + ',' + keycode + ')';
       break;
     case 'QK_TO':
@@ -199,7 +202,11 @@ const modValueToString = (modMask: number): string => {
   return qualifyingStrings.join(' | ');
 };
 
-const topLevelModToString = (modNumber: number): string => {
+const topLevelModToString = (
+  modNumber: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+): string => {
   const keycode = byteToKey[modNumber & 0x00ff];
   const enabledMods = Object.entries(modifierValuetoKey)
     .filter((part) => {
@@ -210,7 +217,10 @@ const topLevelModToString = (modNumber: number): string => {
   return enabledMods.join('(') + '(' + keycode + ')'.repeat(enabledMods.length);
 };
 
-const parseTopLevelMacro = (inputParts: string[]): number => {
+const parseTopLevelMacro = (
+  inputParts: string[],
+  basicKeyToByte: Record<string, number>,
+): number => {
   const topLevelKey = inputParts[0];
   const parameter = inputParts[1] ?? '';
   let [param1, param2] = ['', ''];
@@ -291,7 +301,10 @@ const parseMods = (input: string = ''): number => {
   );
 };
 
-const parseModifierCode = (inputParts: string[]): number => {
+const parseModifierCode = (
+  inputParts: string[],
+  basicKeyToByte: any,
+): number => {
   const realParts = inputParts.filter((nonce) => nonce.length !== 0);
   const bytes = realParts.map((part, idx) => {
     if (idx === realParts.length - 1) {
@@ -310,9 +323,17 @@ const parseModifierCode = (inputParts: string[]): number => {
   return bytes.reduce((acc, byte) => acc | byte, 0);
 };
 
-export const anyKeycodeToString = (input: number) => {
+export const anyKeycodeToString = (
+  input: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) => {
   let currentValue = '';
-  const advancedParsed = advancedKeycodeToString(input);
+  const advancedParsed = advancedKeycodeToString(
+    input,
+    basicKeyToByte,
+    byteToKey,
+  );
   if (byteToKey[input]) {
     currentValue = byteToKey[input];
   } else if (advancedParsed !== null) {

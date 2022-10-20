@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import basicKeyToByte from '../../utils/key-to-byte/default.json5';
 import {
   advancedStringToKeycode,
   anyKeycodeToString,
@@ -35,6 +34,8 @@ type Props = {
   defaultValue: number;
   onBlur: (newValue: number) => void;
   className?: string;
+  basicKeyToByte: Record<string, number>;
+  byteToKey: Record<number, string>;
 };
 
 type State = {
@@ -48,8 +49,12 @@ type State = {
 export class KeycodeTextInput extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const {defaultValue} = props;
-    let currentValue = anyKeycodeToString(defaultValue);
+    const {defaultValue, basicKeyToByte, byteToKey} = props;
+    let currentValue = anyKeycodeToString(
+      defaultValue,
+      basicKeyToByte,
+      byteToKey,
+    );
     this.state = {
       lastDefault: defaultValue,
       defaultValueAsString: currentValue,
@@ -70,7 +75,11 @@ export class KeycodeTextInput extends React.Component<Props, State> {
     ) {
       return {
         ...state,
-        currentValue: anyKeycodeToString(props.defaultValue),
+        currentValue: anyKeycodeToString(
+          props.defaultValue,
+          props.basicKeyToByte,
+          props.byteToKey,
+        ),
         currentParsed: props.defaultValue,
         lastDefault: props.defaultValue,
       };
@@ -84,10 +93,10 @@ export class KeycodeTextInput extends React.Component<Props, State> {
   };
 
   handleBlur: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const {onBlur} = this.props;
+    const {onBlur, basicKeyToByte} = this.props;
     const {lastDefault} = this.state;
     const value = e.target.value.trim().toUpperCase();
-    const advancedParsed = advancedStringToKeycode(value);
+    const advancedParsed = advancedStringToKeycode(value, basicKeyToByte);
     if (Object.keys(basicKeyToByte).includes(value)) {
       if (lastDefault !== basicKeyToByte[value]) {
         onBlur(basicKeyToByte[value]);

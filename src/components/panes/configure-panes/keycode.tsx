@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react';
+import React, {FC, useState, useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
@@ -27,6 +27,7 @@ import {getNextKey} from '../../positioned-keyboard';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
+  getBasicKeyToByte,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -112,9 +113,10 @@ const Link = styled.a`
   text-decoration: underline;
 `;
 
-const KeycodeCategories = getKeycodes()
-  .concat(getOtherMenu())
-  .filter((menu) => !['Mod+_'].includes(menu.label));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>) =>
+  getKeycodes()
+    .concat(getOtherMenu(basicKeyToByte))
+    .filter((menu) => !['Mod+_'].includes(menu.label));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -138,7 +140,7 @@ export const Pane: FC = () => {
 
 export const KeycodePane: FC = () => {
   const dispatch = useDispatch();
-  const macros = useAppSelector((state) => state.macros);
+  const macros = useAppSelector((state: any) => state.macros);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const matrixKeycodes = useAppSelector(getSelectedKeymap);
@@ -146,6 +148,11 @@ export const KeycodePane: FC = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const layerCount = useAppSelector(getNumberOfLayers);
+  const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const KeycodeCategories = useMemo(
+    () => generateKeycodeCategories(basicKeyToByte),
+    basicKeyToByte,
+  );
 
   // TODO: improve typing so we can get rid of this
   if (!selectedDefinition || !selectedDevice || !matrixKeycodes) {
@@ -265,7 +272,10 @@ export const KeycodePane: FC = () => {
     if (code == 'text') {
       setShowKeyTextInputModal(true);
     } else {
-      return keycodeInMaster(code) && updateKey(getByteForCode(code));
+      return (
+        keycodeInMaster(code, basicKeyToByte) &&
+        updateKey(getByteForCode(code, basicKeyToByte))
+      );
     }
   };
 
@@ -274,7 +284,9 @@ export const KeycodePane: FC = () => {
     return (
       <Keycode
         className={[
-          !keycodeInMaster(code) && code != 'text' && styles.disabled,
+          !keycodeInMaster(code, basicKeyToByte) &&
+            code != 'text' &&
+            styles.disabled,
           styles.keycode,
         ].join(' ')}
         key={code}
