@@ -114,7 +114,7 @@ const Link = styled.a`
 
 const KeycodeCategories = getKeycodes()
   .concat(getOtherMenu())
-  .filter((menu) => !['Other', 'Mod+_'].includes(menu.label));
+  .filter((menu) => !['Mod+_'].includes(menu.label));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;

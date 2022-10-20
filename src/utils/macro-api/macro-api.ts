@@ -1,15 +1,20 @@
 import {byteToKey} from '../key';
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
-import {
-  MacroTerminator,
-  KeyAction,
-  ValidationResult,
-  getByte,
-  IMacroAPI,
-} from './macro-api.common';
+import {getByte, IMacroAPI} from './macro-api.common';
 
-export type MacroValidator = typeof validateMacroExpression;
+// Corresponds to 'magic codes' in qmk sendstring
+enum KeyAction {
+  Tap = 1, // \x01
+  Down = 2, // \x02
+  Up = 3, // \x03
+}
+const MacroTerminator = 0;
+
+interface ValidationResult {
+  isValid: boolean;
+  errorMessage?: string;
+}
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
 // Empty action blocks can't be persisted, so should fail: {}

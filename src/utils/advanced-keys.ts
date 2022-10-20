@@ -1,4 +1,4 @@
-import basicKeyToByte from './key-to-byte.json5';
+import basicKeyToByte from './key-to-byte/default.json5';
 import {byteToKey} from './key';
 
 const quantumRanges = {

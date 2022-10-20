@@ -2,7 +2,7 @@ import React, {useState, VFC} from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
-import basicKeyToByte from '../../utils/key-to-byte.json5';
+import basicKeyToByte from '../../utils/key-to-byte/default.json5';
 import {
   anyKeycodeToString,
   advancedStringToKeycode,

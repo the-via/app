@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import basicKeyToByte from '../../utils/key-to-byte.json5';
+import basicKeyToByte from '../../utils/key-to-byte/default.json5';
 import {
   advancedStringToKeycode,
   anyKeycodeToString,

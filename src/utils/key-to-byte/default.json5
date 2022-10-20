@@ -382,7 +382,7 @@
   // Hard-coded aliases for LT(layer,KC_SPC)
   SPC_FN1: 0x412c,
   SPC_FN2: 0x422c,
-  SPC_FN3: 0x432c
+  SPC_FN3: 0x432c,
   // These are bitmasks not keycodes
   //MOD_LCTL: 0x0001,
   //MOD_LSFT: 0x0002,
