@@ -60,6 +60,13 @@ export const getKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
   height: CSSVarObject.keyYPos * h - CSSVarObject.keyYSpacing,
 });
 
+export const getEncoderKeyContainerPosition = ({x, y, w, h}: KeyPosition) => ({
+  left: CSSVarObject.keyXPos * x,
+  top: CSSVarObject.keyYPos * y,
+  width: CSSVarObject.keyXPos * w - CSSVarObject.keyXSpacing,
+  height: CSSVarObject.keyXPos * h - CSSVarObject.keyXSpacing,
+});
+
 export const RotationContainer = styled.div<{
   selected?: boolean;
 }>`

@@ -2,6 +2,7 @@ import React, {memo, MouseEventHandler} from 'react';
 import type {Key} from 'src/types/types';
 import {
   getDarkenedColor,
+  getEncoderKeyContainerPosition,
   getKeyContainerPosition,
   getRotationContainerTransform,
   KeyContainer,
@@ -97,7 +98,7 @@ export const EncoderKeyComponent = memo(
       evt.stopPropagation();
       onClick(id);
     };
-    const keyContainerStyle = getKeyContainerPosition({
+    const keyContainerStyle = getEncoderKeyContainerPosition({
       w,
       h,
       x,
