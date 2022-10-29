@@ -85,6 +85,7 @@ export const autocompleteKeycodes = {
   KC_KP_ASTERISK: true,
   KC_PAST: true,
   KC_PPLS: true,
+  KC_PMNS: true,
   KC_PENT: true,
   KC_P1: true,
   KC_P2: true,
