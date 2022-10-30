@@ -56,6 +56,27 @@ export const CSSVarObject = {
   keyXPos: 52 + 2,
   keyYPos: 54 + 2,
 };
+export const getRandomColor = () =>
+  Array(3)
+    .fill(0)
+    .reduce(
+      (a) => `${a}${(~~(Math.random() * 255)).toString(16).padStart(2, '0')}`,
+      '#',
+    );
+
+const calculateKeyboardFrameTransform = (props: any) => {
+  if (props.containerDimensions) {
+    const ratio = Math.min(
+      1,
+      props.containerDimensions.width /
+        ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
+          CSSVarObject.keyXSpacing +
+          30),
+    );
+    return `scale(${ratio}, ${ratio})`;
+  }
+  return 'initial';
+};
 
 const KeyboardFrame = styled.div<{
   selectable: boolean;
@@ -68,56 +89,30 @@ const KeyboardFrame = styled.div<{
     CSSVarObject.keyXPos * props.width - CSSVarObject.keyXSpacing}px;
   height: ${(props) =>
     CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing}px;
-  background: var(--color_medium-grey);
   padding: 2px;
   border-radius: 3px;
   box-shadow: var(--color_dark-grey) 0 1px 0px 3px;
   padding: 5px;
   background: var(--color_light-jet);
   position: relative;
-  transform: ${(props) => {
-    if (props.containerDimensions) {
-      const ratio = Math.min(
-        1,
-        props.containerDimensions.width /
-          ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
-            CSSVarObject.keyXSpacing +
-            30),
-      );
-      return `scale(${ratio}, ${ratio})`;
-    }
-    return 'initial';
-  }};
+  transform: ${calculateKeyboardFrameTransform};
 `;
 
 export const BlankKeyboardFrame = styled(KeyboardFrame)`
   padding: 5px;
   background: var(--color_light-jet);
   position: relative;
-  transform: ${(props) => {
-    if (props.containerDimensions) {
-      const ratio = Math.min(
-        1,
-        props.containerDimensions.width /
-          ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * props.width -
-            CSSVarObject.keyXSpacing +
-            20),
-      );
-      return `scale(${ratio}, ${ratio})`;
-    }
-    return 'initial';
-  }};
+  transform: ${calculateKeyboardFrameTransform};
 `;
 
 export const BGKeyContainer = styled(KeyContainer)`
   transform: translate3d(0, -4px, 0) scale(0.99);
 `;
 
-const SmallInnerKey = styled.div<{backgroundColor: string}>`
+const SmallInnerKey = styled.div`
   height: 100%;
   position: relative;
   margin: auto;
-  background-color: ${(props) => props.backgroundColor};
   line-height: 20px;
   box-sizing: border-box;
   border-radius: 3px;
@@ -125,10 +120,9 @@ const SmallInnerKey = styled.div<{backgroundColor: string}>`
   padding-top: 0;
 `;
 
-const InnerKey = styled.div<{backgroundColor: string}>`
+const InnerKey = styled.div`
   height: 100%;
   margin: auto;
-  background-color: ${(props) => props.backgroundColor};
   line-height: 20px;
   box-sizing: border-box;
   border-radius: 3px;
@@ -178,11 +172,7 @@ const SmallInnerCenterKeyContainer = styled.div`
   width: 100%;
 `;
 
-export const OuterSecondaryKey = styled.div<{
-  selected?: boolean;
-  backgroundColor: string;
-}>`
-  background-color: ${(props) => props.backgroundColor};
+export const OuterSecondaryKey = styled.div<{}>`
   padding-top: 2px;
   padding-bottom: 9px;
   padding-left: 6px;
@@ -199,9 +189,7 @@ export const OuterSecondaryKey = styled.div<{
 
 export const OuterKey = styled.div<{
   selected?: boolean;
-  backgroundColor: string;
 }>`
-  background-color: ${(props) => props.backgroundColor};
   animation-duration: ${(props) => (props.selected ? 2 : 0)}s;
   animation-iteration-count: infinite;
   animation-direction: alternate;
@@ -274,17 +262,19 @@ export const KeyBG = memo(
           {hasSecondKey ? (
             <>
               <OuterSecondaryKey
-                backgroundColor={backColor}
-                style={getBGKeyContainerPosition({
-                  w: w2,
-                  x: x2 || 0,
-                  y: y2 || 0,
-                  h: h2,
-                })}
+                style={{
+                  ...getBGKeyContainerPosition({
+                    w: w2,
+                    x: x2 || 0,
+                    y: y2 || 0,
+                    h: h2,
+                  }),
+                  backgroundColor: backColor,
+                }}
               />
             </>
           ) : null}
-          <OuterKey backgroundColor={backColor}></OuterKey>
+          <OuterKey style={{backgroundColor: backColor}}></OuterKey>
         </BGKeyContainer>
       </RotationContainer>
     );
@@ -327,6 +317,7 @@ const KeyComponent = memo(
       evt.stopPropagation();
       onClick(id);
     };
+    c = getRandomColor();
     const hasSecondKey = [h2, w2].every((i) => i !== undefined);
     return (
       <RotationContainer
@@ -343,27 +334,36 @@ const KeyComponent = memo(
           {hasSecondKey ? (
             <>
               <OuterSecondaryKey
-                backgroundColor={getDarkenedColor(c)}
-                style={getKeyContainerPosition({
-                  w: w2 || 0,
-                  x: x2 || 0,
-                  y: y2 || 0,
-                  h: h2 || 0,
-                })}
+                style={{
+                  ...getKeyContainerPosition({
+                    w: w2 || 0,
+                    x: x2 || 0,
+                    y: y2 || 0,
+                    h: h2 || 0,
+                  }),
+                  backgroundColor: getDarkenedColor(c),
+                }}
               >
                 <ChosenInnerKey
-                  style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
-                  backgroundColor={c}
+                  style={{
+                    ...(hasSecondKey ? {transform: 'rotateZ(0)'} : {}),
+                    backgroundColor: c,
+                  }}
                 >
                   <ChosenInnerKeyContainer></ChosenInnerKeyContainer>
                 </ChosenInnerKey>
               </OuterSecondaryKey>
             </>
           ) : null}
-          <OuterKey selected={selected} backgroundColor={getDarkenedColor(c)}>
+          <OuterKey
+            selected={selected}
+            style={{backgroundColor: getDarkenedColor(c)}}
+          >
             <ChosenInnerKey
-              style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
-              backgroundColor={c}
+              style={{
+                ...(hasSecondKey ? {transform: 'rotateZ(0)'} : {}),
+                backgroundColor: c,
+              }}
             >
               <ChosenInnerKeyContainer>
                 {getLegends(legends, t)}
@@ -451,7 +451,11 @@ export const getLabel = (
   }
 };
 
-export const getColors = (color: KeyColorType): KeyColor =>
+export const getColors = ({color}: {color: KeyColorType}): KeyColor =>
+  // TODO: make choice based on protocol
+  getThemeFromStore()[color];
+
+export const getRGBColors = ({color}: {color: KeyColorType}): KeyColor =>
   // TODO: make choice based on protocol
   getThemeFromStore()[color];
 
@@ -518,7 +522,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                     basicKeyToByte,
                     byteToKey,
                   ),
-                  ...getColors(k.color),
+                  ...getColors(k),
                   selected: selectedKey === index,
                   onClick: selectable
                     ? (id) => {
@@ -755,7 +759,7 @@ const BlankPositionedKeyboardComponent = (
                     basicKeyToByte,
                     byteToKey,
                   ),
-                  ...getColors(k.color),
+                  ...getColors(k),
                   selected: (pressedKeys as any)[index],
                 }}
                 key={index}
