@@ -139,24 +139,28 @@ const TestKeyComponent = React.memo(
           {hasSecondKey ? (
             <>
               <OuterSecondaryKey
-                backgroundColor={getDarkenedColor(c)}
-                style={getKeyContainerPosition({
-                  w: w2 || 0,
-                  x: x2 || 0,
-                  y: y2 || 0,
-                  h: h2 || 0,
-                })}
+                style={{
+                  ...getKeyContainerPosition({
+                    w: w2 || 0,
+                    x: x2 || 0,
+                    y: y2 || 0,
+                    h: h2 || 0,
+                  }),
+                  backgroundColor: getDarkenedColor(c),
+                }}
               >
-                <ChosenInnerKey backgroundColor={c}>
+                <ChosenInnerKey style={{backgroundColor: c}}>
                   <ChosenInnerKeyContainer></ChosenInnerKeyContainer>
                 </ChosenInnerKey>
               </OuterSecondaryKey>
             </>
           ) : null}
-          <OuterKey backgroundColor={getDarkenedColor(c)}>
+          <OuterKey style={{backgroundColor: getDarkenedColor(c)}}>
             <ChosenInnerKey
-              backgroundColor={c}
-              style={hasSecondKey ? {transform: 'rotateZ(0)'} : {}}
+              style={{
+                ...(hasSecondKey ? {transform: 'rotateZ(0)'} : {}),
+                backgroundColor: c,
+              }}
             >
               <ChosenInnerKeyContainer>
                 {getLegends(legends, t)}
