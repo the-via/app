@@ -9,7 +9,11 @@ import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
+import {
+  BlankPositionedKeyboard,
+  calculatePointPosition,
+  getNextKey,
+} from '../positioned-keyboard';
 import {getKLEFiles, authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
@@ -36,6 +40,32 @@ import {
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
+import {Canvas, useFrame} from '@react-three/fiber';
+import {getThemeFromStore} from 'src/utils/device-store';
+
+function Box(props: any) {
+  // This reference gives us direct access to the THREE.Mesh object
+  const ref = useRef<any>();
+  // Hold state for hovered and clicked events
+  const [hovered, hover] = useState(false);
+  const [clicked, click] = useState(false);
+  // Subscribe this component to the render-loop, rotate the mesh every frame
+  //  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
+  // Return the view, these are regular Threejs elements expressed in JSX
+  return (
+    <mesh
+      {...props}
+      ref={ref}
+      scale={clicked ? 1.5 : 1}
+      onClick={(event) => click(!clicked)}
+      onPointerOver={(event) => hover(true)}
+      onPointerOut={(event) => hover(false)}
+    >
+      <boxGeometry args={[1.0 * props.width, 1.0 * props.height, 0.4]} />
+      <meshStandardMaterial color={props.color} />
+    </mesh>
+  );
+}
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -70,6 +100,7 @@ const MenuPanel = styled(OverflowCell)`
 
 const KeyboardPanel = styled(FlexCell)`
   flex: 1;
+  flex-direction: column;
 
   @media (min-width: 1200px) {
     border: 0 none;
@@ -208,6 +239,73 @@ const TestControls = () => {
   );
 };
 
+const KeyboardCanvas = () => {
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = selectedDevice ? selectedDevice.api : null;
+  const connectedDevices = useAppSelector(getConnectedDevices);
+  const allDefinitions = Object.entries(useAppSelector(getDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const remoteDefinitions = Object.entries(useAppSelector(getBaseDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const localDefinitions = Object.entries(useAppSelector(getCustomDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
+  const [selectedKey, setSelectedKey] = useState<undefined | number>(0);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const [dimensions, setDimensions] = useState({
+    width: 1280,
+    height: 900,
+  });
+
+  const options = allDefinitions.map(([, definition], index) => ({
+    label: definition.name,
+    value: `${index}`,
+  }));
+  const entry = allDefinitions[selectedDefinitionIndex];
+  if (!entry) {
+    return null;
+  }
+  return (
+    <Canvas camera={{fov: 90, near: 0.1, far: 1000, position: [0, 0, 5]}}>
+      <ambientLight />
+      <pointLight position={[10, 10, 10]} />
+      {entry[1].layouts.keys.map((k) => {
+        const [x, y] = calculatePointPosition(k);
+        const r = (k.r * (2 * Math.PI)) / 360;
+        const theme = getThemeFromStore();
+        const color = ['grey', 'cornsilk', '#BC8F8F'][
+          Math.round(Math.random() * 2)
+        ];
+        return (
+          <Box
+            position={[x / 40 - 10, 4 - y / 40, 0]}
+            rotation={[0, 0, -r]}
+            width={k.w}
+            height={k.h}
+            color={color}
+          />
+        );
+      })}
+    </Canvas>
+  );
+};
+
 export const Debug: FC = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const api = selectedDevice ? selectedDevice.api : null;
@@ -253,6 +351,7 @@ export const Debug: FC = () => {
   return (
     <DebugPane>
       <KeyboardPanel ref={flexRef}>
+        <KeyboardCanvas />
         {entry && (
           <BlankPositionedKeyboard
             containerDimensions={dimensions}

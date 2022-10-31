@@ -20,6 +20,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@microsoft/applicationinsights-web": "^2.8.6",
     "@react-hook/resize-observer": "^1.2.6",
+    "@react-three/fiber": "^8.9.0",
     "@reduxjs/toolkit": "^1.6.1",
     "@the-via/pelpi": "^0.0.3",
     "@the-via/reader": "^1.0.1",
@@ -40,6 +41,7 @@
     "react-tooltip": "^4.2.21",
     "redux-logger": "^3.0.6",
     "styled-components": "^6.0.0-beta.5",
+    "three": "^0.146.0",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
     "via-keyboards": "github:the-via/keyboards"
