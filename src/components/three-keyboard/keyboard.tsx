@@ -82,7 +82,7 @@ function Keycap(props: any) {
         onPointerOver={(event) => hover(true)}
         onPointerOut={(event) => hover(false)}
       >
-        <meshStandardMaterial color={props.color} />
+        <meshPhongMaterial color={props.color} />
       </mesh>
     </>
   );
@@ -138,26 +138,42 @@ export const Case = (props: {width: number; height: number}) => {
   const widthOffset = 0.4;
   const depth = 1.0;
   const outsideShape = useMemo(() => {
-    return makeShape({width: props.width, height: props.height + widthOffset});
+    return makeShape({
+      width: props.width + widthOffset,
+      height: props.height + widthOffset,
+    });
   }, []);
   const innerShape = useMemo(() => {
-    return makeShape({...props, width: props.width - widthOffset});
+    return makeShape({
+      ...props,
+    });
   }, []);
   return (
-    <group position={[0, 0, -1.5]}>
+    <group
+      position={[
+        (props.width * 19.5) / 2 - 1.5 * widthOffset * 19.5,
+        (props.height * -19.5) / 2 + (widthOffset * 19.5) / 2,
+        (-9.4 * 19.5) / 7,
+      ]}
+      scale={19.5}
+    >
       <mesh>
         <extrudeBufferGeometry
           attach="geometry"
           args={[outsideShape, {bevelEnabled: false, depth}]}
         />
-        <meshStandardMaterial color={outsideColor} />
+        <meshPhongMaterial color={outsideColor} />
       </mesh>
       <mesh position={[0, 0, 0.05]}>
         <extrudeBufferGeometry
           attach="geometry"
           args={[innerShape, {bevelEnabled: false, depth: depth + 0.1}]}
         />
-        <meshStandardMaterial color={innerColor} />
+        <meshStandardMaterial
+          color={innerColor}
+          transparent={true}
+          opacity={0.9}
+        />
       </mesh>
     </group>
   );
@@ -176,11 +192,27 @@ export const KeyboardCanvas = () => {
     .filter(([_, definition]) => definition !== undefined);
 
   const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
 
   const entry = allDefinitions[selectedDefinitionIndex];
   if (!entry) {
     return null;
   }
+  const {keys, optionKeys} = entry[1].layouts;
+
+  // This was previously memoised, but removed because it produced an inconsistent number of hooks error
+  // because the memo was not called when selectedDefinition was null
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(([key, options]) => {
+        const optionKey = parseInt(key);
+
+        // If a selection option has been set for this optionKey, use that
+        return selectedOptionKeys[optionKey]
+          ? options[selectedOptionKeys[optionKey]]
+          : options[0];
+      })
+    : [];
+  const displayedKeys = [...entry[1].layouts.keys, ...displayedOptionKeys];
   const {width, height} = calculateKeyboardFrameDimensions(
     entry[1].layouts.keys,
   );
@@ -190,13 +222,10 @@ export const KeyboardCanvas = () => {
       <OrbitControls makeDefault onEnd={console.log} />
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
-      <group position={[0, 0, 0]} scale={0.25}>
+      <group position={[-2, 1, 0]} scale={0.015}>
         <Case width={width} height={height} />
-        <group
-          scale={0.0175}
-          position={[-width / 2 + 0.4, height / 2 - 0.1, 0]}
-        >
-          {entry[1].layouts.keys.map((k) => {
+        <group scale={1} position={[-width / 2 + 0.4, height / 2 - 0.1, 0]}>
+          {displayedKeys.map((k) => {
             const [x, y] = calculatePointPosition(k);
             const r = (k.r * (2 * Math.PI)) / 360;
             const theme = getThemeFromStore();
@@ -205,9 +234,9 @@ export const KeyboardCanvas = () => {
             ];
             return (
               <Keycap
-                position={[x, -y, 0]}
+                position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
                 rotation={[0, 0, -r]}
-                scale={[k.w * 2.75, 2.75, 2.75]}
+                scale={[k.w, k.h, 1]}
                 color={color}
               />
             );
