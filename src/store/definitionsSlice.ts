@@ -102,12 +102,10 @@ export const getSelectedDefinition = createSelector(
 export const getBasicKeyToByte = createSelector(
   getSelectedConnectedDevice,
   (connectedDevice) => {
-    const basicKeyToByte = connectedDevice
-      ? getBasicKeyDict(connectedDevice?.protocol)
-      : {};
-    return connectedDevice
-      ? {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)}
-      : {basicKeyToByte: {}, byteToKey: {}};
+    const basicKeyToByte = getBasicKeyDict(
+      connectedDevice ? connectedDevice.protocol : 0,
+    );
+    return {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)};
   },
 );
 
