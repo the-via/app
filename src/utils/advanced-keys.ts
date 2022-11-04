@@ -237,13 +237,13 @@ const parseTopLevelMacro = (
         return 0;
       }
       return topLevelMacroToValue[topLevelKey] | (layer & 0xff);
-    case 'TO': //#define TO(layer) (QK_TO | (ON_PRESS << 0x4) | ((layer)&0xFF))
+    case 'TO': //#define TO(layer) (QK_TO |  ((layer)&0xFF))
       layer = Number.parseInt(parameter);
       if (layer < 0) {
         return 0;
       }
       return (
-        topLevelMacroToValue[topLevelKey] | (ON_PRESS << 0x4) | (layer & 0xff)
+        topLevelMacroToValue[topLevelKey] | (layer & 0xff)
       );
     case 'OSM': //#define OSM(mod) (QK_ONE_SHOT_MOD | ((mod)&0xFF))
       mods = parseMods(parameter);
