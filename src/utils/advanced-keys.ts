@@ -170,7 +170,7 @@ export const advancedKeycodeToString = (
       humanReadable += layer + ',' + keycode + ')';
       break;
     case 'QK_TO':
-      layer = ~(ON_PRESS << 4) & remainder;
+      layer = remainder;
       humanReadable += layer + ')';
       break;
     case 'QK_ONE_SHOT_MOD':
