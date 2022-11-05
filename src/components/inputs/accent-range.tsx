@@ -1,6 +1,4 @@
 import React from 'react';
-import Slider from 'rc-slider';
-import type {SliderProps} from 'rc-slider';
 import styled from 'styled-components';
 
 const Container = styled.span`
@@ -9,15 +7,19 @@ const Container = styled.span`
   width: 200px;
 `;
 
-export const AccentRange: React.VFC<SliderProps> = (props) => (
+const SliderInput = styled.input.attrs({type: 'range'})<any>`
+  accent-color: var(--color_accent);
+  width: 100%;
+`;
+
+export const AccentRange: React.VFC<
+  React.InputHTMLAttributes<HTMLInputElement> & {onChange: (x: number) => void}
+> = (props) => (
   <Container>
-    <Slider
+    <SliderInput
       {...props}
-      railStyle={{backgroundColor: 'var(--color_dark-grey)'}}
-      trackStyle={{backgroundColor: 'var(--color_accent)'}}
-      handleStyle={{
-        borderColor: 'var(--color_accent)',
-        backgroundColor: 'var(--color_accent)',
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+        props.onChange && props.onChange(+e.target.value);
       }}
     />
   </Container>
