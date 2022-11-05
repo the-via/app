@@ -20,11 +20,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - name: Touch known_hosts
-        run: touch ~/.ssh/known_hosts
-        shell: bash
-      - name: Add github to known_hosts
-        run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+      - name: Force git cloning to use https
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
         shell: bash
       - name: Build And Deploy
         id: builddeploy
