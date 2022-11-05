@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
@@ -19,6 +19,7 @@ import {
   useFrame,
   useLoader,
   useThree,
+  extend,
 } from '@react-three/fiber';
 import {PerspectiveCamera, useGLTF, OrbitControls} from '@react-three/drei';
 
@@ -71,6 +72,38 @@ function Keycap(props: any) {
   //return (
   //)
   const {nodes, materials} = useGLTF('/fonts/keycap.glb');
+  const canvasRef = useRef(document.createElement('canvas'));
+  const textureRef = useRef<THREE.CanvasTexture>();
+
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+
+    canvas.width = 2048;
+    canvas.height = 2048;
+
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.rect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = 'beige';
+      context.fill();
+
+      context.fillStyle = 'black';
+      const number = Math.round(36 * Math.random());
+      if (number < 10) {
+        const symbol = ')!@#$%^&*('[number];
+        context.font = ' 250px Arial Rounded MT ';
+        context.fillText(symbol, 2.1 * 385, 2 * 518);
+        context.fillText(number.toString(), 2.1 * 385, 2.6 * 518);
+      } else {
+        context.font = 'bold 300px Arial';
+        context.fillText(
+          number.toString(36).toUpperCase(),
+          2.1 * 385,
+          2.1 * 518,
+        );
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -78,11 +111,19 @@ function Keycap(props: any) {
         {...props}
         ref={ref}
         geometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
-        onClick={(event) => click(!clicked)}
-        onPointerOver={(event) => hover(true)}
+        onClick={(event) => {
+          click(!clicked);
+        }}
         onPointerOut={(event) => hover(false)}
       >
-        <meshPhongMaterial color={props.color} />
+        <meshPhysicalMaterial attach="material">
+          <canvasTexture
+            minFilter={THREE.LinearMipMapNearestFilter}
+            ref={textureRef}
+            attach="map"
+            image={canvasRef.current}
+          />
+        </meshPhysicalMaterial>
       </mesh>
     </>
   );
@@ -213,12 +254,10 @@ export const KeyboardCanvas = () => {
       })
     : [];
   const displayedKeys = [...entry[1].layouts.keys, ...displayedOptionKeys];
-  const {width, height} = calculateKeyboardFrameDimensions(
-    entry[1].layouts.keys,
-  );
+  const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
 
   return (
-    <Canvas camera={{zoom: 2}}>
+    <Canvas pixelRatio={2} camera={{zoom: 2}}>
       <OrbitControls makeDefault onEnd={console.log} />
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
