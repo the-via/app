@@ -1,5 +1,5 @@
 import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
-import useResize from 'react-resize-observer-hook';
+import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
@@ -17,8 +17,8 @@ import {
   keyboardDefinitionV3ToVIADefinitionV3,
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
+  DefinitionVersion,
 } from 'via-reader';
-import type {DefinitionVersion} from 'via-reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   ControlRow,
@@ -205,13 +205,13 @@ export const DesignTab: FC = () => {
   }));
 
   const flexRef = useRef(null);
-  useResize(
+  useResizeObserver(
     flexRef,
     (entry) =>
       flexRef.current &&
       setDimensions({
-        width: entry.width,
-        height: entry.height,
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
       }),
   );
   const definition =

@@ -1,5 +1,5 @@
 import React, {useRef, useState, FC, useEffect, useCallback} from 'react';
-import useResize from 'react-resize-observer-hook';
+import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
@@ -252,13 +252,13 @@ export const Debug: FC = () => {
   const entry = allDefinitions[selectedDefinitionIndex];
 
   const flexRef = useRef(null);
-  useResize(
+  useResizeObserver(
     flexRef,
     (entry) =>
       flexRef.current &&
       setDimensions({
-        width: entry.width,
-        height: entry.height,
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
       }),
   );
 

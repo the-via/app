@@ -1,7 +1,7 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import useResize from 'react-resize-observer-hook';
+import useResizeObserver from '@react-hook/resize-observer';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
@@ -213,13 +213,13 @@ const ConfigureGrid = () => {
   });
   const flexRef = useRef(null);
 
-  useResize(
+  useResizeObserver(
     flexRef,
     (entry) =>
       flexRef.current &&
       setDimensions({
-        width: entry.width,
-        height: entry.height,
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
       }),
   );
   const KeyboardRows = getRowsForKeyboard();

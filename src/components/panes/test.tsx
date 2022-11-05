@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import rafSchd from 'raf-schd';
-import useResizeObserver from 'use-resize-observer';
+import useResizeObserver from '@react-hook/resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
@@ -168,20 +167,16 @@ export const Test: FC = () => {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const onFlexResize = React.useCallback(
-    ({width, height}: {width?: number; height?: number}) => {
-      if (width !== undefined && height !== undefined)
-        setDimensions({
-          width,
-          height,
-        });
-    },
-    [setDimensions],
+  const flexRef = useRef(null);
+  useResizeObserver(
+    flexRef,
+    (entry) =>
+      flexRef.current &&
+      setDimensions({
+        width: entry.contentRect.width,
+        height: entry.contentRect.height,
+      }),
   );
-
-  const {ref: flexRef} = useResizeObserver({
-    onResize: rafSchd(onFlexResize),
-  });
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;
