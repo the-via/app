@@ -13,7 +13,9 @@ const SliderInput = styled.input.attrs({type: 'range'})<any>`
 `;
 
 export const AccentRange: React.VFC<
-  React.InputHTMLAttributes<HTMLInputElement> & {onChange: (x: number) => void}
+  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
+    onChange: (x: number) => void;
+  }
 > = (props) => (
   <Container>
     <SliderInput
