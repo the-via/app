@@ -20,6 +20,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Touch known_hosts
+        run: touch ~/.ssh/known_hosts
+        shell: bash
       - name: Add github to known_hosts
         run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
         shell: bash
