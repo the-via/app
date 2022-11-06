@@ -40,6 +40,7 @@ import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
+import {KeyboardCanvas} from '../three-keyboard/keyboard';
 
 const MenuContainer = styled.div`
   padding: 15px 30px 20px 10px;
@@ -230,11 +231,17 @@ const ConfigureGrid = () => {
         </MenuContainer>
       </MenuCell>
 
-      <FlexCell ref={flexRef} onClick={() => dispatch(clearSelectedKey())}>
+      <FlexCell
+        ref={flexRef}
+        onClick={(evt) => {
+          if (evt.target.nodeName !== 'CANVAS') dispatch(clearSelectedKey());
+        }}
+      >
         <PositionedKeyboard
           containerDimensions={dimensions}
           selectable={selectedTitle === 'Keymap'}
         />
+        <KeyboardCanvas />
         <ReactTooltip />
         <LayerControl />
         <Badge />

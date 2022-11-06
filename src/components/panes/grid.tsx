@@ -42,6 +42,7 @@ export const SubmenuOverflowCell = styled(SubmenuCell)`
 export const FlexCell = styled(Cell)`
   display: flex;
   overflow: hidden;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 50px 10px;
@@ -97,9 +98,9 @@ export const Row = styled.div<{selected: boolean}>`
   height: 20px;
   line-height: 20px;
   text-transform: uppercase;
-  color: ${props => getIconColor(props.selected).style.color};
+  color: ${(props) => getIconColor(props.selected).style.color};
   border-left: 2px solid
-    ${props => (props.selected ? 'var(--color_light-grey)' : 'transparent')};
+    ${(props) => (props.selected ? 'var(--color_light-grey)' : 'transparent')};
 
   svg {
     height: 20px;
@@ -107,7 +108,7 @@ export const Row = styled.div<{selected: boolean}>`
   }
 
   &:hover {
-    color: ${props =>
+    color: ${(props) =>
       props.selected
         ? getIconColor(props.selected).style.color
         : 'var(--color_dark-grey)'};
