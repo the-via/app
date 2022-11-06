@@ -23,7 +23,6 @@
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
     "pelpi": "https://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b",
-    "rc-slider": "^10.0.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-redux": "^7.2.4",
