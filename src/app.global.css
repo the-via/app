@@ -289,6 +289,14 @@ a:hover {
     filter: brightness(0.75);
   }
 }
+@keyframes rgb-glow {
+  0% {
+    box-shadow: inset 0 0 3px 0px;
+  }
+  100% {
+    box-shadow: inset 0 0 3px 3px;
+  }
+}
 @keyframes border-glow {
   0% {
     border: 2px dashed var(--color_accent);

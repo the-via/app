@@ -1,5 +1,18 @@
 import React from 'react';
+import type {RootState} from 'src/store';
+import {
+  getLabelForByte,
+  getShortNameForKeycode,
+  getUserKeycodeIndex,
+  IKeycode,
+  isAlpha,
+  isMacro,
+  isNumericOrShiftedSymbol,
+  isNumericSymbol,
+  isUserKeycodeByte,
+} from 'src/utils/key';
 import styled from 'styled-components';
+import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
 
 type KeyRotation = {
   r: number;
@@ -20,6 +33,61 @@ export const CSSVarObject = {
   keyYSpacing: 2,
   keyXPos: 52 + 2,
   keyYPos: 54 + 2,
+};
+
+export const getLabel = (
+  keycodeByte: number,
+  width: number,
+  macros: RootState['macros'],
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) => {
+  let label: string = '';
+  if (
+    isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
+    selectedDefinition?.customKeycodes
+  ) {
+    const userKeycodeIdx = getUserKeycodeIndex(keycodeByte, basicKeyToByte);
+    label = getShortNameForKeycode(
+      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+    );
+  } else if (keycodeByte) {
+    label =
+      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
+      '';
+  }
+  let macroExpression: string | undefined;
+  if (isMacro(label)) {
+    macroExpression = macros.expressions[label.substring(1) as any];
+  }
+
+  if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {
+    return (
+      label && {
+        label: label.toUpperCase(),
+        macroExpression,
+      }
+    );
+  } else if (isNumericSymbol(label)) {
+    const topLabel = label[0];
+    const bottomLabel = label[label.length - 1];
+    return (
+      bottomLabel && {
+        topLabel,
+        bottomLabel,
+        macroExpression,
+      }
+    );
+  } else {
+    return (
+      label && {
+        label,
+        centerLabel: label,
+        macroExpression,
+      }
+    );
+  }
 };
 
 export const noop = (...args: any[]) => {};
