@@ -6271,9 +6271,9 @@
     "json5" "^1.0.1"
 
 "loader-utils@^2.0.0":
-  "integrity" "sha512-TM57VeHptv569d/GKh6TAYdzKblwDNiumOdkFnejjD0XwTH87K90w3O7AiJRqdQoXygvi1VQTJTLGhJl7WqA7A=="
-  "resolved" "https://registry.npmjs.org/loader-utils/-/loader-utils-2.0.2.tgz"
-  "version" "2.0.2"
+  "integrity" "sha512-THWqIsn8QRnvLl0shHYVBN9syumU8pYWEHPTmkiVGd+7K5eFNVSY6AJhRvgGF70gg1Dz+l/k8WicvFCxdEs60A=="
+  "resolved" "https://registry.npmjs.org/loader-utils/-/loader-utils-2.0.3.tgz"
+  "version" "2.0.3"
   dependencies:
     "big.js" "^5.2.2"
     "emojis-list" "^3.0.0"
@@ -7850,16 +7850,6 @@
     "http-errors" "2.0.0"
     "iconv-lite" "0.4.24"
     "unpipe" "1.0.0"
-
-"rc-slider@^10.0.1":
-  "integrity" "sha512-igTKF3zBet7oS/3yNiIlmU8KnZ45npmrmHlUUio8PNbIhzMcsh+oE/r2UD42Y6YD2D/s+kzCQkzQrPD6RY435Q=="
-  "resolved" "https://registry.npmjs.org/rc-slider/-/rc-slider-10.0.1.tgz"
-  "version" "10.0.1"
-  dependencies:
-    "@babel/runtime" "^7.10.1"
-    "classnames" "^2.2.5"
-    "rc-util" "^5.18.1"
-    "shallowequal" "^1.1.0"
 
 "rc-util@^5.18.1":
   "integrity" "sha512-2a4RQnycV9eV7lVZPEJ7QwJRPlZNc06J7CwcwZo4vIHr3PfUqtYgl1EkUV9ETAc6VRRi8XZOMFhYG63whlIC9Q=="
@@ -9821,9 +9811,9 @@
   "version" "1.1.2"
 
 "vm2@^3.9.2":
-  "integrity" "sha512-AuECTSvwu2OHLAZYhG716YzwodKCIJxB6u1zG7PgSQwIgAlEaoXH52bxdcvT8GkGjnYK7r7yWDW0m0sOsPuBjQ=="
-  "resolved" "https://registry.npmjs.org/vm2/-/vm2-3.9.10.tgz"
-  "version" "3.9.10"
+  "integrity" "sha512-PFG8iJRSjvvBdisowQ7iVF580DXb1uCIiGaXgm7tynMR1uTBlv7UJlB1zdv5KJ+Tmq1f0Upnj3fayoEOPpCBKg=="
+  "resolved" "https://registry.npmjs.org/vm2/-/vm2-3.9.11.tgz"
+  "version" "3.9.11"
   dependencies:
     "acorn" "^8.7.0"
     "acorn-walk" "^8.2.0"
