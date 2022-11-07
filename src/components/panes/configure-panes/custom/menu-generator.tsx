@@ -18,7 +18,7 @@ import type {
   VIASubmenuSlice,
   VIAItem,
   VIAItemSlice,
-} from 'via-reader';
+} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {

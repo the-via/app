@@ -15,7 +15,7 @@ import {
   updateKey,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import type {VIAKey} from 'via-reader';
+import type {VIAKey} from '@the-via/reader';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import type {KeyboardAPI} from 'src/utils/keyboard-api';
 import {useDispatch} from 'react-redux';

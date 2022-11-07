@@ -14,7 +14,7 @@ import {
   isVIADefinitionV3,
   VIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
 import * as Keycode from './configure-panes/keycode';

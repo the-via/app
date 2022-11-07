@@ -5,7 +5,7 @@ import {
   isVIADefinitionV3,
   isVIAMenu,
   VIAMenu,
-} from 'via-reader';
+} from '@the-via/reader';
 import type {AppThunk, RootState} from './index';
 import {getSelectedDefinition} from './definitionsSlice';
 import {

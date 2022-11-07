@@ -21,7 +21,7 @@ import {
   isVIADefinitionV3,
   isVIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
 import {getNextKey} from '../../positioned-keyboard';
 import {useDispatch} from 'react-redux';

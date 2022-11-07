@@ -17,8 +17,8 @@ import {
   keyboardDefinitionV3ToVIADefinitionV3,
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
-} from 'via-reader';
-import type {DefinitionVersion} from 'via-reader';
+} from '@the-via/reader';
+import type {DefinitionVersion} from '@the-via/reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   ControlRow,

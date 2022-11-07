@@ -4,7 +4,7 @@ import {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   ThemeDefinition,
-} from 'via-reader';
+} from '@the-via/reader';
 import {Store} from '../shims/via-app-store';
 import type {
   DefinitionIndex,

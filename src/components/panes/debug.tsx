@@ -22,7 +22,7 @@ import {
   FlexCell,
 } from './grid';
 import Layouts from '../Layouts';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import {AccentRange} from '../inputs/accent-range';
 import {useAppSelector} from 'src/store/hooks';
 import {

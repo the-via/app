@@ -29,7 +29,7 @@ import {
   updateSupportedIds,
 } from './devicesSlice';
 import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
-import type {KeyboardDictionary} from 'via-reader';
+import type {KeyboardDictionary} from '@the-via/reader';
 
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
