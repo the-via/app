@@ -13,27 +13,15 @@ import {
   calculatePointPosition,
 } from '../positioned-keyboard';
 import {useAppSelector} from 'src/store/hooks';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
-  getConnectedDevices,
-  getSelectedConnectedDevice,
-} from 'src/store/devicesSlice';
-import {
-  getBaseDefinitions,
   getDefinitions,
-  getCustomDefinitions,
   getBasicKeyToByte,
   getSelectedKeyDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {
-  Canvas,
-  PerspectiveCameraProps,
-  useFrame,
-  useLoader,
-  useThree,
-  extend,
-} from '@react-three/fiber';
-import {PerspectiveCamera, useGLTF, OrbitControls} from '@react-three/drei';
+import {Canvas} from '@react-three/fiber';
+import {useGLTF, OrbitControls} from '@react-three/drei';
 
 import {getThemeFromStore} from 'src/utils/device-store';
 import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
@@ -51,42 +39,12 @@ export const getColors = ({color}: {color: KeyColorType}): KeyColor =>
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 useGLTF.preload('/fonts/keycap.glb');
 
-function Box(props: any) {
-  // This reference gives us direct access to the THREE.Mesh object
-  const ref = useRef<any>();
-  // Hold state for hovered and clicked events
-  const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  //  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
-  // Return the view, these are regular Threejs elements expressed in JSX
-  // console.log(stl);
-  //return (
-  //)
-
-  return (
-    <>
-      <mesh
-        {...props}
-        ref={ref}
-        scale={0.06}
-        onClick={(event) => click(!clicked)}
-      >
-        <boxGeometry args={[props.width, props.height, 20]} />
-
-        <meshStandardMaterial color={props.color} />
-      </mesh>
-    </>
-  );
-}
-
 function Keycap(props: any) {
   // This reference gives us direct access to the THREE.Mesh object
   const {label, scale, color, selected, position} = props;
   const ref = useRef<any>();
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
-  const [clicked, click] = useState(false);
   // Subscribe this component to the render-loop, rotate the mesh every frame
   //  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
   // Return the view, these are regular Threejs elements expressed in JSX
@@ -94,11 +52,13 @@ function Keycap(props: any) {
   //return (
   //)
   const textureRef = useRef<THREE.CanvasTexture>();
-  const {nodes, materials} = useGLTF('/fonts/keycap.glb');
+  const {nodes} = useGLTF('/fonts/keycap.glb');
   const canvasRef = useRef(document.createElement('canvas'));
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : 'auto';
-    return () => (document.body.style.cursor = 'auto');
+    return () => {
+      document.body.style.cursor = 'auto';
+    };
   }, [hovered]);
   function redraw() {
     const canvas = canvasRef.current;
@@ -162,6 +122,7 @@ function Keycap(props: any) {
     redraw();
   }, [label, props.selected]);
 
+  const AniMeshMaterial = animated.meshPhysicalMaterial as any;
   return (
     <>
       <animated.mesh
@@ -172,17 +133,14 @@ function Keycap(props: any) {
         onPointerOut={() => hover(false)}
         geometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
       >
-        <animated.meshPhysicalMaterial
-          attach="material"
-          color={selected ? cc : 'white'}
-        >
+        <AniMeshMaterial attach="material" color={selected ? cc : 'white'}>
           <canvasTexture
             minFilter={THREE.LinearMipMapNearestFilter}
             ref={textureRef as any}
             attach="map"
             image={canvasRef.current}
           />
-        </animated.meshPhysicalMaterial>
+        </AniMeshMaterial>
       </animated.mesh>
     </>
   );
@@ -318,7 +276,7 @@ export const KeyboardCanvas = () => {
 
   return (
     <div style={{height: 400, width: '100%'}}>
-      <Canvas pixelRatio={2} camera={{zoom: 4.2, fov: 80}}>
+      <Canvas camera={{zoom: 4.2, fov: 80}}>
         <spotLight position={[-10, 0, -5]} intensity={1} />
 
         {false && <OrbitControls makeDefault onEnd={console.log} />}
@@ -336,9 +294,8 @@ export const KeyboardCanvas = () => {
                   rotation={[0, 0, -r]}
                   scale={[k.w, k.h, 1]}
                   color={getColors(k)}
-                  onClick={(evt) => {
+                  onClick={(evt: any) => {
                     console.log(evt);
-
                     dispatch(updateSelectedKey(i));
                   }}
                   selected={i === selectedKey}
