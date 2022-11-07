@@ -1,13 +1,13 @@
 {
   "license": "GPL-3.0",
   "scripts": {
-    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"yarn dev\" \"npm --prefix api start\"",
+    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && snowpack dev",
     "build": "via-keyboards public/definitions && snowpack build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "build:azure": "yarn remove via-keyboards && yarn add https://github.com/the-via/keyboards.git && yarn build"
+    "build:azure": "npm uninstall via-keyboards && npm i https://github.com/the-via/keyboards.git && npm run build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
@@ -68,7 +68,6 @@
     "prettier": "^2.2.1",
     "snowpack": "^3.3.7",
     "snowpack-plugin-json5": "^1.0.0",
-    "typescript": "^4.6.2",
-    "yarn": "^1.22.18"
+    "typescript": "^4.6.2"
   }
 }
