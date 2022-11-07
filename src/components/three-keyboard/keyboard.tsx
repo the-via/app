@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {useSpring, animated} from '@react-spring/three';
 import type {KeyColor} from '../../utils/themes';
-import type {VIAKey, KeyColorType} from 'via-reader';
+import type {VIAKey, KeyColorType} from '@the-via/reader';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
@@ -24,7 +24,7 @@ import {Canvas} from '@react-three/fiber';
 import {useGLTF, OrbitControls} from '@react-three/drei';
 
 import {getThemeFromStore} from 'src/utils/device-store';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
 import {
   getSelectedKey,
