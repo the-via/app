@@ -8,7 +8,7 @@ import {
   VIADefinitionV2,
   getLightingDefinition,
   KeycodeType,
-} from 'via-reader';
+} from '@the-via/reader';
 
 export interface IKeycode {
   name: string;

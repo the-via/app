@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {DefinitionVersion} from 'via-reader';
+import type {DefinitionVersion} from '@the-via/reader';
 import type {
   ConnectedDevice,
   ConnectedDevices,

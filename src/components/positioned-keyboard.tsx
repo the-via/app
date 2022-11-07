@@ -19,8 +19,8 @@ import type {
   VIAKey,
   KeyColorType,
   Result,
-} from 'via-reader';
-import {getBoundingBox} from 'via-reader';
+} from '@the-via/reader';
+import {getBoundingBox} from '@the-via/reader';
 import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';

@@ -9,7 +9,7 @@ import type {
   VIADefinitionV3,
   VIAItem,
   VIAControlItem,
-} from 'via-reader';
+} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 

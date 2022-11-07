@@ -11,14 +11,14 @@ import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';
-import {evalExpr} from 'pelpi';
+import {evalExpr} from '@the-via/pelpi';
 import type {
   VIAMenu,
   VIASubmenu,
   VIASubmenuSlice,
   VIAItem,
   VIAItemSlice,
-} from 'via-reader';
+} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {

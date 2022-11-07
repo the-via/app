@@ -12,7 +12,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
-import type {LayoutLabel} from 'via-reader';
+import type {LayoutLabel} from '@the-via/reader';
 import type {FC} from 'react';
 
 const LayoutControl: React.VFC<{

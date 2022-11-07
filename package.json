@@ -16,6 +16,8 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@microsoft/applicationinsights-web": "^2.8.6",
     "@reduxjs/toolkit": "^1.6.1",
+    "@the-via/pelpi": "^0.0.3",
+    "@the-via/reader": "^1.0.1",
     "@types/lodash.partition": "^4.6.6",
     "@types/raf-schd": "^4.0.1",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
@@ -23,7 +25,6 @@
     "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
-    "pelpi": "https://github.com/the-via/pelpi.git#728a945c7fdf6300e026a3c6e258d4a5eb1e5c9b",
     "raf-schd": "^4.0.3",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -37,8 +38,7 @@
     "styled-components": "^5.3.5",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
-    "via-keyboards": "https://github.com/the-via/keyboards.git",
-    "via-reader": "https://github.com/the-via/reader.git#3c659523c9e613ddd43420160873d6ed0a44b5f8"
+    "via-keyboards": "https://github.com/the-via/keyboards.git"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",

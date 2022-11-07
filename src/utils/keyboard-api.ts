@@ -1,5 +1,5 @@
 import type {Device, Keymap} from '../types/types';
-import type {LightingValue, MatrixInfo} from 'via-reader';
+import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 

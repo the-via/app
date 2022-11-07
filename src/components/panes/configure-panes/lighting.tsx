@@ -12,7 +12,7 @@ import {
   AdvancedLightingValues,
   AdvancedPane,
 } from './submenus/lighting/advanced';
-import {getLightingDefinition, isVIADefinitionV2} from 'via-reader';
+import {getLightingDefinition, isVIADefinitionV2} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
