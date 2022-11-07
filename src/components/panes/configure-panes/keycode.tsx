@@ -151,7 +151,7 @@ export const KeycodePane: FC = () => {
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const KeycodeCategories = useMemo(
     () => generateKeycodeCategories(basicKeyToByte),
-    basicKeyToByte,
+    [basicKeyToByte],
   );
 
   // TODO: improve typing so we can get rid of this

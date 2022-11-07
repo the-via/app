@@ -26,6 +26,7 @@ type ViaSaveFile = {
   vendorProductId: number;
   layers: string[][];
   macros?: string[];
+  encoders?: [string, string][][];
 };
 
 const isViaSaveFile = (obj: any): obj is ViaSaveFile =>
@@ -59,8 +60,52 @@ export const Pane: FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const saveLayout = () => {
-    const {name, vendorProductId} = selectedDefinition;
+  const getEncoderValues = async () => {
+    const {name, vendorProductId, layouts} = selectedDefinition;
+    const {keys, optionKeys} = layouts;
+    const encoders = [
+      ...keys,
+      ...Object.values(optionKeys)
+        .flatMap((a) => Object.values(a))
+        .flat(),
+    ]
+      .filter((a) => 'ei' in a)
+      .map((a) => a.ei as number);
+    if (encoders.length > 0) {
+      const maxEncoder = Math.max(...encoders) + 1;
+      const numberOfLayers = rawLayers.length;
+      const encoderValues = await Promise.all(
+        Array(maxEncoder)
+          .fill(0)
+          .map((_, i) =>
+            Promise.all(
+              Array(numberOfLayers)
+                .fill(0)
+                .map((_, j) =>
+                  Promise.all([
+                    selectedDevice.api.getEncoderValue(j, i, false),
+                    selectedDevice.api.getEncoderValue(j, i, true),
+                  ]).then(
+                    (a) =>
+                      a.map(
+                        (keyByte) =>
+                          getCodeForByte(keyByte, basicKeyToByte, byteToKey) ||
+                          '',
+                      ) as [string, string],
+                  ),
+                ),
+            ),
+          ),
+      );
+      return encoderValues;
+    } else {
+      return [];
+    }
+  };
+
+  const saveLayout = async () => {
+    const {name, vendorProductId, layouts} = selectedDefinition;
+    const encoderValues = await getEncoderValues();
     const saveFile: ViaSaveFile = {
       name,
       vendorProductId,
@@ -72,7 +117,9 @@ export const Pane: FC = () => {
               getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
           ), // TODO: should empty string be empty keycode instead?
       ),
+      encoders: encoderValues,
     };
+
     const content = stringify(saveFile);
     const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
     const blob = new Blob([content], {type: 'application/json'});
@@ -135,6 +182,30 @@ export const Pane: FC = () => {
       );
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+      if (saveFile.encoders) {
+        await Promise.all(
+          saveFile.encoders.map((encoder, id) =>
+            Promise.all(
+              encoder.map((layer, layerId) =>
+                Promise.all([
+                  selectedDevice.api.setEncoderValue(
+                    layerId,
+                    id,
+                    false,
+                    getByteForCode(`${layer[0]}`, basicKeyToByte),
+                  ),
+                  selectedDevice.api.setEncoderValue(
+                    layerId,
+                    id,
+                    true,
+                    getByteForCode(`${layer[1]}`, basicKeyToByte),
+                  ),
+                ]),
+              ),
+            ),
+          ),
+        );
+      }
 
       setSuccessMessage('Successfully updated layout!');
     };
