@@ -45,10 +45,7 @@ import {
   noop,
   RotationContainer,
 } from './positioned-keyboard/base';
-import {
-  EncoderKeyComponent,
-  InnerEncoderKeyContainer,
-} from './positioned-keyboard/encoder-key';
+import {EncoderKeyComponent} from './positioned-keyboard/encoder-key';
 import {Matrix} from './positioned-keyboard/matrix';
 
 export const CSSVarObject = {
