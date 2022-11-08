@@ -26,26 +26,6 @@ export default {
       '@snowpack/plugin-webpack',
       {
         extendConfig: (config) => {
-          const cssModulesRule = config.module.rules.find(
-            (rule) =>
-              rule &&
-              rule.use &&
-              rule.use.find(
-                (use) =>
-                  use &&
-                  use.loader &&
-                  use.loader.includes('css-loader') &&
-                  use.options &&
-                  use.options.modules,
-              ),
-          );
-
-          if (cssModulesRule) {
-            cssModulesRule.use.unshift({
-              loader: path.resolve('./scripts/css-modules-fix.js'),
-            });
-          }
-
           return config;
         },
       },

@@ -1,5 +1,5 @@
 import React, {createRef, FC, ReactNode, useEffect, useState} from 'react';
-import styles from './Home.module.css';
+import styled from 'styled-components';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
 import {Title} from './title-bar';
@@ -34,6 +34,38 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+
+const ErrorHome = styled.div`
+  background: var(--color_jet);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const UsbError = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 650px;
+  text-align: center;
+`;
+
+const UsbErrorIcon = styled.div`
+  font-size: 2rem;
+`;
+
+const UsbErrorHeading = styled.h1`
+  margin: 1rem 0 0;
+`;
+
+const UsbErrorWebHIDLink = styled.a`
+  text-decoration: underline;
+`;
 
 const timeoutRepeater =
   (fn: () => void, timeout: number, numToRepeat = 0) =>
@@ -187,27 +219,26 @@ export const Home = (props: HomeProps) => {
   }, [selectedDevice]);
 
   return (
-    <div className={styles.home} ref={homeElem} tabIndex={0} style={{flex: 1}}>
+    <ErrorHome ref={homeElem} tabIndex={0} style={{flex: 1}}>
       {!hasHIDSupport ? (
-        <div className={styles.usbError}>
-          <div className={styles.usbErrorIcon}>❌</div>
-          <h1 className={styles.usbErrorHeading}>USB Detection Error</h1>
+        <UsbError>
+          <UsbErrorIcon>❌</UsbErrorIcon>
+          <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
           <p>
             Looks like there was a problem getting USB detection working. Right
             now, we only support{' '}
-            <a
-              className={styles.usbErrorWebHIDLink}
+            <UsbErrorWebHIDLink
               href="https://caniuse.com/?search=webhid"
               target="_blank"
             >
               browsers that have WebHID enabled
-            </a>
+            </UsbErrorWebHIDLink>
             , so make sure yours is compatible before trying again.
           </p>
-        </div>
+        </UsbError>
       ) : (
         props.children
       )}
-    </div>
+    </ErrorHome>
   );
 };

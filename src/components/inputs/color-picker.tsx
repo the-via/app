@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import styles from './color.module.css';
 
 import {
   getRGBPrime,
@@ -24,12 +23,44 @@ type State = {
   showPicker: boolean;
 };
 
+const ColorLens = styled.div`
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid black;
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  box-sizing: border-box;
+  transform: translate3d(195px, 195px, 0);
+`;
+const ColorInner = styled.div`
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, white, rgba(0, 0, 0, 0));
+`;
+
+const ColorOuter = styled.div`
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    red,
+    yellow,
+    lime,
+    aqua,
+    blue,
+    magenta,
+    red
+  );
+`;
+
 export const ColorThumbnail = styled.div`
   display: inline-block;
   height: 20px;
   width: 30px;
   border-radius: 2px;
-  background: ${(props) => props.color};
   border: 2px solid var(--color_dark-grey);
   cursor: pointer;
   &:hover {
@@ -70,7 +101,6 @@ const PickerContainer = styled.div`
 `;
 
 const ColorPreview = styled.div`
-  background: ${(props) => props.color};
   width: 180px;
   height: 24px;
   border: 4px solid var(--color_dark-grey);
@@ -152,12 +182,16 @@ export class ColorPicker extends Component<Props, State> {
   onMouseDown: React.MouseEventHandler = (evt) => {
     this.mouseDown = true;
     this.onMouseMove(evt);
-    this.ref?.classList.add(styles.mouseDown);
+    if (this.ref) {
+      this.ref.style.cursor = 'pointer';
+    }
   };
 
   onMouseUp: React.MouseEventHandler = (evt) => {
     this.mouseDown = false;
-    this.ref?.classList.remove(styles.mouseDown);
+    if (this.ref) {
+      this.ref.style.cursor = 'auto';
+    }
   };
 
   getRGB({hue, sat}: {hue: number; sat: number}) {
@@ -198,28 +232,24 @@ export class ColorPicker extends Component<Props, State> {
         <ColorThumbnail
           ref={this.colorThumbnail}
           onClick={this.onThumbnailClick}
-          color={color}
+          style={{background: color}}
         />
         {this.state.showPicker && (
           <PickerContainer
             ref={this.pickerContainer}
             onMouseUp={this.onMouseUp}
           >
-            <ColorPreview color={this.getRGB(this.props.color)} />
+            <ColorPreview style={{background: this.getRGB(this.props.color)}} />
             <Container>
-              <div
+              <ColorOuter
                 onMouseDown={this.onMouseDown}
                 onMouseMove={this.onMouseMove}
                 ref={(ref) => (this.ref = ref)}
-                className={styles.outer}
               >
-                <div className={styles.inner}>
-                  <div
-                    className={styles.lens}
-                    style={{transform: this.state.lensTransform}}
-                  />
-                </div>
-              </div>
+                <ColorInner>
+                  <ColorLens style={{transform: this.state.lensTransform}} />
+                </ColorInner>
+              </ColorOuter>
             </Container>
           </PickerContainer>
         )}

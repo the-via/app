@@ -1,6 +1,5 @@
 import React, {FC, useState, useEffect, useMemo} from 'react';
 import styled from 'styled-components';
-import styles from '../../menus/keycode-menu.module.css';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
 import {title, component} from '../../icons/keyboard';
@@ -60,7 +59,7 @@ const SubmenuRow = styled(Row)`
   padding-left: 8px;
 `;
 
-const Keycode = styled(Button)`
+const Keycode = styled(Button)<{disabled: boolean}>`
   border-radius: 2px;
   width: 50px;
   height: 50px;
@@ -70,6 +69,7 @@ const Keycode = styled(Button)`
   background: var(--color_dark-grey);
   color: var(--color_light_grey);
   margin: 0;
+  ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
 `;
 
 const CustomKeycode = styled(Button)`
@@ -283,20 +283,15 @@ export const KeycodePane: FC = () => {
     const {code, title, name} = keycode;
     return (
       <Keycode
-        className={[
-          !keycodeInMaster(code, basicKeyToByte) &&
-            code != 'text' &&
-            styles.disabled,
-          styles.keycode,
-        ].join(' ')}
         key={code}
+        disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
         onClick={() => handleClick(code, index)}
         onMouseOver={(_) =>
           setMouseOverDesc(title ? `${code}: ${title}` : code)
         }
         onMouseOut={(_) => setMouseOverDesc(null)}
       >
-        <div className={styles.innerKeycode}>{name}</div>
+        <div>{name}</div>
       </Keycode>
     );
   };
