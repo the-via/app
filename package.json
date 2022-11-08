@@ -38,7 +38,7 @@
     "styled-components": "^5.3.5",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
-    "via-keyboards": "https://github.com/the-via/keyboards.git"
+    "via-keyboards": "github:the-via/keyboards"
   },
   "devDependencies": {
     "@snowpack/plugin-dotenv": "^2.1.0",
