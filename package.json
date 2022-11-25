@@ -11,7 +11,7 @@
     "build:azure": "npm run refresh-kbs && npm run build"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
