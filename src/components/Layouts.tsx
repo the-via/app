@@ -49,8 +49,8 @@ function Layouts({
           <Label>{name}</Label>
           <Detail>
             <AccentSelect
-              onChange={(option) => {
-                if (option) {
+              onChange={(option: any) => {
+                if (option && option.label) {
                   const optionIndex = options.indexOf(option.label);
                   setSelectedOptionKeys((selectedOptions) => {
                     selectedOptions[layoutKey] = optionIndex;

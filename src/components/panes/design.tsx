@@ -1,5 +1,4 @@
 import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
-import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
@@ -35,6 +34,7 @@ import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
+import {useSize} from 'src/utils/use-size';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -187,10 +187,6 @@ export const DesignTab: FC = () => {
   const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
   const [showMatrix, setShowMatrix] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
-  });
   const versionDefinitions = useMemo(
     () =>
       localDefinitions.filter(
@@ -205,15 +201,7 @@ export const DesignTab: FC = () => {
   }));
 
   const flexRef = useRef(null);
-  useResize(
-    flexRef,
-    (entry) =>
-      flexRef.current &&
-      setDimensions({
-        width: entry.width,
-        height: entry.height,
-      }),
-  );
+  const dimensions = useSize(flexRef);
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
@@ -279,7 +267,7 @@ export const DesignTab: FC = () => {
               <Label>Shown Keyboard Definition</Label>
               <Detail>
                 <AccentSelect
-                  onChange={(option) => {
+                  onChange={(option: any) => {
                     // Reset selected layouts when choosing a different
                     // definition
                     setSelectedOptionKeys(() => []);

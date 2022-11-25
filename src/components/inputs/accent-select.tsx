@@ -1,6 +1,5 @@
 import React from 'react';
-import Select from 'react-select';
-import type {Props} from 'react-select';
+import Select, {Props} from 'react-select';
 
 const customStyles = {
   option: (provided: any, state: any) => {

@@ -11,7 +11,7 @@
     "build:azure": "npm run refresh-kbs && npm run build"
   },
   "engines": {
-    "node": ">=17.0.0"
+    "node": ">=16.0.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.1.1",
@@ -19,13 +19,13 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@microsoft/applicationinsights-web": "^2.8.6",
+    "@react-hook/resize-observer": "^1.2.6",
     "@reduxjs/toolkit": "^1.6.1",
     "@the-via/pelpi": "^0.0.3",
     "@the-via/reader": "^1.0.1",
     "@types/lodash.partition": "^4.6.6",
     "@types/raf-schd": "^4.0.1",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
-    "connected-react-router": "^6.9.3",
     "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
@@ -33,13 +33,12 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-redux": "^7.2.4",
-    "react-resize-observer-hook": "^0.0.2",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-select": "^4.3.1",
+    "react-select": "^5.6.1",
     "react-tooltip": "^4.2.21",
     "redux-logger": "^3.0.6",
-    "styled-components": "^5.3.5",
+    "styled-components": "^5.2.0",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
     "via-keyboards": "github:the-via/keyboards"
@@ -54,7 +53,7 @@
     "@testing-library/react": "^11.2.6",
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
-    "@types/react": "^18.0.4",
+    "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.3",
     "@types/react-router": "^5.1.16",
     "@types/react-router-dom": "^5.1.8",

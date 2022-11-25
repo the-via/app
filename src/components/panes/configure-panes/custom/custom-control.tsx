@@ -109,8 +109,7 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
       );
       return (
         <AccentSelect
-          width={250}
-          onChange={(option) =>
+          onChange={(option: any) =>
             option && props.updateValue(name, ...command, +option.value)
           }
           options={selectOptions}

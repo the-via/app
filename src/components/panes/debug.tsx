@@ -1,5 +1,4 @@
 import React, {useRef, useState, FC, useEffect, useCallback} from 'react';
-import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
@@ -36,6 +35,7 @@ import {
   getBasicKeyToByte,
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
+import {useSize} from 'src/utils/use-size';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -198,7 +198,7 @@ const TestControls = () => {
           <AccentSelect
             defaultValue={selectOptions[selectionVal]}
             options={selectOptions}
-            onChange={(option) => {
+            onChange={(option: any) => {
               option && setSelectionVal(+option.value);
             }}
           />
@@ -240,10 +240,6 @@ export const Debug: FC = () => {
   const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
   const [selectedKey, setSelectedKey] = useState<undefined | number>(0);
   const [showMatrix, setShowMatrix] = useState(false);
-  const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
-  });
 
   const options = allDefinitions.map(([, definition], index) => ({
     label: definition.name,
@@ -252,15 +248,7 @@ export const Debug: FC = () => {
   const entry = allDefinitions[selectedDefinitionIndex];
 
   const flexRef = useRef(null);
-  useResize(
-    flexRef,
-    (entry) =>
-      flexRef.current &&
-      setDimensions({
-        width: entry.width,
-        height: entry.height,
-      }),
-  );
+  const dimensions = useSize(flexRef);
 
   return (
     <DebugPane>
@@ -326,7 +314,7 @@ export const Debug: FC = () => {
                 <Label>Dummy Keyboard</Label>
                 <Detail>
                   <AccentSelect
-                    onChange={(option) =>
+                    onChange={(option: any) =>
                       option && setSelectedDefinition(+option.value)
                     }
                     defaultValue={options[0]}
