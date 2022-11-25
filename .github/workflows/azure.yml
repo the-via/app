@@ -20,6 +20,12 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cleanup cache
+        run: |
+          rm -rf ./.npm-cache || true # just to be sure
+          mkdir -p ./.npm-cache || true # just to be sure
+          npm cache clean -f
+          export npm_config_cache=./.npm-cache
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
