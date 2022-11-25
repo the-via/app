@@ -23,13 +23,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Cleanup cache
-        run: |
-          rm -rf ./.npm-cache || true # just to be sure
-          mkdir -p ./.npm-cache || true # just to be sure
-          mkdir -p ./.npm-cache || true # just to be sure
-          npm cache clean -f
-          export npm_config_cache=./.npm-cache
+      - run: npm ci
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
