@@ -94,6 +94,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
           <Label>{labelContent}</Label>
           <Detail>
             <AccentSelect
+              width={250}
               onChange={(option: any) => {
                 if (option) {
                   dispatch(updateBacklightValue(command, +option.value));
