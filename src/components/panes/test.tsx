@@ -1,7 +1,5 @@
 import React, {useState, useEffect, useRef, FC} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import rafSchd from 'raf-schd';
-import useResizeObserver from 'use-resize-observer';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
@@ -28,6 +26,7 @@ import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
+import {useSize} from 'src/utils/use-size';
 
 const Container = styled.div`
   display: flex;
@@ -55,10 +54,6 @@ export const Test: FC = () => {
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
 
-  const [dimensions, setDimensions] = useState({
-    width: 0,
-    height: 0,
-  });
   const [selectedKeys, setSelectedKeys] = useState(
     {} as {[key: string]: TestKeyState},
   );
@@ -168,20 +163,8 @@ export const Test: FC = () => {
     };
   }, []); // Empty array ensures that effect is only run on mount and unmount
 
-  const onFlexResize = React.useCallback(
-    ({width, height}: {width?: number; height?: number}) => {
-      if (width !== undefined && height !== undefined)
-        setDimensions({
-          width,
-          height,
-        });
-    },
-    [setDimensions],
-  );
-
-  const {ref: flexRef} = useResizeObserver({
-    onResize: rafSchd(onFlexResize),
-  });
+  const flexRef = useRef(null);
+  const dimensions = useSize(flexRef);
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;

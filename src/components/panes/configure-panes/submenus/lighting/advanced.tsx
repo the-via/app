@@ -4,7 +4,7 @@ import {
   getLightingDefinition,
   isVIADefinitionV2,
   LightingValue,
-} from 'via-reader';
+} from '@the-via/reader';
 import {LightingControl, ControlMeta} from './lighting-control';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedLightingData} from 'src/store/lightingSlice';

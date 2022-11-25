@@ -11,7 +11,7 @@ import {
   BlankKeyboardFrame,
   calculateKeyboardFrameDimensions,
 } from './positioned-keyboard';
-import type {VIAKey} from 'via-reader';
+import type {VIAKey} from '@the-via/reader';
 import type {Key} from 'src/types/types';
 import {
   getKeyContainerPosition,

@@ -12,7 +12,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {useDispatch} from 'react-redux';
-import type {LayoutLabel} from 'via-reader';
+import type {LayoutLabel} from '@the-via/reader';
 import type {FC} from 'react';
 
 const LayoutControl: React.VFC<{
@@ -32,10 +32,10 @@ const LayoutControl: React.VFC<{
         <Label>{label}</Label>
         <Detail>
           <AccentSelect
-            width={150}
+            /*width={150}*/
             defaultValue={options[selectedOption]}
             options={options}
-            onChange={(option) => {
+            onChange={(option: any) => {
               if (option) {
                 onChange(+option.value);
               }

@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, FC} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
@@ -8,7 +8,6 @@ import {useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
 import {saveMacros} from '../../../store/macrosSlice';
 import {useDispatch} from 'react-redux';
-import type {FC} from 'react';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -53,7 +52,7 @@ export const Pane: FC = () => {
         .map((idx) => (
           <SubmenuRow
             selected={selectedMacro === idx}
-            onClick={(_) => setSelectedMacro(idx)}
+            onClick={() => setSelectedMacro(idx)}
             key={idx}
           >
             {`Macro ${idx}`}

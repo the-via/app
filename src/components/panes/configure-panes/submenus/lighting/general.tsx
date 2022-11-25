@@ -8,7 +8,7 @@ import {
   LightingValue,
   VIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import {LightingControl} from './lighting-control';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';

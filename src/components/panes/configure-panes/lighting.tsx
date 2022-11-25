@@ -12,7 +12,7 @@ import {
   AdvancedLightingValues,
   AdvancedPane,
 } from './submenus/lighting/advanced';
-import {getLightingDefinition, isVIADefinitionV2} from 'via-reader';
+import {getLightingDefinition, isVIADefinitionV2} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
@@ -78,7 +78,7 @@ export const Pane: FC = () => {
           {getMenus().map((menu) => (
             <SubmenuRow
               selected={selectedCategory === menu}
-              onClick={(_) => setSelectedCategory(menu)}
+              onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >
               {menu.label}

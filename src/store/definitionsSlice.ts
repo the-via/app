@@ -12,7 +12,7 @@ import type {
   KeyboardDictionary,
   VIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import type {AppThunk, RootState} from './index';
 import {
   getSelectedDevicePath,

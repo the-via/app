@@ -1,11 +1,11 @@
 import React, {useState, useRef, useEffect} from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import useResize from 'react-resize-observer-hook';
+import {useSize} from '../../utils/use-size';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
-import {Pane as DefaultPane} from './pane';
+import {ConfigureBasePane} from './pane';
 import ReactTooltip from 'react-tooltip';
 import {
   CustomFeaturesV2,
@@ -14,7 +14,7 @@ import {
   isVIADefinitionV3,
   VIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
 import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
@@ -40,12 +40,6 @@ import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
-
-const Pane = styled(DefaultPane)`
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-evenly;
-`;
 
 const MenuContainer = styled.div`
   padding: 15px 30px 20px 10px;
@@ -188,7 +182,7 @@ export const ConfigurePane = () => {
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
   return (
-    <Pane>
+    <ConfigureBasePane>
       {showLoader ? (
         <Loader
           {...{
@@ -199,7 +193,7 @@ export const ConfigurePane = () => {
       ) : (
         <ConfigureGrid />
       )}
-    </Pane>
+    </ConfigureBasePane>
   );
 };
 
@@ -207,21 +201,10 @@ const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
   const [selectedRow, setRow] = useState(0);
-  const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
-  });
-  const flexRef = useRef(null);
 
-  useResize(
-    flexRef,
-    (entry) =>
-      flexRef.current &&
-      setDimensions({
-        width: entry.width,
-        height: entry.height,
-      }),
-  );
+  const flexRef = useRef(null);
+  const dimensions = useSize(flexRef);
+
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const selectedTitle = KeyboardRows[selectedRow]?.Title;

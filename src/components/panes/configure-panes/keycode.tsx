@@ -20,7 +20,7 @@ import {
   isVIADefinitionV3,
   isVIADefinitionV2,
   VIADefinitionV3,
-} from 'via-reader';
+} from '@the-via/reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
 import {getNextKey} from '../../positioned-keyboard';
 import {useDispatch} from 'react-redux';
@@ -226,7 +226,7 @@ export const KeycodePane: FC = () => {
         {getEnabledMenus(layerCount).map(({label}) => (
           <SubmenuRow
             selected={label === selectedCategory}
-            onClick={(_) => setSelectedCategory(label)}
+            onClick={() => setSelectedCategory(label)}
             key={label}
           >
             {label}
@@ -286,10 +286,8 @@ export const KeycodePane: FC = () => {
         key={code}
         disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
         onClick={() => handleClick(code, index)}
-        onMouseOver={(_) =>
-          setMouseOverDesc(title ? `${code}: ${title}` : code)
-        }
-        onMouseOut={(_) => setMouseOverDesc(null)}
+        onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
+        onMouseOut={() => setMouseOverDesc(null)}
       >
         <div>{name}</div>
       </Keycode>
@@ -300,8 +298,8 @@ export const KeycodePane: FC = () => {
     return (
       <CustomKeycode
         onClick={() => selectedKey !== null && handleClick('text', 0)}
-        onMouseOver={(_) => setMouseOverDesc('Enter any QMK Keycode')}
-        onMouseOut={(_) => setMouseOverDesc(null)}
+        onMouseOver={() => setMouseOverDesc('Enter any QMK Keycode')}
+        onMouseOut={() => setMouseOverDesc(null)}
       >
         Any
       </CustomKeycode>

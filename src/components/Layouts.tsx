@@ -2,7 +2,7 @@ import React from 'react';
 import {AccentSelect} from './inputs/accent-select';
 import {AccentSlider} from './inputs/accent-slider';
 import {Detail, IndentedControlRow, Label} from './panes/grid';
-import type {VIADefinitionV2, VIADefinitionV3} from 'via-reader';
+import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 
 interface Props {
   definition: VIADefinitionV2 | VIADefinitionV3;
@@ -49,8 +49,8 @@ function Layouts({
           <Label>{name}</Label>
           <Detail>
             <AccentSelect
-              onChange={(option) => {
-                if (option) {
+              onChange={(option: any) => {
+                if (option && option.label) {
                   const optionIndex = options.indexOf(option.label);
                   setSelectedOptionKeys((selectedOptions) => {
                     selectedOptions[layoutKey] = optionIndex;

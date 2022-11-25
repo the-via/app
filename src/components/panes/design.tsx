@@ -1,5 +1,4 @@
 import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
-import useResize from 'react-resize-observer-hook';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
@@ -17,8 +16,9 @@ import {
   keyboardDefinitionV3ToVIADefinitionV3,
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
-} from 'via-reader';
-import type {DefinitionVersion} from 'via-reader';
+  DefinitionVersionMap,
+} from '@the-via/reader';
+import type {DefinitionVersion} from '@the-via/reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   ControlRow,
@@ -35,6 +35,7 @@ import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
+import {useSize} from 'src/utils/use-size';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -187,11 +188,7 @@ export const DesignTab: FC = () => {
   const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
   const [showMatrix, setShowMatrix] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const [dimensions, setDimensions] = useState({
-    width: 1280,
-    height: 900,
-  });
-  const versionDefinitions = useMemo(
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
         (definitionMap) => definitionMap[definitionVersion],
@@ -205,22 +202,14 @@ export const DesignTab: FC = () => {
   }));
 
   const flexRef = useRef(null);
-  useResize(
-    flexRef,
-    (entry) =>
-      flexRef.current &&
-      setDimensions({
-        width: entry.width,
-        height: entry.height,
-      }),
-  );
+  const dimensions = useSize(flexRef);
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
 
   return (
     <DesignPane
-      onDragOver={(evt) => {
+      onDragOver={(evt: DragEvent) => {
         evt.dataTransfer.effectAllowed = 'copyMove';
         evt.dataTransfer.dropEffect = 'none';
         evt.preventDefault();
@@ -279,7 +268,7 @@ export const DesignTab: FC = () => {
               <Label>Shown Keyboard Definition</Label>
               <Detail>
                 <AccentSelect
-                  onChange={(option) => {
+                  onChange={(option: any) => {
                     // Reset selected layouts when choosing a different
                     // definition
                     setSelectedOptionKeys(() => []);
@@ -310,7 +299,7 @@ export const DesignTab: FC = () => {
               </Detail>
             </ControlRow>
           )}
-          {errors.map((error) => (
+          {errors.map((error: string) => (
             <IndentedControlRow>
               <DesignErrorMessage>{error}</DesignErrorMessage>
             </IndentedControlRow>

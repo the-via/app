@@ -7,7 +7,7 @@ import {
   getLightingDefinition,
   isVIADefinitionV2,
   LightingValue,
-} from 'via-reader';
+} from '@the-via/reader';
 import {getNextKey} from './positioned-keyboard';
 import {useDispatch} from 'react-redux';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';

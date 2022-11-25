@@ -6,7 +6,7 @@ import type {
   LightingValue,
   VIAKey,
   VIAMenu,
-} from 'via-reader';
+} from '@the-via/reader';
 
 export type HIDColor = {
   hue: number;

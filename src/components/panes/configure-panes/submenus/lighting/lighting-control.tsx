@@ -3,7 +3,11 @@ import {AccentSlider} from '../../../../inputs/accent-slider';
 import {AccentSelect} from '../../../../inputs/accent-select';
 import {AccentRange} from '../../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../../grid';
-import type {VIADefinitionV2, VIADefinitionV3, LightingValue} from 'via-reader';
+import type {
+  VIADefinitionV2,
+  VIADefinitionV3,
+  LightingValue,
+} from '@the-via/reader';
 import {ArrayColorPicker} from '../../../../inputs/color-picker';
 import {useDispatch} from 'react-redux';
 import {
@@ -90,8 +94,8 @@ export const LightingControl = (props: AdvancedControlProps) => {
           <Label>{labelContent}</Label>
           <Detail>
             <AccentSelect
-              width={250}
-              onChange={(option) => {
+              /*width={250}*/
+              onChange={(option: any) => {
                 if (option) {
                   dispatch(updateBacklightValue(command, +option.value));
                 }

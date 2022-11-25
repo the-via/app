@@ -9,7 +9,7 @@ import type {
   VIADefinitionV3,
   VIAItem,
   VIAControlItem,
-} from 'via-reader';
+} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 
@@ -109,8 +109,8 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
       );
       return (
         <AccentSelect
-          width={250}
-          onChange={(option) =>
+          /*width={250}*/
+          onChange={(option: any) =>
             option && props.updateValue(name, ...command, +option.value)
           }
           options={selectOptions}
