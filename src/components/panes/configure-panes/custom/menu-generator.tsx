@@ -125,7 +125,7 @@ function submenuGenerator(
   }
 }
 
-export const Pane: React.VFC<Props> = (props) => {
+export const Pane: React.VFC<Props> = (props: any) => {
   const dispatch = useDispatch();
   const menus = categoryGenerator(props);
   const [selectedCategory, setSelectedCategory] = useState(
@@ -155,7 +155,7 @@ export const Pane: React.VFC<Props> = (props) => {
           {menus.map((menu) => (
             <SubmenuRow
               selected={selectedCategory.label === menu.label}
-              onClick={(_) => setSelectedCategory(menu)}
+              onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >
               {menu.label}

@@ -16,6 +16,7 @@ import {
   keyboardDefinitionV3ToVIADefinitionV3,
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
+  DefinitionVersionMap,
 } from '@the-via/reader';
 import type {DefinitionVersion} from '@the-via/reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
@@ -187,7 +188,7 @@ export const DesignTab: FC = () => {
   const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
   const [showMatrix, setShowMatrix] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
-  const versionDefinitions = useMemo(
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
         (definitionMap) => definitionMap[definitionVersion],
@@ -208,7 +209,7 @@ export const DesignTab: FC = () => {
 
   return (
     <DesignPane
-      onDragOver={(evt) => {
+      onDragOver={(evt: DragEvent) => {
         evt.dataTransfer.effectAllowed = 'copyMove';
         evt.dataTransfer.dropEffect = 'none';
         evt.preventDefault();
@@ -298,7 +299,7 @@ export const DesignTab: FC = () => {
               </Detail>
             </ControlRow>
           )}
-          {errors.map((error) => (
+          {errors.map((error: string) => (
             <IndentedControlRow>
               <DesignErrorMessage>{error}</DesignErrorMessage>
             </IndentedControlRow>
