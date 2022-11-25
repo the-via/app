@@ -32,7 +32,7 @@ const LayoutControl: React.VFC<{
         <Label>{label}</Label>
         <Detail>
           <AccentSelect
-            width={150}
+            /*width={150}*/
             defaultValue={options[selectedOption]}
             options={options}
             onChange={(option: any) => {
