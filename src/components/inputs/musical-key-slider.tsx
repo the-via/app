@@ -1,6 +1,6 @@
 import React from 'react';
 import {AccentSlider} from './accent-slider';
-import basicKeyToByte from '../../utils/key-to-byte/default.json5';
+import basicKeyToByte from '../../utils/key-to-byte/default.json';
 let drums: any;
 let square: any;
 let pipe: any;
