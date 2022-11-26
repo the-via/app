@@ -1,4 +1,5 @@
 import React from 'react';
+import {Routes} from 'react-router-dom';
 import styled from 'styled-components';
 
 export const HiddenInput = styled.input`
@@ -64,13 +65,13 @@ export function AccentSlider(props: Props) {
   };
 
   return (
-    <>
+    <Switch>
       <HiddenInput
         type="checkbox"
         checked={isHiddenChecked}
         onChange={hiddenOnChange}
       />
       <Slider isChecked={isHiddenChecked} />
-    </>
+    </Switch>
   );
 }

@@ -11,7 +11,7 @@ import {
 } from '@the-via/reader';
 import {LightingControl} from './lighting-control';
 import {useDispatch} from 'react-redux';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedLightingData,
   updateBacklightValue,
@@ -78,7 +78,7 @@ const UnderglowControls: [
 ];
 
 export const GeneralPane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 

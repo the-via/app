@@ -16,8 +16,7 @@ import {
   getSelectedRawLayers,
   saveRawKeymapToDevice,
 } from 'src/store/keymapSlice';
-import {useAppSelector} from 'src/store/hooks';
-import {useDispatch} from 'react-redux';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {saveMacros} from 'src/store/macrosSlice';
 
@@ -45,7 +44,7 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const rawLayers = useAppSelector(getSelectedRawLayers);

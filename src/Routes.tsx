@@ -1,6 +1,6 @@
 import React from 'react';
 import {UnconnectedGlobalMenu} from './components/menus/global';
-import {HashRouter as Router, Switch, Route} from 'react-router-dom';
+import {HashRouter as Router, Route, Routes} from 'react-router-dom';
 import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
@@ -15,7 +15,6 @@ export default () => {
   const hasHIDSupport = 'hid' in navigator;
 
   const RouteComponents = PANES.map((pane) => {
-    console.log(pane.path);
     return (
       <Route element={<pane.component />} key={pane.key} path={pane.path} />
     );
@@ -26,7 +25,7 @@ export default () => {
       <GlobalStyle />
       {hasHIDSupport && <UnconnectedGlobalMenu />}
       <Home hasHIDSupport={hasHIDSupport}>
-        <Switch>{RouteComponents}</Switch>
+        <Routes>{RouteComponents}</Routes>
       </Home>
     </Router>
   );
