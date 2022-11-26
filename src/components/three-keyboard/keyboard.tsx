@@ -196,13 +196,13 @@ function makeShape({width, height}: {width: number; height: number}) {
 const GROUND_HEIGHT = -300; // A Constant to store the ground height of the game.
 
 function Terrain() {
-  const terrain = useRef();
+  const terrain = useRef<THREE.Mesh>(null);
 
   useFrame(() => {
     if (terrain && terrain.current && terrain.current.position) {
       terrain.current.position.y -= 0.1;
       terrain.current.position.z += 0.1;
-      terrain.current.material.opacity =
+      (terrain.current.material as THREE.Material).opacity =
         1 + 0.5 * Math.sin(terrain.current.position.y / 12);
       console.log(terrain.current);
     }
