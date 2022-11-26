@@ -64,13 +64,13 @@ export function AccentSlider(props: Props) {
   };
 
   return (
-    <Switch>
+    <>
       <HiddenInput
         type="checkbox"
         checked={isHiddenChecked}
         onChange={hiddenOnChange}
       />
       <Slider isChecked={isHiddenChecked} />
-    </Switch>
+    </>
   );
 }

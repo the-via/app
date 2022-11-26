@@ -3,4 +3,5 @@
 build
 node_modules
 public/definitions
+vite-vs/public/definitions
 

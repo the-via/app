@@ -15,13 +15,9 @@ export default () => {
   const hasHIDSupport = 'hid' in navigator;
 
   const RouteComponents = PANES.map((pane) => {
+    console.log(pane.path);
     return (
-      <Route
-        component={pane.component}
-        exact={pane.key === 'default' ? true : false}
-        key={pane.key}
-        path={pane.path}
-      />
+      <Route element={<pane.component />} key={pane.key} path={pane.path} />
     );
   });
 
