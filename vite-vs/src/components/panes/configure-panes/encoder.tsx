@@ -2,7 +2,7 @@ import React, {FC, useState, useEffect} from 'react';
 import {Detail, Label, OverflowCell, ControlRow} from '../grid';
 import {CenterPane} from '../pane';
 import styled from 'styled-components';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {PelpiKeycodeInput} from 'src/components/inputs/pelpi/keycode-input';
 import {
   getSelectedDefinition,
@@ -18,7 +18,6 @@ import {
 import type {VIAKey} from '@the-via/reader';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import type {KeyboardAPI} from 'src/utils/keyboard-api';
-import {useDispatch} from 'react-redux';
 
 const Encoder = styled(CenterPane)`
   height: 100%;
@@ -36,7 +35,7 @@ export const Pane: FC = () => {
   const [cwValue, setCWValue] = useState<number>();
   const [ccwValue, setCCWValue] = useState<number>();
   const selectedKey = useAppSelector(getSelectedKey);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
   );

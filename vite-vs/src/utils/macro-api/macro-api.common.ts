@@ -23,7 +23,7 @@ export const DelayTerminator = 124; // '|';
 export const MacroTerminator = 0;
 
 export function getByte(keycode: string): number {
-  return basicKeyToByte[keycode.toUpperCase()];
+  return basicKeyToByte[keycode.toUpperCase() as keyof typeof basicKeyToByte];
 }
 
 export function buildKeyActionBytes(keyaction: KeyAction, keycode: string) {

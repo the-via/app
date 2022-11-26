@@ -19,13 +19,12 @@ import type {
   VIAItem,
   VIAItemSlice,
 } from '@the-via/reader';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedCustomMenuData,
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
-import {useDispatch} from 'react-redux';
 
 type Category = {
   label: string;
@@ -126,7 +125,7 @@ function submenuGenerator(
 }
 
 export const Pane: React.VFC<Props> = (props: any) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const menus = categoryGenerator(props);
   const [selectedCategory, setSelectedCategory] = useState(
     menus[0] || {label: '', Menu: () => <div />},

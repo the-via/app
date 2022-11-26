@@ -5,12 +5,11 @@ import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import type {ConnectedDevice} from '../../../types/types';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {useDispatch} from 'react-redux';
 import {
   getConnectedDevices,
   getSelectedDevicePath,
@@ -141,7 +140,7 @@ const KeyboardSelectors: React.VFC<{
 };
 
 export const Badge = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const definitions = useAppSelector(getDefinitions);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const connectedDevices = useAppSelector(getConnectedDevices);

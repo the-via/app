@@ -41,6 +41,7 @@ import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {KeyboardCanvas} from '../three-keyboard/keyboard';
+import {useAppDispatch} from 'src/store/hooks';
 
 const MenuContainer = styled.div`
   padding: 15px 30px 20px 10px;
@@ -146,7 +147,7 @@ function Loader(props: {
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
 }) {
   const {loadProgress, selectedDefinition} = props;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const connectedDevices = useAppSelector(getConnectedDevices);
   const supportedIds = useAppSelector(getSupportedIds);

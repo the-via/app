@@ -23,8 +23,7 @@ import {
 } from '@the-via/reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
 import {getNextKey} from '../../positioned-keyboard';
-import {useDispatch} from 'react-redux';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getBasicKeyToByte,
   getSelectedDefinition,
@@ -123,7 +122,7 @@ const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
 
 export const Pane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const keys = useAppSelector(getSelectedKeyDefinitions);
   useEffect(
     () => () => {
@@ -139,7 +138,7 @@ export const Pane: FC = () => {
 };
 
 export const KeycodePane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const macros = useAppSelector((state: any) => state.macros);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);

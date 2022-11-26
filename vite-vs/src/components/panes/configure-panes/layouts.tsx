@@ -10,8 +10,7 @@ import {
   getSelectedLayoutOptions,
   updateLayoutOption,
 } from 'src/store/definitionsSlice';
-import {useAppSelector} from 'src/store/hooks';
-import {useDispatch} from 'react-redux';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import type {LayoutLabel} from '@the-via/reader';
 import type {FC} from 'react';
 
@@ -72,7 +71,7 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
