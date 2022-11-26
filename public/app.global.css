@@ -297,6 +297,14 @@ a:hover {
     box-shadow: inset 0 0 3px 3px;
   }
 }
+@keyframes fade-in{
+  0% {
+  opacity: 0;
+  }
+  100% {
+  opacity: 1;
+  }
+}
 @keyframes border-glow {
   0% {
     border: 2px dashed var(--color_accent);
