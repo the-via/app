@@ -238,7 +238,7 @@ export const Case = (props: {width: number; height: number}) => {
   );
 };
 
-export const KeyboardCanvas = (props: {selectable: boolean}) => {
+export const KeyboardCanvas = (props: {selectable?: boolean}) => {
   const dispatch = useAppDispatch();
 
   const selectedKey = useAppSelector(getSelectedKey);
