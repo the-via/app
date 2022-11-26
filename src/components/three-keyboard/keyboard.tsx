@@ -130,8 +130,8 @@ function Keycap(props: any) {
         {...props}
         ref={ref}
         position={p}
-        onPointerOver={() => hover(true)}
-        onPointerOut={() => hover(false)}
+        onPointerOver={() => !props.disabled && hover(true)}
+        onPointerOut={() => !props.disabled && hover(false)}
         geometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
       >
         <AniMeshMaterial attach="material" color={selected ? cc : 'white'}>
@@ -238,10 +238,7 @@ export const Case = (props: {width: number; height: number}) => {
   );
 };
 
-const metaObj = JSON.parse(
-  '{"uuid":"9941482f-23b4-4396-9b4c-aaf749777bc4","type":"PerspectiveCamera","layers":1,"matrix":[1,0,0,0,0,1,-5.739211039300938e-17,0,0,5.739211039300938e-17,1,0,10.607924676300991,-4.487255313393182,15.475618749999992,1],"fov":10,"zoom":0.25,"near":0.1,"far":100,"focus":10,"aspect":2.3813198884601303,"filmGauge":35,"filmOffset":0}',
-);
-export const KeyboardCanvas = () => {
+export const KeyboardCanvas = (props: {selectable: boolean}) => {
   const dispatch = useAppDispatch();
 
   const selectedKey = useAppSelector(getSelectedKey);
@@ -266,7 +263,6 @@ export const KeyboardCanvas = () => {
     .filter(([_, definition]) => definition !== undefined);
 
   const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
-  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
 
   const entry = allDefinitions[selectedDefinitionIndex];
   if (!entry) {
@@ -277,7 +273,12 @@ export const KeyboardCanvas = () => {
 
   return (
     <div style={{height: 400, width: '100%'}}>
-      <Canvas camera={{zoom: 4.2, fov: 80}}>
+      <Canvas
+        camera={{zoom: 4.2, fov: 80}}
+        onPointerMissed={(evt: any) => {
+          dispatch(updateSelectedKey(null));
+        }}
+      >
         <spotLight position={[-10, 0, -5]} intensity={1} />
 
         {false && <OrbitControls makeDefault onEnd={console.log} />}
@@ -296,9 +297,11 @@ export const KeyboardCanvas = () => {
                   scale={[k.w, k.h, 1]}
                   color={getColors(k)}
                   onClick={(evt: any) => {
-                    console.log(evt);
-                    dispatch(updateSelectedKey(i));
+                    if (props.selectable) {
+                      dispatch(updateSelectedKey(i));
+                    }
                   }}
+                  disabled={!props.selectable}
                   selected={i === selectedKey}
                   label={getLabel(
                     matrixKeycodes[i],
