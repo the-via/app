@@ -4,10 +4,9 @@ import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
 import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
 import {saveMacros} from '../../../store/macrosSlice';
-import {useDispatch} from 'react-redux';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -26,7 +25,7 @@ const MenuContainer = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const macroExpressions = useAppSelector((state) => state.macros.expressions);
 

@@ -9,13 +9,13 @@ import type {
   LightingValue,
 } from '@the-via/reader';
 import {ArrayColorPicker} from '../../../../inputs/color-picker';
-import {useDispatch} from 'react-redux';
 import {
   getSelectedLightingData,
   updateBacklightValue,
 } from 'src/store/lightingSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {useAppDispatch} from 'src/store/hooks';
 
 export type ControlMeta = [
   LightingValue,
@@ -28,7 +28,7 @@ export type ControlMeta = [
 ];
 type AdvancedControlProps = {meta: ControlMeta};
 export const LightingControl = (props: AdvancedControlProps) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const definition = useAppSelector(getSelectedDefinition);
   const [command, label, meta] = props.meta;
