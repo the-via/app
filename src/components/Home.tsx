@@ -9,7 +9,7 @@ import {
   LightingValue,
 } from '@the-via/reader';
 import {getNextKey} from './positioned-keyboard';
-import {useDispatch} from 'react-redux';
+import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
@@ -22,7 +22,7 @@ import {
   getAllowKeyboardKeyRemapping,
   getDisableFastRemap,
 } from '../store/settingsSlice';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedKey,
   getSelectedLayerIndex,
@@ -34,6 +34,8 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import type {ThunkDispatch} from '@reduxjs/toolkit';
+import type {AppDispatch, RootState} from 'src/store';
 
 const ErrorHome = styled.div`
   background: var(--color_jet);
@@ -85,7 +87,7 @@ interface HomeProps {
 export const Home = (props: HomeProps) => {
   const {hasHIDSupport} = props;
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
   );
