@@ -13,14 +13,13 @@ import {
   calculatePointPosition,
 } from '../positioned-keyboard';
 import {useAppSelector} from 'src/store/hooks';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   getDefinitions,
   getBasicKeyToByte,
   getSelectedKeyDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {Canvas} from '@react-three/fiber';
+import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {useGLTF, OrbitControls} from '@react-three/drei';
 
 import {getThemeFromStore} from 'src/utils/device-store';
@@ -34,6 +33,7 @@ import {
 import {useDispatch} from 'react-redux';
 import {getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
+import {Vector3} from 'three';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor =>
   getThemeFromStore()[color];
 
@@ -61,52 +61,55 @@ function Keycap(props: any) {
       document.body.style.cursor = 'auto';
     };
   }, [hovered]);
-  function redraw() {
-    const canvas = canvasRef.current;
-    const widthMultiplier = scale[0];
+  const redraw = React.useCallback(
+    function redraw() {
+      const canvas = canvasRef.current;
+      const widthMultiplier = scale[0];
 
-    canvas.width = 2048 * widthMultiplier;
-    canvas.height = 2048;
-    const [xOffset, yOffset] = [20, 60];
-    const {c, t} = false ? {c: color.t, t: color.c} : color;
+      canvas.width = 2048 * widthMultiplier;
+      canvas.height = 2048;
+      const [xOffset, yOffset] = [20, 60];
+      const {c, t} = false ? {c: color.t, t: color.c} : color;
 
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.rect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = c;
-      context.fill();
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.rect(0, 0, canvas.width, canvas.height);
+        context.fillStyle = c;
+        context.fill();
 
-      context.fillStyle = t;
-      if (label.topLabel && label.bottomLabel) {
-        context.font = ' 220px Arial Rounded MT ';
-        context.fillText(
-          label.topLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * 2048 + 970 + yOffset,
-        );
-        context.fillText(
-          label.bottomLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * 2048 + 970 + yOffset + 300,
-        );
-      } else if (label.centerLabel) {
-        context.font = 'bold 150px Arial Rounded MT';
-        context.fillText(
-          label.centerLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * 2048 + 1080 + yOffset,
-        );
-      } else if (label.label) {
-        context.font = 'bold 320px Arial Rounded MT';
-        context.fillText(
-          label.label,
-          0.02 * 2048 + xOffset,
-          0.3 * 2048 + 1024 + yOffset,
-        );
+        context.fillStyle = t;
+        if (label.topLabel && label.bottomLabel) {
+          context.font = ' 220px Arial Rounded MT ';
+          context.fillText(
+            label.topLabel,
+            0.02 * 2048 + xOffset,
+            0.3 * 2048 + 970 + yOffset,
+          );
+          context.fillText(
+            label.bottomLabel,
+            0.02 * 2048 + xOffset,
+            0.3 * 2048 + 970 + yOffset + 300,
+          );
+        } else if (label.centerLabel) {
+          context.font = 'bold 150px Arial Rounded MT';
+          context.fillText(
+            label.centerLabel,
+            0.02 * 2048 + xOffset,
+            0.3 * 2048 + 1080 + yOffset,
+          );
+        } else if (label.label) {
+          context.font = 'bold 320px Arial Rounded MT';
+          context.fillText(
+            label.label,
+            0.02 * 2048 + xOffset,
+            0.3 * 2048 + 1024 + yOffset,
+          );
+        }
+        textureRef.current!.needsUpdate = true;
       }
-      textureRef.current!.needsUpdate = true;
-    }
-  }
+    },
+    [canvasRef.current, label, scale, color],
+  );
 
   const glow = useSpring({
     config: {duration: 800},
@@ -190,10 +193,54 @@ function makeShape({width, height}: {width: number; height: number}) {
   );
   return shape;
 }
+const GROUND_HEIGHT = -300; // A Constant to store the ground height of the game.
+
+function Terrain() {
+  const terrain = useRef();
+
+  useFrame(() => {
+    if (terrain && terrain.current && terrain.current.position) {
+      terrain.current.position.y -= 0.1;
+      terrain.current.position.z += 0.1;
+      terrain.current.material.opacity =
+        1 + 0.5 * Math.sin(terrain.current.position.y / 12);
+      console.log(terrain.current);
+    }
+  });
+  return (
+    <mesh
+      visible
+      position={[0, GROUND_HEIGHT, 0]}
+      rotation={[-Math.PI / 4, 0, 0]}
+      ref={terrain}
+    >
+      <planeBufferGeometry attach="geometry" args={[5000, 10000, 128, 128]} />
+      <meshStandardMaterial
+        attach="material"
+        color="#454040"
+        roughness={1}
+        metalness={0}
+        transparent={true}
+        wireframe
+      />
+    </mesh>
+  );
+}
 
 export const Case = (props: {width: number; height: number}) => {
+  const camera = useThree((state) => state.camera);
+  const glow = useSpring({
+    config: {duration: 800},
+    from: {x: 10},
+    to: {x: 5},
+  });
+  useFrame(() => {
+    camera.position.setZ(glow.x.get());
+    camera.position.setY(0.4 * Math.pow(glow.x.get() - 5, 1));
+  });
+
   const innerColor = '#454545';
-  const outsideColor = '#af8e8e';
+  const outsideColor = '#948e8e';
   const widthOffset = 0.4;
   const depth = 1.0;
   const outsideShape = useMemo(() => {
@@ -207,6 +254,7 @@ export const Case = (props: {width: number; height: number}) => {
       ...props,
     });
   }, []);
+
   return (
     <group
       position={[
@@ -221,14 +269,27 @@ export const Case = (props: {width: number; height: number}) => {
           attach="geometry"
           args={[outsideShape, {bevelEnabled: false, depth}]}
         />
-        <meshPhongMaterial color={outsideColor} />
+        <meshPhysicalMaterial
+          roughness={0.7}
+          clearcoat={1}
+          transmission={0.3}
+          thickness={1}
+          color={outsideColor}
+          transparent={true}
+          opacity={1}
+          metalness={0}
+        />
       </mesh>
       <mesh position={[0, 0, 0.05]}>
         <extrudeBufferGeometry
           attach="geometry"
           args={[innerShape, {bevelEnabled: false, depth: depth + 0.1}]}
         />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
+          roughness={0.7}
+          clearcoat={1}
+          transmission={1}
+          thickness={1}
           color={innerColor}
           transparent={true}
           opacity={0.9}
@@ -254,7 +315,6 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
   if (!selectedDefinition || !keys) {
     return null;
   }
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const allDefinitions = Object.entries(useAppSelector(getDefinitions))
     .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
       [id, versionMap.v2] as KeyboardDefinitionEntry,
@@ -272,9 +332,9 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
   const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
 
   return (
-    <div style={{height: 400, width: '100%'}}>
+    <div style={{height: 500, width: '100%'}}>
       <Canvas
-        camera={{zoom: 4.2, fov: 80}}
+        camera={{zoom: 3.5, fov: 80}}
         onPointerMissed={(evt: any) => {
           dispatch(updateSelectedKey(null));
         }}
@@ -285,6 +345,7 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
         <group position={[-2, 0.75, 0]} scale={0.015}>
+          <Terrain />
           <Case width={width} height={height} />
           <group scale={1} position={[-width / 2 + 0.4, height / 2 - 0.1, 0]}>
             {displayedKeys.map((k, i) => {
