@@ -58,6 +58,9 @@ export const ConfigureFlexCell = styled(Cell)`
   align-items: center;
   position: relative;
   background: var(--gradient);
+  animation-duration: 2s;
+  animation-name: fade-in;
+  animation-timing-function: ease-in;
 `;
 
 export const IconContainer = styled.span`
