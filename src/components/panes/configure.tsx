@@ -16,7 +16,14 @@ import {
   VIADefinitionV3,
 } from '@the-via/reader';
 import {PositionedKeyboard} from '../positioned-keyboard';
-import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
+import {
+  Grid,
+  Row,
+  FlexCell,
+  IconContainer,
+  MenuCell,
+  ConfigureFlexCell,
+} from './grid';
 import * as Keycode from './configure-panes/keycode';
 import * as Lighting from './configure-panes/lighting';
 import * as Macros from './configure-panes/macros';
@@ -232,7 +239,7 @@ const ConfigureGrid = () => {
         </MenuContainer>
       </MenuCell>
 
-      <FlexCell
+      <ConfigureFlexCell
         ref={flexRef}
         onClick={(evt) => {
           if ((evt.target as any).nodeName !== 'CANVAS')
@@ -243,7 +250,7 @@ const ConfigureGrid = () => {
         <ReactTooltip />
         <LayerControl />
         <Badge />
-      </FlexCell>
+      </ConfigureFlexCell>
       {SelectedPane && <SelectedPane />}
     </Grid>
   );
