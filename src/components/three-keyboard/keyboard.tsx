@@ -204,14 +204,26 @@ function makeShape({width, height}: {width: number; height: number}) {
 const GROUND_HEIGHT = -300; // A Constant to store the ground height of the game.
 
 function Terrain() {
-  const terrain = useRef<THREE.Mesh>(null);
-
+  const [width, height] = [2500, 1250];
+  const terrain1 = useRef<THREE.Mesh>(null);
+  const terrain2 = useRef<THREE.Mesh>(null);
+  let terrains = [terrain1, terrain2];
   useFrame(() => {
-    if (terrain && terrain.current && terrain.current.position) {
-      terrain.current.position.y -= 0.1;
-      terrain.current.position.z += 0.1;
-      (terrain.current.material as THREE.Material).opacity =
-        1 + 0.5 * Math.sin(terrain.current.position.y / 12);
+    if (terrains[1].current && terrains[1].current?.position.y <= -300) {
+      terrains = [terrain2, terrain1];
+      (terrains[0].current as any).position.y = GROUND_HEIGHT;
+      (terrains[0].current as any).position.z = 0;
+      (terrains[1].current as any).position.y =
+        GROUND_HEIGHT + height * Math.sin(Math.PI / 4);
+      (terrains[1].current as any).position.z = -height * Math.sin(Math.PI / 4);
+    }
+    for (let terrain of terrains) {
+      if (terrain && terrain.current && terrain.current.position) {
+        terrain.current.position.y -= 0.1;
+        terrain.current.position.z += 0.1;
+        (terrain.current.material as THREE.Material).opacity =
+          1 + 0.5 * Math.sin((terrains[0].current as any).position.y / 12);
+      }
     }
   });
   return (
@@ -220,9 +232,29 @@ function Terrain() {
         visible
         position={[0, GROUND_HEIGHT, 0]}
         rotation={[-Math.PI / 4, 0, 0]}
-        ref={terrain}
+        ref={terrain1}
       >
-        <planeGeometry attach="geometry" args={[10000, 10000, 256, 256]} />
+        <planeGeometry attach="geometry" args={[width, height, 64, 32]} />
+        <meshStandardMaterial
+          attach="material"
+          color="#454040"
+          roughness={1}
+          metalness={0}
+          transparent={true}
+          wireframe
+        />
+      </mesh>
+      <mesh
+        visible
+        position={[
+          0,
+          GROUND_HEIGHT + height * Math.sin(Math.PI / 4),
+          -height * Math.sin(Math.PI / 4),
+        ]}
+        rotation={[-Math.PI / 4, 0, 0]}
+        ref={terrain2}
+      >
+        <planeGeometry attach="geometry" args={[width, height, 64, 32]} />
         <meshStandardMaterial
           attach="material"
           color="#454040"
