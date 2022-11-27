@@ -22,7 +22,6 @@ import {
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {useGLTF, OrbitControls} from '@react-three/drei';
 
-import {getThemeFromStore} from 'src/utils/device-store';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
 import {
@@ -30,12 +29,12 @@ import {
   getSelectedKeymap,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {useDispatch} from 'react-redux';
 import {getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
-import {Vector3} from 'three';
-export const getColors = ({color}: {color: KeyColorType}): KeyColor =>
-  getThemeFromStore()[color];
+export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
+  c: '#202020',
+  t: 'papayawhip',
+});
 
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 useGLTF.preload('/fonts/keycap.glb');
@@ -108,7 +107,15 @@ function Keycap(props: any) {
         textureRef.current!.needsUpdate = true;
       }
     },
-    [canvasRef.current, label, scale, color],
+    [
+      canvasRef.current,
+      label.label,
+      label.topLabel,
+      label.macroExpression,
+      scale,
+      color.t,
+      color.c,
+    ],
   );
 
   const glow = useSpring({
@@ -124,7 +131,7 @@ function Keycap(props: any) {
   const cc = glow.x.to([0, 100], ['#ffffff', '#847777']);
   useLayoutEffect(() => {
     redraw();
-  }, [label, props.selected]);
+  }, [label.label, label.topLabel, label.centerLabel, props.selected]);
 
   const AniMeshMaterial = animated.meshPhysicalMaterial as any;
   return (
@@ -154,13 +161,14 @@ function makeShape({width, height}: {width: number; height: number}) {
 
   let sizeX = width;
   let sizeY = height;
-  let radius = 0.2;
+  let radius = 0.1;
 
   let halfX = sizeX * 0.5 - radius;
   let halfY = sizeY * 0.5 - radius;
   let baseAngle = Math.PI * 0.5;
+  let inclineAngle = (Math.PI * 7.5) / 180;
   shape.absarc(
-    halfX,
+    halfX + Math.atan(inclineAngle) * sizeY,
     halfY,
     radius,
     baseAngle * 0,
@@ -204,7 +212,6 @@ function Terrain() {
       terrain.current.position.z += 0.1;
       (terrain.current.material as THREE.Material).opacity =
         1 + 0.5 * Math.sin(terrain.current.position.y / 12);
-      console.log(terrain.current);
     }
   });
   return (
@@ -215,10 +222,7 @@ function Terrain() {
         rotation={[-Math.PI / 4, 0, 0]}
         ref={terrain}
       >
-        <planeBufferGeometry
-          attach="geometry"
-          args={[10000, 10000, 256, 256]}
-        />
+        <planeGeometry attach="geometry" args={[10000, 10000, 256, 256]} />
         <meshStandardMaterial
           attach="material"
           color="#454040"
@@ -240,37 +244,57 @@ export const Case = (props: {width: number; height: number}) => {
     to: {x: 7},
   });
   useFrame(() => {
-    camera.position.setZ(glow.x.get());
-    camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
+    if (glow.x.isAnimating) {
+      camera.position.setZ(glow.x.get());
+      camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
+    }
   });
 
   const innerColor = '#454545';
-  const outsideColor = '#948e8e';
+  const outsideColor = '#906060';
   const widthOffset = 0.4;
-  const depth = 1.0;
+  const heightOffset = 0.5;
+  const depthOffset = 0.5;
   const outsideShape = useMemo(() => {
     return makeShape({
-      width: props.width + widthOffset,
-      height: props.height + widthOffset,
+      width: 0.4 + widthOffset,
+      height: props.height + heightOffset,
     });
   }, []);
   const innerShape = useMemo(() => {
     return makeShape({
-      ...props,
+      width: 0.4,
+      height: props.height + heightOffset / 2,
     });
   }, []);
 
   return (
-    <group position={[0, 0, (-9.4 * 19.5) / 7]} scale={19.5}>
-      <mesh>
-        <extrudeBufferGeometry
+    <group
+      position={[
+        (19.05 * (props.width + depthOffset)) / 2,
+        heightOffset / 2,
+        (-1 - 0.1) * 19.05,
+      ]}
+      scale={19.05}
+      rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
+    >
+      <mesh position={[0, -0.1, 0]}>
+        <extrudeGeometry
           attach="geometry"
-          args={[outsideShape, {bevelEnabled: false, depth}]}
+          args={[
+            outsideShape,
+            {
+              bevelEnabled: true,
+              bevelSize: 0.1,
+              bevelThickness: 0.1,
+              bevelSegments: 10,
+              depth: props.width + depthOffset,
+            },
+          ]}
         />
         <meshPhysicalMaterial
           roughness={0.7}
           clearcoat={1}
-          transmission={0.3}
           thickness={1}
           color={outsideColor}
           transparent={true}
@@ -278,15 +302,23 @@ export const Case = (props: {width: number; height: number}) => {
           metalness={0}
         />
       </mesh>
-      <mesh position={[0, 0, 0]}>
-        <extrudeBufferGeometry
+      <mesh position={[0.3, -0.1, depthOffset / 4]}>
+        <extrudeGeometry
           attach="geometry"
-          args={[innerShape, {bevelEnabled: false, depth: depth + 0.1}]}
+          args={[
+            innerShape,
+            {
+              bevelEnabled: true,
+              bevelSize: 0.05,
+              bevelThickness: 0.05,
+              depth: props.width + depthOffset / 2,
+            },
+          ]}
         />
         <meshPhysicalMaterial
           roughness={0.7}
           clearcoat={1}
-          transmission={1}
+          transmission={0.3}
           thickness={1}
           color={innerColor}
           transparent={true}
