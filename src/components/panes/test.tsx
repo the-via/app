@@ -27,6 +27,7 @@ import {
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
+import {TestKeyboardCanvas} from '../three-keyboard/keyboard';
 
 const Container = styled.div`
   display: flex;
@@ -194,6 +195,13 @@ export const Test: FC = () => {
       <Grid1Col>
         <FlexCell ref={flexRef}>
           <TestKeyboard
+            definition={testDefinition}
+            keys={testKeys}
+            pressedKeys={pressedKeys}
+            matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
+            containerDimensions={dimensions}
+          />
+          <TestKeyboardCanvas
             definition={testDefinition}
             keys={testKeys}
             pressedKeys={pressedKeys}

@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import {
   chooseInnerKey,
   chooseInnerKeyContainer,
-  CSSVarObject,
   getDarkenedColor,
   OuterKey,
   getLabel,
@@ -14,6 +13,7 @@ import {
 import type {VIAKey} from '@the-via/reader';
 import type {Key} from 'src/types/types';
 import {
+  CSSVarObject,
   getKeyContainerPosition,
   getLegends,
   getRotationContainerTransform,

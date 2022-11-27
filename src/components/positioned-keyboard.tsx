@@ -37,6 +37,7 @@ import {
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
 import {
+  CSSVarObject,
   getBGKeyContainerPosition,
   getKeyContainerPosition,
   getLegends,
@@ -48,14 +49,6 @@ import {
 import {EncoderKeyComponent} from './positioned-keyboard/encoder-key';
 import {Matrix} from './positioned-keyboard/matrix';
 
-export const CSSVarObject = {
-  keyWidth: 52,
-  keyXSpacing: 2,
-  keyHeight: 54,
-  keyYSpacing: 2,
-  keyXPos: 52 + 2,
-  keyYPos: 54 + 2,
-};
 export const getRandomColor = () =>
   Array(3)
     .fill(0)

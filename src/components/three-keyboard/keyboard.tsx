@@ -29,7 +29,7 @@ import {
   getSelectedKeymap,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {getLabel} from '../positioned-keyboard/base';
+import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
@@ -52,7 +52,6 @@ function Keycap(props: any) {
   //return (
   //)
   const textureRef = useRef<THREE.CanvasTexture>();
-  const {nodes} = useGLTF('/fonts/keycap.glb');
   const canvasRef = useRef(document.createElement('canvas'));
   useEffect(() => {
     document.body.style.cursor = hovered ? 'pointer' : 'auto';
@@ -60,63 +59,60 @@ function Keycap(props: any) {
       document.body.style.cursor = 'auto';
     };
   }, [hovered]);
-  const redraw = React.useCallback(
-    function redraw() {
-      const canvas = canvasRef.current;
-      const widthMultiplier = scale[0];
+  const redraw = React.useCallback(() => {
+    const canvas = canvasRef.current;
+    const widthMultiplier = scale[0];
 
-      canvas.width = 2048 * widthMultiplier;
-      canvas.height = 2048;
-      const [xOffset, yOffset] = [20, 60];
-      const {c, t} = false ? {c: color.t, t: color.c} : color;
+    canvas.width = 2048 * widthMultiplier;
+    canvas.height = 2048;
+    const [xOffset, yOffset] = [20, 60];
+    const {c, t} = false ? {c: color.t, t: color.c} : color;
 
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.rect(0, 0, canvas.width, canvas.height);
-        context.fillStyle = c;
-        context.fill();
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.rect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = c;
+      context.fill();
 
-        context.fillStyle = t;
-        if (label.topLabel && label.bottomLabel) {
-          context.font = ' 220px Arial Rounded MT ';
-          context.fillText(
-            label.topLabel,
-            0.02 * 2048 + xOffset,
-            0.3 * 2048 + 970 + yOffset,
-          );
-          context.fillText(
-            label.bottomLabel,
-            0.02 * 2048 + xOffset,
-            0.3 * 2048 + 970 + yOffset + 300,
-          );
-        } else if (label.centerLabel) {
-          context.font = 'bold 150px Arial Rounded MT';
-          context.fillText(
-            label.centerLabel,
-            0.02 * 2048 + xOffset,
-            0.3 * 2048 + 1080 + yOffset,
-          );
-        } else if (label.label) {
-          context.font = 'bold 320px Arial Rounded MT';
-          context.fillText(
-            label.label,
-            0.02 * 2048 + xOffset,
-            0.3 * 2048 + 1024 + yOffset,
-          );
-        }
-        textureRef.current!.needsUpdate = true;
+      context.fillStyle = t;
+      if (label.topLabel && label.bottomLabel) {
+        context.font = ' 220px Arial Rounded MT ';
+        context.fillText(
+          label.topLabel,
+          0.02 * 2048 + xOffset,
+          0.3 * 2048 + 970 + yOffset,
+        );
+        context.fillText(
+          label.bottomLabel,
+          0.02 * 2048 + xOffset,
+          0.3 * 2048 + 970 + yOffset + 300,
+        );
+      } else if (label.centerLabel) {
+        context.font = 'bold 150px Arial Rounded MT';
+        context.fillText(
+          label.centerLabel,
+          0.02 * 2048 + xOffset,
+          0.3 * 2048 + 1080 + yOffset,
+        );
+      } else if (label.label) {
+        context.font = 'bold 320px Arial Rounded MT';
+        context.fillText(
+          label.label,
+          0.02 * 2048 + xOffset,
+          0.3 * 2048 + 1024 + yOffset,
+        );
       }
-    },
-    [
-      canvasRef.current,
-      label.label,
-      label.topLabel,
-      label.macroExpression,
-      scale,
-      color.t,
-      color.c,
-    ],
-  );
+      textureRef.current!.needsUpdate = true;
+    }
+  }, [
+    canvasRef.current,
+    label.label,
+    label.topLabel,
+    label.macroExpression,
+    scale,
+    color.t,
+    color.c,
+  ]);
 
   const glow = useSpring({
     config: {duration: 800},
@@ -142,7 +138,7 @@ function Keycap(props: any) {
         position={p}
         onPointerOver={() => !props.disabled && hover(true)}
         onPointerOut={() => !props.disabled && hover(false)}
-        geometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
+        geometry={props.keycapGeometry}
       >
         <AniMeshMaterial attach="material" color={selected ? cc : 'white'}>
           <canvasTexture
@@ -269,19 +265,6 @@ function Terrain() {
 }
 
 export const Case = (props: {width: number; height: number}) => {
-  const camera = useThree((state) => state.camera);
-  const glow = useSpring({
-    config: {duration: 800},
-    from: {x: 10},
-    to: {x: 7},
-  });
-  useFrame(() => {
-    if (glow.x.isAnimating) {
-      camera.position.setZ(glow.x.get());
-      camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
-    }
-  });
-
   const innerColor = '#454545';
   const outsideColor = '#906060';
   const widthOffset = 0.4;
@@ -361,7 +344,57 @@ export const Case = (props: {width: number; height: number}) => {
   );
 };
 
-export const KeyboardCanvas = (props: {selectable?: boolean}) => {
+const KeyGroup = (props: {
+  selectable?: boolean;
+  containerDimensions?: DOMRect;
+  keys: VIAKey[];
+  matrixKeycodes: number[];
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
+}) => {
+  const dispatch = useAppDispatch();
+  const {nodes} = useGLTF('/fonts/keycap.glb');
+  const selectedKey = useAppSelector(getSelectedKey);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const macros = useAppSelector((state) => state.macros);
+
+  const {width, height} = calculateKeyboardFrameDimensions(props.keys);
+  return (
+    <group scale={1} position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}>
+      {props.keys.map((k, i) => {
+        const [x, y] = calculatePointPosition(k);
+        const r = (k.r * (2 * Math.PI)) / 360;
+        return (
+          <Keycap
+            position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
+            rotation={[0, 0, -r]}
+            scale={[k.w, k.h, 1]}
+            color={getColors(k)}
+            keycapGeometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
+            onClick={(evt: any) => {
+              if (props.selectable) {
+                dispatch(updateSelectedKey(i));
+              }
+            }}
+            disabled={!props.selectable}
+            selected={i === selectedKey}
+            label={getLabel(
+              props.matrixKeycodes[i],
+              k.w,
+              macros,
+              props.selectedDefinition,
+              basicKeyToByte,
+              byteToKey,
+            )}
+          />
+        );
+      })}
+    </group>
+  );
+};
+export const KeyboardCanvas = (props: {
+  selectable?: boolean;
+  containerDimensions?: DOMRect;
+}) => {
   const dispatch = useAppDispatch();
 
   const selectedKey = useAppSelector(getSelectedKey);
@@ -390,18 +423,18 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
   if (!entry) {
     return null;
   }
-  const displayedKeys = [...keys];
-  const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
   const allowOrbiting = true;
 
   return (
     <div style={{height: 500, width: '100%'}}>
       <Canvas
-        camera={{zoom: 5.5, fov: 80}}
+        camera={{fov: 80}}
         onPointerMissed={(evt: any) => {
           dispatch(updateSelectedKey(null));
         }}
       >
+        <Camera {...props} keys={keys} />
         <spotLight position={[-10, 0, -5]} intensity={1} />
         {allowOrbiting && <OrbitControls makeDefault onEnd={console.log} />}
         <ambientLight />
@@ -409,38 +442,80 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
         <group position={[0, -0.05, 0]} scale={0.015}>
           <Terrain />
           <Case width={width} height={height} />
-          <group
-            scale={1}
-            position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}
-          >
-            {displayedKeys.map((k, i) => {
-              const [x, y] = calculatePointPosition(k);
-              const r = (k.r * (2 * Math.PI)) / 360;
-              return (
-                <Keycap
-                  position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
-                  rotation={[0, 0, -r]}
-                  scale={[k.w, k.h, 1]}
-                  color={getColors(k)}
-                  onClick={(evt: any) => {
-                    if (props.selectable) {
-                      dispatch(updateSelectedKey(i));
-                    }
-                  }}
-                  disabled={!props.selectable}
-                  selected={i === selectedKey}
-                  label={getLabel(
-                    matrixKeycodes[i],
-                    k.w,
-                    macros,
-                    selectedDefinition,
-                    basicKeyToByte,
-                    byteToKey,
-                  )}
-                />
-              );
-            })}
-          </group>
+          <KeyGroup
+            {...props}
+            keys={keys}
+            matrixKeycodes={matrixKeycodes}
+            selectedDefinition={selectedDefinition}
+          />
+        </group>
+      </Canvas>
+    </div>
+  );
+};
+
+const Camera = (props: any) => {
+  const {keys, containerDimensions} = props;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const ratio = Math.min(
+    1,
+    (containerDimensions &&
+      containerDimensions.width /
+        ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
+          CSSVarObject.keyXSpacing +
+          30)) ||
+      1,
+  );
+  console.log(ratio);
+  const camera = useThree((state) => state.camera);
+  const glow = useSpring({
+    config: {duration: 800},
+    from: {x: 10},
+    to: {x: 7},
+  });
+  useFrame(() => {
+    if (glow.x.isAnimating) {
+      camera.position.setZ(glow.x.get());
+      camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
+    }
+    if (camera.zoom !== 5.5 * 0.8 * ratio) {
+      console.log(`Updating with ${ratio}`);
+      camera.zoom = 5.5 * 0.8 * ratio;
+      camera.updateProjectionMatrix();
+    }
+  });
+  return null;
+};
+export const TestKeyboardCanvas = (props: any) => {
+  const dispatch = useAppDispatch();
+  const allowOrbiting = true;
+  const macros = {expressions: [], isFeatureSupported: false};
+  const {pressedKeys, keys, containerDimensions, matrixKeycodes} = props;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const ratio = 0.8;
+  return (
+    <div style={{height: 500, width: '100%'}}>
+      <Canvas
+        camera={{fov: 80}}
+        onPointerMissed={(evt: any) => {
+          dispatch(updateSelectedKey(null));
+        }}
+      >
+        <Camera {...props} />
+        <spotLight position={[-10, 0, -5]} intensity={1} />
+        {allowOrbiting && <OrbitControls makeDefault onEnd={console.log} />}
+        <ambientLight />
+        <pointLight position={[10, 10, 5]} />
+        <group position={[0, -0.05, 0]} scale={0.015}>
+          <Terrain />
+          <Case width={width} height={height} />
+          <KeyGroup
+            {...props}
+            keys={keys}
+            matrixKeycodes={matrixKeycodes}
+            selectedDefinition={props.definition}
+          />
         </group>
       </Canvas>
     </div>
