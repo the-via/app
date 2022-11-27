@@ -246,7 +246,10 @@ const ConfigureGrid = () => {
             dispatch(clearSelectedKey());
         }}
       >
-        <KeyboardCanvas selectable={selectedTitle === 'Keymap'} />
+        <KeyboardCanvas
+          containerDimensions={dimensions}
+          selectable={selectedTitle === 'Keymap'}
+        />
         <ReactTooltip />
         <LayerControl />
         <Badge />
