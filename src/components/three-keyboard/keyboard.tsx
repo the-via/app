@@ -208,22 +208,27 @@ function Terrain() {
     }
   });
   return (
-    <mesh
-      visible
-      position={[0, GROUND_HEIGHT, 0]}
-      rotation={[-Math.PI / 4, 0, 0]}
-      ref={terrain}
-    >
-      <planeBufferGeometry attach="geometry" args={[5000, 10000, 128, 128]} />
-      <meshStandardMaterial
-        attach="material"
-        color="#454040"
-        roughness={1}
-        metalness={0}
-        transparent={true}
-        wireframe
-      />
-    </mesh>
+    <>
+      <mesh
+        visible
+        position={[0, GROUND_HEIGHT, 0]}
+        rotation={[-Math.PI / 4, 0, 0]}
+        ref={terrain}
+      >
+        <planeBufferGeometry
+          attach="geometry"
+          args={[10000, 10000, 256, 256]}
+        />
+        <meshStandardMaterial
+          attach="material"
+          color="#454040"
+          roughness={1}
+          metalness={0}
+          transparent={true}
+          wireframe
+        />
+      </mesh>
+    </>
   );
 }
 
@@ -232,11 +237,11 @@ export const Case = (props: {width: number; height: number}) => {
   const glow = useSpring({
     config: {duration: 800},
     from: {x: 10},
-    to: {x: 5},
+    to: {x: 7},
   });
   useFrame(() => {
     camera.position.setZ(glow.x.get());
-    camera.position.setY(0.4 * Math.pow(glow.x.get() - 5, 1));
+    camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
   });
 
   const innerColor = '#454545';
@@ -256,14 +261,7 @@ export const Case = (props: {width: number; height: number}) => {
   }, []);
 
   return (
-    <group
-      position={[
-        (props.width * 19.5) / 2 - 1.5 * widthOffset * 19.5,
-        (props.height * -19.5) / 2 + (widthOffset * 19.5) / 2,
-        (-9.4 * 19.5) / 7,
-      ]}
-      scale={19.5}
-    >
+    <group position={[0, 0, (-9.4 * 19.5) / 7]} scale={19.5}>
       <mesh>
         <extrudeBufferGeometry
           attach="geometry"
@@ -280,7 +278,7 @@ export const Case = (props: {width: number; height: number}) => {
           metalness={0}
         />
       </mesh>
-      <mesh position={[0, 0, 0.05]}>
+      <mesh position={[0, 0, 0]}>
         <extrudeBufferGeometry
           attach="geometry"
           args={[innerShape, {bevelEnabled: false, depth: depth + 0.1}]}
@@ -330,24 +328,27 @@ export const KeyboardCanvas = (props: {selectable?: boolean}) => {
   }
   const displayedKeys = [...keys];
   const {width, height} = calculateKeyboardFrameDimensions(displayedKeys);
+  const allowOrbiting = true;
 
   return (
     <div style={{height: 500, width: '100%'}}>
       <Canvas
-        camera={{zoom: 3.5, fov: 80}}
+        camera={{zoom: 5.5, fov: 80}}
         onPointerMissed={(evt: any) => {
           dispatch(updateSelectedKey(null));
         }}
       >
         <spotLight position={[-10, 0, -5]} intensity={1} />
-
-        {false && <OrbitControls makeDefault onEnd={console.log} />}
+        {allowOrbiting && <OrbitControls makeDefault onEnd={console.log} />}
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
-        <group position={[-2, 0.75, 0]} scale={0.015}>
+        <group position={[0, -0.05, 0]} scale={0.015}>
           <Terrain />
           <Case width={width} height={height} />
-          <group scale={1} position={[-width / 2 + 0.4, height / 2 - 0.1, 0]}>
+          <group
+            scale={1}
+            position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}
+          >
             {displayedKeys.map((k, i) => {
               const [x, y] = calculatePointPosition(k);
               const r = (k.r * (2 * Math.PI)) / 360;
