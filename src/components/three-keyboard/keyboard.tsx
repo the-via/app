@@ -20,7 +20,7 @@ import {
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
-import {useGLTF, OrbitControls} from '@react-three/drei';
+import {useGLTF, PresentationControls} from '@react-three/drei';
 
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
@@ -200,7 +200,7 @@ function makeShape({width, height}: {width: number; height: number}) {
 }
 const GROUND_HEIGHT = -300; // A Constant to store the ground height of the game.
 
-function Terrain() {
+const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
   const [width, height] = [2500, 1250];
   const terrain1 = useRef<THREE.Mesh>(null);
   const terrain2 = useRef<THREE.Mesh>(null);
@@ -223,13 +223,16 @@ function Terrain() {
       }
     }
   });
+  const deltaYZ = height * Math.sin(Math.PI / 4);
+  const phase = 0;
   return (
     <>
       <mesh
         visible
-        position={[0, GROUND_HEIGHT, 0]}
+        position={[0, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
         rotation={[-Math.PI / 4, 0, 0]}
         ref={terrain1}
+        onClick={props.onClick}
       >
         <planeGeometry attach="geometry" args={[width, height, 64, 32]} />
         <meshStandardMaterial
@@ -243,10 +246,11 @@ function Terrain() {
       </mesh>
       <mesh
         visible
+        onClick={props.onClick}
         position={[
           0,
-          GROUND_HEIGHT + height * Math.sin(Math.PI / 4),
-          -height * Math.sin(Math.PI / 4),
+          GROUND_HEIGHT + (phase + 1) * deltaYZ,
+          -deltaYZ * (phase + 1),
         ]}
         rotation={[-Math.PI / 4, 0, 0]}
         ref={terrain2}
@@ -263,7 +267,7 @@ function Terrain() {
       </mesh>
     </>
   );
-}
+};
 
 export const Case = (props: {width: number; height: number}) => {
   const innerColor = '#454545';
@@ -377,6 +381,7 @@ const KeyGroup = (props: {
             }
             onClick={(evt: any) => {
               if (props.selectable) {
+                evt.stopPropagation();
                 dispatch(updateSelectedKey(i));
               }
             }}
@@ -401,13 +406,9 @@ export const KeyboardCanvas = (props: {
   containerDimensions?: DOMRect;
 }) => {
   const dispatch = useAppDispatch();
-
-  const selectedKey = useAppSelector(getSelectedKey);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
-  const macros = useAppSelector((state) => state.macros);
   const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
   );
@@ -440,20 +441,36 @@ export const KeyboardCanvas = (props: {
         }}
       >
         <Camera {...props} keys={keys} />
+
         <spotLight position={[-10, 0, -5]} intensity={1} />
-        {allowOrbiting && <OrbitControls makeDefault onEnd={console.log} />}
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
-        <group position={[0, -0.05, 0]} scale={0.015}>
-          <Terrain />
-          <Case width={width} height={height} />
-          <KeyGroup
-            {...props}
-            keys={keys}
-            matrixKeycodes={matrixKeycodes}
-            selectedDefinition={selectedDefinition}
-          />
-        </group>
+        <PresentationControls
+          enabled={true} // the controls can be disabled by setting this to false
+          global={true} // Spin globally or by dragging the model
+          snap={true} // Snap-back to center (can also be a spring config)
+          speed={1} // Speed factor
+          zoom={1} // Zoom factor when half the polar-max is reached
+          rotation={[0, 0, 0]} // Default rotation
+          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
+          azimuth={[-Math.PI / 6, Math.PI / 6]} // Horizontal limits
+          config={{mass: 1, tension: 170, friction: 26}} // Spring config
+        >
+          <group position={[0, -0.05, 0]} scale={0.015}>
+            <Terrain
+              onClick={() => {
+                dispatch(updateSelectedKey(null));
+              }}
+            />
+            <Case width={width} height={height} />
+            <KeyGroup
+              {...props}
+              keys={keys}
+              matrixKeycodes={matrixKeycodes}
+              selectedDefinition={selectedDefinition}
+            />
+          </group>
+        </PresentationControls>
       </Canvas>
     </div>
   );
@@ -509,19 +526,30 @@ export const TestKeyboardCanvas = (props: any) => {
       >
         <Camera {...props} />
         <spotLight position={[-10, 0, -5]} intensity={1} />
-        {allowOrbiting && <OrbitControls makeDefault onEnd={console.log} />}
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
-        <group position={[0, -0.05, 0]} scale={0.015}>
-          <Terrain />
-          <Case width={width} height={height} />
-          <KeyGroup
-            {...props}
-            keys={keys}
-            matrixKeycodes={matrixKeycodes}
-            selectedDefinition={props.definition}
-          />
-        </group>
+        <PresentationControls
+          enabled={true} // the controls can be disabled by setting this to false
+          global={true} // Spin globally or by dragging the model
+          snap={true} // Snap-back to center (can also be a spring config)
+          speed={1} // Speed factor
+          zoom={1} // Zoom factor when half the polar-max is reached
+          rotation={[0, 0, 0]} // Default rotation
+          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
+          azimuth={[-Math.PI / 6, Math.PI / 6]} // Horizontal limits
+          config={{mass: 1, tension: 170, friction: 26}} // Spring config
+        >
+          <group position={[0, -0.05, 0]} scale={0.015}>
+            <Terrain />
+            <Case width={width} height={height} />
+            <KeyGroup
+              {...props}
+              keys={keys}
+              matrixKeycodes={matrixKeycodes}
+              selectedDefinition={props.definition}
+            />
+          </group>
+        </PresentationControls>
       </Canvas>
     </div>
   );
