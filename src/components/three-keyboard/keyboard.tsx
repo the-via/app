@@ -63,9 +63,15 @@ function Keycap(props: any) {
   const redraw = React.useCallback(() => {
     const canvas = canvasRef.current;
     const widthMultiplier = scale[0];
+    const heightMultiplier = scale[1];
 
-    canvas.width = 2048 * widthMultiplier;
-    canvas.height = 2048;
+    const [canvasWidth, canvasHeight] = [
+      2048 * widthMultiplier,
+      2048 * heightMultiplier,
+    ];
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    console.log(heightMultiplier);
     const [xOffset, yOffset] = [20, 60];
     const {c, t} = false ? {c: color.t, t: color.c} : color;
 
@@ -81,26 +87,26 @@ function Keycap(props: any) {
         context.fillText(
           label.topLabel,
           0.02 * 2048 + xOffset,
-          0.3 * 2048 + 970 + yOffset,
+          0.3 * canvas.height + 970 * heightMultiplier + yOffset,
         );
         context.fillText(
           label.bottomLabel,
           0.02 * 2048 + xOffset,
-          0.3 * 2048 + 970 + yOffset + 300,
+          0.3 * canvas.height + 970 * heightMultiplier + yOffset + 300,
         );
       } else if (label.centerLabel) {
         context.font = 'bold 150px Arial Rounded MT';
         context.fillText(
           label.centerLabel,
           0.02 * 2048 + xOffset,
-          0.3 * 2048 + 1080 + yOffset,
+          0.3 * canvas.height + 1080 * heightMultiplier + yOffset,
         );
       } else if (label.label) {
         context.font = 'bold 320px Arial Rounded MT';
         context.fillText(
           label.label,
           0.02 * 2048 + xOffset,
-          0.3 * 2048 + 1024 + yOffset,
+          0.3 * canvasHeight + canvasHeight / 2 + yOffset,
         );
       }
       textureRef.current!.needsUpdate = true;
