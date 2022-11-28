@@ -101,7 +101,7 @@ function Keycap(props: any) {
           0.02 * 2048 + xOffset,
           0.3 * canvas.height + 1080 * heightMultiplier + yOffset,
         );
-      } else if (label.label) {
+      } else if (typeof label.label === 'string') {
         context.font = 'bold 320px Arial Rounded MT';
         context.fillText(
           label.label,
@@ -111,15 +111,7 @@ function Keycap(props: any) {
       }
       textureRef.current!.needsUpdate = true;
     }
-  }, [
-    canvasRef.current,
-    label.label,
-    label.topLabel,
-    label.macroExpression,
-    scale,
-    color.t,
-    color.c,
-  ]);
+  }, [canvasRef.current, label.key, scale[0], scale[1], color.t, color.c]);
 
   const glow = useSpring({
     config: {duration: 800},
@@ -134,7 +126,7 @@ function Keycap(props: any) {
   const cc = glow.x.to([0, 100], ['#ffffff', '#847777']);
   useLayoutEffect(() => {
     redraw();
-  }, [label.label, label.topLabel, label.centerLabel, props.selected]);
+  }, [label.key, props.selected]);
 
   const AniMeshMaterial = animated.meshPhongMaterial as any;
   return (
@@ -204,15 +196,22 @@ function makeShape({width, height}: {width: number; height: number}) {
   );
   return shape;
 }
-const GROUND_HEIGHT = -300; // A Constant to store the ground height of the game.
+const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game.
 
 const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
-  const [width, height] = [2500, 1250];
+  const [width, height] = [1000, 1000];
   const terrain1 = useRef<THREE.Mesh>(null);
   const terrain2 = useRef<THREE.Mesh>(null);
+  const deltaYZ = height * Math.sin(Math.PI / 4);
+  const terrainWidthVertices = (width * 64) / 2500;
+  const terrainHeightVertices = (height * 16) / 625;
+  const deltaD = 0.2;
   let terrains = [terrain1, terrain2];
   useFrame(() => {
-    if (terrains[1].current && terrains[1].current?.position.y <= -300) {
+    if (
+      terrains[1].current &&
+      terrains[1].current?.position.y <= GROUND_HEIGHT
+    ) {
       terrains = [terrain2, terrain1];
       (terrains[0].current as any).position.y = GROUND_HEIGHT;
       (terrains[0].current as any).position.z = 0;
@@ -222,15 +221,14 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
     }
     for (let terrain of terrains) {
       if (terrain && terrain.current && terrain.current.position) {
-        terrain.current.position.y -= 0.1;
-        terrain.current.position.z += 0.1;
+        terrain.current.position.y -= deltaD;
+        terrain.current.position.z += deltaD;
         (terrain.current.material as THREE.Material).opacity =
           1 + 0.5 * Math.sin((terrains[0].current as any).position.y / 12);
       }
     }
   });
-  const deltaYZ = height * Math.sin(Math.PI / 4);
-  const phase = 0;
+  const phase = 0.5;
   return (
     <>
       <mesh
@@ -240,7 +238,10 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
         ref={terrain1}
         onClick={props.onClick}
       >
-        <planeGeometry attach="geometry" args={[width, height, 64, 32]} />
+        <planeGeometry
+          attach="geometry"
+          args={[width, height, terrainWidthVertices, terrainHeightVertices]}
+        />
         <meshStandardMaterial
           attach="material"
           color="#454040"
@@ -261,7 +262,10 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
         rotation={[-Math.PI / 4, 0, 0]}
         ref={terrain2}
       >
-        <planeGeometry attach="geometry" args={[width, height, 64, 32]} />
+        <planeGeometry
+          attach="geometry"
+          args={[width, height, terrainWidthVertices, terrainHeightVertices]}
+        />
         <meshStandardMaterial
           attach="material"
           color="#454040"
@@ -277,22 +281,29 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
 
 export const Case = (props: {width: number; height: number}) => {
   const innerColor = '#303030';
-  const outsideColor = '#906060';
+  //  const outsideColor = '#906060';
   const widthOffset = 0.4;
   const heightOffset = 0.5;
   const depthOffset = 0.5;
+  const outsideColor = useMemo(
+    () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--color_accent')
+        .trim(),
+    [],
+  );
   const outsideShape = useMemo(() => {
     return makeShape({
       width: 0.4 + widthOffset,
       height: props.height + heightOffset,
     });
-  }, []);
+  }, [props.height]);
   const innerShape = useMemo(() => {
     return makeShape({
       width: 0.4,
       height: props.height + heightOffset / 2,
     });
-  }, []);
+  }, [props.height]);
 
   return (
     <group
@@ -360,6 +371,21 @@ const KeyGroup = (props: {
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
+  const keysKeys = useMemo(() => {
+    return props.keys.map((k, i) => `${i}-${k.w}-${k.h}`);
+  }, [props.keys]);
+  const labels = useMemo(() => {
+    return props.keys.map((k, i) =>
+      getLabel(
+        props.matrixKeycodes[i],
+        k.w,
+        macros,
+        props.selectedDefinition,
+        basicKeyToByte,
+        byteToKey,
+      ),
+    );
+  }, [props.keys, props.matrixKeycodes, macros, props.selectedDefinition]);
 
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
   return (
@@ -369,6 +395,7 @@ const KeyGroup = (props: {
         const r = (k.r * (2 * Math.PI)) / 360;
         return (
           <Keycap
+            key={keysKeys[i]}
             position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
             rotation={[0, 0, -r]}
             scale={[k.w, k.h, 1]}
@@ -385,14 +412,7 @@ const KeyGroup = (props: {
             }}
             disabled={!props.selectable}
             selected={i === selectedKey}
-            label={getLabel(
-              props.matrixKeycodes[i],
-              k.w,
-              macros,
-              props.selectedDefinition,
-              basicKeyToByte,
-              byteToKey,
-            )}
+            label={labels[i]}
           />
         );
       })}
@@ -443,23 +463,23 @@ export const KeyboardCanvas = (props: {
         <spotLight position={[-10, 0, -5]} intensity={1} />
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
-        <PresentationControls
-          enabled={true} // the controls can be disabled by setting this to false
-          global={true} // Spin globally or by dragging the model
-          snap={true} // Snap-back to center (can also be a spring config)
-          speed={1} // Speed factor
-          zoom={1} // Zoom factor when half the polar-max is reached
-          rotation={[0, 0, 0]} // Default rotation
-          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
-          azimuth={[-Math.PI / 6, Math.PI / 6]} // Horizontal limits
-          config={{mass: 1, tension: 170, friction: 26}} // Spring config
-        >
-          <group position={[0, -0.05, 0]} scale={0.015}>
-            <Terrain
-              onClick={() => {
-                dispatch(updateSelectedKey(null));
-              }}
-            />
+        <group position={[0, -0.05, 0]} scale={0.015}>
+          <Terrain
+            onClick={() => {
+              dispatch(updateSelectedKey(null));
+            }}
+          />
+          <PresentationControls
+            enabled={true} // the controls can be disabled by setting this to false
+            global={true} // Spin globally or by dragging the model
+            snap={true} // Snap-back to center (can also be a spring config)
+            speed={1} // Speed factor
+            zoom={1} // Zoom factor when half the polar-max is reached
+            rotation={[0, 0, 0]} // Default rotation
+            polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
+            azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
+            config={{mass: 1, tension: 170, friction: 26}} // Spring config
+          >
             <Case width={width} height={height} />
             <KeyGroup
               {...props}
@@ -467,8 +487,8 @@ export const KeyboardCanvas = (props: {
               matrixKeycodes={matrixKeycodes}
               selectedDefinition={selectedDefinition}
             />
-          </group>
-        </PresentationControls>
+          </PresentationControls>
+        </group>
       </Canvas>
     </div>
   );
@@ -486,20 +506,20 @@ const Camera = (props: any) => {
           30)) ||
       1,
   );
-  console.log(ratio);
   const camera = useThree((state) => state.camera);
+  const startX = 10;
+  const endX = 7;
   const glow = useSpring({
     config: {duration: 800},
-    from: {x: 10},
-    to: {x: 7},
+    from: {x: startX},
+    to: {x: endX},
   });
   useFrame(() => {
     if (glow.x.isAnimating) {
       camera.position.setZ(glow.x.get());
-      camera.position.setY(0.4 * Math.pow(glow.x.get() - 7, 1));
+      camera.position.setY(0.4 * Math.pow(glow.x.get() - endX, 1));
     }
     if (camera.zoom !== 5.5 * 0.8 * ratio) {
-      console.log(`Updating with ${ratio}`);
       camera.zoom = 5.5 * 0.8 * ratio;
       camera.updateProjectionMatrix();
     }
@@ -508,12 +528,9 @@ const Camera = (props: any) => {
 };
 export const TestKeyboardCanvas = (props: any) => {
   const dispatch = useAppDispatch();
-  const allowOrbiting = true;
   const macros = {expressions: [], isFeatureSupported: false};
   const {pressedKeys, keys, containerDimensions, matrixKeycodes} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
-  const ratio = 0.8;
   return (
     <div style={{height: 500, width: '100%'}}>
       <Canvas
@@ -526,19 +543,19 @@ export const TestKeyboardCanvas = (props: any) => {
         <spotLight position={[-10, 0, -5]} intensity={1} />
         <ambientLight />
         <pointLight position={[10, 10, 5]} />
-        <PresentationControls
-          enabled={true} // the controls can be disabled by setting this to false
-          global={true} // Spin globally or by dragging the model
-          snap={true} // Snap-back to center (can also be a spring config)
-          speed={1} // Speed factor
-          zoom={1} // Zoom factor when half the polar-max is reached
-          rotation={[0, 0, 0]} // Default rotation
-          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
-          azimuth={[-Math.PI / 6, Math.PI / 6]} // Horizontal limits
-          config={{mass: 1, tension: 170, friction: 26}} // Spring config
-        >
-          <group position={[0, -0.05, 0]} scale={0.015}>
-            <Terrain />
+        <group position={[0, -0.05, 0]} scale={0.015}>
+          <Terrain />
+          <PresentationControls
+            enabled={true} // the controls can be disabled by setting this to false
+            global={true} // Spin globally or by dragging the model
+            snap={true} // Snap-back to center (can also be a spring config)
+            speed={1} // Speed factor
+            zoom={1} // Zoom factor when half the polar-max is reached
+            rotation={[0, 0, 0]} // Default rotation
+            polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
+            azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
+            config={{mass: 1, tension: 170, friction: 26}} // Spring config
+          >
             <Case width={width} height={height} />
             <KeyGroup
               {...props}
@@ -546,8 +563,8 @@ export const TestKeyboardCanvas = (props: any) => {
               matrixKeycodes={matrixKeycodes}
               selectedDefinition={props.definition}
             />
-          </group>
-        </PresentationControls>
+          </PresentationControls>
+        </group>
       </Canvas>
     </div>
   );
