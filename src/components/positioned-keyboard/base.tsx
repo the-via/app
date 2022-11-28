@@ -67,6 +67,7 @@ export const getLabel = (
       label && {
         label: label.toUpperCase(),
         macroExpression,
+        key: (label || '') + (macroExpression || ''),
       }
     );
   } else if (isNumericSymbol(label)) {
@@ -77,16 +78,16 @@ export const getLabel = (
         topLabel,
         bottomLabel,
         macroExpression,
+        key: (label || '') + (macroExpression || ''),
       }
     );
   } else {
-    return (
-      label && {
-        label,
-        centerLabel: label,
-        macroExpression,
-      }
-    );
+    return {
+      label,
+      centerLabel: label,
+      macroExpression,
+      key: (label || '') + (macroExpression || ''),
+    };
   }
 };
 
