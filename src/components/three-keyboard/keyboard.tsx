@@ -136,7 +136,7 @@ function Keycap(props: any) {
     redraw();
   }, [label.label, label.topLabel, label.centerLabel, props.selected]);
 
-  const AniMeshMaterial = animated.meshPhysicalMaterial as any;
+  const AniMeshMaterial = animated.meshPhongMaterial as any;
   return (
     <>
       <animated.mesh
@@ -276,7 +276,7 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
 };
 
 export const Case = (props: {width: number; height: number}) => {
-  const innerColor = '#454545';
+  const innerColor = '#303030';
   const outsideColor = '#906060';
   const widthOffset = 0.4;
   const heightOffset = 0.5;
@@ -318,14 +318,10 @@ export const Case = (props: {width: number; height: number}) => {
             },
           ]}
         />
-        <meshPhysicalMaterial
-          roughness={0.7}
-          clearcoat={1}
-          thickness={1}
+        <meshPhongMaterial
           color={outsideColor}
           transparent={true}
           opacity={1}
-          metalness={0}
         />
       </mesh>
       <mesh position={[0.3, -0.1, depthOffset / 4]}>
@@ -341,14 +337,10 @@ export const Case = (props: {width: number; height: number}) => {
             },
           ]}
         />
-        <meshPhysicalMaterial
-          roughness={0.7}
-          clearcoat={1}
-          transmission={0.3}
-          thickness={1}
+        <meshPhongMaterial
           color={innerColor}
-          transparent={true}
-          opacity={0.9}
+          shininess={100}
+          reflectivity={1}
         />
       </mesh>
     </group>
