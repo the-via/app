@@ -38,6 +38,7 @@ export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
 
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 useGLTF.preload('/fonts/keycap.glb');
+useGLTF.preload('/fonts/rotary_encoder.glb');
 
 function Keycap(props: any) {
   // This reference gives us direct access to the THREE.Mesh object
@@ -352,7 +353,8 @@ const KeyGroup = (props: {
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
 }) => {
   const dispatch = useAppDispatch();
-  const {nodes} = useGLTF('/fonts/keycap.glb');
+  const {Keycap_1U_GMK_R1} = useGLTF('/fonts/keycap.glb').nodes;
+  const {Cylinder} = useGLTF('/fonts/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
@@ -369,7 +371,10 @@ const KeyGroup = (props: {
             rotation={[0, 0, -r]}
             scale={[k.w, k.h, 1]}
             color={getColors(k)}
-            keycapGeometry={(nodes.Keycap_1U_GMK_R1 as any).geometry}
+            keycapGeometry={
+              (k['ei'] !== undefined ? Cylinder : (Keycap_1U_GMK_R1 as any))
+                .geometry
+            }
             onClick={(evt: any) => {
               if (props.selectable) {
                 dispatch(updateSelectedKey(i));
