@@ -12,6 +12,7 @@ import {
   OverflowCell,
   FlexCell,
   Grid1Col,
+  TestFlexCell,
 } from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentButton} from '../inputs/accent-button';
@@ -66,8 +67,10 @@ export const Test: FC = () => {
     evt.preventDefault();
     if (
       !startTest &&
+      !evt.repeat &&
       selectedKeys[getIndexByEvent(evt) ?? -1] !== TestKeyState.KeyDown
     ) {
+      console.log('triggered');
       setSelectedKeys((selectedKeys) => ({
         ...selectedKeys,
         [getIndexByEvent(evt)]: TestKeyState.KeyDown,
@@ -193,14 +196,7 @@ export const Test: FC = () => {
   return (
     <TestPane>
       <Grid1Col>
-        <FlexCell ref={flexRef}>
-          <TestKeyboard
-            definition={testDefinition}
-            keys={testKeys}
-            pressedKeys={pressedKeys}
-            matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
-            containerDimensions={dimensions}
-          />
+        <TestFlexCell ref={flexRef}>
           <TestKeyboardCanvas
             definition={testDefinition}
             keys={testKeys}
@@ -208,7 +204,7 @@ export const Test: FC = () => {
             matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
             containerDimensions={dimensions}
           />
-        </FlexCell>
+        </TestFlexCell>
         <OverflowCell>
           <Container>
             <ControlRow>

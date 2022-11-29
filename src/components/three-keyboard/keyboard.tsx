@@ -31,6 +31,7 @@ import {
 } from 'src/store/keymapSlice';
 import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
+import {TestKeyState} from '../test-keyboard';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -40,93 +41,125 @@ type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
 
-function Keycap(props: any) {
-  // This reference gives us direct access to the THREE.Mesh object
-  const {label, scale, color, selected, position} = props;
+const paintKeycap = (
+  canvas: HTMLCanvasElement,
+  widthMultiplier: number,
+  heightMultiplier: number,
+  bgColor: string,
+  legendColor: string,
+  label: any,
+) => {
+  const [canvasWidth, canvasHeight] = [
+    2048 * widthMultiplier,
+    2048 * heightMultiplier,
+  ];
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const [xOffset, yOffset] = [10, 60];
+
+  const context = canvas.getContext('2d');
+  if (context) {
+    context.rect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = bgColor;
+    context.fill();
+
+    context.fillStyle = legendColor;
+    if (label.topLabel && label.bottomLabel) {
+      context.font = ' 220px Arial Rounded MT ';
+      context.fillText(
+        label.topLabel,
+        0.02 * 2048 + xOffset,
+        0.3 * canvas.height + 970 * heightMultiplier + yOffset,
+      );
+      context.fillText(
+        label.bottomLabel,
+        0.02 * 2048 + xOffset,
+        0.3 * canvas.height + 970 * heightMultiplier + yOffset + 300,
+      );
+    } else if (label.centerLabel) {
+      context.font = 'bold 150px Arial Rounded MT';
+      context.fillText(
+        label.centerLabel,
+        0.02 * 2048 + xOffset,
+        0.3 * canvas.height + 1080 * heightMultiplier + yOffset,
+      );
+    } else if (typeof label.label === 'string') {
+      context.font = 'bold 320px Arial Rounded MT';
+      context.fillText(
+        label.label,
+        0.02 * 2048 + xOffset,
+        0.3 * canvasHeight + canvasHeight / 2 + yOffset,
+      );
+    }
+  }
+};
+
+enum DisplayMode {
+  Test = 1,
+  Configure = 2,
+}
+
+enum KeycapState {
+  Pressed = 1,
+  Unpressed = 2,
+}
+
+function Keycap(props: any & {mode: DisplayMode}) {
+  const {label, scale, color, selected, position, mode, keyState} = props;
   const ref = useRef<any>();
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  //  useFrame((state, delta) => (ref.current.rotation.x += 0.01));
-  // Return the view, these are regular Threejs elements expressed in JSX
-  // console.log(stl);
-  //return (
-  //)
   const textureRef = useRef<THREE.CanvasTexture>();
   const canvasRef = useRef(document.createElement('canvas'));
-  useEffect(() => {
-    document.body.style.cursor = hovered ? 'pointer' : 'auto';
-    return () => {
-      document.body.style.cursor = 'auto';
-    };
-  }, [hovered]);
+
   const redraw = React.useCallback(() => {
-    const canvas = canvasRef.current;
-    const widthMultiplier = scale[0];
-    const heightMultiplier = scale[1];
-
-    const [canvasWidth, canvasHeight] = [
-      2048 * widthMultiplier,
-      2048 * heightMultiplier,
-    ];
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    console.log(heightMultiplier);
-    const [xOffset, yOffset] = [20, 60];
-    const {c, t} = false ? {c: color.t, t: color.c} : color;
-
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.rect(0, 0, canvas.width, canvas.height);
-      context.fillStyle = c;
-      context.fill();
-
-      context.fillStyle = t;
-      if (label.topLabel && label.bottomLabel) {
-        context.font = ' 220px Arial Rounded MT ';
-        context.fillText(
-          label.topLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * canvas.height + 970 * heightMultiplier + yOffset,
-        );
-        context.fillText(
-          label.bottomLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * canvas.height + 970 * heightMultiplier + yOffset + 300,
-        );
-      } else if (label.centerLabel) {
-        context.font = 'bold 150px Arial Rounded MT';
-        context.fillText(
-          label.centerLabel,
-          0.02 * 2048 + xOffset,
-          0.3 * canvas.height + 1080 * heightMultiplier + yOffset,
-        );
-      } else if (typeof label.label === 'string') {
-        context.font = 'bold 320px Arial Rounded MT';
-        context.fillText(
-          label.label,
-          0.02 * 2048 + xOffset,
-          0.3 * canvasHeight + canvasHeight / 2 + yOffset,
-        );
-      }
+    if (canvasRef.current) {
+      paintKeycap(
+        canvasRef.current,
+        scale[0],
+        scale[1],
+        color.c,
+        color.t,
+        label,
+      );
       textureRef.current!.needsUpdate = true;
     }
   }, [canvasRef.current, label.key, scale[0], scale[1], color.t, color.c]);
+  useLayoutEffect(redraw, [label.key]);
 
   const glow = useSpring({
     config: {duration: 800},
-    from: {x: 0},
+    from: {x: 0, y: '#f4c0c0'},
     loop: selected ? {reverse: true} : false,
-    to: {x: 100},
+    to: {x: 100, y: '#c4a9a9'},
   });
-  const {p} = useSpring({
+  const [zDown, zUp] = [0, 6];
+  const pressedState =
+    DisplayMode.Test === mode
+      ? TestKeyState.KeyDown === props.keyState
+        ? KeycapState.Pressed
+        : KeycapState.Unpressed
+      : hovered || selected
+      ? KeycapState.Unpressed
+      : KeycapState.Pressed;
+  const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
+  const wasPressed = props.keyState === TestKeyState.KeyUp;
+  const keycapColor =
+    DisplayMode.Test === mode
+      ? pressedState === KeycapState.Unpressed
+        ? wasPressed
+          ? '#f4c0c0'
+          : 'lightgrey'
+        : '#c4a9a9'
+      : pressedState === KeycapState.Unpressed
+      ? 'lightgrey'
+      : 'lightgrey';
+
+  const {p, b} = useSpring({
     config: {duration: 100},
-    p: [position[0], position[1], selected || hovered ? 3 : -2],
+    p: [position[0], position[1], keycapZ],
+    b: keycapColor,
   });
-  const cc = glow.x.to([0, 100], ['#ffffff', '#847777']);
-  useLayoutEffect(() => {
-    redraw();
-  }, [label.key, props.selected]);
 
   const AniMeshMaterial = animated.meshPhongMaterial as any;
   return (
@@ -139,7 +172,7 @@ function Keycap(props: any) {
         onPointerOut={() => !props.disabled && hover(false)}
         geometry={props.keycapGeometry}
       >
-        <AniMeshMaterial attach="material" color={selected ? cc : 'white'}>
+        <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
           <canvasTexture
             minFilter={THREE.LinearMipMapNearestFilter}
             ref={textureRef as any}
@@ -151,6 +184,7 @@ function Keycap(props: any) {
     </>
   );
 }
+
 function makeShape({width, height}: {width: number; height: number}) {
   const shape = new THREE.Shape();
 
@@ -228,6 +262,7 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
       }
     }
   });
+  console.log('rerender');
   const phase = 0.5;
   return (
     <>
@@ -281,7 +316,6 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
 
 export const Case = (props: {width: number; height: number}) => {
   const innerColor = '#303030';
-  //  const outsideColor = '#906060';
   const widthOffset = 0.4;
   const heightOffset = 0.5;
   const depthOffset = 0.5;
@@ -364,6 +398,8 @@ const KeyGroup = (props: {
   keys: VIAKey[];
   matrixKeycodes: number[];
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
+  mode: DisplayMode;
+  pressedKeys?: TestKeyState[];
 }) => {
   const dispatch = useAppDispatch();
   const {Keycap_1U_GMK_R1} = useGLTF('/fonts/keycap.glb').nodes;
@@ -395,6 +431,7 @@ const KeyGroup = (props: {
         const r = (k.r * (2 * Math.PI)) / 360;
         return (
           <Keycap
+            mode={props.mode}
             key={keysKeys[i]}
             position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
             rotation={[0, 0, -r]}
@@ -410,6 +447,7 @@ const KeyGroup = (props: {
                 dispatch(updateSelectedKey(i));
               }
             }}
+            keyState={props.pressedKeys && props.pressedKeys[i]}
             disabled={!props.selectable}
             selected={i === selectedKey}
             label={labels[i]}
@@ -448,7 +486,6 @@ export const KeyboardCanvas = (props: {
     return null;
   }
   const {width, height} = calculateKeyboardFrameDimensions(keys);
-  const allowOrbiting = true;
 
   return (
     <div style={{height: 500, width: '100%'}}>
@@ -484,6 +521,7 @@ export const KeyboardCanvas = (props: {
             <KeyGroup
               {...props}
               keys={keys}
+              mode={DisplayMode.Configure}
               matrixKeycodes={matrixKeycodes}
               selectedDefinition={selectedDefinition}
             />
@@ -526,10 +564,11 @@ const Camera = (props: any) => {
   });
   return null;
 };
+
+//Something is weird when pressedKeys refreshes that affects the terrain and perhaps other parts
 export const TestKeyboardCanvas = (props: any) => {
   const dispatch = useAppDispatch();
-  const macros = {expressions: [], isFeatureSupported: false};
-  const {pressedKeys, keys, containerDimensions, matrixKeycodes} = props;
+  const {keys, matrixKeycodes, pressedKeys} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   return (
     <div style={{height: 500, width: '100%'}}>
@@ -560,6 +599,8 @@ export const TestKeyboardCanvas = (props: any) => {
             <KeyGroup
               {...props}
               keys={keys}
+              mode={DisplayMode.Test}
+              pressedKeys={pressedKeys}
               matrixKeycodes={matrixKeycodes}
               selectedDefinition={props.definition}
             />
