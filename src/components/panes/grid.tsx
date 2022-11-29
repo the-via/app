@@ -50,6 +50,19 @@ export const FlexCell = styled(Cell)`
   background: var(--gradient);
 `;
 
+export const TestFlexCell = styled(Cell)`
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: var(--gradient);
+  animation-duration: 2s;
+  animation-name: fade-in;
+  animation-timing-function: ease-in;
+`;
+
 export const ConfigureFlexCell = styled(Cell)`
   display: flex;
   overflow: hidden;
