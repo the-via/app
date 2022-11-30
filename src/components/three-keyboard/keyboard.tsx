@@ -14,13 +14,17 @@ import {
 } from '../positioned-keyboard';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getDefinitions,
   getBasicKeyToByte,
   getSelectedKeyDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
-import {useGLTF, PresentationControls} from '@react-three/drei';
+import {
+  useGLTF,
+  PresentationControls,
+  Segments,
+  Segment,
+} from '@react-three/drei';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
 import {
@@ -37,9 +41,18 @@ export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   t: 'papayawhip',
 });
 
-type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
+
+const shallowEq = (prev: any, next: any) => {
+  return Object.keys(prev).every((k) => {
+    const equal = prev[k] === next[k];
+    if (!equal) {
+      console.log(k);
+    }
+    return equal;
+  });
+};
 
 const paintKeycap = (
   canvas: HTMLCanvasElement,
@@ -64,7 +77,8 @@ const paintKeycap = (
     context.fill();
 
     context.fillStyle = legendColor;
-    if (label.topLabel && label.bottomLabel) {
+    if (label === undefined) {
+    } else if (label.topLabel && label.bottomLabel) {
       context.font = '220px Arial Rounded MT';
       context.fillText(
         label.topLabel,
@@ -97,148 +111,247 @@ const paintKeycap = (
 enum DisplayMode {
   Test = 1,
   Configure = 2,
+  Design = 3,
 }
 
 enum KeycapState {
   Pressed = 1,
   Unpressed = 2,
 }
+const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
+  const matrixKeys = keys.filter((key) => key['ei'] === undefined);
+  const rowKeys = matrixKeys
+    .reduce(
+      (sumKeys, key) => {
+        sumKeys[key.row][key.col] = calculatePointPosition(key);
+        return sumKeys;
+      },
+      Array(rows)
+        .fill(0)
+        .map(() => Array(cols).fill(0)),
+    )
+    .map((arr) => arr.sort((a, b) => a[0] - b[0]));
+  const colKeys = matrixKeys
+    .reduce(
+      (sumKeys, key) => {
+        sumKeys[key.col][key.row] = calculatePointPosition(key);
+        return sumKeys;
+      },
+      Array(cols)
+        .fill(0)
+        .map(() => Array(rows).fill(0)),
+    )
+    .map((arr) => arr.sort((a, b) => a[1] - b[1]));
+  return {rowKeys, colKeys};
+};
 
-const Heart = (props: {
-  caseWidth: number;
-  caseHeight: number;
-  caseThickness: number;
-}) => {
-  const heartShape = new THREE.Shape();
-
-  heartShape.moveTo(25, 25);
-  heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
-  heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
-  heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
-  heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
-  heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
-  heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
-
-  const extrudeSettings = {
-    depth: 10,
-    bevelEnabled: true,
-    bevelSegments: 2,
-    steps: 2,
-    bevelSize: 1,
-    bevelThickness: 15,
-  };
-
+const MatrixLines: React.VFC<{
+  keys: VIAKey[];
+  rows: number;
+  cols: number;
+  width: number;
+  height: number;
+}> = ({keys, rows, cols, width, height}) => {
+  const [rowColor, colColor] = ['lightpink', 'lightgrey'];
+  const {rowKeys, colKeys} = generateRowColArray(keys, rows, cols);
   return (
-    <mesh
-      position={[
-        props.caseThickness,
-        props.caseHeight / 2,
-        props.caseWidth / 2,
-      ]}
-      scale={0.01}
-      rotation={[Math.PI / 2, 0, Math.PI / 2]}
+    <group
+      scale={0.35}
+      rotation={[Math.PI, 0, 0]}
+      position={[(-width * 19.05) / 2, ((height + 0.4) * 19.05) / 2, 11]}
+      key={`${rows}-${cols}-${width}-${height}`}
     >
-      <extrudeGeometry attach="geometry" args={[heartShape, extrudeSettings]} />
-      <meshPhongMaterial color={'pink'} transparent={true} opacity={1} />
-    </mesh>
+      <Segments lineWidth={1}>
+        {rowKeys.flatMap((seg) => {
+          const cleanedSegments = seg.filter((x) => x);
+          if (cleanedSegments.length >= 2) {
+            return cleanedSegments.reduce(
+              (prev, next, idx) => {
+                if (prev.prev === null) {
+                  return {res: [], prev: next};
+                }
+                return {
+                  res: [
+                    ...prev.res,
+                    <Segment
+                      key={`row-${idx}`}
+                      start={[prev.prev[0], prev.prev[1], 0]}
+                      end={[next[0], next[1], 0]}
+                      color={rowColor}
+                    />,
+                  ],
+                  prev: next,
+                };
+              },
+              {res: [], prev: null},
+            ).res;
+          }
+          return [];
+        })}
+        {colKeys.flatMap((seg) => {
+          console.log('holacol', seg);
+          const cleanedSegments = seg.filter((x) => x);
+          if (cleanedSegments.length >= 2) {
+            return cleanedSegments.reduce(
+              (prev, next, idx) => {
+                if (prev.prev === null) {
+                  return {res: [], prev: next};
+                }
+                return {
+                  res: [
+                    ...prev.res,
+                    <Segment
+                      key={`col-${idx}`}
+                      start={[prev.prev[0], prev.prev[1], 0]}
+                      end={[next[0], next[1], 0]}
+                      color={colColor}
+                    />,
+                  ],
+                  prev: next,
+                };
+              },
+              {res: [], prev: null},
+            ).res;
+          }
+          return [];
+        })}
+      </Segments>
+    </group>
   );
 };
 
-const Keycap = React.memo(
-  (props: any & {mode: DisplayMode; idx: number}) => {
-    const {label, scale, color, selected, position, mode, keyState, idx} =
-      props;
-    const ref = useRef<any>();
-    // Hold state for hovered and clicked events
-    const [hovered, hover] = useState(false);
-    const textureRef = useRef<THREE.CanvasTexture>();
-    const canvasRef = useRef(document.createElement('canvas'));
+const Heart = React.memo(
+  (props: {caseWidth: number; caseHeight: number; caseThickness: number}) => {
+    const heartShape = new THREE.Shape();
 
-    const redraw = React.useCallback(() => {
-      if (canvasRef.current) {
-        paintKeycap(
-          canvasRef.current,
-          scale[0],
-          scale[1],
-          color.c,
-          color.t,
-          label,
-        );
-        textureRef.current!.needsUpdate = true;
-      }
-    }, [canvasRef.current, label.key, scale[0], scale[1], color.t, color.c]);
-    useLayoutEffect(redraw, [label.key]);
+    heartShape.moveTo(25, 25);
+    heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
+    heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
+    heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
+    heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
+    heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
+    heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
 
-    const glow = useSpring({
-      config: {duration: 800},
-      from: {x: 0, y: '#f4c0c0'},
-      loop: selected ? {reverse: true} : false,
-      to: {x: 100, y: '#c4a9a9'},
-    });
-    const [zDown, zUp] = [0, 6];
-    const pressedState =
-      DisplayMode.Test === mode
-        ? TestKeyState.KeyDown === props.keyState
-          ? KeycapState.Pressed
-          : KeycapState.Unpressed
-        : hovered || selected
-        ? KeycapState.Unpressed
-        : KeycapState.Pressed;
-    const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
-    const wasPressed = props.keyState === TestKeyState.KeyUp;
-    const keycapColor =
-      DisplayMode.Test === mode
-        ? pressedState === KeycapState.Unpressed
-          ? wasPressed
-            ? '#f4c0c0'
-            : 'lightgrey'
-          : '#c4a9a9'
-        : pressedState === KeycapState.Unpressed
-        ? 'lightgrey'
-        : 'lightgrey';
-
-    const {p, b} = useSpring({
-      config: {duration: 100},
-      p: [position[0], position[1], keycapZ],
-      b: keycapColor,
-    });
-
-    const AniMeshMaterial = animated.meshPhongMaterial as any;
-    console.log('rerendering keycap');
+    const extrudeSettings = {
+      depth: 10,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 2,
+      bevelSize: 1,
+      bevelThickness: 15,
+    };
 
     return (
-      <>
-        <animated.mesh
-          {...props}
-          ref={ref}
-          position={p}
-          onClick={(evt) => !props.disabled && props.onClick(evt, idx)}
-          onPointerOver={() => !props.disabled && hover(true)}
-          onPointerOut={() => !props.disabled && hover(false)}
-          geometry={props.keycapGeometry}
-        >
-          <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
-            <canvasTexture
-              minFilter={THREE.LinearMipMapNearestFilter}
-              ref={textureRef as any}
-              attach="map"
-              image={canvasRef.current}
-            />
-          </AniMeshMaterial>
-        </animated.mesh>
-      </>
+      <mesh
+        position={[
+          props.caseThickness,
+          props.caseHeight / 2,
+          props.caseWidth / 2,
+        ]}
+        scale={0.01}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}
+      >
+        <extrudeGeometry
+          attach="geometry"
+          args={[heartShape, extrudeSettings]}
+        />
+        <meshPhongMaterial color={'pink'} transparent={true} opacity={1} />
+      </mesh>
     );
   },
-  (prev, next) => {
-    return Object.keys(prev).every((k) => {
-      const equal = prev[k] === next[k];
-      if (!equal) {
-        console.log(k);
-      }
-      return equal;
-    });
-  },
+  shallowEq,
 );
+
+const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
+  const {label, scale, color, selected, position, mode, keyState, idx} = props;
+  const ref = useRef<any>();
+  // Hold state for hovered and clicked events
+  const [hovered, hover] = useState(false);
+  const textureRef = useRef<THREE.CanvasTexture>();
+  const canvasRef = useRef(document.createElement('canvas'));
+
+  const redraw = React.useCallback(() => {
+    if (canvasRef.current) {
+      paintKeycap(
+        canvasRef.current,
+        scale[0],
+        scale[1],
+        color.c,
+        color.t,
+        label,
+      );
+      textureRef.current!.needsUpdate = true;
+    }
+  }, [
+    canvasRef.current,
+    label && label.key,
+    scale[0],
+    scale[1],
+    color.t,
+    color.c,
+  ]);
+  useLayoutEffect(redraw, [label && label.key]);
+
+  const glow = useSpring({
+    config: {duration: 800},
+    from: {x: 0, y: '#f4c0c0'},
+    loop: selected ? {reverse: true} : false,
+    to: {x: 100, y: '#c4a9a9'},
+  });
+  const [zDown, zUp] = [0, 6];
+  const pressedState =
+    DisplayMode.Test === mode
+      ? TestKeyState.KeyDown === keyState
+        ? KeycapState.Pressed
+        : KeycapState.Unpressed
+      : hovered || selected
+      ? KeycapState.Unpressed
+      : KeycapState.Pressed;
+  const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
+  const wasPressed = keyState === TestKeyState.KeyUp;
+  const keycapColor =
+    DisplayMode.Test === mode
+      ? pressedState === KeycapState.Unpressed
+        ? wasPressed
+          ? '#f4c0c0'
+          : 'lightgrey'
+        : '#c4a9a9'
+      : pressedState === KeycapState.Unpressed
+      ? 'lightgrey'
+      : 'lightgrey';
+
+  const {p, b} = useSpring({
+    config: {duration: 100},
+    p: [position[0], position[1], keycapZ],
+    b: keycapColor,
+  });
+
+  const AniMeshMaterial = animated.meshPhongMaterial as any;
+  console.log('rerendering keycap');
+
+  return (
+    <>
+      <animated.mesh
+        {...props}
+        ref={ref}
+        position={p}
+        onClick={(evt) => !props.disabled && props.onClick(evt, idx)}
+        onPointerOver={() => !props.disabled && hover(true)}
+        onPointerOut={() => !props.disabled && hover(false)}
+        geometry={props.keycapGeometry}
+      >
+        <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
+          <canvasTexture
+            minFilter={THREE.LinearMipMapNearestFilter}
+            ref={textureRef as any}
+            attach="map"
+            image={canvasRef.current}
+          />
+        </AniMeshMaterial>
+      </animated.mesh>
+    </>
+  );
+}, shallowEq);
 
 function makeShape({width, height}: {width: number; height: number}) {
   const shape = new THREE.Shape();
@@ -409,9 +522,9 @@ export const Case = (props: {width: number; height: number}) => {
       rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
     >
       <Heart
-        caseWidth={props.width + depthOffset}
+        caseWidth={props.width}
         caseHeight={props.height + heightOffset / 2}
-        caseThickness={0.4 + widthOffset}
+        caseThickness={2 * widthOffset}
       />
       <mesh position={[0, -0.1, 0]}>
         <extrudeGeometry
@@ -461,7 +574,7 @@ const KeyGroup = (props: {
   containerDimensions?: DOMRect;
   keys: VIAKey[];
   matrixKeycodes: number[];
-  selectedDefinition: VIADefinitionV2 | VIADefinitionV3;
+  definition: VIADefinitionV2 | VIADefinitionV3;
   mode: DisplayMode;
   pressedKeys?: TestKeyState[];
 }) => {
@@ -493,17 +606,19 @@ const KeyGroup = (props: {
     };
   }, [keys]);
   const labels = useMemo(() => {
-    return props.keys.map((k, i) =>
-      getLabel(
-        props.matrixKeycodes[i],
-        k.w,
-        macros,
-        props.selectedDefinition,
-        basicKeyToByte,
-        byteToKey,
-      ),
-    );
-  }, [keys, props.matrixKeycodes, macros, props.selectedDefinition]);
+    return !props.matrixKeycodes.length
+      ? []
+      : props.keys.map((k, i) =>
+          getLabel(
+            props.matrixKeycodes[i],
+            k.w,
+            macros,
+            props.definition,
+            basicKeyToByte,
+            byteToKey,
+          ),
+        );
+  }, [keys, props.matrixKeycodes, macros, props.definition]);
   const [globalPressedKeys] = useGlobalKeys();
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
   const elems = useMemo(
@@ -544,7 +659,10 @@ const KeyGroup = (props: {
   );
 };
 
-const Camera = (props: any) => {
+const Camera = (props: {
+  keys: (VIAKey & {ei?: number})[];
+  containerDimensions: DOMRect;
+}) => {
   const {keys, containerDimensions} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const ratio = Math.min(
@@ -577,39 +695,133 @@ const Camera = (props: any) => {
   return null;
 };
 
-export const KeyboardCanvas = (props: {
+export const ConfigureKeyboard = (props: {
   selectable?: boolean;
   containerDimensions?: DOMRect;
 }) => {
-  const dispatch = useAppDispatch();
+  const {selectable, containerDimensions} = props;
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
   const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
   );
-  const selectedDefinition = useAppSelector(getSelectedDefinition);
-  if (!selectedDefinition || !keys) {
+  const definition = useAppSelector(getSelectedDefinition);
+  if (!definition || !containerDimensions) {
     return null;
   }
-  const allDefinitions = Object.entries(useAppSelector(getDefinitions))
-    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
-      [id, versionMap.v2] as KeyboardDefinitionEntry,
-      [id, versionMap.v3] as KeyboardDefinitionEntry,
-    ])
-    .filter(([_, definition]) => definition !== undefined);
 
-  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
-
-  const entry = allDefinitions[selectedDefinitionIndex];
-  if (!entry) {
-    return null;
-  }
-  const {width, height} = calculateKeyboardFrameDimensions(keys);
-  const terrainOnClick = useCallback(
-    () => dispatch(updateSelectedKey(null)),
-    [dispatch],
+  return (
+    <KeyboardCanvas
+      matrixKeycodes={matrixKeycodes}
+      keys={keys}
+      selectable={!!selectable}
+      definition={definition}
+      containerDimensions={containerDimensions}
+      mode={DisplayMode.Configure}
+    />
   );
+};
+
+export const TestKeyboard = (props: {
+  selectable?: boolean;
+  containerDimensions?: DOMRect;
+  pressedKeys?: TestKeyState[];
+  matrixKeycodes: number[];
+  keys: (VIAKey & {ei?: number})[];
+  definition: VIADefinitionV2 | VIADefinitionV3;
+}) => {
+  const {
+    selectable,
+    containerDimensions,
+    matrixKeycodes,
+    keys,
+    pressedKeys,
+    definition,
+  } = props;
+  if (!containerDimensions) {
+    return null;
+  }
+
+  return (
+    <KeyboardCanvas
+      matrixKeycodes={matrixKeycodes}
+      keys={keys}
+      selectable={!!selectable}
+      definition={definition}
+      pressedKeys={pressedKeys}
+      containerDimensions={containerDimensions}
+      mode={DisplayMode.Test}
+    />
+  );
+};
+
+export const DesignKeyboard = (props: {
+  containerDimensions?: DOMRect;
+  definition: VIADefinitionV2 | VIADefinitionV3;
+  showMatrix?: boolean;
+  selectedOptionKeys: number[];
+}) => {
+  const {containerDimensions, showMatrix, definition, selectedOptionKeys} =
+    props;
+  const {keys, optionKeys} = definition.layouts;
+  if (!containerDimensions) {
+    return null;
+  }
+
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(([key, options]) => {
+        const optionKey = parseInt(key);
+
+        // If a selection option has been set for this optionKey, use that
+        return selectedOptionKeys[optionKey]
+          ? options[selectedOptionKeys[optionKey]]
+          : options[0];
+      })
+    : [];
+
+  const displayedKeys = [...keys, ...displayedOptionKeys];
+  return (
+    <KeyboardCanvas
+      matrixKeycodes={[]}
+      keys={displayedKeys}
+      selectable={false}
+      definition={definition}
+      containerDimensions={containerDimensions}
+      mode={DisplayMode.Design}
+      showMatrix={showMatrix}
+    />
+  );
+};
+
+export const KeyboardCanvas: React.VFC<{
+  selectable: boolean;
+  containerDimensions: DOMRect;
+  matrixKeycodes: number[];
+  keys: (VIAKey & {ei?: number})[];
+  definition: VIADefinitionV2 | VIADefinitionV3;
+  pressedKeys?: TestKeyState[];
+  mode: DisplayMode;
+  showMatrix?: boolean;
+}> = (props) => {
+  const {
+    selectable,
+    containerDimensions,
+    matrixKeycodes,
+    keys,
+    definition,
+    pressedKeys,
+    mode,
+    showMatrix,
+  } = props;
+  const dispatch = useAppDispatch();
+  const terrainOnClick = useCallback(() => {
+    if (selectable) {
+      dispatch(updateSelectedKey(null));
+    }
+  }, [dispatch, selectable]);
+
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
 
   return (
     <div style={{height: 500, width: '100%'}}>
@@ -619,8 +831,7 @@ export const KeyboardCanvas = (props: {
           dispatch(updateSelectedKey(null));
         }}
       >
-        <Camera {...props} keys={keys} />
-
+        <Camera containerDimensions={containerDimensions} keys={keys} />
         <ambientLight intensity={0.8} />
         <pointLight position={[10, 10, -15]} />
         <group position={[0, -0.05, -19]} scale={0.015}>
@@ -639,11 +850,22 @@ export const KeyboardCanvas = (props: {
             <Case width={width} height={height} />
             <KeyGroup
               {...props}
+              containerDimensions={containerDimensions}
               keys={keys}
-              mode={DisplayMode.Configure}
+              mode={mode}
               matrixKeycodes={matrixKeycodes}
-              selectedDefinition={selectedDefinition}
+              definition={definition}
+              pressedKeys={pressedKeys}
             />
+            {showMatrix && (
+              <MatrixLines
+                keys={keys}
+                rows={definition.matrix.rows}
+                cols={definition.matrix.cols}
+                width={width}
+                height={height}
+              />
+            )}
           </PresentationControls>
         </group>
       </Canvas>
@@ -652,46 +874,3 @@ export const KeyboardCanvas = (props: {
 };
 
 //Something is weird when pressedKeys refreshes that affects the terrain and perhaps other parts
-export const TestKeyboardCanvas = (props: any) => {
-  const dispatch = useAppDispatch();
-  const {keys, matrixKeycodes, pressedKeys} = props;
-  const {width, height} = calculateKeyboardFrameDimensions(keys);
-  return (
-    <div style={{height: 500, width: '100%'}}>
-      <Canvas
-        camera={{fov: 25}}
-        onPointerMissed={(evt: any) => {
-          dispatch(updateSelectedKey(null));
-        }}
-      >
-        <Camera {...props} />
-        <ambientLight intensity={0.8} />
-        <pointLight position={[10, 10, -15]} />
-        <group position={[0, -0.05, -19]} scale={0.015}>
-          <Terrain />
-          <PresentationControls
-            enabled={true} // the controls can be disabled by setting this to false
-            global={true} // Spin globally or by dragging the model
-            snap={true} // Snap-back to center (can also be a spring config)
-            speed={1} // Speed factor
-            zoom={1} // Zoom factor when half the polar-max is reached
-            rotation={[0, 0, 0]} // Default rotation
-            polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
-            azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
-            config={{mass: 1, tension: 170, friction: 26}} // Spring config
-          >
-            <Case width={width} height={height} />
-            <KeyGroup
-              {...props}
-              keys={keys}
-              mode={DisplayMode.Test}
-              pressedKeys={pressedKeys}
-              matrixKeycodes={matrixKeycodes}
-              selectedDefinition={props.definition}
-            />
-          </PresentationControls>
-        </group>
-      </Canvas>
-    </div>
-  );
-};
