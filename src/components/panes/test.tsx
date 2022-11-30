@@ -30,7 +30,7 @@ import {useSize} from 'src/utils/use-size';
 import {TestKeyboardCanvas} from '../three-keyboard/keyboard';
 import {getIndexByEvent, matrixKeycodes} from 'src/utils/key-event';
 
-const EMPTY_ARR = [];
+const EMPTY_ARR: number[] = [];
 const Container = styled.div`
   display: flex;
   align-items: center;
