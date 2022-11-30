@@ -4,7 +4,6 @@ import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
 import {TestKeyboard, TestKeyState} from '../test-keyboard';
-import {matrixKeycodes, getIndexByEvent} from '../inputs/musical-key-slider';
 import {
   ControlRow,
   Label,
@@ -29,7 +28,9 @@ import {
 } from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
 import {TestKeyboardCanvas} from '../three-keyboard/keyboard';
+import {getIndexByEvent, matrixKeycodes} from 'src/utils/key-event';
 
+const EMPTY_ARR = [];
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -64,6 +65,7 @@ export const Test: FC = () => {
 
   // If pressed key is our target key then set to true
   function downHandler(evt: KeyboardEvent) {
+    console.log('**********');
     evt.preventDefault();
     if (
       !startTest &&
@@ -154,18 +156,18 @@ export const Test: FC = () => {
     setSelectedKeys({});
   };
 
-  // Add event listeners
-  useEffect(() => {
-    window.addEventListener('keydown', downHandler);
-    window.addEventListener('keyup', upHandler);
-    // Remove event listeners on cleanup
-    return () => {
-      startTest = false;
-      window.removeEventListener('keydown', downHandler);
-      window.removeEventListener('keyup', upHandler);
-      dispatch(setTestMatrixEnabled(false));
-    };
-  }, []); // Empty array ensures that effect is only run on mount and unmount
+  //// Add event listeners
+  //useEffect(() => {
+  //window.addEventListener('keydown', downHandler);
+  //window.addEventListener('keyup', upHandler);
+  //// Remove event listeners on cleanup
+  //return () => {
+  //startTest = false;
+  //window.removeEventListener('keydown', downHandler);
+  //window.removeEventListener('keyup', upHandler);
+  //dispatch(setTestMatrixEnabled(false));
+  //};
+  //}, []); // Empty array ensures that effect is only run on mount and unmount
 
   const flexRef = useRef(null);
   const dimensions = useSize(flexRef);
@@ -200,8 +202,8 @@ export const Test: FC = () => {
           <TestKeyboardCanvas
             definition={testDefinition}
             keys={testKeys}
-            pressedKeys={pressedKeys}
-            matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
+            pressedKeys={isTestMatrixEnabled ? pressedKeys : undefined}
+            matrixKeycodes={isTestMatrixEnabled ? EMPTY_ARR : matrixKeycodes}
             containerDimensions={dimensions}
           />
         </TestFlexCell>
