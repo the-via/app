@@ -1,6 +1,5 @@
 import React, {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -20,9 +19,8 @@ import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {Canvas, ThreeEvent, useFrame, useThree} from '@react-three/fiber';
+import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {useGLTF, PresentationControls} from '@react-three/drei';
-
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
 import {
@@ -34,7 +32,6 @@ import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
 import {useGlobalKeys} from 'src/utils/use-global-keys';
-import {useDispatch} from 'react-redux';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -68,7 +65,7 @@ const paintKeycap = (
 
     context.fillStyle = legendColor;
     if (label.topLabel && label.bottomLabel) {
-      context.font = ' 220px Arial Rounded MT ';
+      context.font = '220px Arial Rounded MT';
       context.fillText(
         label.topLabel,
         0.02 * 2048 + xOffset,
@@ -106,6 +103,46 @@ enum KeycapState {
   Pressed = 1,
   Unpressed = 2,
 }
+
+const Heart = (props: {
+  caseWidth: number;
+  caseHeight: number;
+  caseThickness: number;
+}) => {
+  const heartShape = new THREE.Shape();
+
+  heartShape.moveTo(25, 25);
+  heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
+  heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
+  heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
+  heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
+  heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
+  heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+
+  const extrudeSettings = {
+    depth: 10,
+    bevelEnabled: true,
+    bevelSegments: 2,
+    steps: 2,
+    bevelSize: 1,
+    bevelThickness: 15,
+  };
+
+  return (
+    <mesh
+      position={[
+        props.caseThickness,
+        props.caseHeight / 2,
+        props.caseWidth / 2,
+      ]}
+      scale={0.01}
+      rotation={[Math.PI / 2, 0, Math.PI / 2]}
+    >
+      <extrudeGeometry attach="geometry" args={[heartShape, extrudeSettings]} />
+      <meshPhongMaterial color={'pink'} transparent={true} opacity={1} />
+    </mesh>
+  );
+};
 
 const Keycap = React.memo(
   (props: any & {mode: DisplayMode; idx: number}) => {
@@ -250,86 +287,91 @@ function makeShape({width, height}: {width: number; height: number}) {
 }
 const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game.
 
-const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
-  const [width, height] = [1000, 1000];
-  const terrain1 = useRef<THREE.Mesh>(null);
-  const terrain2 = useRef<THREE.Mesh>(null);
-  const deltaYZ = height * Math.sin(Math.PI / 4);
-  const terrainWidthVertices = (width * 64) / 2500;
-  const terrainHeightVertices = (height * 16) / 625;
-  const deltaD = 0.2;
-  let terrains = [terrain1, terrain2];
-  useFrame(() => {
-    if (
-      terrains[1].current &&
-      terrains[1].current?.position.y <= GROUND_HEIGHT
-    ) {
-      terrains = [terrain2, terrain1];
-      (terrains[0].current as any).position.y = GROUND_HEIGHT;
-      (terrains[0].current as any).position.z = 0;
-      (terrains[1].current as any).position.y =
-        GROUND_HEIGHT + height * Math.sin(Math.PI / 4);
-      (terrains[1].current as any).position.z = -height * Math.sin(Math.PI / 4);
-    }
-    for (let terrain of terrains) {
-      if (terrain && terrain.current && terrain.current.position) {
-        terrain.current.position.y -= deltaD;
-        terrain.current.position.z += deltaD;
-        (terrain.current.material as THREE.Material).opacity =
-          1 + 0.5 * Math.sin((terrains[0].current as any).position.y / 12);
+const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
+  (props) => {
+    const [width, height] = [1000, 1000];
+    const terrain1 = useRef<THREE.Mesh>(null);
+    const terrain2 = useRef<THREE.Mesh>(null);
+    const deltaYZ = height * Math.sin(Math.PI / 4);
+    const terrainWidthVertices = (width * 64) / 2500;
+    const terrainHeightVertices = (height * 16) / 625;
+    const deltaD = 0.2;
+    const meshColor = '#454040';
+    let terrains = [terrain1, terrain2];
+    useFrame(() => {
+      if (
+        terrains[1].current &&
+        terrains[1].current?.position.y <= GROUND_HEIGHT
+      ) {
+        terrains = [terrain2, terrain1];
+        (terrains[0].current as any).position.y = GROUND_HEIGHT;
+        (terrains[0].current as any).position.z = 0;
+        (terrains[1].current as any).position.y =
+          GROUND_HEIGHT + height * Math.sin(Math.PI / 4);
+        (terrains[1].current as any).position.z =
+          -height * Math.sin(Math.PI / 4);
       }
-    }
-  });
-  const phase = 0.5;
-  return (
-    <>
-      <mesh
-        visible
-        position={[0, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
-        rotation={[-Math.PI / 4, 0, 0]}
-        ref={terrain1}
-        onClick={props.onClick}
-      >
-        <planeGeometry
-          attach="geometry"
-          args={[width, height, terrainWidthVertices, terrainHeightVertices]}
-        />
-        <meshStandardMaterial
-          attach="material"
-          color="#454040"
-          roughness={1}
-          metalness={0}
-          transparent={true}
-          wireframe
-        />
-      </mesh>
-      <mesh
-        visible
-        onClick={props.onClick}
-        position={[
-          0,
-          GROUND_HEIGHT + (phase + 1) * deltaYZ,
-          -deltaYZ * (phase + 1),
-        ]}
-        rotation={[-Math.PI / 4, 0, 0]}
-        ref={terrain2}
-      >
-        <planeGeometry
-          attach="geometry"
-          args={[width, height, terrainWidthVertices, terrainHeightVertices]}
-        />
-        <meshStandardMaterial
-          attach="material"
-          color="#454040"
-          roughness={1}
-          metalness={0}
-          transparent={true}
-          wireframe
-        />
-      </mesh>
-    </>
-  );
-};
+      for (let terrain of terrains) {
+        if (terrain && terrain.current && terrain.current.position) {
+          terrain.current.position.y -= deltaD;
+          terrain.current.position.z += deltaD;
+          (terrain.current.material as THREE.Material).opacity =
+            1 + 0.5 * Math.sin((terrains[0].current as any).position.y / 12);
+        }
+      }
+    });
+    const phase = 0.5;
+    return (
+      <>
+        <mesh
+          visible
+          position={[0, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
+          rotation={[-Math.PI / 4, 0, 0]}
+          ref={terrain1}
+          onClick={props.onClick}
+        >
+          <planeGeometry
+            attach="geometry"
+            args={[width, height, terrainWidthVertices, terrainHeightVertices]}
+          />
+          <meshStandardMaterial
+            attach="material"
+            color={meshColor}
+            roughness={1}
+            metalness={0}
+            transparent={true}
+            wireframe
+          />
+        </mesh>
+        <mesh
+          visible
+          onClick={props.onClick}
+          position={[
+            0,
+            GROUND_HEIGHT + (phase + 1) * deltaYZ,
+            -deltaYZ * (phase + 1),
+          ]}
+          rotation={[-Math.PI / 4, 0, 0]}
+          ref={terrain2}
+        >
+          <planeGeometry
+            attach="geometry"
+            args={[width, height, terrainWidthVertices, terrainHeightVertices]}
+          />
+          <meshStandardMaterial
+            attach="material"
+            color={meshColor}
+            roughness={1}
+            metalness={0}
+            transparent={true}
+            wireframe
+          />
+        </mesh>
+      </>
+    );
+  },
+  () => true,
+);
 
 export const Case = (props: {width: number; height: number}) => {
   const innerColor = '#303030';
@@ -366,6 +408,11 @@ export const Case = (props: {width: number; height: number}) => {
       scale={19.05}
       rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
     >
+      <Heart
+        caseWidth={props.width + depthOffset}
+        caseHeight={props.height + heightOffset / 2}
+        caseThickness={0.4 + widthOffset}
+      />
       <mesh position={[0, -0.1, 0]}>
         <extrudeGeometry
           attach="geometry"
@@ -446,7 +493,6 @@ const KeyGroup = (props: {
     };
   }, [keys]);
   const labels = useMemo(() => {
-    console.log('rerendering labels');
     return props.keys.map((k, i) =>
       getLabel(
         props.matrixKeycodes[i],
@@ -460,7 +506,6 @@ const KeyGroup = (props: {
   }, [keys, props.matrixKeycodes, macros, props.selectedDefinition]);
   const [globalPressedKeys] = useGlobalKeys();
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
-  const p1 = performance.now();
   const elems = useMemo(
     () =>
       props.keys.map((k, i) => {
@@ -498,6 +543,40 @@ const KeyGroup = (props: {
     </group>
   );
 };
+
+const Camera = (props: any) => {
+  const {keys, containerDimensions} = props;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const ratio = Math.min(
+    1,
+    (containerDimensions &&
+      containerDimensions.width /
+        ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
+          CSSVarObject.keyXSpacing +
+          70)) ||
+      1,
+  );
+  const camera = useThree((state) => state.camera);
+  const startX = 10;
+  const endX = 7;
+  const glow = useSpring({
+    config: {duration: 800},
+    from: {x: startX},
+    to: {x: endX},
+  });
+  useFrame(() => {
+    if (glow.x.isAnimating) {
+      camera.position.setZ(glow.x.get());
+      camera.position.setY(0.4 * Math.pow(glow.x.get() - endX, 1));
+    }
+    if (camera.zoom !== 5.5 * 0.8 * ratio) {
+      camera.zoom = 5.5 * 0.8 * ratio;
+      camera.updateProjectionMatrix();
+    }
+  });
+  return null;
+};
+
 export const KeyboardCanvas = (props: {
   selectable?: boolean;
   containerDimensions?: DOMRect;
@@ -527,26 +606,25 @@ export const KeyboardCanvas = (props: {
     return null;
   }
   const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const terrainOnClick = useCallback(
+    () => dispatch(updateSelectedKey(null)),
+    [dispatch],
+  );
 
   return (
     <div style={{height: 500, width: '100%'}}>
       <Canvas
-        camera={{fov: 80}}
+        camera={{fov: 25}}
         onPointerMissed={(evt: any) => {
           dispatch(updateSelectedKey(null));
         }}
       >
         <Camera {...props} keys={keys} />
 
-        <spotLight position={[-10, 0, -5]} intensity={1} />
-        <ambientLight />
-        <pointLight position={[10, 10, 5]} />
-        <group position={[0, -0.05, 0]} scale={0.015}>
-          <Terrain
-            onClick={() => {
-              dispatch(updateSelectedKey(null));
-            }}
-          />
+        <ambientLight intensity={0.8} />
+        <pointLight position={[10, 10, -15]} />
+        <group position={[0, -0.05, -19]} scale={0.015}>
+          <Terrain onClick={terrainOnClick} />
           <PresentationControls
             enabled={true} // the controls can be disabled by setting this to false
             global={true} // Spin globally or by dragging the model
@@ -573,39 +651,6 @@ export const KeyboardCanvas = (props: {
   );
 };
 
-const Camera = (props: any) => {
-  const {keys, containerDimensions} = props;
-  const {width, height} = calculateKeyboardFrameDimensions(keys);
-  const ratio = Math.min(
-    1,
-    (containerDimensions &&
-      containerDimensions.width /
-        ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
-          CSSVarObject.keyXSpacing +
-          30)) ||
-      1,
-  );
-  const camera = useThree((state) => state.camera);
-  const startX = 10;
-  const endX = 7;
-  const glow = useSpring({
-    config: {duration: 800},
-    from: {x: startX},
-    to: {x: endX},
-  });
-  useFrame(() => {
-    if (glow.x.isAnimating) {
-      camera.position.setZ(glow.x.get());
-      camera.position.setY(0.4 * Math.pow(glow.x.get() - endX, 1));
-    }
-    if (camera.zoom !== 5.5 * 0.8 * ratio) {
-      camera.zoom = 5.5 * 0.8 * ratio;
-      camera.updateProjectionMatrix();
-    }
-  });
-  return null;
-};
-
 //Something is weird when pressedKeys refreshes that affects the terrain and perhaps other parts
 export const TestKeyboardCanvas = (props: any) => {
   const dispatch = useAppDispatch();
@@ -614,16 +659,15 @@ export const TestKeyboardCanvas = (props: any) => {
   return (
     <div style={{height: 500, width: '100%'}}>
       <Canvas
-        camera={{fov: 80}}
+        camera={{fov: 25}}
         onPointerMissed={(evt: any) => {
           dispatch(updateSelectedKey(null));
         }}
       >
         <Camera {...props} />
-        <spotLight position={[-10, 0, -5]} intensity={1} />
-        <ambientLight />
-        <pointLight position={[10, 10, 5]} />
-        <group position={[0, -0.05, 0]} scale={0.015}>
+        <ambientLight intensity={0.8} />
+        <pointLight position={[10, 10, -15]} />
+        <group position={[0, -0.05, -19]} scale={0.015}>
           <Terrain />
           <PresentationControls
             enabled={true} // the controls can be disabled by setting this to false
