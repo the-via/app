@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -19,7 +20,7 @@ import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {Canvas, useFrame, useThree} from '@react-three/fiber';
+import {Canvas, ThreeEvent, useFrame, useThree} from '@react-three/fiber';
 import {useGLTF, PresentationControls} from '@react-three/drei';
 
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
@@ -32,6 +33,8 @@ import {
 import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
+import {useGlobalKeys} from 'src/utils/use-global-keys';
+import {useDispatch} from 'react-redux';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -104,86 +107,101 @@ enum KeycapState {
   Unpressed = 2,
 }
 
-function Keycap(props: any & {mode: DisplayMode}) {
-  const {label, scale, color, selected, position, mode, keyState} = props;
-  const ref = useRef<any>();
-  // Hold state for hovered and clicked events
-  const [hovered, hover] = useState(false);
-  const textureRef = useRef<THREE.CanvasTexture>();
-  const canvasRef = useRef(document.createElement('canvas'));
+const Keycap = React.memo(
+  (props: any & {mode: DisplayMode; idx: number}) => {
+    const {label, scale, color, selected, position, mode, keyState, idx} =
+      props;
+    const ref = useRef<any>();
+    // Hold state for hovered and clicked events
+    const [hovered, hover] = useState(false);
+    const textureRef = useRef<THREE.CanvasTexture>();
+    const canvasRef = useRef(document.createElement('canvas'));
 
-  const redraw = React.useCallback(() => {
-    if (canvasRef.current) {
-      paintKeycap(
-        canvasRef.current,
-        scale[0],
-        scale[1],
-        color.c,
-        color.t,
-        label,
-      );
-      textureRef.current!.needsUpdate = true;
-    }
-  }, [canvasRef.current, label.key, scale[0], scale[1], color.t, color.c]);
-  useLayoutEffect(redraw, [label.key]);
+    const redraw = React.useCallback(() => {
+      if (canvasRef.current) {
+        paintKeycap(
+          canvasRef.current,
+          scale[0],
+          scale[1],
+          color.c,
+          color.t,
+          label,
+        );
+        textureRef.current!.needsUpdate = true;
+      }
+    }, [canvasRef.current, label.key, scale[0], scale[1], color.t, color.c]);
+    useLayoutEffect(redraw, [label.key]);
 
-  const glow = useSpring({
-    config: {duration: 800},
-    from: {x: 0, y: '#f4c0c0'},
-    loop: selected ? {reverse: true} : false,
-    to: {x: 100, y: '#c4a9a9'},
-  });
-  const [zDown, zUp] = [0, 6];
-  const pressedState =
-    DisplayMode.Test === mode
-      ? TestKeyState.KeyDown === props.keyState
-        ? KeycapState.Pressed
-        : KeycapState.Unpressed
-      : hovered || selected
-      ? KeycapState.Unpressed
-      : KeycapState.Pressed;
-  const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
-  const wasPressed = props.keyState === TestKeyState.KeyUp;
-  const keycapColor =
-    DisplayMode.Test === mode
-      ? pressedState === KeycapState.Unpressed
-        ? wasPressed
-          ? '#f4c0c0'
-          : 'lightgrey'
-        : '#c4a9a9'
-      : pressedState === KeycapState.Unpressed
-      ? 'lightgrey'
-      : 'lightgrey';
+    const glow = useSpring({
+      config: {duration: 800},
+      from: {x: 0, y: '#f4c0c0'},
+      loop: selected ? {reverse: true} : false,
+      to: {x: 100, y: '#c4a9a9'},
+    });
+    const [zDown, zUp] = [0, 6];
+    const pressedState =
+      DisplayMode.Test === mode
+        ? TestKeyState.KeyDown === props.keyState
+          ? KeycapState.Pressed
+          : KeycapState.Unpressed
+        : hovered || selected
+        ? KeycapState.Unpressed
+        : KeycapState.Pressed;
+    const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
+    const wasPressed = props.keyState === TestKeyState.KeyUp;
+    const keycapColor =
+      DisplayMode.Test === mode
+        ? pressedState === KeycapState.Unpressed
+          ? wasPressed
+            ? '#f4c0c0'
+            : 'lightgrey'
+          : '#c4a9a9'
+        : pressedState === KeycapState.Unpressed
+        ? 'lightgrey'
+        : 'lightgrey';
 
-  const {p, b} = useSpring({
-    config: {duration: 100},
-    p: [position[0], position[1], keycapZ],
-    b: keycapColor,
-  });
+    const {p, b} = useSpring({
+      config: {duration: 100},
+      p: [position[0], position[1], keycapZ],
+      b: keycapColor,
+    });
 
-  const AniMeshMaterial = animated.meshPhongMaterial as any;
-  return (
-    <>
-      <animated.mesh
-        {...props}
-        ref={ref}
-        position={p}
-        onPointerOver={() => !props.disabled && hover(true)}
-        onPointerOut={() => !props.disabled && hover(false)}
-        geometry={props.keycapGeometry}
-      >
-        <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
-          <canvasTexture
-            minFilter={THREE.LinearMipMapNearestFilter}
-            ref={textureRef as any}
-            attach="map"
-            image={canvasRef.current}
-          />
-        </AniMeshMaterial>
-      </animated.mesh>
-    </>
-  );
-}
+    const AniMeshMaterial = animated.meshPhongMaterial as any;
+    console.log('rerendering keycap');
+
+    return (
+      <>
+        <animated.mesh
+          {...props}
+          ref={ref}
+          position={p}
+          onClick={(evt) => !props.disabled && props.onClick(evt, idx)}
+          onPointerOver={() => !props.disabled && hover(true)}
+          onPointerOut={() => !props.disabled && hover(false)}
+          geometry={props.keycapGeometry}
+        >
+          <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
+            <canvasTexture
+              minFilter={THREE.LinearMipMapNearestFilter}
+              ref={textureRef as any}
+              attach="map"
+              image={canvasRef.current}
+            />
+          </AniMeshMaterial>
+        </animated.mesh>
+      </>
+    );
+  },
+  (prev, next) => {
+    return Object.keys(prev).every((k) => {
+      const equal = prev[k] === next[k];
+      if (!equal) {
+        console.log(k);
+      }
+      return equal;
+    });
+  },
+);
 
 function makeShape({width, height}: {width: number; height: number}) {
   const shape = new THREE.Shape();
@@ -262,7 +280,6 @@ const Terrain: React.VFC<{onClick?: () => void}> = (props) => {
       }
     }
   });
-  console.log('rerender');
   const phase = 0.5;
   return (
     <>
@@ -407,10 +424,29 @@ const KeyGroup = (props: {
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
+  const {keys} = props;
   const keysKeys = useMemo(() => {
-    return props.keys.map((k, i) => `${i}-${k.w}-${k.h}`);
-  }, [props.keys]);
+    return {
+      indices: keys.map((k, i) => `${i}-${k.w}-${k.h}`),
+      coords: keys.map((k, i) => {
+        const [x, y] = calculatePointPosition(k);
+        const r = (k.r * (2 * Math.PI)) / 360;
+        return {
+          position: [(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0],
+          rotation: [0, 0, -r],
+          scale: [k.w, k.h, 1],
+          color: getColors(k),
+          idx: i,
+          onClick: (evt: any, idx: number) => {
+            evt.stopPropagation();
+            dispatch(updateSelectedKey(idx));
+          },
+        };
+      }),
+    };
+  }, [keys]);
   const labels = useMemo(() => {
+    console.log('rerendering labels');
     return props.keys.map((k, i) =>
       getLabel(
         props.matrixKeycodes[i],
@@ -421,39 +457,44 @@ const KeyGroup = (props: {
         byteToKey,
       ),
     );
-  }, [props.keys, props.matrixKeycodes, macros, props.selectedDefinition]);
-
+  }, [keys, props.matrixKeycodes, macros, props.selectedDefinition]);
+  const [globalPressedKeys] = useGlobalKeys();
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
-  return (
-    <group scale={1} position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}>
-      {props.keys.map((k, i) => {
-        const [x, y] = calculatePointPosition(k);
-        const r = (k.r * (2 * Math.PI)) / 360;
+  const p1 = performance.now();
+  const elems = useMemo(
+    () =>
+      props.keys.map((k, i) => {
+        const {position, rotation, scale, color, idx, onClick} =
+          keysKeys.coords[i];
+        const key = keysKeys.indices[i];
         return (
           <Keycap
             mode={props.mode}
-            key={keysKeys[i]}
-            position={[(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0]}
-            rotation={[0, 0, -r]}
-            scale={[k.w, k.h, 1]}
-            color={getColors(k)}
+            key={key}
+            position={position}
+            rotation={rotation}
+            scale={scale}
+            color={color}
             keycapGeometry={
               (k['ei'] !== undefined ? Cylinder : (Keycap_1U_GMK_R1 as any))
                 .geometry
             }
-            onClick={(evt: any) => {
-              if (props.selectable) {
-                evt.stopPropagation();
-                dispatch(updateSelectedKey(i));
-              }
-            }}
-            keyState={props.pressedKeys && props.pressedKeys[i]}
+            keyState={
+              props.pressedKeys ? props.pressedKeys[i] : globalPressedKeys[i]
+            }
             disabled={!props.selectable}
             selected={i === selectedKey}
+            idx={idx}
             label={labels[i]}
+            onClick={onClick}
           />
         );
-      })}
+      }),
+    [props.keys, selectedKey, labels, globalPressedKeys, props.pressedKeys],
+  );
+  return (
+    <group scale={1} position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}>
+      {elems}
     </group>
   );
 };
