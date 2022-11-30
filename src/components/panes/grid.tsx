@@ -50,6 +50,16 @@ export const FlexCell = styled(Cell)`
   background: var(--gradient);
 `;
 
+export const DesignFlexCell = styled(Cell)`
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: var(--gradient);
+`;
+
 export const TestFlexCell = styled(Cell)`
   display: flex;
   overflow: hidden;

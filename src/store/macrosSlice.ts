@@ -8,14 +8,14 @@ export type MacrosState = {
   isFeatureSupported: boolean;
 };
 
-const initialState: MacrosState = {
+export const macrosInitialState: MacrosState = {
   expressions: [],
   isFeatureSupported: true,
 };
 
 export const macrosSlice = createSlice({
   name: 'macros',
-  initialState,
+  initialState: macrosInitialState,
   reducers: {
     loadMacrosSuccess: (state, action: PayloadAction<string[]>) => {
       state.expressions = action.payload;

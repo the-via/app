@@ -47,7 +47,7 @@ import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
-import {KeyboardCanvas} from '../three-keyboard/keyboard';
+import {ConfigureKeyboard, KeyboardCanvas} from '../three-keyboard/keyboard';
 import {useAppDispatch} from 'src/store/hooks';
 
 const MenuContainer = styled.div`
@@ -246,7 +246,7 @@ const ConfigureGrid = () => {
             dispatch(clearSelectedKey());
         }}
       >
-        <KeyboardCanvas
+        <ConfigureKeyboard
           containerDimensions={dimensions}
           selectable={selectedTitle === 'Keymap'}
         />

@@ -19,7 +19,6 @@ import {
   DefinitionVersionMap,
 } from '@the-via/reader';
 import type {DefinitionVersion} from '@the-via/reader';
-import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   ControlRow,
   Label,
@@ -27,7 +26,7 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  FlexCell,
+  DesignFlexCell,
 } from './grid';
 import {useDispatch} from 'react-redux';
 import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
@@ -36,6 +35,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
 import {useSize} from 'src/utils/use-size';
+import {DesignKeyboard} from '../three-keyboard/keyboard';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -61,6 +61,7 @@ const UploadIcon = styled.div`
   width: 50%;
   max-width: 560px;
   border-radius: 6px;
+  margin: 50px 10px;
   animation-duration: 1.5s;
   animation-name: border-glow;
   animation-iteration-count: infinite;
@@ -216,14 +217,16 @@ export const DesignTab: FC = () => {
         evt.stopPropagation();
       }}
     >
-      <FlexCell ref={flexRef}>
+      <DesignFlexCell ref={flexRef}>
         {definition ? (
-          <BlankPositionedKeyboard
-            containerDimensions={dimensions}
-            selectedDefinition={definition}
-            selectedOptionKeys={selectedOptionKeys}
-            showMatrix={showMatrix}
-          />
+          <>
+            <DesignKeyboard
+              containerDimensions={dimensions}
+              definition={definition}
+              selectedOptionKeys={selectedOptionKeys}
+              showMatrix={showMatrix}
+            />
+          </>
         ) : (
           <UploadIcon
             onDrop={(evt) =>
@@ -239,7 +242,7 @@ export const DesignTab: FC = () => {
             <FontAwesomeIcon icon={faUpload} />
           </UploadIcon>
         )}
-      </FlexCell>
+      </DesignFlexCell>
       <OverflowCell>
         <Container>
           <ControlRow>
