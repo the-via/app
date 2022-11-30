@@ -20,7 +20,6 @@ export const getLog = ((window as any).__getLogs = () => {
 });
 
 window.addEventListener('message', (m) => {
-  console.log('cl', m);
   if (m.data.command === 'fetchLogs') {
     window.postMessage({command: 'getLogs', payload: getLog()}, '*');
   }

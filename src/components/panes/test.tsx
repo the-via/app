@@ -3,7 +3,7 @@ import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
-import {TestKeyboard, TestKeyState} from '../test-keyboard';
+import {TestKeyState} from '../test-keyboard';
 import {
   ControlRow,
   Label,
@@ -27,8 +27,9 @@ import {
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
-import {TestKeyboardCanvas} from '../three-keyboard/keyboard';
+import {TestKeyboard} from '../three-keyboard/keyboard';
 import {getIndexByEvent, matrixKeycodes} from 'src/utils/key-event';
+import {VIADefinitionV2, VIAKey} from '@the-via/reader';
 
 const EMPTY_ARR: number[] = [];
 const Container = styled.div`
@@ -195,14 +196,19 @@ export const Test: FC = () => {
   const testKeys = isTestMatrixEnabled
     ? keyDefinitions
     : fullKeyboardDefinition.layouts.keys;
+  if (!testDefinition || typeof testDefinition === 'string') {
+    return null;
+  }
   return (
     <TestPane>
       <Grid1Col>
         <TestFlexCell ref={flexRef}>
-          <TestKeyboardCanvas
-            definition={testDefinition}
-            keys={testKeys}
-            pressedKeys={isTestMatrixEnabled ? pressedKeys : undefined}
+          <TestKeyboard
+            definition={testDefinition as VIADefinitionV2}
+            keys={testKeys as VIAKey[]}
+            pressedKeys={
+              isTestMatrixEnabled ? (pressedKeys as TestKeyState[]) : undefined
+            }
             matrixKeycodes={isTestMatrixEnabled ? EMPTY_ARR : matrixKeycodes}
             containerDimensions={dimensions}
           />
