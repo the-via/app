@@ -41,10 +41,7 @@ import {
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
-import {getThemeFromStore} from 'src/utils/device-store';
-import {Canvas, useFrame, useLoader} from '@react-three/fiber';
-import {useGLTF, OrbitControls} from '@react-three/drei';
-import {KeyboardCanvas} from '../three-keyboard/keyboard';
+import {DebugKeyboard} from '../three-keyboard/keyboard';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -263,13 +260,12 @@ export const Debug: FC = () => {
   return (
     <DebugPane>
       <KeyboardPanel ref={flexRef}>
-        <KeyboardCanvas />
         {entry && (
-          <BlankPositionedKeyboard
-            containerDimensions={dimensions}
-            selectedDefinition={entry[1]}
+          <DebugKeyboard
+            definition={entry[1]}
             showMatrix={showMatrix}
             selectedOptionKeys={selectedOptionKeys}
+            containerDimensions={dimensions}
             selectedKey={selectedKey}
           />
         )}

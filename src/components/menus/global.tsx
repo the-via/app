@@ -34,8 +34,8 @@ const MenuItem = styled.button<{selected?: boolean}>`
   }
 `;
 
-const {DEBUG_PROD, NODE_ENV} = import.meta.env;
-const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+const {DEBUG_PROD, MODE, DEV} = import.meta.env;
+const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);

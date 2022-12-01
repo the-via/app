@@ -569,7 +569,7 @@ export const Case = (props: {width: number; height: number}) => {
   );
 };
 
-const KeyGroup = (props: {
+const KeyGroup: React.VFC<{
   selectable?: boolean;
   containerDimensions?: DOMRect;
   keys: VIAKey[];
@@ -577,14 +577,17 @@ const KeyGroup = (props: {
   definition: VIADefinitionV2 | VIADefinitionV3;
   mode: DisplayMode;
   pressedKeys?: TestKeyState[];
-}) => {
+  selectedKey?: number;
+}> = (props) => {
   const dispatch = useAppDispatch();
   const {Keycap_1U_GMK_R1} = useGLTF('/fonts/keycap.glb').nodes;
   const {Cylinder} = useGLTF('/fonts/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
-  const {keys} = props;
+  const {keys, selectedKey: externalSelectedKey} = props;
+  const selectedKeyIndex =
+    externalSelectedKey === undefined ? selectedKey : externalSelectedKey;
   const keysKeys = useMemo(() => {
     return {
       indices: keys.map((k, i) => `${i}-${k.w}-${k.h}`),
@@ -643,14 +646,20 @@ const KeyGroup = (props: {
               props.pressedKeys ? props.pressedKeys[i] : globalPressedKeys[i]
             }
             disabled={!props.selectable}
-            selected={i === selectedKey}
+            selected={i === selectedKeyIndex}
             idx={idx}
             label={labels[i]}
             onClick={onClick}
           />
         );
       }),
-    [props.keys, selectedKey, labels, globalPressedKeys, props.pressedKeys],
+    [
+      props.keys,
+      selectedKeyIndex,
+      labels,
+      globalPressedKeys,
+      props.pressedKeys,
+    ],
   );
   return (
     <group scale={1} position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}>
@@ -794,6 +803,51 @@ export const DesignKeyboard = (props: {
   );
 };
 
+export const DebugKeyboard = (props: {
+  containerDimensions?: DOMRect;
+  definition: VIADefinitionV2 | VIADefinitionV3;
+  showMatrix?: boolean;
+  selectedOptionKeys: number[];
+  selectedKey?: number;
+}) => {
+  const {
+    containerDimensions,
+    showMatrix,
+    definition,
+    selectedOptionKeys,
+    selectedKey,
+  } = props;
+  const {keys, optionKeys} = definition.layouts;
+  if (!containerDimensions) {
+    return null;
+  }
+
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(([key, options]) => {
+        const optionKey = parseInt(key);
+
+        // If a selection option has been set for this optionKey, use that
+        return selectedOptionKeys[optionKey]
+          ? options[selectedOptionKeys[optionKey]]
+          : options[0];
+      })
+    : [];
+
+  const displayedKeys = [...keys, ...displayedOptionKeys];
+  return (
+    <KeyboardCanvas
+      matrixKeycodes={[]}
+      keys={displayedKeys}
+      selectable={false}
+      definition={definition}
+      containerDimensions={containerDimensions}
+      mode={DisplayMode.Design}
+      showMatrix={showMatrix}
+      selectedKey={selectedKey}
+    />
+  );
+};
+
 export const KeyboardCanvas: React.VFC<{
   selectable: boolean;
   containerDimensions: DOMRect;
@@ -803,6 +857,7 @@ export const KeyboardCanvas: React.VFC<{
   pressedKeys?: TestKeyState[];
   mode: DisplayMode;
   showMatrix?: boolean;
+  selectedKey?: number;
 }> = (props) => {
   const {
     selectable,
