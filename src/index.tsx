@@ -1,6 +1,5 @@
 import '@webscopeio/react-textarea-autocomplete/style.css';
-import React from 'react';
-import {render} from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import Root from './containers/Root';
 import {ApplicationInsights} from '@microsoft/applicationinsights-web';
 
@@ -12,5 +11,8 @@ const appInsights = new ApplicationInsights({
 });
 appInsights.loadAppInsights();
 appInsights.trackPageView(); // Manually call trackPageView to establish the current user/session/pageview
-
-render(<Root />, document.getElementById('root'));
+const elem = document.getElementById('root');
+if (elem) {
+  const root = createRoot(elem);
+  root.render(<Root />);
+}
