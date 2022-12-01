@@ -35,7 +35,6 @@ import {
 import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
-import {useGlobalKeys} from 'src/utils/use-global-keys';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -590,7 +589,9 @@ const KeyGroup: React.VFC<{
     externalSelectedKey === undefined ? selectedKey : externalSelectedKey;
   const keysKeys = useMemo(() => {
     return {
-      indices: keys.map((k, i) => `${i}-${k.w}-${k.h}`),
+      indices: keys.map(
+        (k, i) => `${props.definition.vendorProductId}-${i}-${k.w}-${k.h}`,
+      ),
       coords: keys.map((k, i) => {
         const [x, y] = calculatePointPosition(k);
         const r = (k.r * (2 * Math.PI)) / 360;
@@ -622,7 +623,6 @@ const KeyGroup: React.VFC<{
           ),
         );
   }, [keys, props.matrixKeycodes, macros, props.definition]);
-  const [globalPressedKeys] = useGlobalKeys();
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
   const elems = useMemo(
     () =>
@@ -642,9 +642,7 @@ const KeyGroup: React.VFC<{
               (k['ei'] !== undefined ? Cylinder : (Keycap_1U_GMK_R1 as any))
                 .geometry
             }
-            keyState={
-              props.pressedKeys ? props.pressedKeys[i] : globalPressedKeys[i]
-            }
+            keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
             disabled={!props.selectable}
             selected={i === selectedKeyIndex}
             idx={idx}
@@ -657,8 +655,8 @@ const KeyGroup: React.VFC<{
       props.keys,
       selectedKeyIndex,
       labels,
-      globalPressedKeys,
       props.pressedKeys,
+      props.definition.vendorProductId,
     ],
   );
   return (
