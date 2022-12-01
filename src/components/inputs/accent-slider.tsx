@@ -14,7 +14,7 @@ const Switch = styled.label`
   width: 60px;
   height: 34px;
 `;
-const Slider = styled.span<{isChecked?: boolean}>`
+const Slider = styled.span<{ischecked?: boolean}>`
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -22,7 +22,7 @@ const Slider = styled.span<{isChecked?: boolean}>`
   right: 0;
   bottom: 0;
   background-color: ${(props) =>
-    props.isChecked ? 'var(--color_accent)' : 'var(--color_dark-grey)'};
+    props.ischecked ? 'var(--color_accent)' : 'var(--color_dark-grey)'};
   -webkit-transition: 0.4s;
   transition: 0.4s;
   border-radius: 4px;
@@ -35,12 +35,12 @@ const Slider = styled.span<{isChecked?: boolean}>`
     bottom: 4px;
     border-radius: 4px;
     background-color: ${(props) =>
-      !props.isChecked
+      !props.ischecked
         ? 'var(--color_medium-grey)'
         : 'var(--color_light-grey)'};
     -webkit-transition: 0.4s;
     transition: 0.4s;
-    ${(props) => (props.isChecked ? 'transform: translateX(26px)' : '')};
+    ${(props) => (props.ischecked ? 'transform: translateX(26px)' : '')};
   }
 `;
 
@@ -71,7 +71,7 @@ export function AccentSlider(props: Props) {
         checked={isHiddenChecked}
         onChange={hiddenOnChange}
       />
-      <Slider isChecked={isHiddenChecked} />
+      <Slider ischecked={isHiddenChecked} />
     </Switch>
   );
 }

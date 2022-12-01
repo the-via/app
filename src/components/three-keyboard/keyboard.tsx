@@ -656,6 +656,7 @@ const KeyGroup: React.VFC<{
       selectedKeyIndex,
       labels,
       props.pressedKeys,
+      props.selectable,
       props.definition.vendorProductId,
     ],
   );
@@ -878,12 +879,7 @@ export const KeyboardCanvas: React.VFC<{
 
   return (
     <div style={{height: 500, width: '100%'}}>
-      <Canvas
-        camera={{fov: 25}}
-        onPointerMissed={(evt: any) => {
-          dispatch(updateSelectedKey(null));
-        }}
-      >
+      <Canvas camera={{fov: 25}}>
         <Camera containerDimensions={containerDimensions} keys={keys} />
         <ambientLight intensity={0.8} />
         <pointLight position={[10, 10, -15]} />
