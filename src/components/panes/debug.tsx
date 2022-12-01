@@ -304,7 +304,7 @@ export const Debug: FC = () => {
                     const displayedKeys = [...keys, ...selectedOptionKeys];
                     if (selectedKey !== undefined) {
                       setSelectedKey(
-                        getNextKey(selectedKey, displayedKeys) ?? undefined,
+                        getNextKey(selectedKey, displayedKeys) || 0,
                       );
                     }
                   }}

@@ -30,6 +30,7 @@ import {useSize} from 'src/utils/use-size';
 import {TestKeyboard} from '../three-keyboard/keyboard';
 import {getIndexByEvent, matrixKeycodes} from 'src/utils/key-event';
 import {VIADefinitionV2, VIAKey} from '@the-via/reader';
+import {useGlobalKeys} from 'src/utils/use-global-keys';
 
 const EMPTY_ARR: number[] = [];
 const Container = styled.div`
@@ -57,7 +58,7 @@ export const Test: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-
+  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys();
   const [selectedKeys, setSelectedKeys] = useState(
     {} as {[key: string]: TestKeyState},
   );
@@ -65,35 +66,6 @@ export const Test: FC = () => {
   let flat = [] as number[];
 
   // If pressed key is our target key then set to true
-  function downHandler(evt: KeyboardEvent) {
-    console.log('**********');
-    evt.preventDefault();
-    if (
-      !startTest &&
-      !evt.repeat &&
-      selectedKeys[getIndexByEvent(evt) ?? -1] !== TestKeyState.KeyDown
-    ) {
-      console.log('triggered');
-      setSelectedKeys((selectedKeys) => ({
-        ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyDown,
-      }));
-    }
-  }
-
-  // If released key is our target key then set to false
-  const upHandler = (evt: KeyboardEvent) => {
-    evt.preventDefault();
-    if (
-      !startTest &&
-      selectedKeys[getIndexByEvent(evt)] !== TestKeyState.KeyUp
-    ) {
-      setSelectedKeys((selectedKeys) => ({
-        ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyUp,
-      }));
-    }
-  };
 
   const useMatrixTest = async () => {
     if (startTest && api && selectedDefinition) {
@@ -155,6 +127,7 @@ export const Test: FC = () => {
   const onClickHandler = () => {
     flat = [];
     setSelectedKeys({});
+    setGlobalPressedKeys({});
   };
 
   //// Add event listeners
@@ -207,7 +180,9 @@ export const Test: FC = () => {
             definition={testDefinition as VIADefinitionV2}
             keys={testKeys as VIAKey[]}
             pressedKeys={
-              isTestMatrixEnabled ? (pressedKeys as TestKeyState[]) : undefined
+              isTestMatrixEnabled
+                ? (pressedKeys as TestKeyState[])
+                : (globalPressedKeys as TestKeyState[])
             }
             matrixKeycodes={isTestMatrixEnabled ? EMPTY_ARR : matrixKeycodes}
             containerDimensions={dimensions}
@@ -234,8 +209,10 @@ export const Test: FC = () => {
 
                       if (val) {
                         setSelectedKeys({});
+                        setGlobalPressedKeys({});
                         useMatrixTest();
                       } else {
+                        setGlobalPressedKeys({});
                         setSelectedKeys({});
                       }
                     }}
