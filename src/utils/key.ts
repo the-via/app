@@ -80,7 +80,7 @@ function getByteForLayerCode(
     const numLayer = parseInt(layer);
     switch (code) {
       case 'TO': {
-        return Math.min(basicKeyToByte['QK_TO'] + numLayer, basicKeyToByte['QK_TO_MAX'] );
+        return Math.min(basicKeyToByte['QK_TO'] + numLayer, basicKeyToByte['QK_TO_MAX']);
       }
       case 'MO': {
         return Math.min(basicKeyToByte['QK_MOMENTARY'] + numLayer, basicKeyToByte['QK_MOMENTARY_MAX']);
@@ -122,12 +122,12 @@ function getCodeForLayerByte(
     const layer = byte - basicKeyToByte['QK_TOGGLE_LAYER'];
     return `TG(${layer})`;
   } else if (basicKeyToByte['QK_ONE_SHOT_LAYER'] <= byte && basicKeyToByte['QK_ONE_SHOT_LAYER_MAX'] >= byte) {
-      const layer = byte - basicKeyToByte['QK_ONE_SHOT_LAYER'];
-      return `OSL(${layer})`;
+    const layer = byte - basicKeyToByte['QK_ONE_SHOT_LAYER'];
+    return `OSL(${layer})`;
   } else if (basicKeyToByte['QK_LAYER_TAP_TOGGLE'] <= byte && basicKeyToByte['QK_LAYER_TAP_TOGGLE_MAX'] >= byte) {
     const layer = byte - basicKeyToByte['QK_LAYER_TAP_TOGGLE'];
     return `TT(${layer})`;
-  } 
+  }
 }
 
 export const keycodesList = getKeycodes().reduce<IKeycode[]>(
@@ -152,15 +152,15 @@ function isLayerKey(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return [  [ basicKeyToByte['QK_TO'], basicKeyToByte['QK_TO_MAX'] ],
-            [ basicKeyToByte['QK_MOMENTARY'], basicKeyToByte['QK_MOMENTARY_MAX'] ],
-            [ basicKeyToByte['QK_DEF_LAYER'], basicKeyToByte['QK_DEF_LAYER_MAX'] ],
-            [ basicKeyToByte['QK_TOGGLE_LAYER'], basicKeyToByte['QK_TOGGLE_LAYER_MAX'] ],
-            [ basicKeyToByte['QK_ONE_SHOT_LAYER'], basicKeyToByte['QK_ONE_SHOT_LAYER_MAX'] ],
-            [ basicKeyToByte['QK_LAYER_TAP_TOGGLE'], basicKeyToByte['QK_LAYER_TAP_TOGGLE_MAX'] ]
-        ].some((code) => byte >= code[0] && byte <= code[1]);
+  return [[basicKeyToByte['QK_TO'], basicKeyToByte['QK_TO_MAX']],
+  [basicKeyToByte['QK_MOMENTARY'], basicKeyToByte['QK_MOMENTARY_MAX']],
+  [basicKeyToByte['QK_DEF_LAYER'], basicKeyToByte['QK_DEF_LAYER_MAX']],
+  [basicKeyToByte['QK_TOGGLE_LAYER'], basicKeyToByte['QK_TOGGLE_LAYER_MAX']],
+  [basicKeyToByte['QK_ONE_SHOT_LAYER'], basicKeyToByte['QK_ONE_SHOT_LAYER_MAX']],
+  [basicKeyToByte['QK_LAYER_TAP_TOGGLE'], basicKeyToByte['QK_LAYER_TAP_TOGGLE_MAX']]
+  ].some((code) => byte >= code[0] && byte <= code[1]);
 }
-  
+
 export function getCodeForByte(
   byte: number,
   basicKeyToByte: Record<string, number>,

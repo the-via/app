@@ -41,11 +41,9 @@
   KC_APP: 0x0065,
   KC_NUHS: 0x0032,
   KC_NUBS: 0x0064,
-  // LOCKING
   KC_LCAP: 0x0082,
   KC_LNUM: 0x0083,
   KC_LSCR: 0x0084,
-  // END-LOCKING
   KC_ERAS: 0x0099,
   KC_CLR: 0x009c,
   KC_ZKHK: 0x0035,
@@ -172,9 +170,7 @@
   KC_COPY: 0x007c,
   KC_PASTE: 0x007d,
   KC_FIND: 0x007e,
-  //MACONLYEND
   KC_KP_EQUAL_AS400: 0x0086,
-  // INTERNATIONAL
   KC_INT6: 0x008c,
   KC_INT7: 0x008d,
   KC_INT8: 0x008e,
@@ -188,12 +184,10 @@
   KC_LANG7: 0x0096,
   KC_LANG8: 0x0097,
   KC_LANG9: 0x0098,
-  // SOMETHING WEIRD
   KC_SYSREQ: 0x009a,
   KC_CANCEL: 0x009b,
   KC_CLEAR: 0x009c,
   KC_PRIOR: 0x009d,
-  //KC_SEPARATOR: 0x009f,
   KC_OUT: 0x00a0,
   KC_OPER: 0x00a1,
   KC_CLEAR_AGAIN: 0x00a2,
@@ -203,9 +197,6 @@
   KC_LGUI: 0x00e3,
   KC_RALT: 0x00e6,
   KC_RGUI: 0x00e7,
-  //SYSTEM
-  //MEDIA
-  // APP
   KC_MAIL: 0x00b1,
   KC_WWW_SEARCH: 0x00b4,
   KC_WWW_HOME: 0x00b5,
@@ -312,9 +303,6 @@
   KC_RCPC: 0x5cf4,
   KC_LAPO: 0x5cf5,
   KC_RAPC: 0x5cf6,
-
-  // Shifted characters
-  // These already include the shift bit, from LSFT(x)
   KC_TILD: 0x0235,
   KC_EXLM: 0x021e,
   KC_AT: 0x021f,
@@ -336,8 +324,6 @@
   KC_GT: 0x0237,
   KC_QUES: 0x0238,
   KC_DQUO: 0x0234,
-
-  // "Zeal60" specific
   BR_INC: 0x5f00,
   BR_DEC: 0x5f01,
   EF_INC: 0x5f02,
@@ -372,8 +358,6 @@
   MACRO15: 0x5f21,
   FN_TT13: 0x2f31,
   FN_TT23: 0x2f32,
-
-  // Custom Keycodes
   USER00: 0x5f80,
   USER01: 0x5f81,
   USER02: 0x5f82,
@@ -390,20 +374,7 @@
   USER13: 0x5f8d,
   USER14: 0x5f8e,
   USER15: 0x5f8f,
-
-  // Hard-coded aliases for LT(layer,KC_SPC)
   SPC_FN1: 0x412c,
   SPC_FN2: 0x422c,
   SPC_FN3: 0x432c,
-  // These are bitmasks not keycodes
-  //MOD_LCTL: 0x0001,
-  //MOD_LSFT: 0x0002,
-  //MOD_LALT: 0x0004,
-  //MOD_LGUI: 0x0008,
-  //MOD_RCTL: 0x0011,
-  //MOD_RSFT: 0x0012,
-  //MOD_RALT: 0x0014,
-  //MOD_RGUI: 0x0018,
-  //MOD_HYPR: 0x000f,
-  //MOD_MEH: 0x0007
 }
