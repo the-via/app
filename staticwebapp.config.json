@@ -8,19 +8,19 @@
     {
       "route": "/css/*",
       "headers": {
-        "cache-control": "public, max-age=604800"
+        "cache-control": "public, max-age=18144000"
       }
     },
     {
       "route": "/fonts/*",
       "headers": {
-        "cache-control": "public, max-age=604800"
+        "cache-control": "public, max-age=18144000"
       }
     },
     {
       "route": "/js/*",
       "headers": {
-        "cache-control": "public, max-age=604800"
+        "cache-control": "public, max-age=18144000"
       }
     }
   ],
