@@ -7,7 +7,7 @@ export type DesignState = {
 };
 
 const initialState: DesignState = {
-  selectedVersion: 'v2',
+  selectedVersion: 'v3',
 };
 
 const designSlice = createSlice({
