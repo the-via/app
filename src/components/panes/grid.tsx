@@ -13,15 +13,18 @@ export const Grid = styled.div`
   display: grid;
   grid-template-rows: minmax(350px, min-content) minmax(0, 1fr);
   grid-template-columns: min-content minmax(0, 1fr);
+  > div {
+    pointer-events: all;
+  }
 `;
 
 export const Cell = styled.div`
-  background: var(--color_light-jet);
   border-right: 1px solid var(--color_dark-grey);
 `;
 
 export const MenuCell = styled(Cell)`
   grid-area: 1 / 1 / 3 / 2;
+  background: var(--gradient);
 `;
 
 export const OverflowCell = styled(Cell)`
@@ -47,7 +50,6 @@ export const FlexCell = styled(Cell)`
   align-items: center;
   padding: 50px 10px;
   position: relative;
-  background: var(--gradient);
 `;
 
 export const DesignFlexCell = styled(Cell)`
@@ -69,7 +71,6 @@ export const TestFlexCell = styled(Cell)`
   position: relative;
   background: var(--gradient);
   animation-duration: 2s;
-  animation-name: fade-in;
   animation-timing-function: ease-in;
 `;
 
@@ -80,10 +81,10 @@ export const ConfigureFlexCell = styled(Cell)`
   justify-content: center;
   align-items: center;
   position: relative;
-  background: var(--gradient);
   animation-duration: 2s;
-  animation-name: fade-in;
   animation-timing-function: ease-in;
+  pointer-events: none;
+  height: 500px;
 `;
 
 export const IconContainer = styled.span`

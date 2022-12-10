@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -24,6 +25,8 @@ import {
   PresentationControls,
   Segments,
   Segment,
+  PerspectiveCamera,
+  useProgress,
 } from '@react-three/drei';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
@@ -35,6 +38,8 @@ import {
 import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
+import {StateChangeTypes} from 'downshift';
+import {useLocation} from 'wouter';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -61,46 +66,47 @@ const paintKeycap = (
   legendColor: string,
   label: any,
 ) => {
+  const dpi = 1;
+  const canvasSize = 512 * dpi;
   const [canvasWidth, canvasHeight] = [
-    2048 * widthMultiplier,
-    2048 * heightMultiplier,
+    canvasSize * widthMultiplier,
+    canvasSize * heightMultiplier,
   ];
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
-  const [xOffset, yOffset] = [10, 60];
+  const [xOffset, yOffset] = [2.5 * dpi, 15 * dpi];
 
   const context = canvas.getContext('2d');
   if (context) {
-    context.rect(0, 0, canvas.width, canvas.height);
     context.fillStyle = bgColor;
-    context.fill();
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     context.fillStyle = legendColor;
     if (label === undefined) {
     } else if (label.topLabel && label.bottomLabel) {
-      context.font = '220px Arial Rounded MT';
+      context.font = `${54 * dpi}px Arial Rounded MT`;
       context.fillText(
         label.topLabel,
-        0.02 * 2048 + xOffset,
-        0.3 * canvas.height + 970 * heightMultiplier + yOffset,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset,
       );
       context.fillText(
         label.bottomLabel,
-        0.02 * 2048 + xOffset,
-        0.3 * canvas.height + 970 * heightMultiplier + yOffset + 300,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset + 75 * dpi,
       );
     } else if (label.centerLabel) {
-      context.font = 'bold 150px Arial Rounded MT';
+      context.font = `bold ${37.5 * dpi}px Arial Rounded MT`;
       context.fillText(
         label.centerLabel,
-        0.02 * 2048 + xOffset,
-        0.3 * canvas.height + 1080 * heightMultiplier + yOffset,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
       );
     } else if (typeof label.label === 'string') {
-      context.font = 'bold 320px Arial Rounded MT';
+      context.font = `bold ${80 * dpi}px Arial Rounded MT`;
       context.fillText(
         label.label,
-        0.02 * 2048 + xOffset,
+        0.02 * canvasSize + xOffset,
         0.3 * canvasHeight + canvasHeight / 2 + yOffset,
       );
     }
@@ -289,7 +295,7 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
     color.t,
     color.c,
   ]);
-  useLayoutEffect(redraw, [label && label.key]);
+  useEffect(redraw, [label && label.key]);
 
   const glow = useSpring({
     config: {duration: 800},
@@ -399,7 +405,7 @@ function makeShape({width, height}: {width: number; height: number}) {
 }
 const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game.
 
-const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
+export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
   (props) => {
     const [width, height] = [1000, 1000];
     const terrain1 = useRef<THREE.Mesh>(null);
@@ -667,12 +673,14 @@ const KeyGroup: React.VFC<{
   );
 };
 
-const Camera = (props: {
+export const Camera = (props: {
   keys: (VIAKey & {ei?: number})[];
   containerDimensions: DOMRect;
 }) => {
   const {keys, containerDimensions} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const {progress, total} = useProgress();
+  const [path] = useLocation();
   const ratio = Math.min(
     1,
     (containerDimensions &&
@@ -688,19 +696,44 @@ const Camera = (props: {
   const glow = useSpring({
     config: {duration: 800},
     from: {x: startX},
-    to: {x: endX},
   });
+
+  const isOtherRoute = path === '/test';
+  const slide = useSpring({
+    config: {duration: 200},
+    x: isOtherRoute ? 10.1 : 0,
+  });
+
+  React.useEffect(() => {
+    if (progress === 100 && total === 5) {
+      console.log('lets animate');
+      glow.x.start(endX);
+    }
+  }, [progress]);
+
+  React.useEffect(() => {
+    console.log('mounting');
+    return () => {
+      console.log('unmounting');
+    };
+  }, []);
   useFrame(() => {
     if (glow.x.isAnimating) {
       camera.position.setZ(glow.x.get());
+      camera.position.setX(slide.x.get());
       camera.position.setY(0.4 * Math.pow(glow.x.get() - endX, 1));
     }
     if (camera.zoom !== 5.5 * 0.8 * ratio) {
       camera.zoom = 5.5 * 0.8 * ratio;
       camera.updateProjectionMatrix();
     }
+    if (slide.x.isAnimating) {
+      console.log('position', camera.position.x);
+      camera.position.setX(slide.x.get());
+      camera.updateProjectionMatrix();
+    }
   });
-  return null;
+  return <PerspectiveCamera makeDefault fov={25} />;
 };
 
 export const ConfigureKeyboard = (props: {
@@ -878,47 +911,41 @@ export const KeyboardCanvas: React.VFC<{
   const {width, height} = calculateKeyboardFrameDimensions(keys);
 
   return (
-    <div style={{height: 500, width: '100%'}}>
-      <Canvas camera={{fov: 25}}>
-        <Camera containerDimensions={containerDimensions} keys={keys} />
-        <ambientLight intensity={0.8} />
-        <pointLight position={[10, 10, -15]} />
-        <group position={[0, -0.05, -19]} scale={0.015}>
-          <Terrain onClick={terrainOnClick} />
-          <PresentationControls
-            enabled={true} // the controls can be disabled by setting this to false
-            global={true} // Spin globally or by dragging the model
-            snap={true} // Snap-back to center (can also be a spring config)
-            speed={1} // Speed factor
-            zoom={1} // Zoom factor when half the polar-max is reached
-            rotation={[0, 0, 0]} // Default rotation
-            polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
-            azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
-            config={{mass: 1, tension: 170, friction: 26}} // Spring config
-          >
-            <Case width={width} height={height} />
-            <KeyGroup
-              {...props}
-              containerDimensions={containerDimensions}
+    <>
+      <group position={[0, -0.05, -19]} scale={0.015}>
+        <PresentationControls
+          enabled={true} // the controls can be disabled by setting this to false
+          global={true} // Spin globally or by dragging the model
+          snap={true} // Snap-back to center (can also be a spring config)
+          speed={1} // Speed factor
+          zoom={1} // Zoom factor when half the polar-max is reached
+          rotation={[0, 0, 0]} // Default rotation
+          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
+          azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
+          config={{mass: 1, tension: 170, friction: 26}} // Spring config
+        >
+          <Case width={width} height={height} />
+          <KeyGroup
+            {...props}
+            containerDimensions={containerDimensions}
+            keys={keys}
+            mode={mode}
+            matrixKeycodes={matrixKeycodes}
+            definition={definition}
+            pressedKeys={pressedKeys}
+          />
+          {showMatrix && (
+            <MatrixLines
               keys={keys}
-              mode={mode}
-              matrixKeycodes={matrixKeycodes}
-              definition={definition}
-              pressedKeys={pressedKeys}
+              rows={definition.matrix.rows}
+              cols={definition.matrix.cols}
+              width={width}
+              height={height}
             />
-            {showMatrix && (
-              <MatrixLines
-                keys={keys}
-                rows={definition.matrix.rows}
-                cols={definition.matrix.cols}
-                width={width}
-                height={height}
-              />
-            )}
-          </PresentationControls>
-        </group>
-      </Canvas>
-    </div>
+          )}
+        </PresentationControls>
+      </group>
+    </>
   );
 };
 

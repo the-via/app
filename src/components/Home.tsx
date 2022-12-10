@@ -1,4 +1,4 @@
-import React, {createRef, FC, ReactNode, useEffect, useState} from 'react';
+import React, {createRef, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {mapEvtToKeycode, getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
@@ -9,7 +9,6 @@ import {
   LightingValue,
 } from '@the-via/reader';
 import {getNextKey} from './positioned-keyboard';
-import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
@@ -34,8 +33,6 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import type {ThunkDispatch} from '@reduxjs/toolkit';
-import type {AppDispatch, RootState} from 'src/store';
 
 const ErrorHome = styled.div`
   background: var(--color_jet);
@@ -220,27 +217,25 @@ export const Home = (props: HomeProps) => {
     toggleLights();
   }, [selectedDevice]);
 
-  return (
+  return !hasHIDSupport ? (
     <ErrorHome ref={homeElem} tabIndex={0} style={{flex: 1}}>
-      {!hasHIDSupport ? (
-        <UsbError>
-          <UsbErrorIcon>❌</UsbErrorIcon>
-          <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
-          <p>
-            Looks like there was a problem getting USB detection working. Right
-            now, we only support{' '}
-            <UsbErrorWebHIDLink
-              href="https://caniuse.com/?search=webhid"
-              target="_blank"
-            >
-              browsers that have WebHID enabled
-            </UsbErrorWebHIDLink>
-            , so make sure yours is compatible before trying again.
-          </p>
-        </UsbError>
-      ) : (
-        props.children
-      )}
+      <UsbError>
+        <UsbErrorIcon>❌</UsbErrorIcon>
+        <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
+        <p>
+          Looks like there was a problem getting USB detection working. Right
+          now, we only support{' '}
+          <UsbErrorWebHIDLink
+            href="https://caniuse.com/?search=webhid"
+            target="_blank"
+          >
+            browsers that have WebHID enabled
+          </UsbErrorWebHIDLink>
+          , so make sure yours is compatible before trying again.
+        </p>
+      </UsbError>
     </ErrorHome>
+  ) : (
+    props.children
   );
 };

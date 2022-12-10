@@ -48,7 +48,8 @@
     "three": "^0.146.0",
     "ts-node": "^10.4.0",
     "use-resize-observer": "^8.0.0",
-    "via-keyboards": "github:the-via/keyboards"
+    "via-keyboards": "github:the-via/keyboards",
+    "wouter": "^2.9.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.24",

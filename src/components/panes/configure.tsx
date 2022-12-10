@@ -47,7 +47,6 @@ import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
-import {ConfigureKeyboard, KeyboardCanvas} from '../three-keyboard/keyboard';
 import {useAppDispatch} from 'src/store/hooks';
 
 const MenuContainer = styled.div`
@@ -172,7 +171,7 @@ function Loader(props: {
   }, [selectedDefinition]);
   return (
     <>
-      <ChippyLoader progress={loadProgress || null} />
+      {<ChippyLoader progress={loadProgress || null} />}
       {(showButton || noConnectedDevices) && !noSupportedIds && !isElectron ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device
@@ -219,8 +218,8 @@ const ConfigureGrid = () => {
   const selectedTitle = KeyboardRows[selectedRow]?.Title;
 
   return (
-    <Grid>
-      <MenuCell>
+    <Grid style={{pointerEvents: 'none'}}>
+      <MenuCell style={{pointerEvents: 'all'}}>
         <MenuContainer>
           {(KeyboardRows || []).map(
             ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
@@ -245,14 +244,13 @@ const ConfigureGrid = () => {
           if ((evt.target as any).nodeName !== 'CANVAS')
             dispatch(clearSelectedKey());
         }}
+        style={{pointerEvents: 'none'}}
       >
-        <ConfigureKeyboard
-          containerDimensions={dimensions}
-          selectable={selectedTitle === 'Keymap'}
-        />
-        <ReactTooltip />
-        <LayerControl />
-        <Badge />
+        <div style={{pointerEvents: 'all'}}>
+          <ReactTooltip />
+          <LayerControl />
+          <Badge />
+        </div>
       </ConfigureFlexCell>
       {SelectedPane && <SelectedPane />}
     </Grid>

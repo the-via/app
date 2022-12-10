@@ -1,9 +1,9 @@
-import React from 'react';
 import {UnconnectedGlobalMenu} from './components/menus/global';
-import {HashRouter as Router, Route, Routes} from 'react-router-dom';
+import {Route, useLocation} from 'wouter';
 import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
+import {CanvasRouter} from './components/three-fiber/canvas-router';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -15,18 +15,17 @@ export default () => {
   const hasHIDSupport = 'hid' in navigator;
 
   const RouteComponents = PANES.map((pane) => {
-    return (
-      <Route element={<pane.component />} key={pane.key} path={pane.path} />
-    );
+    return <Route component={pane.component} key={pane.key} path={pane.path} />;
   });
 
+  const [route] = useLocation();
+
   return (
-    <Router>
+    <>
       <GlobalStyle />
       {hasHIDSupport && <UnconnectedGlobalMenu />}
-      <Home hasHIDSupport={hasHIDSupport}>
-        <Routes>{RouteComponents}</Routes>
-      </Home>
-    </Router>
+      <CanvasRouter />
+      <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+    </>
   );
 };

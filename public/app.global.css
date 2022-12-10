@@ -2,6 +2,10 @@ html,
 body {
   height: 100%;
 }
+.configure-tooltip {
+font-size: 20px !important;
+background-color: rgba(255,255,255,0.4);
+}
 body {
   position: relative;
   color: white;

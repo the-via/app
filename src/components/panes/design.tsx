@@ -35,7 +35,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
 import {useSize} from 'src/utils/use-size';
-import {DesignKeyboard} from '../three-keyboard/keyboard';
+import {DesignKeyboard} from '../three-fiber/keyboard';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
