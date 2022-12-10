@@ -638,6 +638,7 @@ export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
   const keycodes = Object.keys(basicKeyToByte)
+    .filter((key) => !key.startsWith('QK_'))
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
@@ -724,7 +725,6 @@ export function buildLayerMenu(): IKeycodeMenu {
         layer: 0,
         title: 'Turn on layer when pressed',
       },
-      /* Users are not ready for this ;-)
       {
         name: 'DF',
         code: 'DF(layer)',
@@ -732,7 +732,6 @@ export function buildLayerMenu(): IKeycodeMenu {
         layer: 0,
         title: 'Sets the default layer'
       }
-      */
     ],
   };
 
