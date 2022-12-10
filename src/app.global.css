@@ -2,6 +2,10 @@ html,
 body {
   height: 100%;
 }
+* {
+  background-color: #1d1b1b !important;
+}
+
 body {
   position: relative;
   color: white;

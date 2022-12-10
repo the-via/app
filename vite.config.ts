@@ -6,6 +6,7 @@ import {splitVendorChunkPlugin} from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), splitVendorChunkPlugin()],
+  server: {open: true},
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),

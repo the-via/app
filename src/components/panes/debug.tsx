@@ -41,7 +41,7 @@ import {
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
-import {DebugKeyboard} from '../three-keyboard/keyboard';
+import {DebugKeyboard} from '../three-fiber/keyboard';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {useLocation} from 'react-router';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'wouter';
 import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowDesignTab} from 'src/store/settingsSlice';
@@ -11,7 +10,6 @@ const Container = styled.div`
   height: 25px;
   padding: 12px 0;
   border-bottom: 1px solid var(--color_dark-grey);
-  background-color: var(--color_light-jet);
   text-align: center;
 `;
 
@@ -40,7 +38,7 @@ const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
 
-  const location = useLocation();
+  const [location] = useLocation();
 
   const Panes = React.useMemo(() => {
     return PANES.map((pane) => {
@@ -48,9 +46,7 @@ export const UnconnectedGlobalMenu = () => {
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
         <Link key={pane.key} to={pane.path}>
-          <MenuItem selected={pane.path === location.pathname}>
-            {pane.title}
-          </MenuItem>
+          <MenuItem selected={pane.path === location}>{pane.title}</MenuItem>
         </Link>
       );
     });

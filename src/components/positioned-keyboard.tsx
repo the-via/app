@@ -86,14 +86,12 @@ const KeyboardFrame = styled.div<{
   border-radius: 3px;
   box-shadow: var(--color_dark-grey) 0 1px 0px 3px;
   padding: 5px;
-  background: var(--color_light-jet);
   position: relative;
   transform: ${calculateKeyboardFrameTransform};
 `;
 
 export const BlankKeyboardFrame = styled(KeyboardFrame)`
   padding: 5px;
-  background: var(--color_light-jet);
   position: relative;
   transform: ${calculateKeyboardFrameTransform};
 `;

@@ -27,7 +27,7 @@ import {
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
-import {TestKeyboard} from '../three-keyboard/keyboard';
+import {TestKeyboard} from '../three-fiber/keyboard';
 import {matrixKeycodes} from 'src/utils/key-event';
 import {VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {useGlobalKeys} from 'src/utils/use-global-keys';
@@ -113,19 +113,6 @@ export const Test: FC = () => {
   return (
     <TestPane>
       <Grid1Col>
-        <TestFlexCell ref={flexRef}>
-          <TestKeyboard
-            definition={testDefinition as VIADefinitionV2}
-            keys={testKeys as VIAKey[]}
-            pressedKeys={
-              isTestMatrixEnabled
-                ? (pressedKeys as TestKeyState[])
-                : (globalPressedKeys as TestKeyState[])
-            }
-            matrixKeycodes={isTestMatrixEnabled ? EMPTY_ARR : matrixKeycodes}
-            containerDimensions={dimensions}
-          />
-        </TestFlexCell>
         <OverflowCell>
           <Container>
             <ControlRow>
