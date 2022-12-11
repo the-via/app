@@ -1,6 +1,6 @@
-import basicKeyToByte from './default.json5';
-import v10BasicKeyToByte from './v10.json5';
-import v11BasicKeyToByte from './v11.json5';
+import basicKeyToByte from './default';
+import v10BasicKeyToByte from './v10';
+import v11BasicKeyToByte from './v11';
 export function getBasicKeyDict(version: number) {
   switch (version) {
     case 12: {

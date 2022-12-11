@@ -1,4 +1,4 @@
-{
+export default {
   QK_MODS: 0x0100,
   QK_MODS_MAX: 0x1fff,
   QK_MOD_TAP: 0x6000,
@@ -356,4 +356,4 @@
   SPC_FN1: 0x412c,
   SPC_FN2: 0x422c,
   SPC_FN3: 0x432c,
-}
+};
