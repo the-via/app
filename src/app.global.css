@@ -322,3 +322,26 @@ a:hover {
     stroke: var(--color_accent);
   }
 }
+
+/* Bugfix for shifting animations on keys */
+.key-container {
+  animation-direction: alternate;
+  animation-duration: 0s;
+  animation-iteration-count: infinite;
+  animation-name: select-glow;
+  animation-timing-function: ease-in-out;
+  box-sizing: border-box;
+  position: absolute;
+  transition: transform 0.2s ease-out;
+  user-select: none;
+}
+
+.key-container:hover  {
+  transform: translate3d(0, -4px, 0);
+}
+
+.key-container.key-selected {
+  animation-duration: 1.5s;
+  transform: translate3d(0, -4px, 0) scale(0.99);
+}
+

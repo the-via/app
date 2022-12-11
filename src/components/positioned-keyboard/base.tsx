@@ -1,4 +1,5 @@
-import React from 'react';
+import classNames from 'classnames';
+import React, { HTMLProps } from 'react';
 import styled from 'styled-components';
 
 type KeyRotation = {
@@ -74,27 +75,19 @@ export const RotationContainer = styled.div<{
   ${(props) => (props.selected ? 'z-index:2;' : '')}
 `;
 
-export const KeyContainer = styled.div<{selected: boolean}>`
-  position: absolute;
-  box-sizing: border-box;
-  transition: transform 0.2s ease-out;
-  user-select: none;
-  transform: ${(props) =>
-    props.selected
-      ? 'translate3d(0, -4px, 0) scale(0.99)'
-      : 'translate3d(0,0,0)'};
-  :hover {
-    transform: ${(props) =>
-      props.selected
-        ? 'translate3d(0, -4px, 0) scale(0.99)'
-        : 'translate3d(0,-4px,0)'};
-  }
-  animation-name: select-glow;
-  animation-duration: ${(props) => (props.selected ? 1.5 : 0)}s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  animation-timing-function: ease-in-out;
-`;
+export function KeyContainer({
+  className,
+  selected,
+  ...divProps
+}: { selected: boolean } & HTMLProps<HTMLDivElement>) {
+  const divClassName = classNames('key-container', className, {
+    'key-selected': selected
+  });
+
+  return (
+    <div className={divClassName} {...divProps} />
+  );
+}
 
 export const Legend = styled.div`
   font-family: Arial, Helvetica, sans-serif;

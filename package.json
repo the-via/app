@@ -26,6 +26,7 @@
     "@types/lodash.partition": "^4.6.6",
     "@types/raf-schd": "^4.0.1",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
+    "classnames": "^2.3.2",
     "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
