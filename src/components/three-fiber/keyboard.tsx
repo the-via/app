@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import {useSpring, animated} from '@react-spring/three';
 import type {KeyColor} from '../../utils/themes';
-import type {VIAKey, KeyColorType} from '@the-via/reader';
+import type {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
@@ -18,6 +18,9 @@ import {
   getBasicKeyToByte,
   getSelectedKeyDefinitions,
   getSelectedDefinition,
+  getDefinitions,
+  getBaseDefinitions,
+  getCustomDefinitions,
 } from 'src/store/definitionsSlice';
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {
@@ -40,6 +43,12 @@ import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
 import {StateChangeTypes} from 'downshift';
 import {useLocation} from 'wouter';
+import {
+  getConnectedDevices,
+  getSelectedConnectedDevice,
+} from 'src/store/devicesSlice';
+import {useDispatch} from 'react-redux';
+import {getSelectedVersion} from 'src/store/designSlice';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
   t: 'papayawhip',
@@ -407,7 +416,7 @@ const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game
 
 export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
   (props) => {
-    const [width, height] = [1000, 1000];
+    const [width, height] = [2000, 1000];
     const terrain1 = useRef<THREE.Mesh>(null);
     const terrain2 = useRef<THREE.Mesh>(null);
     const deltaYZ = height * Math.sin(Math.PI / 4);
@@ -698,10 +707,10 @@ export const Camera = (props: {
     from: {x: startX},
   });
 
-  const isOtherRoute = path === '/test';
+  const routeX = path === '/design' ? 20 : path === '/test' ? 10 : -0.5;
   const slide = useSpring({
     config: {duration: 200},
-    x: isOtherRoute ? 10.1 : 0,
+    x: routeX,
   });
 
   React.useEffect(() => {
@@ -834,6 +843,104 @@ export const DesignKeyboard = (props: {
     />
   );
 };
+type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
+
+export const KeyboardCanvasContext = React.createContext<any | null>(null);
+const getDisplayedOptionKeys =
+  (selectedOptionKeys: number[]) =>
+  ([key, options]: [any, any]) => {
+    const optionKey = parseInt(key);
+
+    // If a selection option has been set for this optionKey, use that
+    return selectedOptionKeys[optionKey]
+      ? options[selectedOptionKeys[optionKey]]
+      : options[0];
+  };
+export const DebugProvider = (props: any) => {
+  // Temporary patch that gets the page to load
+  // TODO: We probably need to rethink this + design a bit. Loading defs in design causes this to crash
+  const allDefinitions = Object.entries(useAppSelector(getDefinitions))
+    .flatMap(([id, versionMap]): KeyboardDefinitionEntry[] => [
+      [id, versionMap.v2] as KeyboardDefinitionEntry,
+      [id, versionMap.v3] as KeyboardDefinitionEntry,
+    ])
+    .filter(([_, definition]) => definition !== undefined);
+
+  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
+  const [selectedKey, setSelectedKey] = useState<undefined | number>(0);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const entry = allDefinitions[selectedDefinitionIndex];
+  const {keys, optionKeys} = entry[1].layouts;
+  const displayedOptionKeys = optionKeys
+    ? Object.entries(optionKeys).flatMap(
+        getDisplayedOptionKeys(selectedOptionKeys),
+      )
+    : [];
+
+  const displayedKeys = [...keys, ...displayedOptionKeys];
+  const canvasProps = {
+    matrixKeycodes: [],
+    keys: displayedKeys,
+    selectable: false,
+    definition: entry[1],
+    mode: DisplayMode.Design,
+    showMatrix: showMatrix,
+    selectedKey: selectedKey,
+  };
+  return (
+    <KeyboardCanvasContext.Provider value={canvasProps}>
+      {props.children}
+    </KeyboardCanvasContext.Provider>
+  );
+};
+
+export const DesignProvider = (props: any) => {
+  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const definitionVersion = useAppSelector(getSelectedVersion);
+
+  const [selectedDefinitionIndex, setSelectedDefinitionIndex] = useState(0);
+  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
+  );
+
+  const definition =
+    versionDefinitions[selectedDefinitionIndex] &&
+    versionDefinitions[selectedDefinitionIndex][definitionVersion];
+  const displayedOptionKeys =
+    definition && definition.layouts.optionKeys
+      ? Object.entries(definition.layouts.optionKeys).flatMap(
+          getDisplayedOptionKeys(selectedOptionKeys),
+        )
+      : [];
+
+  const displayedKeys = [
+    ...(definition ? definition.layouts.keys : []),
+    ...displayedOptionKeys,
+  ];
+  const canvasProps = {
+    matrixKeycodes: [],
+    keys: displayedKeys,
+    selectable: false,
+    definition,
+    mode: DisplayMode.Design,
+    showMatrix,
+    setShowMatrix,
+    setSelectedOptionKeys,
+    setSelectedDefinitionIndex,
+  };
+  return (
+    <KeyboardCanvasContext.Provider value={canvasProps}>
+      {props.children}
+    </KeyboardCanvasContext.Provider>
+  );
+};
 
 export const DebugKeyboard = (props: {
   containerDimensions?: DOMRect;
@@ -849,11 +956,10 @@ export const DebugKeyboard = (props: {
     selectedOptionKeys,
     selectedKey,
   } = props;
-  const {keys, optionKeys} = definition.layouts;
   if (!containerDimensions) {
     return null;
   }
-
+  const {keys, optionKeys} = definition.layouts;
   const displayedOptionKeys = optionKeys
     ? Object.entries(optionKeys).flatMap(([key, options]) => {
         const optionKey = parseInt(key);

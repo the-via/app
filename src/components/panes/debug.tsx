@@ -259,17 +259,6 @@ export const Debug: FC = () => {
 
   return (
     <DebugPane>
-      <KeyboardPanel ref={flexRef}>
-        {entry && (
-          <DebugKeyboard
-            definition={entry[1]}
-            showMatrix={showMatrix}
-            selectedOptionKeys={selectedOptionKeys}
-            containerDimensions={dimensions}
-            selectedKey={selectedKey}
-          />
-        )}
-      </KeyboardPanel>
       <MenuPanel>
         <Container>
           <GithubUserData />

@@ -218,7 +218,7 @@ export const DesignTab: FC = () => {
       }}
     >
       <DesignFlexCell ref={flexRef}>
-        {definition ? (
+        {false && definition ? (
           <>
             <DesignKeyboard
               containerDimensions={dimensions}
