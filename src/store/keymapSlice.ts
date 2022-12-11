@@ -22,6 +22,7 @@ export type KeymapState = {
   numberOfLayers: number;
   selectedLayerIndex: number;
   selectedKey: number | null;
+  configureKeyboardIsSelectable: boolean;
 };
 
 const initialState: KeymapState = {
@@ -29,6 +30,7 @@ const initialState: KeymapState = {
   numberOfLayers: 4,
   selectedLayerIndex: 0,
   selectedKey: null,
+  configureKeyboardIsSelectable: false,
 };
 
 export const keymapSlice = createSlice({
@@ -37,6 +39,12 @@ export const keymapSlice = createSlice({
   reducers: {
     setNumberOfLayers: (state, action: PayloadAction<number>) => {
       state.numberOfLayers = action.payload;
+    },
+    setConfigureKeyboardIsSelectable: (
+      state,
+      action: PayloadAction<boolean>,
+    ) => {
+      state.configureKeyboardIsSelectable = action.payload;
     },
     // Writes a single layer to the device layer map
     loadLayerSuccess: (
@@ -105,6 +113,7 @@ export const {
   setKey,
   updateSelectedKey,
   saveKeymapSuccess,
+  setConfigureKeyboardIsSelectable,
 } = keymapSlice.actions;
 
 export default keymapSlice.reducer;
@@ -179,6 +188,8 @@ export const updateKey =
     dispatch(setKey({keymapIndex, value, devicePath: device.path}));
   };
 
+export const getConfigureKeyboardIsSelectable = (state: RootState) =>
+  state.keymap.configureKeyboardIsSelectable;
 export const getSelectedKey = (state: RootState) => state.keymap.selectedKey;
 export const getRawDeviceMap = (state: RootState) => state.keymap.rawDeviceMap;
 export const getNumberOfLayers = (state: RootState) =>
