@@ -1,34 +1,35 @@
-const quantumRanges = {
-  QK_MODS: 0x0100,
-  QK_RMODS_MIN: 0x1000,
-  QK_MODS_MAX: 0x1fff,
-  QK_FUNCTION: 0x2000,
-  QK_FUNCTION_MAX: 0x2fff,
-  QK_MACRO: 0x3000,
-  QK_MACRO_MAX: 0x3fff,
-  QK_LAYER_TAP: 0x4000,
-  QK_LAYER_TAP_MAX: 0x4fff,
-  QK_TO: 0x5000,
-  QK_TO_MAX: 0x50ff,
-  QK_MOMENTARY: 0x5100,
-  QK_MOMENTARY_MAX: 0x51ff,
-  QK_DEF_LAYER: 0x5200,
-  QK_DEF_LAYER_MAX: 0x52ff,
-  QK_TOGGLE_LAYER: 0x5300,
-  QK_TOGGLE_LAYER_MAX: 0x53ff,
-  QK_ONE_SHOT_LAYER: 0x5400,
-  QK_ONE_SHOT_LAYER_MAX: 0x54ff,
-  QK_ONE_SHOT_MOD: 0x5500,
-  QK_ONE_SHOT_MOD_MAX: 0x55ff,
-  QK_TAP_DANCE: 0x5700,
-  QK_TAP_DANCE_MAX: 0x57ff,
-  QK_LAYER_TAP_TOGGLE: 0x5800,
-  QK_LAYER_TAP_TOGGLE_MAX: 0x58ff,
-  QK_LAYER_MOD: 0x5900,
-  QK_LAYER_MOD_MAX: 0x59ff,
-  QK_MOD_TAP: 0x6000,
-  QK_MOD_TAP_MAX: 0x7fff,
-};
+const quantumRangesKeys = [
+  'QK_MODS',
+  'QK_MODS_MAX',
+  'QK_MOD_TAP',
+  'QK_MOD_TAP_MAX',
+  'QK_LAYER_TAP',
+  'QK_LAYER_TAP_MAX',
+  'QK_LAYER_MOD',
+  'QK_LAYER_MOD_MAX',
+  'QK_TO',
+  'QK_TO_MAX',
+  'QK_MOMENTARY',
+  'QK_MOMENTARY_MAX',
+  'QK_DEF_LAYER',
+  'QK_DEF_LAYER_MAX',
+  'QK_TOGGLE_LAYER',
+  'QK_TOGGLE_LAYER_MAX',
+  'QK_ONE_SHOT_LAYER',
+  'QK_ONE_SHOT_LAYER_MAX',
+  'QK_ONE_SHOT_MOD',
+  'QK_ONE_SHOT_MOD_MAX',
+  'QK_LAYER_TAP_TOGGLE',
+  'QK_LAYER_TAP_TOGGLE_MAX',
+];
+
+const quantumRanges = (
+  basicKeyToByte: Record<string, number>
+) : Record<string, number> => {
+  return Object.keys(basicKeyToByte).reduce((acc, key) =>
+    ( quantumRangesKeys.includes(key) ? {...acc, [key]:basicKeyToByte[key]} : acc)
+  , {})
+}
 
 const modCodes = {
   QK_LCTL: 0x0100,
@@ -55,19 +56,17 @@ const modMasks = {
   MOD_MEH: 0x0007,
 };
 
-const ON_PRESS = 1;
-
 const topLevelMacroToValue = {
-  DF: quantumRanges.QK_DEF_LAYER, //DF(layer)
-  MO: quantumRanges.QK_MOMENTARY, // MO(layer)
-  LM: quantumRanges.QK_LAYER_MOD, // LM(layer, mod)
-  LT: quantumRanges.QK_LAYER_TAP, // LT(layer, kc)
-  OSL: quantumRanges.QK_ONE_SHOT_LAYER, // OSL(layer)
-  TG: quantumRanges.QK_TOGGLE_LAYER, //  TG(layer)
-  TO: quantumRanges.QK_TO, // TO(layer)
-  TT: quantumRanges.QK_LAYER_TAP_TOGGLE, // TT(layer)
-  MT: quantumRanges.QK_MOD_TAP, // MT(mod, kc)
-  OSM: quantumRanges.QK_ONE_SHOT_MOD, //OSM(mod)
+  MT: 'QK_MOD_TAP', // MT(mod, kc)
+  LT: 'QK_LAYER_TAP', // LT(layer, kc)
+  LM: 'QK_LAYER_MOD', // LM(layer, mod)
+  TO: 'QK_TO', // TO(layer)
+  MO: 'QK_MOMENTARY', // MO(layer)
+  DF: 'QK_DEF_LAYER', //DF(layer)
+  TG: 'QK_TOGGLE_LAYER', //  TG(layer)
+  OSL: 'QK_ONE_SHOT_LAYER', // OSL(layer)
+  OSM: 'QK_ONE_SHOT_MOD', //OSM(mod)
+  TT: 'QK_LAYER_TAP_TOGGLE', // TT(layer)
 };
 
 const modifierKeyToValue = {
@@ -103,14 +102,13 @@ const modifierValuetoKey = Object.entries(modifierKeyToValue).reduce(
   {},
 );
 
-const topLevelValueToMacro = Object.entries(topLevelMacroToValue).reduce(
-  (acc, [key, value]) => ({...acc, [value]: key}),
-  {},
-);
-
-const valueToRange = Object.entries(quantumRanges)
-  .map(([key, value]) => [value, key])
-  .sort((a, b) => (a[0] as number) - (b[0] as number));
+const topLevelValueToMacro = (
+  basicKeyToByte: Record<string, number>
+) : Record<number, string> => {
+  return Object.entries(topLevelMacroToValue).reduce(
+    (acc, [key, value]) => ({...acc, [basicKeyToByte[value]]: key}),
+    {});
+}
 
 // MT, OSM, LM only take MOD
 // Everything else can use the KC mods
@@ -135,6 +133,10 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
+  let valueToRange = Object.entries(quantumRanges(basicKeyToByte))
+    .map(([key, value]) => [value, key])
+    .sort((a, b) => (a[0] as number) - (b[0] as number));
+
   /* Find the range we are in first */
   let lastRange = null;
   let lastValue: number = -1;
@@ -146,12 +148,12 @@ export const advancedKeycodeToString = (
     lastRange = rangeName;
     lastValue = +value;
   }
-  const topLevelModKeys = ['QK_MODS', 'QK_RMODS_MIN'];
+  const topLevelModKeys = ['QK_MODS'];
   if (topLevelModKeys.includes(lastRange as string)) {
     return topLevelModToString(inputKeycode, basicKeyToByte, byteToKey);
   }
   let humanReadable: string | null =
-    (topLevelValueToMacro as any)[lastValue] + '(';
+    (topLevelValueToMacro(basicKeyToByte) as any)[lastValue] + '(';
   let remainder = inputKeycode & ~lastValue;
   let layer = 0;
   let keycode = '';
@@ -162,16 +164,13 @@ export const advancedKeycodeToString = (
     case 'QK_TOGGLE_LAYER':
     case 'QK_ONE_SHOT_LAYER':
     case 'QK_LAYER_TAP_TOGGLE':
+    case 'QK_TO':
       humanReadable += remainder + ')';
       break;
     case 'QK_LAYER_TAP':
       layer = remainder >> 8;
       keycode = btk[remainder & 0xff];
       humanReadable += layer + ',' + keycode + ')';
-      break;
-    case 'QK_TO':
-      layer = ~(ON_PRESS << 4) & remainder;
-      humanReadable += layer + ')';
       break;
     case 'QK_ONE_SHOT_MOD':
       humanReadable += modValueToString(remainder) + ')';
@@ -232,25 +231,18 @@ const parseTopLevelMacro = (
     case 'TG':
     case 'OSL':
     case 'TT':
+    case 'TO':
       layer = Number.parseInt(parameter);
       if (layer < 0) {
         return 0;
       }
-      return topLevelMacroToValue[topLevelKey] | (layer & 0xff);
-    case 'TO': //#define TO(layer) (QK_TO | (ON_PRESS << 0x4) | ((layer)&0xFF))
-      layer = Number.parseInt(parameter);
-      if (layer < 0) {
-        return 0;
-      }
-      return (
-        topLevelMacroToValue[topLevelKey] | (ON_PRESS << 0x4) | (layer & 0xff)
-      );
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | (layer & 0xff);
     case 'OSM': //#define OSM(mod) (QK_ONE_SHOT_MOD | ((mod)&0xFF))
       mods = parseMods(parameter);
       if (mods === 0) {
         return 0;
       }
-      return topLevelMacroToValue[topLevelKey] | (mods & 0xff);
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | (mods & 0xff);
     case 'LM': //#define LM(layer, mod) (QK_LAYER_MOD | (((layer)&0xF) << 4) | ((mod)&0xF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
@@ -258,31 +250,21 @@ const parseTopLevelMacro = (
       if (layer < 0 || mods === 0) {
         return 0;
       }
-      return (
-        topLevelMacroToValue[topLevelKey] | ((layer & 0xf) << 4) | (mods & 0xff)
-      );
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << 4) | (mods & 0xff);
     case 'LT': //#define LT(layer, kc) (QK_LAYER_TAP | (((layer)&0xF) << 8) | ((kc)&0xFF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
       if (layer < 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
       }
-      return (
-        topLevelMacroToValue[topLevelKey] |
-        ((layer & 0xf) << 8) |
-        basicKeyToByte[param2]
-      );
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << 8) | basicKeyToByte[param2];
     case 'MT': // #define MT(mod, kc) (QK_MOD_TAP | (((mod)&0x1F) << 8) | ((kc)&0xFF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       mods = parseMods(param1);
       if (mods === 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
       }
-      return (
-        topLevelMacroToValue[topLevelKey] |
-        ((mods & 0x1f) << 8) |
-        (basicKeyToByte[param2] & 0xff)
-      );
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((mods & 0x1f) << 8) | (basicKeyToByte[param2] & 0xff);
     default:
       return 0;
   }
