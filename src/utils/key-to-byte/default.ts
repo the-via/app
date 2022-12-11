@@ -1,4 +1,26 @@
 export default {
+  QK_MODS: 0x0100,
+  QK_MODS_MAX: 0x1fff,
+  QK_MOD_TAP: 0x6000,
+  QK_MOD_TAP_MAX: 0x7fff,
+  QK_LAYER_TAP: 0x4000,
+  QK_LAYER_TAP_MAX: 0x4fff,
+  QK_LAYER_MOD: 0x5900,
+  QK_LAYER_MOD_MAX: 0x59ff,
+  QK_TO: 0x5010,
+  QK_TO_MAX: 0x501f,
+  QK_MOMENTARY: 0x5100,
+  QK_MOMENTARY_MAX: 0x511f,
+  QK_DEF_LAYER: 0x5200,
+  QK_DEF_LAYER_MAX: 0x521f,
+  QK_TOGGLE_LAYER: 0x5300,
+  QK_TOGGLE_LAYER_MAX: 0x531f,
+  QK_ONE_SHOT_LAYER: 0x5400,
+  QK_ONE_SHOT_LAYER_MAX: 0x541f,
+  QK_ONE_SHOT_MOD: 0x5500,
+  QK_ONE_SHOT_MOD_MAX: 0x55ff,
+  QK_LAYER_TAP_TOGGLE: 0x5800,
+  QK_LAYER_TAP_TOGGLE_MAX: 0x581f,
   KC_LCTL: 0x00e0,
   KC_RCTL: 0x00e4,
   KC_LSFT: 0x00e1,
@@ -291,7 +313,6 @@ export default {
   KC_RCPC: 0x5cf4,
   KC_LAPO: 0x5cf5,
   KC_RAPC: 0x5cf6,
-
   KC_TILD: 0x0235,
   KC_EXLM: 0x021e,
   KC_AT: 0x021f,
@@ -313,7 +334,6 @@ export default {
   KC_GT: 0x0237,
   KC_QUES: 0x0238,
   KC_DQUO: 0x0234,
-
   BR_INC: 0x5f00,
   BR_DEC: 0x5f01,
   EF_INC: 0x5f02,
@@ -348,7 +368,6 @@ export default {
   MACRO15: 0x5f21,
   FN_TT13: 0x2f31,
   FN_TT23: 0x2f32,
-
   USER00: 0x5f80,
   USER01: 0x5f81,
   USER02: 0x5f82,
@@ -365,8 +384,7 @@ export default {
   USER13: 0x5f8d,
   USER14: 0x5f8e,
   USER15: 0x5f8f,
-
   SPC_FN1: 0x412c,
   SPC_FN2: 0x422c,
-  SPC_FN3: 0x432c
-}
+  SPC_FN3: 0x432c,
+};
