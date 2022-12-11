@@ -1,9 +1,11 @@
 import {UnconnectedGlobalMenu} from './components/menus/global';
-import {Route, useLocation} from 'wouter';
+import {Route} from 'wouter';
 import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
 import {CanvasRouter} from './components/three-fiber/canvas-router';
+import {TestContext} from './components/panes/test';
+import {useState} from 'react';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -18,14 +20,15 @@ export default () => {
     return <Route component={pane.component} key={pane.key} path={pane.path} />;
   });
 
-  const [route] = useLocation();
-
+  const testContextState = useState({clearTestKeys: () => {}});
   return (
     <>
-      <GlobalStyle />
-      {hasHIDSupport && <UnconnectedGlobalMenu />}
-      <CanvasRouter />
-      <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+      <TestContext.Provider value={testContextState}>
+        <GlobalStyle />
+        {hasHIDSupport && <UnconnectedGlobalMenu />}
+        <CanvasRouter />
+        <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+      </TestContext.Provider>
     </>
   );
 };

@@ -1,4 +1,4 @@
-import React, {memo, MouseEventHandler} from 'react';
+import {memo, MouseEventHandler} from 'react';
 import type {KeyColor} from '../utils/themes';
 import styled from 'styled-components';
 import partition from 'lodash.partition';

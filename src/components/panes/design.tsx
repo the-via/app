@@ -1,4 +1,4 @@
-import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
+import {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
