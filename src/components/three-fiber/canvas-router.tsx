@@ -1,8 +1,9 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useContext, useEffect, useRef} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {
+  getCustomDefinitions,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -18,23 +19,66 @@ import {useLocation} from 'wouter';
 import {
   Camera,
   ConfigureKeyboard,
+  DesignKeyboard,
   DesignProvider,
   Terrain,
   TestKeyboard,
 } from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {VIADefinitionV2, VIAKey} from '@the-via/reader';
+import {DefinitionVersionMap, VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {TestKeyState} from '../test-keyboard';
 import {Decal, useProgress, useTexture} from '@react-three/drei';
 import {
   getLoadProgress,
   updateSelectedKey,
   getSelectedKeymap,
+  setLayer,
 } from 'src/store/keymapSlice';
 import {useSpring} from '@react-spring/three';
 import {TestContext} from '../panes/test';
+import {
+  getSelectedDefinitionIndex,
+  getSelectedVersion,
+  getShowMatrix,
+  getSelectedOptionKeys,
+} from 'src/store/designSlice';
 
 const EMPTY_ARR: number[] = [];
+const Design = (props: {dimensions?: DOMRect}) => {
+  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const definitionVersion = useAppSelector(getSelectedVersion);
+  const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
+  const selectedOptionKeys = useAppSelector(getSelectedOptionKeys);
+  const showMatrix = useAppSelector(getShowMatrix);
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
+  );
+  const options = versionDefinitions.map((definitionMap) => {
+    return definitionMap[definitionVersion];
+  });
+
+  const flexRef = useRef(null);
+  const definition =
+    versionDefinitions[selectedDefinitionIndex] &&
+    versionDefinitions[selectedDefinitionIndex][definitionVersion];
+
+  return (
+    <group>
+      {definition && (
+        <DesignKeyboard
+          containerDimensions={props.dimensions}
+          definition={definition}
+          selectedOptionKeys={selectedOptionKeys}
+          showMatrix={showMatrix}
+        />
+      )}
+    </group>
+  );
+};
 const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
@@ -58,21 +102,28 @@ const Test = (props: {dimensions?: DOMRect}) => {
   );
 
   const clearTestKeys = useCallback(() => {
+    console.log('recomputinoiwaoefiwajeofiwajefioajweoifajwf');
     setGlobalPressedKeys([]);
     setMatrixPressedKeys([]);
   }, [setGlobalPressedKeys, setMatrixPressedKeys]);
 
   const testContext = useContext(TestContext);
   // Hack to share setting a local state to avoid causing cascade of rerender
-  testContext[1]({clearTestKeys});
+  if (testContext[0].clearTestKeys !== clearTestKeys) {
+    testContext[1]({clearTestKeys});
+    console.log('resetttijfoaiwjfoiwaj');
+  }
 
   useEffect(() => {
     // Remove event listeners on cleanup
-    if (!isShowingTest) {
+    if (path !== '/test') {
       dispatch(setTestMatrixEnabled(false));
       testContext[0].clearTestKeys();
     }
-  }, [isShowingTest]); // Empty array ensures that effect is only run on mount and unmount
+    if (path !== '/') {
+      dispatch(setLayer(0));
+    }
+  }, [path]); // Empty array ensures that effect is only run on mount and unmount
 
   const pressedKeys =
     !isTestMatrixEnabled || !keyDefinitions
@@ -166,12 +217,14 @@ export const CanvasRouter = () => {
   const dimensions = useSize(containerRef);
   const loadProgress = useAppSelector(getLoadProgress);
   const dispatch = useAppDispatch();
+  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const hideDesignScene = '/design' === path && !localDefinitions.length;
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  const hideCanvasScene = ['/design', '/settings'].includes(path);
+  const hideCanvasScene = ['/settings'].includes(path) || hideDesignScene;
 
   return (
     <DesignProvider>
@@ -200,11 +253,12 @@ export const CanvasRouter = () => {
               containerDimensions={dimensions}
               selectable={true}
             />
-
-            <group position={[20, 0, 0]}></group>
           </group>
           <group position={[10, 0, 0]}>
             <Test dimensions={dimensions} />
+          </group>
+          <group position={[20, 0, 0]}>
+            <Design dimensions={dimensions} />
           </group>
         </Canvas>
       </div>

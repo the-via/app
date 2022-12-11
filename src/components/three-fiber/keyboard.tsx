@@ -1,12 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {useSpring, animated} from '@react-spring/three';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {useSpring, animated, config} from '@react-spring/three';
 import type {KeyColor} from '../../utils/themes';
 import type {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
 import {
@@ -41,13 +34,7 @@ import {
 import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
-import {StateChangeTypes} from 'downshift';
 import {useLocation} from 'wouter';
-import {
-  getConnectedDevices,
-  getSelectedConnectedDevice,
-} from 'src/store/devicesSlice';
-import {useDispatch} from 'react-redux';
 import {getSelectedVersion} from 'src/store/designSlice';
 export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
   c: '#202020',
@@ -416,7 +403,7 @@ const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game
 
 export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
   (props) => {
-    const [width, height] = [2000, 1000];
+    const [width, height] = [2100, 1000];
     const terrain1 = useRef<THREE.Mesh>(null);
     const terrain2 = useRef<THREE.Mesh>(null);
     const deltaYZ = height * Math.sin(Math.PI / 4);
@@ -452,7 +439,7 @@ export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
       <>
         <mesh
           visible
-          position={[0, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
+          position={[750, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
           rotation={[-Math.PI / 4, 0, 0]}
           ref={terrain1}
           onClick={props.onClick}
@@ -687,18 +674,8 @@ export const Camera = (props: {
   containerDimensions: DOMRect;
 }) => {
   const {keys, containerDimensions} = props;
-  const {width, height} = calculateKeyboardFrameDimensions(keys);
   const {progress, total} = useProgress();
   const [path] = useLocation();
-  const ratio = Math.min(
-    1,
-    (containerDimensions &&
-      containerDimensions.width /
-        ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
-          CSSVarObject.keyXSpacing +
-          70)) ||
-      1,
-  );
   const camera = useThree((state) => state.camera);
   const startX = 10;
   const endX = 7;
@@ -707,9 +684,9 @@ export const Camera = (props: {
     from: {x: startX},
   });
 
-  const routeX = path === '/design' ? 20 : path === '/test' ? 10 : -0.5;
+  const routeX = path === '/design' ? 20 : path === '/test' ? 10 : -0.48;
   const slide = useSpring({
-    config: {duration: 200},
+    config: config.stiff,
     x: routeX,
   });
 
@@ -729,15 +706,14 @@ export const Camera = (props: {
   useFrame(() => {
     if (glow.x.isAnimating) {
       camera.position.setZ(glow.x.get());
-      camera.position.setX(slide.x.get());
       camera.position.setY(0.4 * Math.pow(glow.x.get() - endX, 1));
-    }
-    if (camera.zoom !== 5.5 * 0.8 * ratio) {
-      camera.zoom = 5.5 * 0.8 * ratio;
       camera.updateProjectionMatrix();
     }
-    if (slide.x.isAnimating) {
-      console.log('position', camera.position.x);
+    if (camera.zoom !== 5.5 * 0.8) {
+      camera.zoom = 5.5 * 0.8;
+      camera.updateProjectionMatrix();
+    }
+    if (slide.x.isAnimating || camera.position.x !== routeX) {
       camera.position.setX(slide.x.get());
       camera.updateProjectionMatrix();
     }
@@ -831,6 +807,9 @@ export const DesignKeyboard = (props: {
     : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
+  useMemo(() => {
+    return [...keys, ...displayedOptionKeys];
+  }, [keys, displayedOptionKeys]);
   return (
     <KeyboardCanvas
       matrixKeycodes={[]}
@@ -1008,17 +987,29 @@ export const KeyboardCanvas: React.VFC<{
     showMatrix,
   } = props;
   const dispatch = useAppDispatch();
-  const terrainOnClick = useCallback(() => {
-    if (selectable) {
-      dispatch(updateSelectedKey(null));
-    }
-  }, [dispatch, selectable]);
+
+  const containerWidthOffset = DisplayMode.Configure === mode ? -182.5 : 0;
 
   const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const ratio =
+    Math.min(
+      Math.min(
+        1,
+        containerDimensions &&
+          (containerDimensions.width + containerWidthOffset) /
+            ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
+              CSSVarObject.keyXSpacing +
+              70),
+      ),
+      500 /
+        ((CSSVarObject.keyHeight + CSSVarObject.keyYSpacing) * height -
+          CSSVarObject.keyYSpacing +
+          70),
+    ) || 1;
 
   return (
     <>
-      <group position={[0, -0.05, -19]} scale={0.015}>
+      <group position={[0, -0.0, -19]} scale={0.015 * ratio}>
         <PresentationControls
           enabled={true} // the controls can be disabled by setting this to false
           global={true} // Spin globally or by dragging the model
