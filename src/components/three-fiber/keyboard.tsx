@@ -423,7 +423,7 @@ const GROUND_HEIGHT = -150; // A Constant to store the ground height of the game
 
 export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
   (props) => {
-    const [width, height] = [2100, 1000];
+    const [width, height] = [2500, 1000];
     const terrain1 = useRef<THREE.Mesh>(null);
     const terrain2 = useRef<THREE.Mesh>(null);
     const deltaYZ = height * Math.sin(Math.PI / 4);

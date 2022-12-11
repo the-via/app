@@ -40,6 +40,7 @@ import {
   clearSelectedKey,
   getLoadProgress,
   getNumberOfLayers,
+  setConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
@@ -216,6 +217,14 @@ const ConfigureGrid = () => {
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const selectedTitle = KeyboardRows[selectedRow]?.Title;
+
+  useEffect(() => {
+    if (selectedTitle !== 'Keymap') {
+      dispatch(setConfigureKeyboardIsSelectable(false));
+    } else {
+      dispatch(setConfigureKeyboardIsSelectable(true));
+    }
+  }, [selectedTitle]);
 
   return (
     <Grid style={{pointerEvents: 'none'}}>

@@ -33,6 +33,7 @@ import {
   updateSelectedKey,
   getSelectedKeymap,
   setLayer,
+  getConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
 import {useSpring} from '@react-spring/three';
 import {TestContext} from '../panes/test';
@@ -218,13 +219,20 @@ export const CanvasRouter = () => {
   const loadProgress = useAppSelector(getLoadProgress);
   const dispatch = useAppDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
   const hideDesignScene = '/design' === path && !localDefinitions.length;
+  const hideConfigureScene =
+    '/' === path && (!selectedDefinition || loadProgress !== 1);
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  const hideCanvasScene = ['/settings'].includes(path) || hideDesignScene;
+  const hideCanvasScene =
+    ['/settings'].includes(path) || hideDesignScene || hideConfigureScene;
+  const configureKeyboardIsSelectable = useAppSelector(
+    getConfigureKeyboardIsSelectable,
+  );
 
   return (
     <DesignProvider>
@@ -251,7 +259,7 @@ export const CanvasRouter = () => {
           <group visible={loadProgress === 1}>
             <ConfigureKeyboard
               containerDimensions={dimensions}
-              selectable={true}
+              selectable={configureKeyboardIsSelectable}
             />
           </group>
           <group position={[10, 0, 0]}>

@@ -184,8 +184,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
     }
   };
 
-  const [, setSelectedTitle] = useState<string | null>(null);
-
   const homeElem = createRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -212,7 +210,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
   }, []); // Passing an empty array as the second arg makes the body of the function equiv to componentDidMount (not including the cleanup func)
 
   useEffect(() => {
-    setSelectedTitle(selectedDevice ? Title.KEYS : null);
     dispatch(updateSelectedKeyAction(null));
     toggleLights();
   }, [selectedDevice]);
