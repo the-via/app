@@ -26,7 +26,11 @@ import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {TestKeyState} from '../test-keyboard';
 import {Decal, useProgress, useTexture} from '@react-three/drei';
-import {getLoadProgress, updateSelectedKey} from 'src/store/keymapSlice';
+import {
+  getLoadProgress,
+  updateSelectedKey,
+  getSelectedKeymap,
+} from 'src/store/keymapSlice';
 import {useSpring} from '@react-spring/three';
 import {TestContext} from '../panes/test';
 
@@ -39,6 +43,9 @@ const Test = (props: {dimensions?: DOMRect}) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+  const selectedMatrixKeycodes = useAppSelector(
+    (state) => getSelectedKeymap(state) || [],
+  );
 
   const api = selectedDevice && selectedDevice.api;
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
@@ -97,7 +104,9 @@ const Test = (props: {dimensions?: DOMRect}) => {
           ? (pressedKeys as TestKeyState[])
           : (globalPressedKeys as TestKeyState[])
       }
-      matrixKeycodes={isTestMatrixEnabled ? EMPTY_ARR : matrixKeycodes}
+      matrixKeycodes={
+        isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
+      }
       containerDimensions={props.dimensions}
     />
   );
