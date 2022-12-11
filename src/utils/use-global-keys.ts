@@ -48,7 +48,6 @@ export const useGlobalKeys = (enableGlobalKeys: boolean) => {
     return () => {
       window.removeEventListener('keydown', downHandler);
       window.removeEventListener('keyup', upHandler);
-      dispatch(setTestMatrixEnabled(false));
     };
   }, [enableGlobalKeys]); // Empty array ensures that effect is only run on mount and unmount
   return selectedKeysState;

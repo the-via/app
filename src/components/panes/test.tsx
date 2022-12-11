@@ -1,18 +1,9 @@
-import React, {useState, useEffect, useRef, FC} from 'react';
+import React, {FC, useContext} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA} from '../../utils/keyboard-api';
-import {TestKeyState} from '../test-keyboard';
-import {
-  ControlRow,
-  Label,
-  Detail,
-  OverflowCell,
-  FlexCell,
-  Grid1Col,
-  TestFlexCell,
-} from './grid';
+import {ControlRow, Label, Detail, OverflowCell, Grid1Col} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentButton} from '../inputs/accent-button';
 import {useDispatch} from 'react-redux';
@@ -26,14 +17,7 @@ import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
-import {useSize} from 'src/utils/use-size';
-import {TestKeyboard} from '../three-fiber/keyboard';
-import {matrixKeycodes} from 'src/utils/key-event';
-import {VIADefinitionV2, VIAKey} from '@the-via/reader';
-import {useGlobalKeys} from 'src/utils/use-global-keys';
-import {useMatrixTest} from 'src/utils/use-matrix-test';
 
-const EMPTY_ARR: number[] = [];
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -48,65 +32,27 @@ const TestPane = styled(Pane)`
   flex-direction: column;
 `;
 
+export const TestContext = React.createContext([
+  {clearTestKeys: () => {}},
+  (...a: any[]) => {},
+] as const);
+
 export const Test: FC = () => {
   const dispatch = useDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
+  const [testContextObj] = useContext(TestContext);
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;
   const canUseMatrixState =
     hasTestMatrixDevice && PROTOCOL_GAMMA <= selectedDevice.protocol;
 
-  const api = selectedDevice && selectedDevice.api;
-  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys();
-  const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
-    isTestMatrixEnabled,
-    api as any,
-    selectedDefinition as any,
-  );
-
-  // If pressed key is our target key then set to true
-
-  const onClickHandler = () => {
-    setMatrixPressedKeys({});
-    setGlobalPressedKeys({});
-  };
-
-  //// Add event listeners
-  //useEffect(() => {
-  //window.addEventListener('keydown', downHandler);
-  //window.addEventListener('keyup', upHandler);
-  //// Remove event listeners on cleanup
-  //return () => {
-  //startTest = false;
-  //window.removeEventListener('keydown', downHandler);
-  //window.removeEventListener('keyup', upHandler);
-  //dispatch(setTestMatrixEnabled(false));
-  //};
-  //}, []); // Empty array ensures that effect is only run on mount and unmount
-
-  const pressedKeys =
-    !isTestMatrixEnabled || !keyDefinitions
-      ? matrixPressedKeys
-      : keyDefinitions.map(
-          ({row, col}: {row: number; col: number}) =>
-            selectedDefinition &&
-            matrixPressedKeys[
-              (row * selectedDefinition.matrix.cols +
-                col) as keyof typeof matrixPressedKeys
-            ],
-        );
   const testDefinition = isTestMatrixEnabled
     ? selectedDefinition
     : fullKeyboardDefinition;
-  const testKeys = isTestMatrixEnabled
-    ? keyDefinitions
-    : fullKeyboardDefinition.layouts.keys;
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
@@ -118,7 +64,9 @@ export const Test: FC = () => {
             <ControlRow>
               <Label>Reset Keyboard</Label>
               <Detail>
-                <AccentButton onClick={onClickHandler}>Reset</AccentButton>
+                <AccentButton onClick={testContextObj.clearTestKeys}>
+                  Reset
+                </AccentButton>
               </Detail>
             </ControlRow>
             {canUseMatrixState && selectedDefinition ? (
@@ -130,13 +78,7 @@ export const Test: FC = () => {
                     onChange={(val) => {
                       dispatch(setTestMatrixEnabled(val));
 
-                      if (val) {
-                        setMatrixPressedKeys({});
-                        setGlobalPressedKeys({});
-                      } else {
-                        setGlobalPressedKeys({});
-                        setMatrixPressedKeys({});
-                      }
+                      testContextObj.clearTestKeys();
                     }}
                   />
                 </Detail>

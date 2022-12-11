@@ -1,18 +1,20 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useContext, useRef} from 'react';
+import {useCallback, useContext, useEffect, useRef} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import ReactTooltip from 'react-tooltip';
 import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {getIsTestMatrixEnabled} from 'src/store/settingsSlice';
+import {
+  getIsTestMatrixEnabled,
+  setTestMatrixEnabled,
+} from 'src/store/settingsSlice';
 import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {useSize} from 'src/utils/use-size';
-import {Route, Switch, useLocation} from 'wouter';
+import {useLocation} from 'wouter';
 import {
   Camera,
   ConfigureKeyboard,
@@ -26,9 +28,11 @@ import {TestKeyState} from '../test-keyboard';
 import {Decal, useProgress, useTexture} from '@react-three/drei';
 import {getLoadProgress, updateSelectedKey} from 'src/store/keymapSlice';
 import {useSpring} from '@react-spring/three';
+import {TestContext} from '../panes/test';
 
 const EMPTY_ARR: number[] = [];
 const Test = (props: {dimensions?: DOMRect}) => {
+  const dispatch = useAppDispatch();
   const [path] = useLocation();
   const isShowingTest = path === '/test';
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
@@ -46,18 +50,22 @@ const Test = (props: {dimensions?: DOMRect}) => {
     selectedDefinition as any,
   );
 
-  //// Add event listeners
-  //useEffect(() => {
-  //window.addEventListener('keydown', downHandler);
-  //window.addEventListener('keyup', upHandler);
-  //// Remove event listeners on cleanup
-  //return () => {
-  //startTest = false;
-  //window.removeEventListener('keydown', downHandler);
-  //window.removeEventListener('keyup', upHandler);
-  //dispatch(setTestMatrixEnabled(false));
-  //};
-  //}, []); // Empty array ensures that effect is only run on mount and unmount
+  const clearTestKeys = useCallback(() => {
+    setGlobalPressedKeys([]);
+    setMatrixPressedKeys([]);
+  }, [setGlobalPressedKeys, setMatrixPressedKeys]);
+
+  const testContext = useContext(TestContext);
+  // Hack to share setting a local state to avoid causing cascade of rerender
+  testContext[1]({clearTestKeys});
+
+  useEffect(() => {
+    // Remove event listeners on cleanup
+    if (!isShowingTest) {
+      dispatch(setTestMatrixEnabled(false));
+      testContext[0].clearTestKeys();
+    }
+  }, [isShowingTest]); // Empty array ensures that effect is only run on mount and unmount
 
   const pressedKeys =
     !isTestMatrixEnabled || !keyDefinitions
@@ -147,17 +155,7 @@ export const CanvasRouter = () => {
   const [path] = useLocation();
   const containerRef = useRef(null);
   const dimensions = useSize(containerRef);
-  const progress = useProgress();
-  40;
   const loadProgress = useAppSelector(getLoadProgress);
-
-  console.log(
-    'progress',
-    progress.progress,
-    progress.total,
-    progress.item,
-    progress.loaded,
-  );
   const dispatch = useAppDispatch();
   const terrainOnClick = useCallback(() => {
     if (true) {
@@ -180,7 +178,7 @@ export const CanvasRouter = () => {
         <Canvas>
           <ambientLight intensity={0.8} />
           <pointLight position={[10, 10, -15]} />
-          {loadProgress === 1 && dimensions && (
+          {dimensions && (
             <>
               <group position={[0, -0.05, -19]} scale={0.015}>
                 <Terrain onClick={terrainOnClick} />
@@ -194,10 +192,10 @@ export const CanvasRouter = () => {
               selectable={true}
             />
 
-            <group position={[10, 0, 0]}>
-              <Test dimensions={dimensions} />
-            </group>
             <group position={[20, 0, 0]}></group>
+          </group>
+          <group position={[10, 0, 0]}>
+            <Test dimensions={dimensions} />
           </group>
         </Canvas>
       </div>

@@ -81,7 +81,7 @@ interface HomeProps {
   hasHIDSupport: boolean;
 }
 
-export const Home = (props: HomeProps) => {
+export const Home: React.VFC<HomeProps> = (props) => {
   const {hasHIDSupport} = props;
 
   const dispatch = useAppDispatch();
@@ -236,6 +236,6 @@ export const Home = (props: HomeProps) => {
       </UsbError>
     </ErrorHome>
   ) : (
-    props.children
+    <>{props.children}</>
   );
 };
