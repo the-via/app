@@ -83,7 +83,7 @@ export const KeyContainer = styled.div<{selected: boolean}>`
     props.selected
       ? 'translate3d(0, -4px, 0) scale(0.99)'
       : 'translate3d(0,0,0)'};
-  :hover {
+  &:hover {
     transform: ${(props) =>
       props.selected
         ? 'translate3d(0, -4px, 0) scale(0.99)'
