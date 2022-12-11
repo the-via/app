@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {useSpring, animated, config} from '@react-spring/three';
 import type {KeyColor} from '../../utils/themes';
-import type {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
+import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
@@ -36,10 +36,31 @@ import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
 import {useLocation} from 'wouter';
 import {getSelectedVersion} from 'src/store/designSlice';
-export const getColors = ({color}: {color: KeyColorType}): KeyColor => ({
-  c: '#202020',
-  t: 'papayawhip',
-});
+const accentColor = getComputedStyle(document.documentElement)
+  .getPropertyValue('--color_accent')
+  .trim();
+export const getColors = ({color}: {color: KeyColorType}): KeyColor => {
+  switch (color) {
+    case KeyColorType.Alpha: {
+      return {
+        c: '#202021',
+        t: 'papayawhip',
+      };
+    }
+    case KeyColorType.Mod: {
+      return {
+        c: '#161515',
+        t: 'papayawhip',
+      };
+    }
+    case KeyColorType.Accent: {
+      return {
+        c: '#242020',
+        t: 'papayawhip',
+      };
+    }
+  }
+};
 
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
@@ -328,7 +349,6 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
   });
 
   const AniMeshMaterial = animated.meshPhongMaterial as any;
-  console.log('rerendering keycap');
 
   return (
     <>
@@ -718,7 +738,7 @@ export const Camera = (props: {
       camera.updateProjectionMatrix();
     }
   });
-  return <PerspectiveCamera makeDefault fov={25} />;
+  return <PerspectiveCamera makeDefault fov={25}></PerspectiveCamera>;
 };
 
 export const ConfigureKeyboard = (props: {

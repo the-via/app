@@ -43,8 +43,6 @@ import {
   updateSelectedOptionKeys,
   updateShowMatrix,
 } from 'src/store/designSlice';
-import {useSize} from 'src/utils/use-size';
-import {DesignKeyboard} from '../three-fiber/keyboard';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -68,6 +66,7 @@ const DesignPane = styled(Pane)`
 const UploadIcon = styled.div`
   height: 200px;
   width: 50%;
+  cursor: pointer;
   max-width: 560px;
   border-radius: 6px;
   margin: 50px 10px;
@@ -213,7 +212,7 @@ export const DesignTab: FC = () => {
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
-
+  const uploadButton = useRef<HTMLInputElement>();
   return (
     <DesignPane
       onDragOver={(evt: DragEvent) => {
@@ -226,6 +225,9 @@ export const DesignTab: FC = () => {
       <DesignFlexCell ref={flexRef}>
         {!definition && (
           <UploadIcon
+            onClick={() => {
+              uploadButton.current && uploadButton.current.click();
+            }}
             onDrop={(evt) =>
               onDrop(evt, definitionVersion, dispatch, setErrors)
             }
@@ -246,6 +248,7 @@ export const DesignTab: FC = () => {
             <Label>Load Draft Definition</Label>
             <Detail>
               <AccentUploadButton
+                inputRef={uploadButton}
                 onLoad={(file) =>
                   importDefinition(file, definitionVersion, dispatch, setErrors)
                 }

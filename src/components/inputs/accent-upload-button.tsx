@@ -1,9 +1,13 @@
 import React from 'react';
 import {AccentButton} from './accent-button';
-type Props = {onLoad: (file: File) => void; children: string};
+type Props = {
+  onLoad: (file: File) => void;
+  inputRef?: React.MutableRefObject<HTMLInputElement | undefined>;
+  children: string;
+};
 
 export function AccentUploadButton(props: Props) {
-  const input = React.useRef<HTMLInputElement>();
+  const input = props.inputRef || React.useRef<HTMLInputElement>();
   function onChange(e: any) {
     props.onLoad(e.target.files[0] as File);
     (input.current as any).value = null;
