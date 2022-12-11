@@ -33,7 +33,16 @@ import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
-import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
+import {
+  getSelectedDefinitionIndex,
+  getSelectedOptionKeys,
+  getSelectedVersion,
+  getShowMatrix,
+  selectVersion,
+  updateSelectedDefinitionIndex,
+  updateSelectedOptionKeys,
+  updateShowMatrix,
+} from 'src/store/designSlice';
 import {useSize} from 'src/utils/use-size';
 import {DesignKeyboard} from '../three-fiber/keyboard';
 
@@ -184,10 +193,8 @@ export const DesignTab: FC = () => {
   const dispatch = useDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getSelectedVersion);
-
-  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
-  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
-  const [showMatrix, setShowMatrix] = useState(false);
+  const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
+  const showMatrix = useAppSelector(getShowMatrix);
   const [errors, setErrors] = useState<string[]>([]);
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
@@ -203,7 +210,6 @@ export const DesignTab: FC = () => {
   }));
 
   const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
@@ -218,16 +224,7 @@ export const DesignTab: FC = () => {
       }}
     >
       <DesignFlexCell ref={flexRef}>
-        {false && definition ? (
-          <>
-            <DesignKeyboard
-              containerDimensions={dimensions}
-              definition={definition}
-              selectedOptionKeys={selectedOptionKeys}
-              showMatrix={showMatrix}
-            />
-          </>
-        ) : (
+        {!definition && (
           <UploadIcon
             onDrop={(evt) =>
               onDrop(evt, definitionVersion, dispatch, setErrors)
@@ -274,10 +271,10 @@ export const DesignTab: FC = () => {
                   onChange={(option: any) => {
                     // Reset selected layouts when choosing a different
                     // definition
-                    setSelectedOptionKeys(() => []);
+                    dispatch(updateSelectedOptionKeys([]));
 
                     if (option) {
-                      setSelectedDefinition(+option.value);
+                      dispatch(updateSelectedDefinitionIndex(+option.value));
                     }
                   }}
                   value={options[selectedDefinitionIndex]}
@@ -290,7 +287,7 @@ export const DesignTab: FC = () => {
             <Layouts
               definition={definition}
               onLayoutChange={(newSelectedOptionKeys) => {
-                setSelectedOptionKeys(newSelectedOptionKeys);
+                dispatch(updateSelectedOptionKeys(newSelectedOptionKeys));
               }}
             />
           )}
@@ -298,7 +295,12 @@ export const DesignTab: FC = () => {
             <ControlRow>
               <Label>Show Matrix</Label>
               <Detail>
-                <AccentSlider isChecked={showMatrix} onChange={setShowMatrix} />
+                <AccentSlider
+                  isChecked={showMatrix}
+                  onChange={(val) => {
+                    dispatch(updateShowMatrix(val));
+                  }}
+                />
               </Detail>
             </ControlRow>
           )}

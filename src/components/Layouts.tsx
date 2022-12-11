@@ -3,6 +3,12 @@ import {AccentSelect} from './inputs/accent-select';
 import {AccentSlider} from './inputs/accent-slider';
 import {Detail, IndentedControlRow, Label} from './panes/grid';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedOptionKeys,
+  updateSelectedOptionKeys,
+} from 'src/store/designSlice';
+import {useDispatch} from 'react-redux';
 
 interface Props {
   definition: VIADefinitionV2 | VIADefinitionV3;
@@ -15,12 +21,11 @@ function Layouts({
   onLayoutChange,
   RowComponent = IndentedControlRow,
 }: Props): JSX.Element | null {
-  const [selectedOptionKeys, setSelectedOptionKeys] = React.useState<number[]>(
-    [],
-  );
+  const selectedOptionKeys = useAppSelector(getSelectedOptionKeys);
+  const dispatch = useDispatch();
 
   React.useEffect(() => {
-    setSelectedOptionKeys(() => []);
+    dispatch(updateSelectedOptionKeys([]));
   }, [definition]);
 
   React.useEffect(() => {
@@ -45,17 +50,18 @@ function Layouts({
       }));
 
       return (
-        <RowComponent key={name}>
+        <RowComponent key={`${layoutKey}-${name}`}>
           <Label>{name}</Label>
           <Detail>
             <AccentSelect
               onChange={(option: any) => {
                 if (option && option.label) {
                   const optionIndex = options.indexOf(option.label);
-                  setSelectedOptionKeys((selectedOptions) => {
-                    selectedOptions[layoutKey] = optionIndex;
-                    return [...selectedOptions];
-                  });
+                  const optionKeys = Array.from(selectedOptionKeys).map(
+                    (i) => i || 0,
+                  );
+                  optionKeys[layoutKey] = optionIndex;
+                  dispatch(updateSelectedOptionKeys(optionKeys));
                 }
               }}
               value={
@@ -71,16 +77,17 @@ function Layouts({
     }
     if (typeof label === 'string') {
       return (
-        <RowComponent key={label}>
+        <RowComponent key={`${layoutKey}-${label}`}>
           <Label>{label}</Label>
           <Detail>
             <AccentSlider
               isChecked={Boolean(selectedOptionKeys[layoutKey])}
               onChange={(isChecked) => {
-                setSelectedOptionKeys((selectedOptions) => {
-                  selectedOptions[layoutKey] = Number(isChecked);
-                  return [...selectedOptions];
-                });
+                const optionKeys = Array.from(selectedOptionKeys).map(
+                  (i) => i || 0,
+                );
+                optionKeys[layoutKey] = Number(isChecked);
+                dispatch(updateSelectedOptionKeys(optionKeys));
               }}
             />
           </Detail>
