@@ -5,8 +5,8 @@ import {setTestMatrixEnabled} from 'src/store/settingsSlice';
 import {getIndexByEvent} from './key-event';
 
 type TestKeys = {[code: number]: TestKeyState};
-export const useGlobalKeys = () => {
-  const startMatrixTest = false;
+export const useGlobalKeys = (enableGlobalKeys: boolean) => {
+  const startMatrixTest = !enableGlobalKeys;
   const dispatch = useDispatch();
   const selectedKeysState = useState<TestKeys>({});
   const [selectedKeys, setSelectedKeys] = selectedKeysState;
@@ -40,14 +40,16 @@ export const useGlobalKeys = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', downHandler);
-    window.addEventListener('keyup', upHandler);
+    if (enableGlobalKeys) {
+      window.addEventListener('keydown', downHandler);
+      window.addEventListener('keyup', upHandler);
+    }
     // Remove event listeners on cleanup
     return () => {
       window.removeEventListener('keydown', downHandler);
       window.removeEventListener('keyup', upHandler);
       dispatch(setTestMatrixEnabled(false));
     };
-  }, []); // Empty array ensures that effect is only run on mount and unmount
+  }, [enableGlobalKeys]); // Empty array ensures that effect is only run on mount and unmount
   return selectedKeysState;
 };

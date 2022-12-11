@@ -1,5 +1,5 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useRef} from 'react';
+import {useCallback, useContext, useRef} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import ReactTooltip from 'react-tooltip';
@@ -13,44 +13,35 @@ import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {useSize} from 'src/utils/use-size';
 import {Route, Switch, useLocation} from 'wouter';
-import {Badge} from '../panes/configure-panes/badge';
-import {LayerControl} from '../panes/configure-panes/layer-control';
 import {
   Camera,
   ConfigureKeyboard,
-  DebugKeyboard,
-  DesignKeyboard,
+  DesignProvider,
   Terrain,
   TestKeyboard,
 } from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {TestKeyState} from '../test-keyboard';
-import {
-  Decal,
-  Image,
-  Loader,
-  OrbitControls,
-  Preload,
-  PresentationControls,
-  useProgress,
-  useTexture,
-} from '@react-three/drei';
+import {Decal, useProgress, useTexture} from '@react-three/drei';
 import {getLoadProgress, updateSelectedKey} from 'src/store/keymapSlice';
-import React from 'react';
 import {useSpring} from '@react-spring/three';
 
 const EMPTY_ARR: number[] = [];
-const Test = (props) => {
+const Test = (props: {dimensions?: DOMRect}) => {
+  const [path] = useLocation();
+  const isShowingTest = path === '/test';
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
 
   const api = selectedDevice && selectedDevice.api;
-  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys();
+  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
+    !isTestMatrixEnabled && isShowingTest,
+  );
   const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
-    isTestMatrixEnabled,
+    isTestMatrixEnabled && isShowingTest,
     api as any,
     selectedDefinition as any,
   );
@@ -173,43 +164,43 @@ export const CanvasRouter = () => {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  return (
-    <div
-      style={{height: 500, width: '100%', position: 'relative'}}
-      ref={containerRef}
-    >
-      <Canvas>
-        <ambientLight intensity={0.8} />
-        <pointLight position={[10, 10, -15]} />
-        {loadProgress === 1 && dimensions && (
-          <>
-            <group position={[0, -0.05, -19]} scale={0.015}>
-              <Terrain onClick={terrainOnClick} />
-            </group>
-            <Camera containerDimensions={dimensions} keys={[]} />
-          </>
-        )}
-        <group visible={loadProgress === 1}>
-          <ConfigureKeyboard
-            containerDimensions={dimensions}
-            selectable={true}
-          />
+  const hideCanvasScene = ['/design', '/settings'].includes(path);
 
-          <group position={[10, 0, 0]}>
-            <Test dimensions={dimensions} />
+  return (
+    <DesignProvider>
+      <div
+        style={{
+          height: 500,
+          width: '100%',
+          position: hideCanvasScene ? 'absolute' : 'relative',
+          visibility: hideCanvasScene ? 'hidden' : 'visible',
+        }}
+        ref={containerRef}
+      >
+        <Canvas>
+          <ambientLight intensity={0.8} />
+          <pointLight position={[10, 10, -15]} />
+          {loadProgress === 1 && dimensions && (
+            <>
+              <group position={[0, -0.05, -19]} scale={0.015}>
+                <Terrain onClick={terrainOnClick} />
+              </group>
+              <Camera containerDimensions={dimensions} keys={[]} />
+            </>
+          )}
+          <group visible={loadProgress === 1}>
+            <ConfigureKeyboard
+              containerDimensions={dimensions}
+              selectable={true}
+            />
+
+            <group position={[10, 0, 0]}>
+              <Test dimensions={dimensions} />
+            </group>
+            <group position={[20, 0, 0]}></group>
           </group>
-        </group>
-        <Switch>
-          <Route path="/test" key={'test'}></Route>
-          <Route
-            component={DesignKeyboard as any}
-            path="/design"
-            key={'design'}
-          />
-          <Route component={DebugKeyboard as any} path="/debug" key={'debug'} />
-          <Route path="/" key={'home'}></Route>
-        </Switch>
-      </Canvas>
-    </div>
+        </Canvas>
+      </div>
+    </DesignProvider>
   );
 };
