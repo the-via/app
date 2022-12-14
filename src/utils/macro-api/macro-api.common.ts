@@ -1,5 +1,3 @@
-import basicKeyToByte from '../key-to-byte/default.json5';
-
 export type ValidationResult = {
   isValid: boolean;
   errorMessage?: string;
@@ -22,10 +20,10 @@ export const KeyActionPrefix = 1; // \x01
 export const DelayTerminator = 124; // '|';
 export const MacroTerminator = 0;
 
-export function getByte(keycode: string): number {
+export function getByte(basicKeyToByte: Record<string, number>, keycode: string): number {
   return basicKeyToByte[keycode.toUpperCase()];
 }
 
-export function buildKeyActionBytes(keyaction: KeyAction, keycode: string) {
-  return [KeyActionPrefix, keyaction, getByte(keycode)];
+export function buildKeyActionBytes(basicKeyToByte: Record<string, number>, keyaction: KeyAction, keycode: string) {
+  return [KeyActionPrefix, keyaction, getByte(basicKeyToByte, keycode)];
 }

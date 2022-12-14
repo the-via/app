@@ -73,6 +73,7 @@ export function validateMacroExpression(expression: string): ValidationResult {
 export class MacroAPI implements IMacroAPI {
   constructor(
     private keyboardApi: KeyboardAPI,
+    private basicKeyToByte: Record<string, number>,
     private byteToKey: Record<number, string>,
   ) {}
 
@@ -161,18 +162,18 @@ export class MacroAPI implements IMacroAPI {
               );
             case 1:
               bytes.push(KeyAction.Tap);
-              bytes.push(getByte(keycodes[0]));
+              bytes.push(getByte(this.basicKeyToByte, keycodes[0]));
               break;
             default:
               // Keydowns
               keycodes.forEach((keycode) => {
                 bytes.push(KeyAction.Down);
-                bytes.push(getByte(keycode));
+                bytes.push(getByte(this.basicKeyToByte, keycode));
               });
               // Symmetrical Keyups
               keycodes.reverse().forEach((keycode) => {
                 bytes.push(KeyAction.Up);
-                bytes.push(getByte(keycode));
+                bytes.push(getByte(this.basicKeyToByte, keycode));
               });
               break;
           }

@@ -5,10 +5,11 @@ import {MacroAPI, MacroValidator, validateMacroExpression} from './macro-api';
 import {MacroAPIV11, validateMacroExpressionV11} from './macro-api.v11';
 
 export const getMacroAPI = (protocol: number, keyboardApi: KeyboardAPI) => {
+  const basicKeyToByte = getBasicKeyDict(protocol);
   const byteToKey = getByteToKey(getBasicKeyDict(protocol));
   return protocol >= 11
-    ? new MacroAPIV11(keyboardApi, byteToKey)
-    : new MacroAPI(keyboardApi, byteToKey);
+    ? new MacroAPIV11(keyboardApi, basicKeyToByte, byteToKey)
+    : new MacroAPI(keyboardApi, basicKeyToByte, byteToKey);
 };
 
 export const getMacroValidator = (protocol: number): MacroValidator =>
