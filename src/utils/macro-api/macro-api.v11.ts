@@ -86,6 +86,7 @@ export function validateMacroExpressionV11(
 export class MacroAPIV11 implements IMacroAPI {
   constructor(
     private keyboardApi: KeyboardAPI,
+    private basicKeyToByte: Record<string, number>,
     private byteToKey: Record<number, string>,
   ) {}
 
@@ -188,7 +189,7 @@ export class MacroAPIV11 implements IMacroAPI {
           }
           const block = expression.substr(i + 1, keyActionEnd - i - 1);
           // If it's a delay value
-          if (/\d+/.test(block)) {
+          if (/^\d+$/.test(block)) {
             bytes.push(
               KeyActionPrefix,
               KeyAction.Delay,
@@ -207,16 +208,16 @@ export class MacroAPIV11 implements IMacroAPI {
                   'Syntax error: Keycodes expected within block. Use \\{} to define literal {}',
                 );
               case 1:
-                bytes.push(...buildKeyActionBytes(KeyAction.Tap, keycodes[0]));
+                bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Tap, keycodes[0]));
                 break;
               default:
                 // Keydowns
                 keycodes.forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(KeyAction.Down, keycode));
+                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Down, keycode));
                 });
                 // Symmetrical Keyups
                 keycodes.reverse().forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(KeyAction.Up, keycode));
+                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Up, keycode));
                 });
                 break;
             }
