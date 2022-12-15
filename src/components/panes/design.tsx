@@ -255,11 +255,11 @@ export const DesignTab: FC = () => {
             </Detail>
           </ControlRow>
           <ControlRow>
-            <Label>Use V3 definitions (via/next)</Label>
+            <Label>Use V2 definitions (deprecated)</Label>
             <Detail>
               <AccentSlider
-                isChecked={definitionVersion === 'v3'}
-                onChange={(val) => dispatch(selectVersion(val ? 'v3' : 'v2'))}
+                isChecked={definitionVersion === 'v2'}
+                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
               />
             </Detail>
           </ControlRow>
