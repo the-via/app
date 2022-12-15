@@ -36,6 +36,7 @@ import {
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import type {Key} from 'src/types/types';
+import {Color} from 'three';
 import {
   CSSVarObject,
   getBGKeyContainerPosition,
@@ -453,9 +454,23 @@ export const getLabel = (
   }
 };
 
-export const getColors = ({color}: {color: KeyColorType}): KeyColor =>
-  // TODO: make choice based on protocol
-  getThemeFromStore()[color];
+const theme = getThemeFromStore();
+const srgbTheme = Object.entries(getThemeFromStore()).reduce(
+  (p, [key, colorPair]) => {
+    const c = `#${new Color(colorPair.c).convertSRGBToLinear().getHexString()}`;
+    const t = `#${new Color(colorPair.t).convertSRGBToLinear().getHexString()}`;
+    return {...p, [key]: {c, t}};
+  },
+  {},
+) as ReturnType<typeof getThemeFromStore>;
+
+export const getColors = ({color}: {color: KeyColorType}): KeyColor => {
+  return theme[color];
+};
+export const getTextureColors = ({color}: {color: KeyColorType}): KeyColor => {
+  return srgbTheme[color];
+};
+// TODO: make choice based on protocol
 
 export const getRGBColors = ({color}: {color: KeyColorType}): KeyColor =>
   // TODO: make choice based on protocol
