@@ -1,5 +1,12 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {
@@ -27,7 +34,18 @@ import {
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {DefinitionVersionMap, VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {TestKeyState} from '../test-keyboard';
-import {Decal, useProgress, useTexture} from '@react-three/drei';
+import {
+  Backdrop,
+  Decal,
+  Environment,
+  Float,
+  MeshReflectorMaterial,
+  OrbitControls,
+  SpotLight,
+  useHelper,
+  useProgress,
+  useTexture,
+} from '@react-three/drei';
 import {
   getLoadProgress,
   updateSelectedKey,
@@ -35,7 +53,7 @@ import {
   setLayer,
   getConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
-import {useSpring} from '@react-spring/three';
+import {a, config, useSpring} from '@react-spring/three';
 import {TestContext} from '../panes/test';
 import {
   getSelectedDefinitionIndex,
@@ -43,6 +61,9 @@ import {
   getShowMatrix,
   getSelectedOptionKeys,
 } from 'src/store/designSlice';
+import React from 'react';
+import {shallowEqual} from 'react-redux';
+import {Object3D, PointLight, PointLightHelper, SpotLightHelper} from 'three';
 
 const EMPTY_ARR: number[] = [];
 const Design = (props: {dimensions?: DOMRect}) => {
@@ -112,7 +133,6 @@ const Test = (props: {dimensions?: DOMRect}) => {
   // Hack to share setting a local state to avoid causing cascade of rerender
   if (testContext[0].clearTestKeys !== clearTestKeys) {
     testContext[1]({clearTestKeys});
-    console.log('resetttijfoaiwjfoiwaj');
   }
 
   useEffect(() => {
@@ -214,6 +234,7 @@ const LoaderSpinner = () => {
 
 export const CanvasRouter = () => {
   const [path] = useLocation();
+  const [hover, setHover] = useState(false);
   const containerRef = useRef(null);
   const dimensions = useSize(containerRef);
   const loadProgress = useAppSelector(getLoadProgress);
@@ -245,31 +266,124 @@ export const CanvasRouter = () => {
         }}
         ref={containerRef}
       >
-        <Canvas>
-          <ambientLight intensity={0.8} />
-          <pointLight position={[10, 10, -15]} />
+        <Canvas flat={true} shadows>
+          <Lights />
+          <mesh
+            receiveShadow
+            position={[0, -5.75, 0]}
+            rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
+            onClick={terrainOnClick}
+          >
+            <planeGeometry args={[100, 100]} />
+            <meshStandardMaterial color="#9a8a8a" />
+          </mesh>
           {dimensions && (
             <>
               <group position={[0, -0.05, -19]} scale={0.015}>
-                <Terrain onClick={terrainOnClick} />
+                {false && <Terrain onClick={terrainOnClick} />}
               </group>
               <Camera containerDimensions={dimensions} keys={[]} />
             </>
           )}
-          <group visible={loadProgress === 1}>
-            <ConfigureKeyboard
-              containerDimensions={dimensions}
-              selectable={configureKeyboardIsSelectable}
+          <Float
+            speed={1} // Animation speed, defaults to 1
+            rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
+            floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
+            floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+          >
+            <Keyboards
+              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+              dimensions={dimensions}
+              loadProgress={loadProgress}
             />
-          </group>
-          <group position={[10, 0, 0]}>
-            <Test dimensions={dimensions} />
-          </group>
-          <group position={[20, 0, 0]}>
-            <Design dimensions={dimensions} />
-          </group>
+          </Float>
         </Canvas>
       </div>
     </DesignProvider>
   );
 };
+
+const Lights = React.memo(() => {
+  const x = 3;
+  const y = 0.5;
+  const z = -15;
+  const spotlightY = 12;
+  const spotlightZ = -19;
+  const debug = true;
+  const targetObj = React.useMemo(() => {
+    const obj = new Object3D();
+    obj.position.set(0, 3, spotlightZ);
+    obj.updateMatrixWorld();
+    return obj;
+  }, []);
+  return (
+    <>
+      <ambientLight intensity={0.0} />
+      <SpotLight
+        distance={spotlightY + 2}
+        position={[0, spotlightY, spotlightZ + 2.5]}
+        angle={Math.PI / 5}
+        attenuation={5}
+        target={targetObj}
+        intensity={10}
+        castShadow={true}
+        anglePower={5} // Diffuse-cone anglePower (default: 5)
+      ></SpotLight>
+      {false && (
+        <>
+          <Backdrop
+            receiveShadow={true}
+            position={[0, -1.5, -19.5]}
+            scale={[10, 5, 2]}
+            floor={0.5} // Stretches the floor segment, 0.25 by default
+            segments={20} // Mesh-resolution, 20 by default
+          >
+            <meshStandardMaterial color="#caaaaa" />
+          </Backdrop>
+          <Environment preset="city" background />
+          <OrbitControls makeDefault dampingFactor={0.2} />
+        </>
+      )}
+
+      <pointLight position={[x, y, z]} intensity={0.8} />
+      <pointLight position={[-x, y, z]} intensity={0.8} />
+    </>
+  );
+}, shallowEqual);
+
+const Keyboards = React.memo((props: any) => {
+  const [path] = useLocation();
+  const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
+  const configurePosition = 0.48;
+  const testPosition = 20;
+  const designPosition = 40;
+  const routeX =
+    path === '/design'
+      ? -designPosition
+      : path === '/test'
+      ? -testPosition
+      : configurePosition;
+  const slide = useSpring({
+    config: config.stiff,
+    x: routeX,
+  });
+
+  return (
+    <a.group position-x={slide.x}>
+      <group visible={loadProgress === 1}>
+        <ConfigureKeyboard
+          containerDimensions={dimensions}
+          selectable={configureKeyboardIsSelectable}
+        />
+      </group>
+      <group position={[testPosition, 0, 0]}>
+        <Test dimensions={dimensions} />
+      </group>
+      <group position={[designPosition, 0, 0]}>
+        <Design dimensions={dimensions} />
+      </group>
+    </a.group>
+  );
+}, shallowEqual);

@@ -5,6 +5,8 @@ import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
+  getColors,
+  getTextureColors,
 } from '../positioned-keyboard';
 import {useAppSelector} from 'src/store/hooks';
 import {
@@ -39,7 +41,7 @@ import {getSelectedVersion} from 'src/store/designSlice';
 const accentColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--color_accent')
   .trim();
-export const getColors = ({color}: {color: KeyColorType}): KeyColor => {
+export const oldGetColors = ({color}: {color: KeyColorType}): KeyColor => {
   switch (color) {
     case KeyColorType.Alpha: {
       return {
@@ -277,7 +279,7 @@ const Heart = React.memo(
           attach="geometry"
           args={[heartShape, extrudeSettings]}
         />
-        <meshPhongMaterial color={'pink'} transparent={true} opacity={1} />
+        <meshPhongMaterial color={'darkgrey'} transparent={true} opacity={1} />
       </mesh>
     );
   },
@@ -316,9 +318,9 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
 
   const glow = useSpring({
     config: {duration: 800},
-    from: {x: 0, y: '#f4c0c0'},
+    from: {x: 0, y: '#f4a0a0'},
     loop: selected ? {reverse: true} : false,
-    to: {x: 100, y: '#c4a9a9'},
+    to: {x: 100, y: '#b49999'},
   });
   const [zDown, zUp] = [0, 6];
   const pressedState =
@@ -335,9 +337,9 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
     DisplayMode.Test === mode
       ? pressedState === KeycapState.Unpressed
         ? wasPressed
-          ? '#f4c0c0'
+          ? 'palevioletred'
           : 'lightgrey'
-        : '#c4a9a9'
+        : 'pink'
       : pressedState === KeycapState.Unpressed
       ? 'lightgrey'
       : 'lightgrey';
@@ -363,7 +365,7 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
       >
         <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
           <canvasTexture
-            minFilter={THREE.LinearMipMapNearestFilter}
+            encoding={THREE.LinearEncoding}
             ref={textureRef as any}
             attach="map"
             image={canvasRef.current}
@@ -459,7 +461,7 @@ export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
       <>
         <mesh
           visible
-          position={[750, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
+          position={[0, GROUND_HEIGHT + phase * deltaYZ, phase * -deltaYZ]}
           rotation={[-Math.PI / 4, 0, 0]}
           ref={terrain1}
           onClick={props.onClick}
@@ -513,10 +515,7 @@ export const Case = (props: {width: number; height: number}) => {
   const heightOffset = 0.5;
   const depthOffset = 0.5;
   const outsideColor = useMemo(
-    () =>
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--color_accent')
-        .trim(),
+    () => getColors({color: KeyColorType.Accent}).c,
     [],
   );
   const outsideShape = useMemo(() => {
@@ -547,7 +546,7 @@ export const Case = (props: {width: number; height: number}) => {
         caseHeight={props.height + heightOffset / 2}
         caseThickness={2 * widthOffset}
       />
-      <mesh position={[0, -0.1, 0]}>
+      <mesh position={[0, -0.1, 0]} castShadow={true}>
         <extrudeGeometry
           attach="geometry"
           args={[
@@ -567,7 +566,7 @@ export const Case = (props: {width: number; height: number}) => {
           opacity={1}
         />
       </mesh>
-      <mesh position={[0.3, -0.1, depthOffset / 4]}>
+      <mesh position={[0.3, -0.1, depthOffset / 4]} castShadow={true}>
         <extrudeGeometry
           attach="geometry"
           args={[
@@ -584,6 +583,7 @@ export const Case = (props: {width: number; height: number}) => {
           color={innerColor}
           shininess={100}
           reflectivity={1}
+          specular={'#161212'}
         />
       </mesh>
     </group>
@@ -621,7 +621,7 @@ const KeyGroup: React.VFC<{
           position: [(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0],
           rotation: [0, 0, -r],
           scale: [k.w, k.h, 1],
-          color: getColors(k),
+          color: getTextureColors(k),
           idx: i,
           onClick: (evt: any, idx: number) => {
             evt.stopPropagation();
@@ -704,12 +704,6 @@ export const Camera = (props: {
     from: {x: startX},
   });
 
-  const routeX = path === '/design' ? 20 : path === '/test' ? 10 : -0.48;
-  const slide = useSpring({
-    config: config.stiff,
-    x: routeX,
-  });
-
   React.useEffect(() => {
     if (progress === 100 && total === 5) {
       console.log('lets animate');
@@ -731,10 +725,6 @@ export const Camera = (props: {
     }
     if (camera.zoom !== 5.5 * 0.8) {
       camera.zoom = 5.5 * 0.8;
-      camera.updateProjectionMatrix();
-    }
-    if (slide.x.isAnimating || camera.position.x !== routeX) {
-      camera.position.setX(slide.x.get());
       camera.updateProjectionMatrix();
     }
   });
@@ -1037,8 +1027,8 @@ export const KeyboardCanvas: React.VFC<{
           speed={1} // Speed factor
           zoom={1} // Zoom factor when half the polar-max is reached
           rotation={[0, 0, 0]} // Default rotation
-          polar={[-Math.PI / 6, Math.PI / 6]} // Vertical limits
-          azimuth={[-Math.PI / 5, Math.PI / 5]} // Horizontal limits
+          polar={[-Math.PI / 10, Math.PI / 10]} // Vertical limits
+          azimuth={[-Math.PI / 16, Math.PI / 16]} // Horizontal limits
           config={{mass: 1, tension: 170, friction: 26}} // Spring config
         >
           <Case width={width} height={height} />
