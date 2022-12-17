@@ -33,7 +33,7 @@ import {
   getSelectedKeymap,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {CSSVarObject, getLabel} from '../positioned-keyboard/base';
+import {getLabel} from '../positioned-keyboard/base';
 import {useAppDispatch} from 'src/store/hooks';
 import {TestKeyState} from '../test-keyboard';
 import {useLocation} from 'wouter';
@@ -41,6 +41,23 @@ import {getSelectedVersion} from 'src/store/designSlice';
 const accentColor = getComputedStyle(document.documentElement)
   .getPropertyValue('--color_accent')
   .trim();
+export const CSSVarObject = {
+  keyWidth: 52,
+  keyXSpacing: 2,
+  keyHeight: 54,
+  keyYSpacing: 2,
+  keyXPos: 52 + 2,
+  keyYPos: 54 + 2,
+};
+
+export const KeycapMetric = {
+  keyWidth: 18,
+  keyXSpacing: 1.05,
+  keyHeight: 18,
+  keyYSpacing: 1.05,
+  keyXPos: 19.05,
+  keyYPos: 19.05,
+};
 export const oldGetColors = ({color}: {color: KeyColorType}): KeyColor => {
   switch (color) {
     case KeyColorType.Alpha: {
@@ -180,7 +197,11 @@ const MatrixLines: React.VFC<{
     <group
       scale={0.35}
       rotation={[Math.PI, 0, 0]}
-      position={[(-width * 19.05) / 2, ((height + 0.4) * 19.05) / 2, 11]}
+      position={[
+        (-width * KeycapMetric.keyXPos) / 2,
+        ((height + 0.4) * KeycapMetric.keyYPos) / 2,
+        11,
+      ]}
       key={`${rows}-${cols}-${width}-${height}`}
     >
       <Segments lineWidth={1}>
@@ -634,12 +655,25 @@ const KeyGroup: React.VFC<{
         (k, i) => `${props.definition.vendorProductId}-${i}-${k.w}-${k.h}`,
       ),
       coords: keys.map((k, i) => {
+        // x & y are pixel positioned
         const [x, y] = calculatePointPosition(k);
         const r = (k.r * (2 * Math.PI)) / 360;
+        // The 1.05mm in-between keycaps but normalized by a keycap width/height
+        const normalizedKeyXSpacing =
+          KeycapMetric.keyXSpacing / KeycapMetric.keyWidth;
+        const normalizedKeyYSpacing =
+          KeycapMetric.keyYSpacing / KeycapMetric.keyHeight;
+        const normalizedWidth = k.w + (k.w - 1) * normalizedKeyXSpacing;
+        const normalizedHeight = k.h + (k.h - 1) * normalizedKeyYSpacing;
+        console.log(x / CSSVarObject.keyXSpacing);
         return {
-          position: [(x * 19.05) / 54, (-(y - 0.867) * 19.05) / 56, 0],
+          position: [
+            (KeycapMetric.keyXPos * x) / CSSVarObject.keyXPos,
+            (-y * KeycapMetric.keyYPos) / CSSVarObject.keyYPos,
+            0,
+          ],
           rotation: [0, 0, -r],
-          scale: [k.w, k.h, 1],
+          scale: [normalizedWidth, normalizedHeight, 1],
           color: getTextureColors(k),
           idx: i,
           onClick: (evt: any, idx: number) => {
