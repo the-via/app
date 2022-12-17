@@ -37,12 +37,10 @@ import {TestKeyState} from '../test-keyboard';
 import {
   Backdrop,
   Decal,
-  Environment,
   Float,
-  MeshReflectorMaterial,
   OrbitControls,
   SpotLight,
-  useHelper,
+  useGLTF,
   useProgress,
   useTexture,
 } from '@react-three/drei';
@@ -63,9 +61,11 @@ import {
 } from 'src/store/designSlice';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
-import {Object3D, PointLight, PointLightHelper, SpotLightHelper} from 'three';
+import {Object3D} from 'three';
 
-const EMPTY_ARR: number[] = [];
+useGLTF.preload('/fonts/keycap.glb');
+useGLTF.preload('/fonts/rotary_encoder.glb');
+
 const Design = (props: {dimensions?: DOMRect}) => {
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getSelectedVersion);
@@ -79,11 +79,7 @@ const Design = (props: {dimensions?: DOMRect}) => {
       ),
     [localDefinitions, definitionVersion],
   );
-  const options = versionDefinitions.map((definitionMap) => {
-    return definitionMap[definitionVersion];
-  });
 
-  const flexRef = useRef(null);
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
@@ -124,7 +120,6 @@ const Test = (props: {dimensions?: DOMRect}) => {
   );
 
   const clearTestKeys = useCallback(() => {
-    console.log('recomputinoiwaoefiwajeofiwajefioajweoifajwf');
     setGlobalPressedKeys([]);
     setMatrixPressedKeys([]);
   }, [setGlobalPressedKeys, setMatrixPressedKeys]);
@@ -238,12 +233,14 @@ export const CanvasRouter = () => {
   const containerRef = useRef(null);
   const dimensions = useSize(containerRef);
   const loadProgress = useAppSelector(getLoadProgress);
+  const {progress} = useProgress();
   const dispatch = useAppDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const hideDesignScene = '/design' === path && !localDefinitions.length;
   const hideConfigureScene =
-    '/' === path && (!selectedDefinition || loadProgress !== 1);
+    '/' === path &&
+    (!selectedDefinition || (loadProgress + progress / 100) / 2 !== 1);
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
@@ -275,7 +272,7 @@ export const CanvasRouter = () => {
             onClick={terrainOnClick}
           >
             <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color="#9a8a8a" />
+            <meshStandardMaterial color="#aa9a9a" />
           </mesh>
           {dimensions && (
             <>
@@ -335,14 +332,13 @@ const Lights = React.memo(() => {
         <>
           <Backdrop
             receiveShadow={true}
-            position={[0, -1.5, -19.5]}
+            position={[0, -1.4, -19.5]}
             scale={[10, 5, 2]}
-            floor={0.5} // Stretches the floor segment, 0.25 by default
+            floor={1} // Stretches the floor segment, 0.25 by default
             segments={20} // Mesh-resolution, 20 by default
           >
-            <meshStandardMaterial color="#caaaaa" />
+            <meshStandardMaterial color="#9a8a8a" />
           </Backdrop>
-          <Environment preset="city" background />
           <OrbitControls makeDefault dampingFactor={0.2} />
         </>
       )}
@@ -378,10 +374,10 @@ const Keyboards = React.memo((props: any) => {
           selectable={configureKeyboardIsSelectable}
         />
       </group>
-      <group position={[testPosition, 0, 0]}>
+      <group position-x={testPosition}>
         <Test dimensions={dimensions} />
       </group>
-      <group position={[designPosition, 0, 0]}>
+      <group position-x={designPosition}>
         <Design dimensions={dimensions} />
       </group>
     </a.group>
