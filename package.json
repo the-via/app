@@ -57,6 +57,7 @@
     "@types/three": "^0.146.0",
     "@types/w3c-web-hid": "^1.0.3",
     "@types/webscopeio__react-textarea-autocomplete": "^4.7.2",
+    "@types/wicg-file-system-access": "^2020.9.5",
     "@vitejs/plugin-react": "^2.2.0",
     "concurrently": "^7.6.0",
     "typescript": "^4.6.4",

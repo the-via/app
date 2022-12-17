@@ -93,8 +93,7 @@ const shallowEq = (prev: any, next: any) => {
 
 const paintKeycap = (
   canvas: HTMLCanvasElement,
-  widthMultiplier: number,
-  heightMultiplier: number,
+  [widthMultiplier, heightMultiplier]: [number, number],
   bgColor: string,
   legendColor: string,
   label: any,
@@ -314,7 +313,9 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
     selected,
     disabled,
     mode,
+    rotation,
     keyState,
+    shouldRotate,
     idx,
   } = props;
   const ref = useRef<any>();
@@ -325,14 +326,7 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
 
   const redraw = React.useCallback(() => {
     if (canvasRef.current) {
-      paintKeycap(
-        canvasRef.current,
-        scale[0],
-        scale[1],
-        color.c,
-        color.t,
-        label,
-      );
+      paintKeycap(canvasRef.current, scale, color.c, color.t, label);
       textureRef.current!.needsUpdate = true;
     }
   }, [
@@ -360,7 +354,10 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
       : hovered || selected
       ? KeycapState.Unpressed
       : KeycapState.Pressed;
-  const keycapZ = pressedState === KeycapState.Pressed ? zDown : zUp;
+  const [keycapZ, rotationZ] =
+    pressedState === KeycapState.Pressed
+      ? [zDown, rotation[2]]
+      : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];
   const wasPressed = keyState === TestKeyState.KeyUp;
   const keycapColor =
     DisplayMode.Test === mode
@@ -373,10 +370,11 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
       ? 'lightgrey'
       : 'lightgrey';
 
-  const {z, b} = useSpring({
+  const {z, b, rotateZ} = useSpring({
     config: {duration: 100},
     z: keycapZ,
     b: keycapColor,
+    rotateZ: rotationZ,
   });
 
   const [meshOnClick, meshOnPointerOver, meshOnPointerOut] = useMemo(() => {
@@ -398,6 +396,7 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
         {...props}
         ref={ref}
         position-z={z}
+        rotation-z={rotateZ}
         onClick={meshOnClick}
         onPointerOver={meshOnPointerOver}
         onPointerOut={meshOnPointerOut}
@@ -705,6 +704,7 @@ const KeyGroup: React.VFC<{
         const {position, rotation, scale, color, idx, onClick} =
           keysKeys.coords[i];
         const key = keysKeys.indices[i];
+        const isEncoder = k['ei'] !== undefined;
         return (
           <Keycap
             mode={props.mode}
@@ -713,9 +713,9 @@ const KeyGroup: React.VFC<{
             rotation={rotation}
             scale={scale}
             color={color}
+            shouldRotate={isEncoder}
             keycapGeometry={
-              (k['ei'] !== undefined ? Cylinder : (Keycap_1U_GMK_R1 as any))
-                .geometry
+              (isEncoder ? Cylinder : (Keycap_1U_GMK_R1 as any)).geometry
             }
             keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
             disabled={!props.selectable}
