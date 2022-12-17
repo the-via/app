@@ -588,8 +588,14 @@ export function calculatePointPosition({
   const sinR = Math.sin(rRadian);
   const originX = CSSVarObject.keyXPos * rx;
   const originY = CSSVarObject.keyYPos * ry;
-  const xPos = CSSVarObject.keyXPos * x + (w * CSSVarObject.keyWidth) / 2;
-  const yPos = CSSVarObject.keyYPos * y + (h * CSSVarObject.keyHeight) / 2;
+  const xPos =
+    CSSVarObject.keyXPos * x +
+    (w * CSSVarObject.keyWidth) / 2 +
+    ((w - 1) * CSSVarObject.keyXSpacing) / 2;
+  const yPos =
+    CSSVarObject.keyYPos * y +
+    (h * CSSVarObject.keyHeight) / 2 +
+    ((h - 1) * CSSVarObject.keyYSpacing) / 2;
   const transformedXPos =
     xPos * cosR - yPos * sinR - originX * cosR + originY * sinR + originX;
   const transformedYPos =
