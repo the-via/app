@@ -103,25 +103,38 @@ export const Pane: FC = () => {
   };
 
   const saveLayout = async () => {
-    const {name, vendorProductId, layouts} = selectedDefinition;
-    const encoderValues = await getEncoderValues();
-    const saveFile: ViaSaveFile = {
-      name,
-      vendorProductId,
-      macros: [...macros.expressions],
-      layers: rawLayers.map(
-        (layer: {keymap: number[]}) =>
-          layer.keymap.map(
-            (keyByte: number) =>
-              getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
-          ), // TODO: should empty string be empty keycode instead?
-      ),
-      encoders: encoderValues,
-    };
+    const {name, vendorProductId} = selectedDefinition;
+    const suggestedName = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName,
+        types: [{accept: {'application/json': ['.layout.json']}}],
+      });
+      const encoderValues = await getEncoderValues();
+      const saveFile: ViaSaveFile = {
+        name,
+        vendorProductId,
+        macros: [...macros.expressions],
+        layers: rawLayers.map(
+          (layer: {keymap: number[]}) =>
+            layer.keymap.map(
+              (keyByte: number) =>
+                getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+            ), // TODO: should empty string be empty keycode instead?
+        ),
+        encoders: encoderValues,
+      };
 
-    const content = stringify(saveFile);
-    const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    const blob = new Blob([content], {type: 'application/json'});
+      const content = stringify(saveFile);
+      const blob = new Blob([content], {type: 'application/json'});
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (err) {
+      console.log('User cancelled save file request');
+    }
+
+    /*
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -130,6 +143,7 @@ export const Pane: FC = () => {
 
     link.click();
     URL.revokeObjectURL(url);
+*/
   };
 
   const loadLayout = (file: Blob) => {
