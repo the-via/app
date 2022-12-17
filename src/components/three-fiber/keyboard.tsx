@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
 import {useSpring, animated, config} from '@react-spring/three';
 import type {KeyColor} from '../../utils/themes';
 import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
@@ -14,10 +14,9 @@ import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
   getDefinitions,
-  getBaseDefinitions,
   getCustomDefinitions,
 } from 'src/store/definitionsSlice';
-import {Canvas, useFrame, useThree} from '@react-three/fiber';
+import {ThreeEvent, useFrame, useThree} from '@react-three/fiber';
 import {
   useGLTF,
   PresentationControls,
@@ -25,6 +24,7 @@ import {
   Segment,
   PerspectiveCamera,
   useProgress,
+  useMatcapTexture,
 } from '@react-three/drei';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import * as THREE from 'three';
@@ -64,9 +64,6 @@ export const oldGetColors = ({color}: {color: KeyColorType}): KeyColor => {
   }
 };
 
-useGLTF.preload('/fonts/keycap.glb');
-useGLTF.preload('/fonts/rotary_encoder.glb');
-
 const shallowEq = (prev: any, next: any) => {
   return Object.keys(prev).every((k) => {
     const equal = prev[k] === next[k];
@@ -85,6 +82,7 @@ const paintKeycap = (
   legendColor: string,
   label: any,
 ) => {
+  const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold';
   const dpi = 1;
   const canvasSize = 512 * dpi;
   const [canvasWidth, canvasHeight] = [
@@ -103,7 +101,7 @@ const paintKeycap = (
     context.fillStyle = legendColor;
     if (label === undefined) {
     } else if (label.topLabel && label.bottomLabel) {
-      context.font = `${54 * dpi}px Arial Rounded MT`;
+      context.font = `${54 * dpi}px ${fontFamily}`;
       context.fillText(
         label.topLabel,
         0.02 * canvasSize + xOffset,
@@ -115,14 +113,14 @@ const paintKeycap = (
         0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset + 75 * dpi,
       );
     } else if (label.centerLabel) {
-      context.font = `bold ${37.5 * dpi}px Arial Rounded MT`;
+      context.font = `bold ${37.5 * dpi}px ${fontFamily}`;
       context.fillText(
         label.centerLabel,
         0.02 * canvasSize + xOffset,
         0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
       );
     } else if (typeof label.label === 'string') {
-      context.font = `bold ${80 * dpi}px Arial Rounded MT`;
+      context.font = `bold ${80 * dpi}px ${fontFamily}`;
       context.fillText(
         label.label,
         0.02 * canvasSize + xOffset,
@@ -287,7 +285,17 @@ const Heart = React.memo(
 );
 
 const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
-  const {label, scale, color, selected, position, mode, keyState, idx} = props;
+  const {
+    label,
+    scale,
+    color,
+    onClick,
+    selected,
+    disabled,
+    mode,
+    keyState,
+    idx,
+  } = props;
   const ref = useRef<any>();
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
@@ -322,7 +330,7 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
     loop: selected ? {reverse: true} : false,
     to: {x: 100, y: '#b49999'},
   });
-  const [zDown, zUp] = [0, 6];
+  const [zDown, zUp] = [0, 8];
   const pressedState =
     DisplayMode.Test === mode
       ? TestKeyState.KeyDown === keyState
@@ -344,11 +352,22 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
       ? 'lightgrey'
       : 'lightgrey';
 
-  const {p, b} = useSpring({
+  const {z, b} = useSpring({
     config: {duration: 100},
-    p: [position[0], position[1], keycapZ],
+    z: keycapZ,
     b: keycapColor,
   });
+
+  const [meshOnClick, meshOnPointerOver, meshOnPointerOut] = useMemo(() => {
+    const noop = () => {};
+    return disabled
+      ? [noop, noop, noop]
+      : [
+          (evt: ThreeEvent<MouseEvent>) => onClick(evt, idx),
+          () => hover(true),
+          () => hover(false),
+        ];
+  }, [disabled, onClick, hover, idx]);
 
   const AniMeshMaterial = animated.meshPhongMaterial as any;
 
@@ -357,10 +376,10 @@ const Keycap = React.memo((props: any & {mode: DisplayMode; idx: number}) => {
       <animated.mesh
         {...props}
         ref={ref}
-        position={p}
-        onClick={(evt) => !props.disabled && props.onClick(evt, idx)}
-        onPointerOver={() => !props.disabled && hover(true)}
-        onPointerOut={() => !props.disabled && hover(false)}
+        position-z={z}
+        onClick={meshOnClick}
+        onPointerOver={meshOnPointerOver}
+        onPointerOut={meshOnPointerOut}
         geometry={props.keycapGeometry}
       >
         <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
@@ -510,10 +529,12 @@ export const Terrain: React.VFC<{onClick?: () => void}> = React.memo(
 );
 
 export const Case = (props: {width: number; height: number}) => {
-  const innerColor = '#303030';
+  const innerColor = '#212020';
   const widthOffset = 0.4;
   const heightOffset = 0.5;
   const depthOffset = 0.5;
+  const [matcap, url] = useMatcapTexture('E5DED7_AFA69D_C4BCB4_C3BAAB');
+
   const outsideColor = useMemo(
     () => getColors({color: KeyColorType.Accent}).c,
     [],
@@ -532,61 +553,59 @@ export const Case = (props: {width: number; height: number}) => {
   }, [props.height]);
 
   return (
-    <group
-      position={[
-        (19.05 * (props.width + depthOffset)) / 2,
-        heightOffset / 2,
-        (-1 - 0.1) * 19.05,
-      ]}
-      scale={19.05}
-      rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
-    >
-      <Heart
-        caseWidth={props.width}
-        caseHeight={props.height + heightOffset / 2}
-        caseThickness={2 * widthOffset}
-      />
-      <mesh position={[0, -0.1, 0]} castShadow={true}>
-        <extrudeGeometry
-          attach="geometry"
-          args={[
-            outsideShape,
-            {
-              bevelEnabled: true,
-              bevelSize: 0.1,
-              bevelThickness: 0.1,
-              bevelSegments: 10,
-              depth: props.width + depthOffset,
-            },
-          ]}
+    <Suspense fallback={null}>
+      <group
+        position={[
+          (19.05 * (props.width + depthOffset)) / 2,
+          heightOffset / 2,
+          (-1 - 0.1) * 19.05,
+        ]}
+        scale={19.05}
+        rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
+      >
+        <Heart
+          caseWidth={props.width}
+          caseHeight={props.height + heightOffset / 2}
+          caseThickness={2 * widthOffset}
         />
-        <meshPhongMaterial
-          color={outsideColor}
-          transparent={true}
-          opacity={1}
-        />
-      </mesh>
-      <mesh position={[0.3, -0.1, depthOffset / 4]} castShadow={true}>
-        <extrudeGeometry
-          attach="geometry"
-          args={[
-            innerShape,
-            {
-              bevelEnabled: true,
-              bevelSize: 0.05,
-              bevelThickness: 0.05,
-              depth: props.width + depthOffset / 2,
-            },
-          ]}
-        />
-        <meshPhongMaterial
-          color={innerColor}
-          shininess={100}
-          reflectivity={1}
-          specular={'#161212'}
-        />
-      </mesh>
-    </group>
+        <mesh position={[0, -0.1, 0]} castShadow={true}>
+          <extrudeGeometry
+            attach="geometry"
+            args={[
+              outsideShape,
+              {
+                bevelEnabled: true,
+                bevelSize: 0.1,
+                bevelThickness: 0.1,
+                bevelSegments: 10,
+                depth: props.width + depthOffset,
+              },
+            ]}
+          />
+          <meshPhongMaterial color={outsideColor} />
+        </mesh>
+        <mesh position={[0.3, -0.1, depthOffset / 4]} castShadow={true}>
+          <extrudeGeometry
+            attach="geometry"
+            args={[
+              innerShape,
+              {
+                bevelEnabled: true,
+                bevelSize: 0.05,
+                bevelThickness: 0.05,
+                depth: props.width + depthOffset / 2,
+              },
+            ]}
+          />
+          <meshPhongMaterial
+            color={innerColor}
+            shininess={100}
+            reflectivity={1}
+            specular={'#161212'}
+          />
+        </mesh>
+      </group>
+    </Suspense>
   );
 };
 
@@ -705,7 +724,7 @@ export const Camera = (props: {
   });
 
   React.useEffect(() => {
-    if (progress === 100 && total === 5) {
+    if (progress === 100) {
       console.log('lets animate');
       glow.x.start(endX);
     }

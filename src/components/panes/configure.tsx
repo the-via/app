@@ -49,6 +49,7 @@ import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
+import {useProgress} from '@react-three/drei';
 
 const MenuContainer = styled.div`
   padding: 15px 30px 20px 10px;
@@ -161,6 +162,9 @@ function Loader(props: {
   const noSupportedIds = !Object.values(supportedIds).length;
   const noConnectedDevices = !Object.values(connectedDevices).length;
   const [showButton, setShowButton] = useState<boolean>(false);
+  const {progress} = useProgress();
+  const chippyProgress =
+    loadProgress > 0 ? (loadProgress + progress / 100) / 2 : loadProgress;
   useEffect(() => {
     // TODO: Remove the timeout because it is funky
     const timeout = setTimeout(() => {
@@ -170,9 +174,10 @@ function Loader(props: {
     }, 3000);
     return () => clearTimeout(timeout);
   }, [selectedDefinition]);
+  console.log(loadProgress, progress);
   return (
     <>
-      {<ChippyLoader progress={loadProgress || null} />}
+      {<ChippyLoader progress={chippyProgress || null} />}
       {(showButton || noConnectedDevices) && !noSupportedIds && !isElectron ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device
