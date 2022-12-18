@@ -12,6 +12,7 @@ import type {
   KeyboardDictionary,
   VIADefinitionV2,
   VIADefinitionV3,
+  VIAKey,
 } from '@the-via/reader';
 import type {AppThunk, RootState} from './index';
 import {
@@ -125,13 +126,14 @@ export const getSelectedOptionKeys = createSelector(
   getSelectedLayoutOptions,
   getSelectedDefinition,
   (layoutOptions, definition) =>
-    definition &&
-    layoutOptions.flatMap(
-      (option, idx) =>
-        (definition.layouts.optionKeys[idx] &&
-          definition.layouts.optionKeys[idx][option]) ||
-        [],
-    ),
+    (definition
+      ? layoutOptions.flatMap(
+          (option, idx) =>
+            (definition.layouts.optionKeys[idx] &&
+              definition.layouts.optionKeys[idx][option]) ||
+            [],
+        )
+      : []) as VIAKey[],
 );
 
 export const getSelectedKeyDefinitions = createSelector(

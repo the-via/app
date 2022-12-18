@@ -50,7 +50,7 @@ export const getSelectedVersion = (state: RootState) =>
 export const getSelectedDefinitionIndex = (state: RootState) =>
   state.design.selectedDefinitionIndex;
 
-export const getSelectedOptionKeys = (state: RootState) =>
+export const getDesignSelectedOptionKeys = (state: RootState) =>
   state.design.selectedOptionKeys;
 
 export const getShowMatrix = (state: RootState) => state.design.showMatrix;

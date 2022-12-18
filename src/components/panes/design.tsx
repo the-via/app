@@ -35,7 +35,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
-  getSelectedOptionKeys,
+  getDesignSelectedOptionKeys,
   getSelectedVersion,
   getShowMatrix,
   selectVersion,
