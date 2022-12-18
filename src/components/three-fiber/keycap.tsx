@@ -1,8 +1,12 @@
+import {PropertiesPlugin} from '@microsoft/applicationinsights-web';
 import {animated, useSpring} from '@react-spring/three';
+import {Html} from '@react-three/drei';
 import {ThreeEvent} from '@react-three/fiber';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {KeyColorType} from '@the-via/reader';
+import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import * as THREE from 'three';
+import {getColors} from '../positioned-keyboard';
 import {TestKeyState} from '../test-keyboard';
 
 export enum DisplayMode {
@@ -15,6 +19,20 @@ export enum KeycapState {
   Pressed = 1,
   Unpressed = 2,
 }
+
+const getTooltipData = ({
+  macroExpression,
+  label,
+}: {
+  macroExpression?: string;
+  label: string;
+}) =>
+  label && label.length > 15
+    ? label
+    : macroExpression && macroExpression.length
+    ? macroExpression
+    : null;
+
 export const Keycap = React.memo(
   (props: any & {mode: DisplayMode; idx: number}) => {
     const {
@@ -31,6 +49,7 @@ export const Keycap = React.memo(
       idx,
     } = props;
     const ref = useRef<any>();
+    const tooltip = label && getTooltipData(label);
     // Hold state for hovered and clicked events
     const [hovered, hover] = useState(false);
     const textureRef = useRef<THREE.CanvasTexture>();
@@ -139,11 +158,12 @@ export const Keycap = React.memo(
         ? 'lightgrey'
         : 'lightgrey';
 
-    const {z, b, rotateZ} = useSpring({
+    const {z, b, rotateZ, tooltipScale} = useSpring({
       config: {duration: 100},
       z: keycapZ,
       b: keycapColor,
       rotateZ: rotationZ,
+      tooltipScale: !hovered ? 0 : 1,
     });
 
     const [meshOnClick, meshOnPointerOver, meshOnPointerOut] = useMemo(() => {
@@ -180,8 +200,69 @@ export const Keycap = React.memo(
             />
           </AniMeshMaterial>
         </animated.mesh>
+        {tooltip && (
+          <React.Suspense fallback={null}>
+            <animated.group
+              position={props.position}
+              position-z={20}
+              scale={tooltipScale}
+            >
+              <Html
+                transform
+                style={{
+                  pointerEvents: 'none',
+                }}
+              >
+                <Tooltip>{tooltip}</Tooltip>
+              </Html>
+            </animated.group>
+          </React.Suspense>
+        )}
       </>
     );
   },
   shallowEqual,
 );
+
+const Tooltip: React.FC<any> = (props) => {
+  const accent = getColors({color: KeyColorType.Accent});
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        marginTop: -800,
+      }}
+    >
+      <div
+        style={{
+          padding: '70px 70px',
+          background: `${accent.c}`,
+          color: `${accent.t}`,
+          borderRadius: 100,
+          fontSize: 200,
+          fontFamily: 'Source Code Pro',
+          whiteSpace: 'nowrap',
+          letterSpacing: 1,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          fontWeight: 'bold',
+        }}
+      >
+        {props.children}
+      </div>
+      <div
+        style={{
+          height: 150,
+          width: 150,
+          marginTop: -100,
+          transform: 'rotate(45deg)',
+          background: accent.c,
+        }}
+      ></div>
+    </div>
+  );
+};
