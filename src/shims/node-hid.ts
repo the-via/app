@@ -1,7 +1,11 @@
 import type {WebVIADevice} from '../types/types';
 // This is a bit cray
-const globalBuffer: {[path: string]: ArrayBuffer[]} = {};
-const eventWaitBuffer: {[path: string]: ((a: Uint8Array) => void)[]} = {};
+const globalBuffer: {
+  [path: string]: {currTime: number; message: Uint8Array}[];
+} = {};
+const eventWaitBuffer: {
+  [path: string]: ((a: Uint8Array) => void)[];
+} = {};
 const filterHIDDevices = (devices: HIDDevice[]) =>
   devices.filter((device) =>
     device.collections?.some(
@@ -105,22 +109,31 @@ const ExtendedHID = {
       }
       return Promise.resolve();
     }
+    // Should we unsubscribe at some point of time
     setupListeners() {
       if (this._hidDevice) {
         this._hidDevice._device.addEventListener('inputreport', (e) => {
           if (eventWaitBuffer[this.path].length !== 0) {
+            // It should be impossible to have a handler in the buffer
+            // that has a ts that happened after the current message
+            // came in
             (eventWaitBuffer[this.path].shift() as any)(
               new Uint8Array(e.data.buffer),
             );
           } else {
-            globalBuffer[this.path].push(new Uint8Array(e.data.buffer));
+            globalBuffer[this.path].push({
+              currTime: Date.now(),
+              message: new Uint8Array(e.data.buffer),
+            });
           }
         });
       }
     }
 
     read(fn: (err?: Error, data?: ArrayBuffer) => void) {
+      this.fastForwardGlobalBuffer(Date.now());
       if (globalBuffer[this.path].length > 0) {
+        // this should be a noop normally
         fn(undefined, globalBuffer[this.path].shift() as any);
       } else {
         eventWaitBuffer[this.path].push((data) => fn(undefined, data));
@@ -128,6 +141,21 @@ const ExtendedHID = {
     }
 
     readP = promisify((arg: any) => this.read(arg));
+
+    // The idea is discard any messages that have happened before the time a command was issued
+    // since time-travel is not possible yet...
+    fastForwardGlobalBuffer(time: number) {
+      let messagesLeft = globalBuffer[this.path].length;
+      while (messagesLeft) {
+        messagesLeft--;
+        // message in buffer happened before requested time
+        if (globalBuffer[this.path][0].currTime < time) {
+          globalBuffer[this.path].shift();
+        } else {
+          break;
+        }
+      }
+    }
 
     async write(arr: number[]) {
       await this.openPromise;
