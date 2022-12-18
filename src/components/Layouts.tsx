@@ -5,7 +5,7 @@ import {Detail, IndentedControlRow, Label} from './panes/grid';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getSelectedOptionKeys,
+  getDesignSelectedOptionKeys,
   updateSelectedOptionKeys,
 } from 'src/store/designSlice';
 import {useDispatch} from 'react-redux';
@@ -21,7 +21,7 @@ function Layouts({
   onLayoutChange,
   RowComponent = IndentedControlRow,
 }: Props): JSX.Element | null {
-  const selectedOptionKeys = useAppSelector(getSelectedOptionKeys);
+  const selectedOptionKeys = useAppSelector(getDesignSelectedOptionKeys);
   const dispatch = useDispatch();
 
   React.useEffect(() => {

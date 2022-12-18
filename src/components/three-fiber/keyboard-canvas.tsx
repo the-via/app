@@ -1,6 +1,5 @@
 import {PresentationControls} from '@react-three/drei';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
-import {useAppDispatch} from 'src/store/hooks';
 import {calculateKeyboardFrameDimensions} from '../positioned-keyboard';
 import {TestKeyState} from '../test-keyboard';
 import {Case} from './case';

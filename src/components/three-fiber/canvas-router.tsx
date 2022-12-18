@@ -1,38 +1,17 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import {matrixKeycodes} from 'src/utils/key-event';
-import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
+import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
-  getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {
-  getIsTestMatrixEnabled,
-  setTestMatrixEnabled,
-} from 'src/store/settingsSlice';
-import {useGlobalKeys} from 'src/utils/use-global-keys';
-import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {Camera} from './camera';
-import {ConfigureKeyboard, DesignKeyboard, TestKeyboard} from './keyboard';
+import {ConfigureKeyboard, Design, Test} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {DefinitionVersionMap, VIADefinitionV2, VIAKey} from '@the-via/reader';
-import {TestKeyState} from '../test-keyboard';
 import {
-  Backdrop,
   Decal,
   Float,
-  OrbitControls,
   SpotLight,
   useGLTF,
   useProgress,
@@ -41,137 +20,16 @@ import {
 import {
   getLoadProgress,
   updateSelectedKey,
-  getSelectedKeymap,
-  setLayer,
   getConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
 import {a, config, useSpring} from '@react-spring/three';
 import {TestContext} from '../panes/test';
-import {
-  getSelectedDefinitionIndex,
-  getSelectedVersion,
-  getShowMatrix,
-  getSelectedOptionKeys,
-} from 'src/store/designSlice';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {Object3D} from 'three';
 
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
-
-const Design = (props: {dimensions?: DOMRect}) => {
-  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
-  const definitionVersion = useAppSelector(getSelectedVersion);
-  const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
-  const selectedOptionKeys = useAppSelector(getSelectedOptionKeys);
-  const showMatrix = useAppSelector(getShowMatrix);
-  const versionDefinitions: DefinitionVersionMap[] = useMemo(
-    () =>
-      localDefinitions.filter(
-        (definitionMap) => definitionMap[definitionVersion],
-      ),
-    [localDefinitions, definitionVersion],
-  );
-
-  const definition =
-    versionDefinitions[selectedDefinitionIndex] &&
-    versionDefinitions[selectedDefinitionIndex][definitionVersion];
-
-  return (
-    <group>
-      {definition && (
-        <DesignKeyboard
-          containerDimensions={props.dimensions}
-          definition={definition}
-          selectedOptionKeys={selectedOptionKeys}
-          showMatrix={showMatrix}
-        />
-      )}
-    </group>
-  );
-};
-const Test = (props: {dimensions?: DOMRect}) => {
-  const dispatch = useAppDispatch();
-  const [path] = useLocation();
-  const isShowingTest = path === '/test';
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
-  const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const selectedMatrixKeycodes = useAppSelector(
-    (state) => getSelectedKeymap(state) || [],
-  );
-
-  const api = selectedDevice && selectedDevice.api;
-  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
-    !isTestMatrixEnabled && isShowingTest,
-  );
-  const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
-    isTestMatrixEnabled && isShowingTest,
-    api as any,
-    selectedDefinition as any,
-  );
-
-  const clearTestKeys = useCallback(() => {
-    setGlobalPressedKeys([]);
-    setMatrixPressedKeys([]);
-  }, [setGlobalPressedKeys, setMatrixPressedKeys]);
-
-  const testContext = useContext(TestContext);
-  // Hack to share setting a local state to avoid causing cascade of rerender
-  if (testContext[0].clearTestKeys !== clearTestKeys) {
-    testContext[1]({clearTestKeys});
-  }
-
-  useEffect(() => {
-    // Remove event listeners on cleanup
-    if (path !== '/test') {
-      dispatch(setTestMatrixEnabled(false));
-      testContext[0].clearTestKeys();
-    }
-    if (path !== '/') {
-      dispatch(setLayer(0));
-    }
-  }, [path]); // Empty array ensures that effect is only run on mount and unmount
-
-  const pressedKeys =
-    !isTestMatrixEnabled || !keyDefinitions
-      ? matrixPressedKeys
-      : keyDefinitions.map(
-          ({row, col}: {row: number; col: number}) =>
-            selectedDefinition &&
-            matrixPressedKeys[
-              (row * selectedDefinition.matrix.cols +
-                col) as keyof typeof matrixPressedKeys
-            ],
-        );
-  const testDefinition = isTestMatrixEnabled
-    ? selectedDefinition
-    : fullKeyboardDefinition;
-  const testKeys = isTestMatrixEnabled
-    ? keyDefinitions
-    : fullKeyboardDefinition.layouts.keys;
-  if (!testDefinition || typeof testDefinition === 'string') {
-    return null;
-  }
-
-  return (
-    <TestKeyboard
-      definition={testDefinition as VIADefinitionV2}
-      keys={testKeys as VIAKey[]}
-      pressedKeys={
-        isTestMatrixEnabled
-          ? (pressedKeys as TestKeyState[])
-          : (globalPressedKeys as TestKeyState[])
-      }
-      matrixKeycodes={
-        isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
-      }
-      containerDimensions={props.dimensions}
-    />
-  );
-};
 
 useTexture.preload('/images/chippy.png');
 
@@ -341,9 +199,8 @@ const getRouteX = (route: string) => {
 const Keyboards = React.memo((props: any) => {
   const [path] = useLocation();
   const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
-  const configurePosition = 0.48;
-  const testPosition = 20;
-  const designPosition = 40;
+  const testPosition = -getRouteX('/test');
+  const designPosition = -getRouteX('/design');
   const routeX = getRouteX(path);
   const slide = useSpring({
     config: config.stiff,

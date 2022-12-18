@@ -1,14 +1,32 @@
-import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {matrixKeycodes} from 'src/utils/key-event';
+import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
+  getCustomDefinitions,
 } from 'src/store/definitionsSlice';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
-import {getSelectedKeymap} from 'src/store/keymapSlice';
+import {getSelectedKeymap, setLayer} from 'src/store/keymapSlice';
 import {TestKeyState} from '../test-keyboard';
 import {KeyboardCanvas} from './keyboard-canvas';
+import {useLocation} from 'wouter';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getIsTestMatrixEnabled,
+  setTestMatrixEnabled,
+} from 'src/store/settingsSlice';
+import {
+  getDesignSelectedOptionKeys,
+  getSelectedDefinitionIndex,
+  getSelectedVersion,
+  getShowMatrix,
+} from 'src/store/designSlice';
+import {useGlobalKeys} from 'src/utils/use-global-keys';
+import {useMatrixTest} from 'src/utils/use-matrix-test';
+import {TestContext} from '../panes/test';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -176,6 +194,119 @@ export const DebugKeyboard = (props: {
       mode={DisplayMode.Design}
       showMatrix={showMatrix}
       selectedKey={selectedKey}
+    />
+  );
+};
+
+export const Design = (props: {dimensions?: DOMRect}) => {
+  const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
+  const definitionVersion = useAppSelector(getSelectedVersion);
+  const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
+  const selectedOptionKeys = useAppSelector(getDesignSelectedOptionKeys);
+  const showMatrix = useAppSelector(getShowMatrix);
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
+  );
+
+  const definition =
+    versionDefinitions[selectedDefinitionIndex] &&
+    versionDefinitions[selectedDefinitionIndex][definitionVersion];
+
+  return (
+    <group>
+      {definition && (
+        <DesignKeyboard
+          containerDimensions={props.dimensions}
+          definition={definition}
+          selectedOptionKeys={selectedOptionKeys}
+          showMatrix={showMatrix}
+        />
+      )}
+    </group>
+  );
+};
+export const Test = (props: {dimensions?: DOMRect}) => {
+  const dispatch = useAppDispatch();
+  const [path] = useLocation();
+  const isShowingTest = path === '/test';
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
+  const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+  const selectedMatrixKeycodes = useAppSelector(
+    (state) => getSelectedKeymap(state) || [],
+  );
+
+  const api = selectedDevice && selectedDevice.api;
+  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
+    !isTestMatrixEnabled && isShowingTest,
+  );
+  const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
+    isTestMatrixEnabled && isShowingTest,
+    api as any,
+    selectedDefinition as any,
+  );
+
+  const clearTestKeys = useCallback(() => {
+    setGlobalPressedKeys([]);
+    setMatrixPressedKeys([]);
+  }, [setGlobalPressedKeys, setMatrixPressedKeys]);
+
+  const testContext = useContext(TestContext);
+  // Hack to share setting a local state to avoid causing cascade of rerender
+  if (testContext[0].clearTestKeys !== clearTestKeys) {
+    testContext[1]({clearTestKeys});
+  }
+
+  useEffect(() => {
+    // Remove event listeners on cleanup
+    if (path !== '/test') {
+      dispatch(setTestMatrixEnabled(false));
+      testContext[0].clearTestKeys();
+    }
+    if (path !== '/') {
+      dispatch(setLayer(0));
+    }
+  }, [path]); // Empty array ensures that effect is only run on mount and unmount
+
+  const pressedKeys =
+    !isTestMatrixEnabled || !keyDefinitions
+      ? matrixPressedKeys
+      : keyDefinitions.map(
+          ({row, col}: {row: number; col: number}) =>
+            selectedDefinition &&
+            matrixPressedKeys[
+              (row * selectedDefinition.matrix.cols +
+                col) as keyof typeof matrixPressedKeys
+            ],
+        );
+  const testDefinition = isTestMatrixEnabled
+    ? selectedDefinition
+    : fullKeyboardDefinition;
+  const testKeys = isTestMatrixEnabled
+    ? keyDefinitions
+    : fullKeyboardDefinition.layouts.keys;
+  if (!testDefinition || typeof testDefinition === 'string') {
+    return null;
+  }
+
+  return (
+    <TestKeyboard
+      definition={testDefinition as VIADefinitionV2}
+      keys={testKeys as VIAKey[]}
+      pressedKeys={
+        isTestMatrixEnabled
+          ? (pressedKeys as TestKeyState[])
+          : (globalPressedKeys as TestKeyState[])
+      }
+      matrixKeycodes={
+        isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
+      }
+      containerDimensions={props.dimensions}
     />
   );
 };
