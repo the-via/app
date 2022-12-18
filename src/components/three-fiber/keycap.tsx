@@ -50,6 +50,7 @@ export const Keycap = React.memo(
     } = props;
     const ref = useRef<any>();
     const tooltip = label && getTooltipData(label);
+    const [overflowsTexture, setOverflowsTexture] = useState(false);
     // Hold state for hovered and clicked events
     const [hovered, hover] = useState(false);
     const textureRef = useRef<THREE.CanvasTexture>();
@@ -101,6 +102,7 @@ export const Keycap = React.memo(
             0.02 * canvasSize + xOffset,
             0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
           );
+          return context.measureText(label.centerLabel).width > canvasWidth / 4;
         } else if (typeof label.label === 'string') {
           context.font = `bold ${80 * dpi}px ${fontFamily}`;
           context.fillText(
@@ -114,7 +116,14 @@ export const Keycap = React.memo(
 
     const redraw = React.useCallback(() => {
       if (canvasRef.current) {
-        paintKeycap(canvasRef.current, scale, color.c, color.t, label);
+        const doesOverflow = paintKeycap(
+          canvasRef.current,
+          scale,
+          color.c,
+          color.t,
+          label,
+        );
+        setOverflowsTexture(!!doesOverflow);
         textureRef.current!.needsUpdate = true;
       }
     }, [
@@ -179,6 +188,9 @@ export const Keycap = React.memo(
 
     const AniMeshMaterial = animated.meshPhongMaterial as any;
 
+    if (overflowsTexture) {
+      console.log('overvoerijvoaei');
+    }
     return (
       <>
         <animated.mesh
@@ -200,7 +212,7 @@ export const Keycap = React.memo(
             />
           </AniMeshMaterial>
         </animated.mesh>
-        {tooltip && (
+        {(tooltip || overflowsTexture) && (
           <React.Suspense fallback={null}>
             <animated.group
               position={props.position}
@@ -213,7 +225,7 @@ export const Keycap = React.memo(
                   pointerEvents: 'none',
                 }}
               >
-                <Tooltip>{tooltip}</Tooltip>
+                <Tooltip>{tooltip || label.label}</Tooltip>
               </Html>
             </animated.group>
           </React.Suspense>

@@ -1,4 +1,3 @@
-import React from 'react';
 import type {RootState} from 'src/store';
 import {
   getLabelForByte,
