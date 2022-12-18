@@ -23,14 +23,8 @@ import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
-import {
-  Camera,
-  ConfigureKeyboard,
-  DesignKeyboard,
-  DesignProvider,
-  Terrain,
-  TestKeyboard,
-} from './keyboard';
+import {Camera} from './camera';
+import {ConfigureKeyboard, DesignKeyboard, TestKeyboard} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {DefinitionVersionMap, VIADefinitionV2, VIAKey} from '@the-via/reader';
 import {TestKeyState} from '../test-keyboard';
@@ -229,7 +223,6 @@ const LoaderSpinner = () => {
 
 export const CanvasRouter = () => {
   const [path] = useLocation();
-  const [hover, setHover] = useState(false);
   const containerRef = useRef(null);
   const dimensions = useSize(containerRef);
   const loadProgress = useAppSelector(getLoadProgress);
@@ -253,52 +246,41 @@ export const CanvasRouter = () => {
   );
 
   return (
-    <DesignProvider>
-      <div
-        style={{
-          height: 500,
-          width: '100%',
-          position: hideCanvasScene ? 'absolute' : 'relative',
-          visibility: hideCanvasScene ? 'hidden' : 'visible',
-        }}
-        ref={containerRef}
-      >
-        <Canvas flat={true} shadows>
-          <Lights />
-          <mesh
-            receiveShadow
-            position={[0, -5.75, 0]}
-            rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
-            onClick={terrainOnClick}
-          >
-            <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color="#aa9a9a" />
-          </mesh>
-          {dimensions && (
-            <>
-              <group position={[0, -0.05, -19]} scale={0.015}>
-                {false && <Terrain onClick={terrainOnClick} />}
-              </group>
-              <Camera containerDimensions={dimensions} keys={[]} />
-            </>
-          )}
-          <Float
-            speed={1} // Animation speed, defaults to 1
-            rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
-            floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
-            floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
-            onPointerOver={() => setHover(true)}
-            onPointerOut={() => setHover(false)}
-          >
-            <Keyboards
-              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-              dimensions={dimensions}
-              loadProgress={loadProgress}
-            />
-          </Float>
-        </Canvas>
-      </div>
-    </DesignProvider>
+    <div
+      style={{
+        height: 500,
+        width: '100%',
+        position: hideCanvasScene ? 'absolute' : 'relative',
+        visibility: hideCanvasScene ? 'hidden' : 'visible',
+      }}
+      ref={containerRef}
+    >
+      <Canvas flat={true} shadows>
+        <Lights />
+        <mesh
+          receiveShadow
+          position={[0, -5.75, 0]}
+          rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
+          onClick={terrainOnClick}
+        >
+          <planeGeometry args={[100, 100]} />
+          <meshStandardMaterial color="#aa9a9a" />
+        </mesh>
+        <Camera />
+        <Float
+          speed={1} // Animation speed, defaults to 1
+          rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
+          floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
+          floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
+        >
+          <Keyboards
+            configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+            dimensions={dimensions}
+            loadProgress={loadProgress}
+          />
+        </Float>
+      </Canvas>
+    </div>
   );
 };
 
@@ -328,26 +310,33 @@ const Lights = React.memo(() => {
         castShadow={true}
         anglePower={5} // Diffuse-cone anglePower (default: 5)
       ></SpotLight>
-      {false && (
-        <>
-          <Backdrop
-            receiveShadow={true}
-            position={[0, -1.4, -19.5]}
-            scale={[10, 5, 2]}
-            floor={1} // Stretches the floor segment, 0.25 by default
-            segments={20} // Mesh-resolution, 20 by default
-          >
-            <meshStandardMaterial color="#9a8a8a" />
-          </Backdrop>
-          <OrbitControls makeDefault dampingFactor={0.2} />
-        </>
-      )}
-
       <pointLight position={[x, y, z]} intensity={0.8} />
       <pointLight position={[-x, y, z]} intensity={0.8} />
     </>
   );
 }, shallowEqual);
+
+const getRouteX = (route: string) => {
+  const configurePosition = 0.48;
+  const spaceMultiplier = 20;
+  const testPosition = -spaceMultiplier * 1;
+  const designPosition = -spaceMultiplier * 2;
+  const otherPosition = -spaceMultiplier * 3;
+  switch (route) {
+    case '/design': {
+      return designPosition;
+    }
+    case '/test': {
+      return testPosition;
+    }
+    case '/': {
+      return configurePosition;
+    }
+    default: {
+      return otherPosition;
+    }
+  }
+};
 
 const Keyboards = React.memo((props: any) => {
   const [path] = useLocation();
@@ -355,12 +344,7 @@ const Keyboards = React.memo((props: any) => {
   const configurePosition = 0.48;
   const testPosition = 20;
   const designPosition = 40;
-  const routeX =
-    path === '/design'
-      ? -designPosition
-      : path === '/test'
-      ? -testPosition
-      : configurePosition;
+  const routeX = getRouteX(path);
   const slide = useSpring({
     config: config.stiff,
     x: routeX,
