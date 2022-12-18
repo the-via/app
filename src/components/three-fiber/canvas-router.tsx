@@ -27,6 +27,8 @@ import {TestContext} from '../panes/test';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {Object3D} from 'three';
+import {getSelectedVersion} from 'src/store/designSlice';
+import {DefinitionVersionMap} from '@the-via/reader';
 
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
@@ -88,7 +90,15 @@ export const CanvasRouter = () => {
   const dispatch = useAppDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const hideDesignScene = '/design' === path && !localDefinitions.length;
+  const definitionVersion = useAppSelector(getSelectedVersion);
+  const versionDefinitions: DefinitionVersionMap[] = useMemo(
+    () =>
+      localDefinitions.filter(
+        (definitionMap) => definitionMap[definitionVersion],
+      ),
+    [localDefinitions, definitionVersion],
+  );
+  const hideDesignScene = '/design' === path && !versionDefinitions.length;
   const hideConfigureScene =
     '/' === path &&
     (!selectedDefinition || (loadProgress + progress / 100) / 2 !== 1);
