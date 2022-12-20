@@ -176,8 +176,10 @@ export const advancedKeycodeToString = (
       humanReadable += modValueToString(remainder) + ')';
       break;
     case 'QK_LAYER_MOD':
-      layer = remainder >> 4;
-      modValue = remainder & 0xf;
+      let mask = basicKeyToByte.QK_LAYER_MOD_MASK;
+      let shift = Math.log2(mask+1);
+      layer = remainder >> shift;
+      modValue = remainder & mask;
       humanReadable += layer + ',' + modValueToString(modValue) + ')';
       break;
     case 'QK_MOD_TAP':
@@ -245,12 +247,14 @@ const parseTopLevelMacro = (
       return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | (mods & 0xff);
     case 'LM': //#define LM(layer, mod) (QK_LAYER_MOD | (((layer)&0xF) << 4) | ((mod)&0xF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
+      let mask = basicKeyToByte.QK_LAYER_MOD_MASK;
+      let shift = Math.log2(mask+1);
       layer = Number.parseInt(param1);
       mods = parseMods(param2);
       if (layer < 0 || mods === 0) {
         return 0;
       }
-      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << 4) | (mods & 0xff);
+      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << shift) | (mods & mask);
     case 'LT': //#define LT(layer, kc) (QK_LAYER_TAP | (((layer)&0xF) << 8) | ((kc)&0xFF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
