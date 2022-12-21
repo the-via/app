@@ -1,5 +1,5 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useContext, useEffect, useMemo, useRef} from 'react';
+import {useCallback, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -30,6 +30,7 @@ import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap} from '@the-via/reader';
 
+useGLTF.preload('/fonts/blenderspacecap.glb');
 useGLTF.preload('/fonts/keycap.glb');
 useGLTF.preload('/fonts/rotary_encoder.glb');
 
