@@ -59,25 +59,31 @@ const SubmenuRow = styled(Row)`
 `;
 
 const Keycode = styled(Button)<{disabled: boolean}>`
-  border-radius: 2px;
   width: 50px;
   height: 50px;
   line-height: 18px;
   font-size: 14px;
-  box-shadow: none;
+  box-shadow: #8c8c8c 0 1px 0 0;
   background: var(--color_dark-grey);
   color: var(--color_light_grey);
   margin: 0;
+  &:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: var(--color_accent) 0 2px 0 0;
+  }
   ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
 `;
 
+const KeycodeContent = styled.div`
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
+
 const CustomKeycode = styled(Button)`
-  border-radius: 2px;
   width: 50px;
   height: 50px;
   line-height: 18px;
   font-size: 14px;
-  box-shadow: none;
   background: var(--color_accent);
   border-color: var(--color_light-grey);
   color: var(--color_light_grey);
@@ -288,7 +294,7 @@ export const KeycodePane: FC = () => {
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
       >
-        <div>{name}</div>
+        <KeycodeContent>{name}</KeycodeContent>
       </Keycode>
     );
   };

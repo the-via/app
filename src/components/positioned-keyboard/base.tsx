@@ -43,6 +43,8 @@ export const getLabel = (
   byteToKey: Record<number, string>,
 ) => {
   let label: string = '';
+  // Full name
+  let tooltipLabel: string = '';
   if (
     isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
     selectedDefinition?.customKeycodes
@@ -51,14 +53,21 @@ export const getLabel = (
     label = getShortNameForKeycode(
       selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
     );
+    tooltipLabel = getShortNameForKeycode(
+      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      700,
+    );
   } else if (keycodeByte) {
     label =
       getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
       '';
+    tooltipLabel =
+      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
   }
   let macroExpression: string | undefined;
   if (isMacro(label)) {
     macroExpression = macros.expressions[label.substring(1) as any];
+    tooltipLabel = macroExpression || '';
   }
 
   if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {
@@ -84,6 +93,7 @@ export const getLabel = (
     return {
       label,
       centerLabel: label,
+      tooltipLabel,
       macroExpression,
       key: (label || '') + (macroExpression || ''),
     };

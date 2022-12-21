@@ -12,7 +12,7 @@ import {
 } from '../positioned-keyboard';
 import {TestKeyState} from '../test-keyboard';
 import {CSSVarObject, KeycapMetric} from './keyboard';
-import {DisplayMode, Keycap} from './keycap';
+import {DisplayMode, getGeometry, Keycap} from './keycap';
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -25,7 +25,7 @@ export const KeyGroup: React.VFC<{
   selectedKey?: number;
 }> = (props) => {
   const dispatch = useAppDispatch();
-  const {Keycap_1U_GMK_R1} = useGLTF('/fonts/keycap.glb').nodes;
+  const keycapNodes = useGLTF('/fonts/blenderspacecap.glb').nodes;
   const {Cylinder} = useGLTF('/fonts/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
@@ -47,8 +47,10 @@ export const KeyGroup: React.VFC<{
           KeycapMetric.keyXSpacing / KeycapMetric.keyWidth;
         const normalizedKeyYSpacing =
           KeycapMetric.keyYSpacing / KeycapMetric.keyHeight;
-        const normalizedWidth = k.w + (k.w - 1) * normalizedKeyXSpacing;
-        const normalizedHeight = k.h + (k.h - 1) * normalizedKeyYSpacing;
+        const normalizedWidth =
+          (1 + normalizedKeyXSpacing) * k.w - normalizedKeyXSpacing;
+        const normalizedHeight =
+          k.h * (1 + normalizedKeyYSpacing) - normalizedKeyYSpacing;
         console.log(x / CSSVarObject.keyXSpacing);
         return {
           position: [
@@ -90,17 +92,20 @@ export const KeyGroup: React.VFC<{
           keysKeys.coords[i];
         const key = keysKeys.indices[i];
         const isEncoder = k['ei'] !== undefined;
+
         return (
           <Keycap
             mode={props.mode}
             key={key}
             position={position}
             rotation={rotation}
-            scale={scale}
+            scale={[2.25, 2.75, 6.25].includes(k.w) ? [1, 1, 1] : scale}
+            textureWidth={k.w}
             color={color}
             shouldRotate={isEncoder}
             keycapGeometry={
-              (isEncoder ? Cylinder : (Keycap_1U_GMK_R1 as any)).geometry
+              (isEncoder ? Cylinder : (keycapNodes[getGeometry(k)] as any))
+                .geometry
             }
             keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
             disabled={!props.selectable}

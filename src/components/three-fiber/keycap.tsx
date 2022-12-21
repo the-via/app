@@ -1,9 +1,8 @@
-import {PropertiesPlugin} from '@microsoft/applicationinsights-web';
 import {animated, useSpring} from '@react-spring/three';
 import {Html} from '@react-three/drei';
 import {ThreeEvent} from '@react-three/fiber';
-import {KeyColorType} from '@the-via/reader';
-import React, {Suspense, useEffect, useMemo, useRef, useState} from 'react';
+import {KeyColorType, VIAKey} from '@the-via/reader';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import * as THREE from 'three';
 import {getColors} from '../positioned-keyboard';
@@ -20,7 +19,7 @@ export enum KeycapState {
   Unpressed = 2,
 }
 
-const getTooltipData = ({
+const getMacroData = ({
   macroExpression,
   label,
 }: {
@@ -32,6 +31,22 @@ const getTooltipData = ({
     : macroExpression && macroExpression.length
     ? macroExpression
     : null;
+export const getGeometry = (k: VIAKey) => {
+  switch (k.w) {
+    case 2.25: {
+      return 'Convex225U';
+    }
+    case 6.25: {
+      return 'Convex625U';
+    }
+    case 2.75: {
+      return 'Convex275U';
+    }
+    default: {
+      return 'Convex100U';
+    }
+  }
+};
 
 export const Keycap = React.memo(
   (props: any & {mode: DisplayMode; idx: number}) => {
@@ -46,10 +61,11 @@ export const Keycap = React.memo(
       rotation,
       keyState,
       shouldRotate,
+      textureWidth,
       idx,
     } = props;
     const ref = useRef<any>();
-    const tooltip = label && getTooltipData(label);
+    const macroData = label && getMacroData(label);
     const [overflowsTexture, setOverflowsTexture] = useState(false);
     // Hold state for hovered and clicked events
     const [hovered, hover] = useState(false);
@@ -69,7 +85,7 @@ export const Keycap = React.memo(
         canvasSize * widthMultiplier,
         canvasSize * heightMultiplier,
       ];
-      canvas.width = canvasWidth;
+      canvas.width = canvasWidth * 1;
       canvas.height = canvasHeight;
       const [xOffset, yOffset] = [2.5 * dpi, 15 * dpi];
 
@@ -102,7 +118,11 @@ export const Keycap = React.memo(
             0.02 * canvasSize + xOffset,
             0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
           );
-          return context.measureText(label.centerLabel).width > canvasWidth / 4;
+          // return if label would have overflowed so that we know to show tooltip
+          return (
+            context.measureText(label.centerLabel).width >
+            (textureWidth * canvasSize) / 4.5
+          );
         } else if (typeof label.label === 'string') {
           context.font = `bold ${80 * dpi}px ${fontFamily}`;
           context.fillText(
@@ -189,6 +209,7 @@ export const Keycap = React.memo(
     const AniMeshMaterial = animated.meshPhongMaterial as any;
 
     if (overflowsTexture) {
+      console.log(label, label.tooltipLabel);
       console.log('overvoerijvoaei');
     }
     return (
@@ -212,7 +233,7 @@ export const Keycap = React.memo(
             />
           </AniMeshMaterial>
         </animated.mesh>
-        {(tooltip || overflowsTexture) && (
+        {(macroData || overflowsTexture) && (
           <React.Suspense fallback={null}>
             <animated.group
               position={props.position}
@@ -225,7 +246,7 @@ export const Keycap = React.memo(
                   pointerEvents: 'none',
                 }}
               >
-                <Tooltip>{tooltip || label.label}</Tooltip>
+                <Tooltip>{macroData || label.tooltipLabel}</Tooltip>
               </Html>
             </animated.group>
           </React.Suspense>
@@ -237,7 +258,7 @@ export const Keycap = React.memo(
 );
 
 const Tooltip: React.FC<any> = (props) => {
-  const accent = getColors({color: KeyColorType.Accent});
+  const accent = useMemo(() => getColors({color: KeyColorType.Accent}), []);
   return (
     <div
       style={{
