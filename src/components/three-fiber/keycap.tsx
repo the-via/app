@@ -251,6 +251,7 @@ export const Keycap = React.memo(
         >
           <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
             <canvasTexture
+              flipY={false}
               encoding={THREE.LinearEncoding}
               ref={textureRef as any}
               attach="map"
