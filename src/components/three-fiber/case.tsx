@@ -361,11 +361,11 @@ export const Case = (props: {width: number; height: number}) => {
   return (
     <group
       position={[
-        (19.05 * (props.width + depthOffset)) / 2,
+        (KeycapMetric.keyXPos * (props.width + depthOffset)) / 2,
         heightOffset / 2,
-        (-1 - 0.1) * 19.05,
+        (-1 - 0.1) * KeycapMetric.keyXPos,
       ]}
-      scale={19.05}
+      scale={KeycapMetric.keyXPos}
       rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
     >
       <Heart

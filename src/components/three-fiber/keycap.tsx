@@ -33,17 +33,103 @@ const getMacroData = ({
     : null;
 export const getGeometry = (k: VIAKey) => {
   switch (k.w) {
-    case 2.25: {
-      return 'Convex225U';
-    }
-    case 6.25: {
-      return 'Convex625U';
-    }
-    case 2.75: {
-      return 'Convex275U';
+    case 1:
+    case 1.25:
+    case 1.5:
+    case 1.75:
+    case 2:
+    case 2.25:
+    case 2.75:
+    case 6.25:
+    case 7: {
+      return `Vex${k.w * 100}U`;
     }
     default: {
-      return 'Convex100U';
+      return 'Vex100U';
+    }
+  }
+};
+
+export const getScale = (k: VIAKey, scale: number[]) => {
+  switch (k.w) {
+    case 1.25:
+    case 1.5:
+    case 1.75:
+    case 2:
+    case 2.25:
+    case 2.75:
+    case 6.25:
+    case 7:
+    case 2.75: {
+      return [1, 1, 1];
+    }
+    case 1: {
+      return k.h === 2 ? scale : [1, 1, 1];
+    }
+    default: {
+      return scale;
+    }
+  }
+};
+
+const paintKeycap = (
+  canvas: HTMLCanvasElement,
+  [widthMultiplier, heightMultiplier]: [number, number],
+  textureWidth: number,
+  bgColor: string,
+  legendColor: string,
+  label: any,
+) => {
+  const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold';
+  const dpi = 1;
+  const canvasSize = 512 * dpi;
+  const [canvasWidth, canvasHeight] = [
+    canvasSize * widthMultiplier,
+    canvasSize * heightMultiplier,
+  ];
+  canvas.width = canvasWidth * 1;
+  canvas.height = canvasHeight;
+  //  const [xOffset, yOffset] = [2.5 * dpi, 15 * dpi];
+  const [xOffset, yOffset] = [30 * dpi, -15 * dpi];
+
+  const context = canvas.getContext('2d');
+  if (context) {
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = legendColor;
+    if (label === undefined) {
+    } else if (label.topLabel && label.bottomLabel) {
+      context.font = `${54 * dpi}px ${fontFamily}`;
+      context.fillText(
+        label.topLabel,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset,
+      );
+      context.fillText(
+        label.bottomLabel,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset + 75 * dpi,
+      );
+    } else if (label.centerLabel) {
+      context.font = `bold ${37.5 * dpi}px ${fontFamily}`;
+      context.fillText(
+        label.centerLabel,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
+      );
+      // return if label would have overflowed so that we know to show tooltip
+      return (
+        context.measureText(label.centerLabel).width >
+        (textureWidth * canvasSize) / 4.5
+      );
+    } else if (typeof label.label === 'string') {
+      context.font = `bold ${80 * dpi}px ${fontFamily}`;
+      context.fillText(
+        label.label,
+        0.02 * canvasSize + xOffset,
+        0.3 * canvasHeight + canvasHeight / 2 + yOffset,
+      );
     }
   }
 };
@@ -71,74 +157,12 @@ export const Keycap = React.memo(
     const [hovered, hover] = useState(false);
     const textureRef = useRef<THREE.CanvasTexture>();
     const canvasRef = useRef(document.createElement('canvas'));
-    const paintKeycap = (
-      canvas: HTMLCanvasElement,
-      [widthMultiplier, heightMultiplier]: [number, number],
-      bgColor: string,
-      legendColor: string,
-      label: any,
-    ) => {
-      const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold';
-      const dpi = 1;
-      const canvasSize = 512 * dpi;
-      const [canvasWidth, canvasHeight] = [
-        canvasSize * widthMultiplier,
-        canvasSize * heightMultiplier,
-      ];
-      canvas.width = canvasWidth * 1;
-      canvas.height = canvasHeight;
-      const [xOffset, yOffset] = [2.5 * dpi, 15 * dpi];
-
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.fillStyle = bgColor;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        context.fillStyle = legendColor;
-        if (label === undefined) {
-        } else if (label.topLabel && label.bottomLabel) {
-          context.font = `${54 * dpi}px ${fontFamily}`;
-          context.fillText(
-            label.topLabel,
-            0.02 * canvasSize + xOffset,
-            0.3 * canvas.height + 242 * dpi * heightMultiplier + yOffset,
-          );
-          context.fillText(
-            label.bottomLabel,
-            0.02 * canvasSize + xOffset,
-            0.3 * canvas.height +
-              242 * dpi * heightMultiplier +
-              yOffset +
-              75 * dpi,
-          );
-        } else if (label.centerLabel) {
-          context.font = `bold ${37.5 * dpi}px ${fontFamily}`;
-          context.fillText(
-            label.centerLabel,
-            0.02 * canvasSize + xOffset,
-            0.3 * canvas.height + 270 * dpi * heightMultiplier + yOffset,
-          );
-          // return if label would have overflowed so that we know to show tooltip
-          return (
-            context.measureText(label.centerLabel).width >
-            (textureWidth * canvasSize) / 4.5
-          );
-        } else if (typeof label.label === 'string') {
-          context.font = `bold ${80 * dpi}px ${fontFamily}`;
-          context.fillText(
-            label.label,
-            0.02 * canvasSize + xOffset,
-            0.3 * canvasHeight + canvasHeight / 2 + yOffset,
-          );
-        }
-      }
-    };
-
     const redraw = React.useCallback(() => {
       if (canvasRef.current) {
         const doesOverflow = paintKeycap(
           canvasRef.current,
           scale,
+          textureWidth,
           color.c,
           color.t,
           label,
@@ -148,6 +172,7 @@ export const Keycap = React.memo(
       }
     }, [
       canvasRef.current,
+      textureWidth,
       label && label.key,
       scale[0],
       scale[1],

@@ -12,7 +12,7 @@ import {
 } from '../positioned-keyboard';
 import {TestKeyState} from '../test-keyboard';
 import {CSSVarObject, KeycapMetric} from './keyboard';
-import {DisplayMode, getGeometry, Keycap} from './keycap';
+import {DisplayMode, getGeometry, getScale, Keycap} from './keycap';
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -85,6 +85,7 @@ export const KeyGroup: React.VFC<{
         );
   }, [keys, props.matrixKeycodes, macros, props.definition]);
   const {width, height} = calculateKeyboardFrameDimensions(props.keys);
+  console.log('hii', keycapNodes);
   const elems = useMemo(
     () =>
       props.keys.map((k, i) => {
@@ -99,7 +100,7 @@ export const KeyGroup: React.VFC<{
             key={key}
             position={position}
             rotation={rotation}
-            scale={[2.25, 2.75, 6.25].includes(k.w) ? [1, 1, 1] : scale}
+            scale={getScale(k, scale)}
             textureWidth={k.w}
             color={color}
             shouldRotate={isEncoder}
@@ -126,7 +127,14 @@ export const KeyGroup: React.VFC<{
     ],
   );
   return (
-    <group scale={1} position={[(-width * 19.05) / 2, (19.05 * height) / 2, 0]}>
+    <group
+      scale={1}
+      position={[
+        (-width * KeycapMetric.keyXPos) / 2,
+        (KeycapMetric.keyYPos * height) / 2,
+        0,
+      ]}
+    >
       {elems}
     </group>
   );
