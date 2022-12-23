@@ -38,12 +38,12 @@ export const CSSVarObject = {
 };
 
 export const KeycapMetric = {
-  keyWidth: 18,
+  keyWidth: 18.1,
   keyXSpacing: 1.05,
-  keyHeight: 18,
+  keyHeight: 18.1,
   keyYSpacing: 1.05,
-  keyXPos: 19.05,
-  keyYPos: 19.05,
+  keyXPos: 19.15,
+  keyYPos: 19.15,
 };
 
 enum DisplayMode {

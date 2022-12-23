@@ -63,13 +63,15 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   height: 50px;
   line-height: 18px;
   font-size: 14px;
-  box-shadow: #8c8c8c 0 1px 0 0;
+
+  border: 1px solid var(--color_medium-grey);
   background: var(--color_dark-grey);
   color: var(--color_light_grey);
   margin: 0;
+  box-shadow: none;
   &:hover {
+    border-bottom: 2px solid var(--color_accent);
     transform: translate3d(0, -2px, 0);
-    box-shadow: var(--color_accent) 0 2px 0 0;
   }
   ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
 `;
