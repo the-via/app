@@ -124,10 +124,10 @@ const paintKeycap = (
         (textureWidth * canvasSize) / 4.5
       );
     } else if (typeof label.label === 'string') {
-      context.font = `bold ${80 * dpi}px ${fontFamily}`;
+      context.font = `bold ${75 * dpi}px ${fontFamily}`;
       context.fillText(
         label.label,
-        0.02 * canvasSize + xOffset,
+        0.03 * canvasSize + xOffset,
         0.3 * canvasHeight + canvasHeight / 2 + yOffset,
       );
     }
