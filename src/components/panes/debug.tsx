@@ -9,12 +9,6 @@ import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {
-  BlankPositionedKeyboard,
-  calculateKeyboardFrameDimensions,
-  calculatePointPosition,
-  getNextKey,
-} from '../positioned-keyboard';
 import {getKLEFiles, authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
@@ -42,6 +36,7 @@ import {
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
 import {DebugKeyboard} from '../three-fiber/keyboard';
+import {getNextKey} from 'src/utils/keyboard-rendering';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];

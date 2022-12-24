@@ -5,14 +5,17 @@ import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey, updateSelectedKey} from 'src/store/keymapSlice';
+import {TestKeyState} from '../test-keyboard';
+import {DisplayMode, getGeometry, getScale, Keycap} from './keycap';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
+  CSSVarObject,
+  getKeyboardRowPartitions,
+  getRowProfiles,
   getTextureColors,
-} from '../positioned-keyboard';
-import {TestKeyState} from '../test-keyboard';
-import {CSSVarObject, KeycapMetric} from './keyboard';
-import {DisplayMode, getGeometry, getScale, Keycap} from './keycap';
+  KeycapMetric,
+} from 'src/utils/keyboard-rendering';
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -33,6 +36,11 @@ export const KeyGroup: React.VFC<{
   const {keys, selectedKey: externalSelectedKey} = props;
   const selectedKeyIndex =
     externalSelectedKey === undefined ? selectedKey : externalSelectedKey;
+  console.log(
+    'bebebebe',
+    props.definition.name,
+    getRowProfiles(getKeyboardRowPartitions(keys).partitionedKeys),
+  );
   const keysKeys = useMemo(() => {
     return {
       indices: keys.map(
@@ -51,7 +59,6 @@ export const KeyGroup: React.VFC<{
           (1 + normalizedKeyXSpacing) * k.w - normalizedKeyXSpacing;
         const normalizedHeight =
           k.h * (1 + normalizedKeyYSpacing) - normalizedKeyYSpacing;
-        console.log(x / CSSVarObject.keyXSpacing);
         return {
           position: [
             (KeycapMetric.keyXPos * x) / CSSVarObject.keyXPos,

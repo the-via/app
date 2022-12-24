@@ -8,7 +8,6 @@ import {
   getLabel,
   OuterSecondaryKey,
   BlankKeyboardFrame,
-  calculateKeyboardFrameDimensions,
 } from './positioned-keyboard';
 import type {VIAKey} from '@the-via/reader';
 import type {Key} from 'src/types/types';
@@ -28,6 +27,7 @@ import {
 } from './positioned-keyboard/encoder-key';
 import {useAppSelector} from 'src/store/hooks';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
+import {calculateKeyboardFrameDimensions} from 'src/utils/keyboard-rendering';
 
 export enum TestKeyState {
   Initial,
