@@ -28,24 +28,6 @@ import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {TestContext} from '../panes/test';
 
-export const CSSVarObject = {
-  keyWidth: 52,
-  keyXSpacing: 2,
-  keyHeight: 54,
-  keyYSpacing: 2,
-  keyXPos: 52 + 2,
-  keyYPos: 54 + 2,
-};
-
-export const KeycapMetric = {
-  keyWidth: 18.1,
-  keyXSpacing: 1.05,
-  keyHeight: 18.1,
-  keyYSpacing: 1.05,
-  keyXPos: 19.15,
-  keyYPos: 19.15,
-};
-
 enum DisplayMode {
   Test = 1,
   Configure = 2,

@@ -1,7 +1,9 @@
 import {Segment, Segments} from '@react-three/drei';
 import {VIAKey} from '@the-via/reader';
-import {calculatePointPosition} from '../positioned-keyboard';
-import {KeycapMetric} from './keyboard';
+import {
+  calculatePointPosition,
+  KeycapMetric,
+} from 'src/utils/keyboard-rendering';
 
 const generateRowColArray = (keys: VIAKey[], rows: number, cols: number) => {
   const matrixKeys = keys.filter((key) => key['ei'] === undefined);

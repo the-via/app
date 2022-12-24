@@ -8,20 +8,21 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
-import * as THREE from 'three';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
+  CSSVarObject,
   getColors,
   getTextureColors,
-} from '../positioned-keyboard';
-import {CSSVarObject, KeycapMetric} from './keyboard';
+  KeycapMetric,
+} from 'src/utils/keyboard-rendering';
+import {Shape, Euler, Path} from 'three';
 
 function makePlateShape(
   {width, height}: {width: number; height: number},
   keys: {position: number[]; rotation: number[]; scale: number[]}[],
 ) {
-  const shape = new THREE.Shape();
+  const shape = new Shape();
 
   let sizeX = width;
   let sizeY = height;
@@ -78,7 +79,7 @@ function makePlateShape(
   const positionHeight = maxY - minY;
 
   const holes = keys.map(({position, scale, rotation}) => {
-    const path = new THREE.Path();
+    const path = new Path();
     const angle = rotation[2];
     const [keyWidth, keyHeight] = [0.9 * scale[0], 0.9 * scale[1]];
     const [x, y] = [
@@ -116,7 +117,7 @@ function makePlateShape(
 }
 
 function makeShape({width, height}: {width: number; height: number}) {
-  const shape = new THREE.Shape();
+  const shape = new Shape();
 
   let sizeX = width;
   let sizeY = height;
@@ -176,10 +177,6 @@ const SimplePlate: React.FC<{width: number; height: number}> = ({
   }
   const plateShape = makePlateShape(
     {width: width + depthOffset / 4, height: height + heightOffset / 4},
-    [],
-  );
-  const outsideColor = useMemo(
-    () => getColors({color: KeyColorType.Accent}).c,
     [],
   );
   const innerColor = '#212020';
@@ -242,7 +239,6 @@ const ComplexPlate = () => {
           KeycapMetric.keyYSpacing / KeycapMetric.keyHeight;
         const normalizedWidth = k.w + (k.w - 1) * normalizedKeyXSpacing;
         const normalizedHeight = k.h + (k.h - 1) * normalizedKeyYSpacing;
-        console.log(x / CSSVarObject.keyXSpacing);
         return {
           position: [
             (KeycapMetric.keyXPos * x) / CSSVarObject.keyXPos,
@@ -257,10 +253,6 @@ const ComplexPlate = () => {
     };
   }, [definition, keys]);
   const plateShape = makePlateShape({width, height}, keysKeys.coords);
-  const outsideColor = useMemo(
-    () => getColors({color: KeyColorType.Accent}).c,
-    [],
-  );
   const innerColor = '#212020';
 
   return (
@@ -295,7 +287,7 @@ const ComplexPlate = () => {
 
 const Heart = React.memo(
   (props: {caseWidth: number; caseHeight: number; caseThickness: number}) => {
-    const heartShape = new THREE.Shape();
+    const heartShape = new Shape();
 
     heartShape.moveTo(25, 25);
     heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
@@ -366,7 +358,7 @@ export const Case = (props: {width: number; height: number}) => {
         (-1 - 0.1) * KeycapMetric.keyXPos,
       ]}
       scale={KeycapMetric.keyXPos}
-      rotation={new THREE.Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
+      rotation={new Euler(-(Math.PI * 7.5) / 180, -Math.PI / 2, 0)}
     >
       <Heart
         caseWidth={props.width}

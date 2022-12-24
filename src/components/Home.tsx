@@ -8,7 +8,6 @@ import {
   isVIADefinitionV2,
   LightingValue,
 } from '@the-via/reader';
-import {getNextKey} from './positioned-keyboard';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
@@ -33,6 +32,7 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import {getNextKey} from 'src/utils/keyboard-rendering';
 
 const ErrorHome = styled.div`
   background: var(--color_jet);

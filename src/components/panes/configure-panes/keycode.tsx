@@ -22,7 +22,6 @@ import {
   VIADefinitionV3,
 } from '@the-via/reader';
 import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
-import {getNextKey} from '../../positioned-keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getBasicKeyToByte,
@@ -42,6 +41,7 @@ import {
   enableGlobalHotKeys,
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
+import {getNextKey} from 'src/utils/keyboard-rendering';
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 54px);
