@@ -29,6 +29,7 @@ import {shallowEqual} from 'react-redux';
 import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap} from '@the-via/reader';
+import {UpdateUVMaps} from './update-uv-maps';
 
 useGLTF.preload('/fonts/blenderspacecap.glb');
 useGLTF.preload('/fonts/keycap.glb');
@@ -115,41 +116,44 @@ export const CanvasRouter = () => {
   );
 
   return (
-    <div
-      style={{
-        height: 500,
-        width: '100%',
-        position: hideCanvasScene ? 'absolute' : 'relative',
-        visibility: hideCanvasScene ? 'hidden' : 'visible',
-      }}
-      ref={containerRef}
-    >
-      <Canvas flat={true} shadows>
-        <Lights />
-        <mesh
-          receiveShadow
-          position={[0, -5.75, 0]}
-          rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
-          onClick={terrainOnClick}
-        >
-          <planeGeometry args={[100, 100]} />
-          <meshStandardMaterial color="#aa9a9a" />
-        </mesh>
-        <Camera />
-        <Float
-          speed={1} // Animation speed, defaults to 1
-          rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
-          floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
-          floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
-        >
-          <Keyboards
-            configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-            dimensions={dimensions}
-            loadProgress={loadProgress}
-          />
-        </Float>
-      </Canvas>
-    </div>
+    <>
+      <UpdateUVMaps />
+      <div
+        style={{
+          height: 500,
+          width: '100%',
+          position: hideCanvasScene ? 'absolute' : 'relative',
+          visibility: hideCanvasScene ? 'hidden' : 'visible',
+        }}
+        ref={containerRef}
+      >
+        <Canvas flat={true} shadows>
+          <Lights />
+          <mesh
+            receiveShadow
+            position={[0, -5.75, 0]}
+            rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
+            onClick={terrainOnClick}
+          >
+            <planeGeometry args={[100, 100]} />
+            <meshStandardMaterial color="#aa9a9a" />
+          </mesh>
+          <Camera />
+          <Float
+            speed={1} // Animation speed, defaults to 1
+            rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
+            floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
+            floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
+          >
+            <Keyboards
+              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+              dimensions={dimensions}
+              loadProgress={loadProgress}
+            />
+          </Float>
+        </Canvas>
+      </div>
+    </>
   );
 };
 

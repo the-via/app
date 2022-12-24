@@ -25,7 +25,7 @@ export const KeyGroup: React.VFC<{
   selectedKey?: number;
 }> = (props) => {
   const dispatch = useAppDispatch();
-  const keycapNodes = useGLTF('/fonts/blenderspacecap.glb').nodes;
+  const keycapNodes = useGLTF('/fonts/blenderspacecap.glb', true).nodes;
   const {Cylinder} = useGLTF('/fonts/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
