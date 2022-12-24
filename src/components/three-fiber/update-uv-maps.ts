@@ -16,16 +16,17 @@ export const UpdateUVMaps = () => {
       const geometry100u = u100.geometry as BufferGeometry;
       const {min, max} = geometry100u!.boundingBox as Box3;
       const maxRange = max.y - min.y;
-      console.log(maxRange);
       const uv100u = u100.geometry.attributes.uv as BufferAttribute;
       const pos100u = u100.geometry.attributes.position as BufferAttribute;
       const newUv = new Float32Array(uv100u.count * 2);
       for (let i = 0; i < u100.geometry.attributes.uv.count; i++) {
+        // update uvs
         newUv[2 * i] = (size1u * (pos100u.array[i * 3] - min.x)) / maxRange;
         newUv[2 * i + 1] =
           (size1u * (pos100u.array[i * 3 + 1] - min.y)) / maxRange;
       }
       uv100u.copyArray(newUv);
+      geometry100u.center();
       uv100u.needsUpdate = true;
     });
   }, [keycapNodes]);

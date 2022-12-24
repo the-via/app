@@ -147,6 +147,7 @@ export const Keycap = React.memo(
       rotation,
       keyState,
       shouldRotate,
+      keycapGeometry,
       textureWidth,
       idx,
     } = props;
@@ -187,7 +188,8 @@ export const Keycap = React.memo(
       loop: selected ? {reverse: true} : false,
       to: {x: 100, y: '#b49999'},
     });
-    const [zDown, zUp] = [0, 8];
+    let maxZ = keycapGeometry.boundingBox.max.z;
+    const [zDown, zUp] = [maxZ, maxZ + 8];
     const pressedState =
       DisplayMode.Test === mode
         ? TestKeyState.KeyDown === keyState
@@ -233,10 +235,6 @@ export const Keycap = React.memo(
 
     const AniMeshMaterial = animated.meshPhongMaterial as any;
 
-    if (overflowsTexture) {
-      console.log(label, label.tooltipLabel);
-      console.log('overvoerijvoaei');
-    }
     return (
       <>
         <animated.mesh
@@ -247,11 +245,10 @@ export const Keycap = React.memo(
           onClick={meshOnClick}
           onPointerOver={meshOnPointerOver}
           onPointerOut={meshOnPointerOut}
-          geometry={props.keycapGeometry}
+          geometry={keycapGeometry}
         >
           <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
             <canvasTexture
-              encoding={THREE.LinearEncoding}
               ref={textureRef as any}
               attach="map"
               image={canvasRef.current}
