@@ -126,7 +126,7 @@ const getTraversalOrder = (arr: VIAKey[]): VIAKey[] => {
     return [...chain.sort(sortByX), ...getTraversalOrder(rest)];
   }
 };
-export const widthProfiles = {
+export const widthProfiles: {[a: number]: number[]} = {
   1: [1, 2, 3, 4],
   1.25: [4],
   1.5: [2, 4],
@@ -138,12 +138,32 @@ export const widthProfiles = {
   6.25: [4],
   7: [4],
 };
+
+// Return requested row if key exists, else assume spacebar
+const getRowForKey = (k: VIAKey, suggestedRow: number) => {
+  // vertical keys
+  if (k.h !== 1) {
+    return 0;
+  }
+  return widthProfiles[k.w]
+    ? widthProfiles[k.w].includes(suggestedRow)
+      ? suggestedRow
+      : widthProfiles[k.w][0]
+    : 4;
+};
+
 export const getRowProfiles = (partitionedKeys: VIAKey[][]) => {
   const allUniformR1 = !partitionedKeys.some((kArr) =>
     kArr.some((k) => k.w !== 1 || k.h !== 1),
   );
   console.log(partitionedKeys, allUniformR1);
   switch (allUniformR1 || partitionedKeys.length) {
+    case 8: {
+      return [1, 1, 1, 1, 2, 3, 4, 4];
+    }
+    case 7: {
+      return [1, 1, 1, 2, 3, 4, 4];
+    }
     case 6: {
       return [1, 1, 2, 3, 4, 4];
     }
@@ -160,6 +180,10 @@ export const getRowProfiles = (partitionedKeys: VIAKey[][]) => {
       return Array(partitionedKeys.length).fill(1);
     }
   }
+};
+
+export const getKeyId = (k: VIAKey) => {
+  return `${k.w}-${k.h}-${k.col}-${k.row}-${k.w2}-${k.h2}`;
 };
 
 export const getKeyboardRowPartitions = (
@@ -179,8 +203,16 @@ export const getKeyboardRowPartitions = (
     },
     {partitionedKeys: [] as VIAKey[][], prevX: Infinity},
   );
+  const rowProfiles = getRowProfiles(partitionedKeys);
   return {
-    rowMap: {},
+    rowMap: partitionedKeys.reduce((p, n, i) => {
+      return n.reduce((pp, k) => {
+        return {
+          ...pp,
+          [getKeyId(k)]: getRowForKey(k, rowProfiles[i]),
+        };
+      }, p);
+    }, {}),
     partitionedKeys,
   };
 };

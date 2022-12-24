@@ -13,6 +13,7 @@ import {
   calculatePointPosition,
   CSSVarObject,
   getColors,
+  getKeyId,
   getTextureColors,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
@@ -226,7 +227,7 @@ const ComplexPlate = () => {
   const keysKeys = useMemo(() => {
     return {
       indices: keys.map(
-        (k, i) => `${definition.vendorProductId}-${i}-${k.w}-${k.h}`,
+        (k, i) => `${definition.vendorProductId}-${i}-${getKeyId(k)}`,
       ),
       coords: keys.map((k, i) => {
         // x & y are pixel positioned

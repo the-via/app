@@ -39,7 +39,7 @@ export const KeyGroup: React.VFC<{
   console.log(
     'bebebebe',
     props.definition.name,
-    getRowProfiles(getKeyboardRowPartitions(keys).partitionedKeys),
+    getKeyboardRowPartitions(keys),
   );
   const keysKeys = useMemo(() => {
     return {
