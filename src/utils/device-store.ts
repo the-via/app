@@ -22,6 +22,7 @@ const defaultStoreData = {
     hash: '',
     version: '2.0.0',
     theme: getTheme(),
+    accentColor: '#ad7070',
     supportedVendorProductIdMap: {},
   },
   definitions: {},
