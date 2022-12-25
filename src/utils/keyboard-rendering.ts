@@ -158,7 +158,6 @@ export const getRowProfiles = (partitionedKeys: VIAKey[][]) => {
   const allUniformR1 = !partitionedKeys.some((kArr) =>
     kArr.some((k) => k.w !== 1 || k.h !== 1),
   );
-  console.log(partitionedKeys, allUniformR1);
   switch (allUniformR1 || partitionedKeys.length) {
     case 8: {
       return [1, 1, 1, 1, 2, 3, 4, 4];

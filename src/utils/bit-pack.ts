@@ -37,5 +37,3 @@ export const minBitSize = (num: number) =>
   Array(maxBitSize)
     .fill(0)
     .findIndex((_, idx) => 2 << idx >= num);
-
-console.log(412350, bytesIntoNum(numIntoBytes(412350)));

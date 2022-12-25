@@ -224,7 +224,6 @@ export const getCustomCommands = createSelector(
 );
 
 const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
-  console.log('compiling menu');
   return depth === 0
     ? val
     : {

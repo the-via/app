@@ -174,7 +174,6 @@ function Loader(props: {
     }, 3000);
     return () => clearTimeout(timeout);
   }, [selectedDefinition]);
-  console.log(loadProgress, progress);
   return (
     <>
       {<ChippyLoader progress={chippyProgress || null} />}
