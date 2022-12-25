@@ -31,9 +31,8 @@ import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
 
-useGLTF.preload('/fonts/blenderspacecap.glb');
-useGLTF.preload('/fonts/keycap.glb');
-useGLTF.preload('/fonts/rotary_encoder.glb');
+useGLTF.preload('/models/keyboard_components.glb');
+useGLTF.preload('/models/rotary_encoder.glb');
 
 useTexture.preload('/images/chippy.png');
 

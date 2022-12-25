@@ -12,6 +12,12 @@
       }
     },
     {
+      "route": "/models/*",
+      "headers": {
+        "cache-control": "public, max-age=18144000"
+      }
+    },
+    {
       "route": "/fonts/*",
       "headers": {
         "cache-control": "public, max-age=18144000"

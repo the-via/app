@@ -28,11 +28,13 @@ export const KeycapMetric = {
 
 export function calculatePointPosition({
   x = 0,
+  x2 = 0,
   y = 0,
   r = 0,
   rx = 0,
   ry = 0,
   w = 0,
+  w2 = 0,
   h = 0,
 }: VIAKey) {
   // We express the radians in counter-clockwise form, translate the point by the origin, rotate it, then reverse the translation
@@ -42,9 +44,9 @@ export function calculatePointPosition({
   const originX = CSSVarObject.keyXPos * rx;
   const originY = CSSVarObject.keyYPos * ry;
   const xPos =
-    CSSVarObject.keyXPos * x +
-    (w * CSSVarObject.keyWidth) / 2 +
-    ((w - 1) * CSSVarObject.keyXSpacing) / 2;
+    CSSVarObject.keyXPos * (x + x2) +
+    (Math.max(w2, w) * CSSVarObject.keyWidth) / 2 +
+    ((Math.max(w2, w) - 1) * CSSVarObject.keyXSpacing) / 2;
   const yPos =
     CSSVarObject.keyYPos * y +
     (h * CSSVarObject.keyHeight) / 2 +
@@ -143,7 +145,7 @@ export const widthProfiles: {[a: number]: number[]} = {
 const getRowForKey = (k: VIAKey, suggestedRow: number) => {
   // vertical keys
   if (k.h !== 1) {
-    return 0;
+    return suggestedRow;
   }
   return widthProfiles[k.w]
     ? widthProfiles[k.w].includes(suggestedRow)
@@ -260,4 +262,102 @@ export const calculateKeyboardFrameDimensions = (keys: Partial<Result>[]) => {
     width,
     height,
   };
+};
+
+export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
+  // Special keys
+  if (k.h === 2 && k.w === 1) {
+    return `K-R${profile}V-200`;
+  } else if (k.w === 1.25 && k.w2 === 1.5) {
+    return `K-R${profile}-ISO`;
+  } else if (k.w === 1.5 && k.w2 === 2.25) {
+    return `K-R${profile}-BAE`;
+  }
+
+  if (!isLastRow) {
+    switch (k.w) {
+      case 1:
+      case 1.25:
+      case 1.5:
+      case 1.75:
+      case 2:
+      case 2.25:
+      case 2.75: {
+        return `K-R${profile}-${k.w * 100}`;
+      }
+      case 3:
+      case 6:
+      case 6.25:
+      case 7: {
+        return `K-R4C-${k.w * 100}`;
+      }
+      default: {
+        // Spacebars
+        return 'K-R4C-100';
+      }
+    }
+  }
+  switch (k.w) {
+    case 1:
+    case 1.25:
+    case 1.5:
+    case 1.75: {
+      return `K-R${profile}-${k.w * 100}`;
+    }
+    case 2:
+    case 2.25:
+    case 2.75:
+    case 3:
+    case 6:
+    case 6.25:
+    case 7: {
+      return `K-R4C-${k.w * 100}`;
+    }
+    default: {
+      // Spacebars
+      return 'K-R4C-100';
+    }
+  }
+};
+export const getGeometry = (k: VIAKey) => {
+  switch (k.w) {
+    case 1:
+    case 1.25:
+    case 1.5:
+    case 1.75:
+    case 2:
+    case 2.25:
+    case 2.75:
+    case 6.25:
+    case 7: {
+      return `Vex${k.w * 100}U`;
+    }
+    default: {
+      return 'Vex100U';
+    }
+  }
+};
+
+export const getScale = (k: VIAKey, scale: number[]) => {
+  switch (k.w) {
+    case 1.25:
+    case 1.5:
+    case 1.75:
+    case 2:
+    case 2.25:
+    case 2.75:
+
+    case 3:
+    case 6:
+    case 6.25:
+    case 7: {
+      return [1, 1, 1];
+    }
+    case 1: {
+      return [1, 1, 1];
+    }
+    default: {
+      return scale;
+    }
+  }
 };

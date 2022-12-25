@@ -7,6 +7,7 @@ import {shallowEqual} from 'react-redux';
 import {getColors} from 'src/utils/keyboard-rendering';
 import * as THREE from 'three';
 import {TestKeyState} from '../test-keyboard';
+const DEBUG_ENABLE = false;
 
 export enum DisplayMode {
   Test = 1,
@@ -31,54 +32,16 @@ const getMacroData = ({
     : macroExpression && macroExpression.length
     ? macroExpression
     : null;
-export const getGeometry = (k: VIAKey) => {
-  switch (k.w) {
-    case 1:
-    case 1.25:
-    case 1.5:
-    case 1.75:
-    case 2:
-    case 2.25:
-    case 2.75:
-    case 6.25:
-    case 7: {
-      return `Vex${k.w * 100}U`;
-    }
-    default: {
-      return 'Vex100U';
-    }
-  }
-};
-
-export const getScale = (k: VIAKey, scale: number[]) => {
-  switch (k.w) {
-    case 1.25:
-    case 1.5:
-    case 1.75:
-    case 2:
-    case 2.25:
-    case 2.75:
-    case 6.25:
-    case 7:
-    case 2.75: {
-      return [1, 1, 1];
-    }
-    case 1: {
-      return k.h === 2 ? scale : [1, 1, 1];
-    }
-    default: {
-      return scale;
-    }
-  }
-};
 
 const paintKeycap = (
   canvas: HTMLCanvasElement,
   [widthMultiplier, heightMultiplier]: [number, number],
   textureWidth: number,
+  textureHeight: number,
   bgColor: string,
   legendColor: string,
   label: any,
+  textureOffsetX: number,
 ) => {
   const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold';
   const dpi = 1;
@@ -90,7 +53,10 @@ const paintKeycap = (
   canvas.width = canvasWidth * 1;
   canvas.height = canvasHeight;
   //  const [xOffset, yOffset] = [2.5 * dpi, 15 * dpi];
-  const [xOffset, yOffset] = [30 * dpi, -15 * dpi];
+  const [xOffset, yOffset] = [
+    32.5 * dpi + (canvasWidth * textureOffsetX * dpi) / 2,
+    -20 * heightMultiplier * dpi,
+  ];
 
   const context = canvas.getContext('2d');
   if (context) {
@@ -148,7 +114,9 @@ export const Keycap = React.memo(
       keyState,
       shouldRotate,
       keycapGeometry,
+      textureOffsetX,
       textureWidth,
+      textureHeight,
       idx,
     } = props;
     const ref = useRef<any>();
@@ -164,9 +132,11 @@ export const Keycap = React.memo(
           canvasRef.current,
           scale,
           textureWidth,
+          textureHeight,
           color.c,
           color.t,
           label,
+          textureOffsetX,
         );
         setOverflowsTexture(!!doesOverflow);
         textureRef.current!.needsUpdate = true;
