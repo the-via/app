@@ -20,6 +20,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@liveblocks/client": "^0.19.2",
+    "@liveblocks/redux": "^0.19.2",
     "@microsoft/applicationinsights-web": "^2.8.9",
     "@react-hook/resize-observer": "^1.2.6",
     "@react-spring/three": "^9.5.5",

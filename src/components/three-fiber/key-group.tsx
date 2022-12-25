@@ -39,11 +39,6 @@ export const KeyGroup: React.VFC<{
   const {keys, selectedKey: externalSelectedKey} = props;
   const selectedKeyIndex =
     externalSelectedKey === undefined ? selectedKey : externalSelectedKey;
-  console.log(
-    'bebebebe',
-    props.definition.name,
-    getKeyboardRowPartitions(keys),
-  );
   const keysKeys = useMemo(() => {
     const {rowMap} = getKeyboardRowPartitions(keys);
     return {

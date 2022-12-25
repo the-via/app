@@ -1,5 +1,5 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useMemo, useRef} from 'react';
+import {useEffect, useCallback, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -30,6 +30,7 @@ import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
+import {actions} from '@liveblocks/redux';
 
 useGLTF.preload('/models/keyboard_components.glb');
 useTexture.preload('/images/chippy.png');
@@ -111,6 +112,13 @@ export const CanvasRouter = () => {
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
+  useEffect(() => {
+    dispatch(actions.enterRoom('race'));
+
+    return () => {
+      dispatch(actions.leaveRoom('race'));
+    };
+  }, [dispatch]);
 
   return (
     <>

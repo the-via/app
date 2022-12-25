@@ -1,4 +1,4 @@
-import React, {FC, useContext} from 'react';
+import React, {FC, useContext, useEffect} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -17,6 +17,7 @@ import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
+import {setCursor} from 'src/store/liveblocks';
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +45,9 @@ export const Test: FC = () => {
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
   const [testContextObj] = useContext(TestContext);
+  const others = useAppSelector((state) => state.liveblocks.others);
+  //  const othersCursors = others.map((user) => user.presence?.cursor);
+  console.log(others);
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;
@@ -53,14 +57,25 @@ export const Test: FC = () => {
   const testDefinition = isTestMatrixEnabled
     ? selectedDefinition
     : fullKeyboardDefinition;
+
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
   return (
-    <TestPane>
+    <TestPane
+      onPointerMove={(e) => dispatch(setCursor({x: e.clientX, y: e.clientY}))}
+    >
       <Grid1Col>
         <OverflowCell>
           <Container>
+            {others.map((other) => {
+              return (
+                <ControlRow>
+                  <Label>User</Label>
+                  <Detail>{(other as any).connectionId}</Detail>
+                </ControlRow>
+              );
+            })}
             <ControlRow>
               <Label>Reset Keyboard</Label>
               <Detail>
