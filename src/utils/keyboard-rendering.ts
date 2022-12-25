@@ -266,7 +266,9 @@ export const calculateKeyboardFrameDimensions = (keys: Partial<Result>[]) => {
 
 export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
   // Special keys
-  if (k.h === 2 && k.w === 1) {
+  if (k['ei'] !== undefined) {
+    return 'E-100';
+  } else if (k.h === 2 && k.w === 1) {
     return `K-R${profile}V-200`;
   } else if (k.w === 1.25 && k.w2 === 1.5) {
     return `K-R${profile}-ISO`;
@@ -276,10 +278,10 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
 
   if (!isLastRow) {
     switch (k.w) {
-      case 1:
       case 1.25:
       case 1.5:
       case 1.75:
+      case 1:
       case 2:
       case 2.25:
       case 2.75: {
@@ -339,6 +341,9 @@ export const getGeometry = (k: VIAKey) => {
 };
 
 export const getScale = (k: VIAKey, scale: number[]) => {
+  if (k['ei'] !== undefined) {
+    return scale;
+  }
   switch (k.w) {
     case 1.25:
     case 1.5:

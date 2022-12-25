@@ -119,8 +119,7 @@ export const KeyGroup: React.VFC<{
           color={color}
           shouldRotate={isEncoder}
           keycapGeometry={
-            ((isEncoder ? Cylinder : (keycapNodes[meshKey] as any)) || Cylinder)
-              .geometry
+            ((keycapNodes[meshKey] as any) || keycapNodes['K-R1-100']).geometry
           }
           keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
           disabled={!props.selectable}

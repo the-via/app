@@ -33,6 +33,41 @@ const getMacroData = ({
     ? macroExpression
     : null;
 
+const paintEncoder = (
+  canvas: HTMLCanvasElement,
+  [widthMultiplier, heightMultiplier]: [number, number],
+  bgColor: string,
+  fgColor: string,
+) => {
+  const dpi = 1;
+  const canvasSize = 512 * dpi;
+  const [canvasWidth, canvasHeight] = [
+    canvasSize * widthMultiplier,
+    canvasSize * heightMultiplier,
+  ];
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const context = canvas.getContext('2d');
+  const workingAreaDivider = 2.6;
+  if (context) {
+    context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fill();
+
+    context.fillStyle = fgColor;
+    const rad = (0.4 * canvasWidth) / workingAreaDivider;
+    context.ellipse(
+      (0.5 * canvasWidth) / workingAreaDivider,
+      (2.1 * canvasHeight) / workingAreaDivider,
+      rad,
+      rad,
+      Math.PI / 4,
+      0,
+      2 * Math.PI,
+    );
+    context.fill();
+  }
+};
 const paintKeycap = (
   canvas: HTMLCanvasElement,
   [widthMultiplier, heightMultiplier]: [number, number],
@@ -128,18 +163,22 @@ export const Keycap = React.memo(
     const canvasRef = useRef(document.createElement('canvas'));
     const redraw = React.useCallback(() => {
       if (canvasRef.current) {
-        const doesOverflow = paintKeycap(
-          canvasRef.current,
-          scale,
-          textureWidth,
-          textureHeight,
-          color.c,
-          color.t,
-          label,
-          textureOffsetX,
-        );
-        setOverflowsTexture(!!doesOverflow);
-        textureRef.current!.needsUpdate = true;
+        if (shouldRotate) {
+          paintEncoder(canvasRef.current, scale, color.c, color.t);
+        } else {
+          const doesOverflow = paintKeycap(
+            canvasRef.current,
+            scale,
+            textureWidth,
+            textureHeight,
+            color.c,
+            color.t,
+            label,
+            textureOffsetX,
+          );
+          setOverflowsTexture(!!doesOverflow);
+          textureRef.current!.needsUpdate = true;
+        }
       }
     }, [
       canvasRef.current,
@@ -149,6 +188,7 @@ export const Keycap = React.memo(
       scale[1],
       color.t,
       color.c,
+      shouldRotate,
     ]);
     useEffect(redraw, [label && label.key]);
 
