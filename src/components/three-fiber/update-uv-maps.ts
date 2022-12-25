@@ -16,8 +16,15 @@ export const UpdateUVMaps = () => {
       const geometry100u = u100.geometry as BufferGeometry;
       const {min, max} = geometry100u!.boundingBox as Box3;
       const maxRange = max.y - min.y;
-      const uv100u = u100.geometry.attributes.uv as BufferAttribute;
       const pos100u = u100.geometry.attributes.position as BufferAttribute;
+      if (!u100.geometry.attributes.uv) {
+        u100.geometry.setAttribute(
+          'uv',
+          new BufferAttribute(new Float32Array(pos100u.count * 2), 2, false),
+        );
+      }
+      const uv100u = u100.geometry.attributes.uv as BufferAttribute;
+
       const newUv = new Float32Array(uv100u.count * 2);
       for (let i = 0; i < u100.geometry.attributes.uv.count; i++) {
         // update uvs
