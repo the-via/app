@@ -32,8 +32,6 @@ import {DefinitionVersionMap} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
 
 useGLTF.preload('/models/keyboard_components.glb');
-useGLTF.preload('/models/rotary_encoder.glb');
-
 useTexture.preload('/images/chippy.png');
 
 const LoaderSpinner = () => {

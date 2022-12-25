@@ -33,7 +33,6 @@ export const KeyGroup: React.VFC<{
 }> = (props) => {
   const dispatch = useAppDispatch();
   const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
-  const {Cylinder} = useGLTF('/models/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
