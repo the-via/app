@@ -6,13 +6,17 @@ import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey, updateSelectedKey} from 'src/store/keymapSlice';
 import {TestKeyState} from '../test-keyboard';
-import {DisplayMode, getGeometry, getScale, Keycap} from './keycap';
+import {DisplayMode, Keycap} from './keycap';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
   CSSVarObject,
+  getGeometry,
   getKeyboardRowPartitions,
+  getKeyId,
+  getMeshName,
   getRowProfiles,
+  getScale,
   getTextureColors,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
@@ -28,8 +32,8 @@ export const KeyGroup: React.VFC<{
   selectedKey?: number;
 }> = (props) => {
   const dispatch = useAppDispatch();
-  const keycapNodes = useGLTF('/fonts/blenderspacecap.glb', true).nodes;
-  const {Cylinder} = useGLTF('/fonts/rotary_encoder.glb').nodes;
+  const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
+  const {Cylinder} = useGLTF('/models/rotary_encoder.glb').nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
@@ -42,6 +46,7 @@ export const KeyGroup: React.VFC<{
     getKeyboardRowPartitions(keys),
   );
   const keysKeys = useMemo(() => {
+    const {rowMap} = getKeyboardRowPartitions(keys);
     return {
       indices: keys.map(
         (k, i) => `${props.definition.vendorProductId}-${i}-${k.w}-${k.h}`,
@@ -56,9 +61,10 @@ export const KeyGroup: React.VFC<{
         const normalizedKeyYSpacing =
           KeycapMetric.keyYSpacing / KeycapMetric.keyHeight;
         const normalizedWidth =
-          (1 + normalizedKeyXSpacing) * k.w - normalizedKeyXSpacing;
+          (1 + normalizedKeyXSpacing) * (k.w2 || k.w) - normalizedKeyXSpacing;
         const normalizedHeight =
           k.h * (1 + normalizedKeyYSpacing) - normalizedKeyYSpacing;
+        const meshKey = getMeshName(k, rowMap[getKeyId(k)], false);
         return {
           position: [
             (KeycapMetric.keyXPos * x) / CSSVarObject.keyXPos,
@@ -68,6 +74,7 @@ export const KeyGroup: React.VFC<{
           rotation: [0, 0, -r],
           scale: [normalizedWidth, normalizedHeight, 1],
           color: getTextureColors(k),
+          meshKey,
           idx: i,
           onClick: (evt: any, idx: number) => {
             evt.stopPropagation();
@@ -91,48 +98,47 @@ export const KeyGroup: React.VFC<{
           ),
         );
   }, [keys, props.matrixKeycodes, macros, props.definition]);
-  const {width, height} = calculateKeyboardFrameDimensions(props.keys);
-  console.log('hii', keycapNodes);
-  const elems = useMemo(
-    () =>
-      props.keys.map((k, i) => {
-        const {position, rotation, scale, color, idx, onClick} =
-          keysKeys.coords[i];
-        const key = keysKeys.indices[i];
-        const isEncoder = k['ei'] !== undefined;
+  const {width, height} = calculateKeyboardFrameDimensions(keys);
+  const elems = useMemo(() => {
+    return props.keys.map((k, i) => {
+      const {position, meshKey, rotation, scale, color, idx, onClick} =
+        keysKeys.coords[i];
+      const key = keysKeys.indices[i];
+      const isEncoder = k['ei'] !== undefined;
 
-        return (
-          <Keycap
-            mode={props.mode}
-            key={key}
-            position={position}
-            rotation={rotation}
-            scale={getScale(k, scale)}
-            textureWidth={k.w}
-            color={color}
-            shouldRotate={isEncoder}
-            keycapGeometry={
-              (isEncoder ? Cylinder : (keycapNodes[getGeometry(k)] as any))
-                .geometry
-            }
-            keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
-            disabled={!props.selectable}
-            selected={i === selectedKeyIndex}
-            idx={idx}
-            label={labels[i]}
-            onClick={onClick}
-          />
-        );
-      }),
-    [
-      props.keys,
-      selectedKeyIndex,
-      labels,
-      props.pressedKeys,
-      props.selectable,
-      props.definition.vendorProductId,
-    ],
-  );
+      return (
+        <Keycap
+          mode={props.mode}
+          key={key}
+          position={position}
+          rotation={rotation}
+          scale={getScale(k, scale)}
+          textureWidth={k.w}
+          textureHeight={k.h}
+          textureOffsetX={!!k.w2 ? Math.abs(k.w2 - k.w) : 0}
+          color={color}
+          shouldRotate={isEncoder}
+          keycapGeometry={
+            ((isEncoder ? Cylinder : (keycapNodes[meshKey] as any)) || Cylinder)
+              .geometry
+          }
+          keyState={props.pressedKeys ? props.pressedKeys[i] : -1}
+          disabled={!props.selectable}
+          selected={i === selectedKeyIndex}
+          idx={idx}
+          label={labels[i]}
+          onClick={onClick}
+        />
+      );
+    });
+  }, [
+    keys,
+    selectedKeyIndex,
+    labels,
+    props.pressedKeys,
+    props.selectable,
+    props.definition.vendorProductId,
+  ]);
   return (
     <group
       scale={1}

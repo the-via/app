@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import {Box3, BufferAttribute, BufferGeometry} from 'three';
 
 export const UpdateUVMaps = () => {
-  const keycapNodes = useGLTF('/fonts/blenderspacecap.glb', true).nodes;
+  const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
   useEffect(() => {
     // updating uv maps
     // let's assume of now we want to contain uvs in the bottom 1/3
@@ -15,7 +15,10 @@ export const UpdateUVMaps = () => {
       const size1u = 1 / 2.6;
       const geometry100u = u100.geometry as BufferGeometry;
       const {min, max} = geometry100u!.boundingBox as Box3;
-      const maxRange = max.y - min.y;
+      const maxRangeY = max.y - min.y;
+      const unitScale = 18.15;
+      // This is pretty hacky, we should actually be figuring out the positioning in paintKeycap
+      const yOffset = maxRangeY / unitScale - 1;
       const pos100u = u100.geometry.attributes.position as BufferAttribute;
       if (!u100.geometry.attributes.uv) {
         u100.geometry.setAttribute(
@@ -28,9 +31,10 @@ export const UpdateUVMaps = () => {
       const newUv = new Float32Array(uv100u.count * 2);
       for (let i = 0; i < u100.geometry.attributes.uv.count; i++) {
         // update uvs
-        newUv[2 * i] = (size1u * (pos100u.array[i * 3] - min.x)) / maxRange;
+        newUv[2 * i] = (size1u * (pos100u.array[i * 3] - min.x)) / unitScale;
         newUv[2 * i + 1] =
-          (size1u * (pos100u.array[i * 3 + 1] - min.y)) / maxRange;
+          (size1u * (pos100u.array[i * 3 + 1] - min.y)) / unitScale -
+          yOffset / 6;
       }
       uv100u.copyArray(newUv);
       geometry100u.center();
