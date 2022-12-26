@@ -289,6 +289,7 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
       case 3:
       case 6:
       case 6.25:
+      case 6.5:
       case 7: {
         return `K-R4C-${k.w * 100}`;
       }
@@ -311,6 +312,7 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
     case 3:
     case 6:
     case 6.25:
+    case 6.5:
     case 7: {
       return `K-R4C-${k.w * 100}`;
     }
@@ -354,6 +356,7 @@ export const getScale = (k: VIAKey, scale: number[]) => {
     case 3:
     case 6:
     case 6.25:
+    case 6.5:
     case 7: {
       return [1, 1, 1];
     }
