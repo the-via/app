@@ -42,9 +42,10 @@ export const KeyGroup: React.VFC<{
   const keysKeys = useMemo(() => {
     const {rowMap} = getKeyboardRowPartitions(keys);
     return {
-      indices: keys.map(
-        (k, i) => `${props.definition.vendorProductId}-${i}-${k.w}-${k.h}`,
-      ),
+      indices: keys.map((k, i) => {
+        const isEncoder = k['ei'] !== undefined;
+        return `${props.definition.vendorProductId}-${i}-${k.w}-${k.h}-${isEncoder}`;
+      }),
       coords: keys.map((k, i) => {
         // x & y are pixel positioned
         const [x, y] = calculatePointPosition(k);
