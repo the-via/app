@@ -35,7 +35,6 @@ import {useAppSelector} from 'src/store/hooks';
 import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
-  getDesignSelectedOptionKeys,
   getSelectedVersion,
   getShowMatrix,
   selectVersion,
@@ -92,75 +91,78 @@ const UploadIcon = styled.div`
 `;
 
 // TODO: move this inside function component and then use the closured dispatch?
-function importDefinition(
-  file: File,
+function importDefinitions(
+  files: File[],
   version: DefinitionVersion,
   dispatch: Dispatch<any>,
   setErrors: (errors: string[]) => void,
 ) {
-  const reader = new FileReader();
-  reader.onload = async () => {
-    try {
-      if (!reader.result) return;
-      const res = JSON.parse(reader.result.toString());
-      const isValid =
-        version === 'v2'
-          ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
-          : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
-      if (isValid) {
-        setErrors([]);
-        const definition =
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        if (!reader.result) return;
+        const res = JSON.parse(reader.result.toString());
+        const isValid =
           version === 'v2'
-            ? isVIADefinitionV2(res)
+            ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
+            : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
+        if (isValid) {
+          setErrors([]);
+          const definition =
+            version === 'v2'
+              ? isVIADefinitionV2(res)
+                ? res
+                : keyboardDefinitionV2ToVIADefinitionV2(res)
+              : isVIADefinitionV3(res)
               ? res
-              : keyboardDefinitionV2ToVIADefinitionV2(res)
-            : isVIADefinitionV3(res)
-            ? res
-            : keyboardDefinitionV3ToVIADefinitionV3(res);
+              : keyboardDefinitionV3ToVIADefinitionV3(res);
 
-        if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
-          const commonMenuKeys = Object.keys(getCommonMenus());
-          const lookupFailedKeys = (res.menus || []).filter((menu) => {
-            if (typeof menu === 'string') {
-              return !commonMenuKeys.includes(menu);
+          if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
+            const commonMenuKeys = Object.keys(getCommonMenus());
+            const lookupFailedKeys = (res.menus || []).filter((menu) => {
+              if (typeof menu === 'string') {
+                return !commonMenuKeys.includes(menu);
+              }
+              return false;
+            });
+            if (lookupFailedKeys.length) {
+              throw Error(
+                `Menu key lookup failed for: ${lookupFailedKeys.join(', ')}`,
+              );
             }
-            return false;
-          });
-          if (lookupFailedKeys.length) {
-            throw Error(
-              `Menu key lookup failed for: ${lookupFailedKeys.join(', ')}`,
-            );
           }
-        }
-        dispatch(loadDefinition({definition, version}));
+          dispatch(loadDefinition({definition, version}));
 
-        dispatch(
-          ensureSupportedId({
-            productId: definition.vendorProductId as number,
-            version,
-          }),
-        );
-        dispatch(selectDevice(null));
-        dispatch(reloadConnectedDevices());
-      } else {
-        setErrors(
-          (version === 'v2'
-            ? isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []
-            : isKeyboardDefinitionV3.errors || isVIADefinitionV3.errors || []
-          ).map(
-            (e) => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
-          ),
-        );
+          dispatch(
+            ensureSupportedId({
+              productId: definition.vendorProductId as number,
+              version,
+            }),
+          );
+          dispatch(selectDevice(null));
+          dispatch(reloadConnectedDevices());
+        } else {
+          setErrors(
+            (version === 'v2'
+              ? isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []
+              : isKeyboardDefinitionV3.errors || isVIADefinitionV3.errors || []
+            ).map(
+              (e) =>
+                `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
+            ),
+          );
+        }
+      } catch (err: any) {
+        if (err.name) {
+          setErrors([`${err.name}: ${err.message}`]);
+        } else {
+          setErrors([`${err}`]);
+        }
       }
-    } catch (err: any) {
-      if (err.name) {
-        setErrors([`${err.name}: ${err.message}`]);
-      } else {
-        setErrors([`${err}`]);
-      }
-    }
-  };
-  reader.readAsBinaryString(file);
+    };
+    reader.readAsBinaryString(file);
+  });
 }
 
 function onDrop(
@@ -172,18 +174,14 @@ function onDrop(
   evt.preventDefault();
   const {dataTransfer} = evt;
   if (dataTransfer?.items) {
-    // Use DataTransferItemList interface to access the file(s)
-    for (var i = 0; i < dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (
-        dataTransfer.items[i].kind === 'file' &&
-        dataTransfer.items[i].type === 'application/json'
-      ) {
-        var file = dataTransfer.items[i].getAsFile();
-        if (file) {
-          importDefinition(file, version, dispatch, setErrors);
-        }
-      }
+    const items = Array.from(dataTransfer.items)
+      .filter((item) => {
+        return item.kind === 'file' && item.type === 'application/json';
+      })
+      .map((item) => item.getAsFile()) // Use DataTransferItemList interface to access the file(s)
+      .filter((item) => item !== null);
+    if (items.length) {
+      importDefinitions(items as File[], version, dispatch, setErrors);
     }
   }
 }
@@ -249,9 +247,14 @@ export const DesignTab: FC = () => {
             <Detail>
               <AccentUploadButton
                 inputRef={uploadButton}
-                onLoad={(file) =>
-                  importDefinition(file, definitionVersion, dispatch, setErrors)
-                }
+                onLoad={(files) => {
+                  importDefinitions(
+                    Array.from(files),
+                    definitionVersion,
+                    dispatch,
+                    setErrors,
+                  );
+                }}
               >
                 Load
               </AccentUploadButton>
