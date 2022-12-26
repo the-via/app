@@ -1,4 +1,5 @@
 .DS_STORE
+.env
 .snowpack
 build
 node_modules
