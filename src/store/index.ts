@@ -7,8 +7,6 @@ import definitionsReducer from './definitionsSlice';
 import lightingReducer from './lightingSlice';
 import menusReducer from './menusSlice';
 import designReducer from './designSlice';
-import liveblocksReducer, {client} from './liveblocks';
-import {liveblocksEnhancer} from '@liveblocks/redux';
 
 export const store = configureStore({
   reducer: {
@@ -20,9 +18,8 @@ export const store = configureStore({
     lighting: lightingReducer,
     menus: menusReducer,
     design: designReducer,
-    liveblocks: liveblocksReducer,
   },
-  enhancers: [liveblocksEnhancer({client, presenceMapping: {cursor: true}})],
+  enhancers: [],
 });
 
 export type RootState = ReturnType<typeof store.getState>;
