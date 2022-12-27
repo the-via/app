@@ -172,9 +172,9 @@ export const KeycodePane: FC = () => {
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
-  const getEnabledMenus = (layerCount: number): IKeycodeMenu[] => {
+  const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
-      return getEnabledMenusV3(selectedDefinition, layerCount);
+      return getEnabledMenusV3(selectedDefinition);
     }
     const {lighting, customKeycodes} = selectedDefinition;
     const {keycodes} = getLightingDefinition(lighting);
@@ -197,13 +197,7 @@ export const KeycodePane: FC = () => {
         ),
       );
   };
-  const getEnabledMenusV3 = (
-    definition: VIADefinitionV3,
-    layerCount: number,
-  ): IKeycodeMenu[] => {
-    const defaultKeycodes = layerCount
-      ? KeycodeCategories.map((category) => category.label)
-      : [];
+  const getEnabledMenusV3 = (definition: VIADefinitionV3): IKeycodeMenu[] => {
     const keycodes = ['default' as const, ...(definition.keycodes || [])];
     const allowedKeycodes = keycodes.flatMap((keycodeName) =>
       categoriesForKeycodeModule(keycodeName),
@@ -227,10 +221,10 @@ export const KeycodePane: FC = () => {
     );
   };
 
-  const renderCategories = (layerCount: number) => {
+  const renderCategories = () => {
     return (
       <MenuContainer>
-        {getEnabledMenus(layerCount).map(({label}) => (
+        {getEnabledMenus().map(({label}) => (
           <SubmenuRow
             selected={label === selectedCategory}
             onClick={() => setSelectedCategory(label)}
@@ -372,7 +366,7 @@ export const KeycodePane: FC = () => {
 
   return (
     <>
-      <SubmenuOverflowCell>{renderCategories(layerCount)}</SubmenuOverflowCell>
+      <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}

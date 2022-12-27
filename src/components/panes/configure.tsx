@@ -5,7 +5,7 @@ import {useSize} from '../../utils/use-size';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
-import {ConfigureBasePane} from './pane';
+import {CenterPane, ConfigureBasePane} from './pane';
 import ReactTooltip from 'react-tooltip';
 import {
   CustomFeaturesV2,
@@ -41,10 +41,11 @@ import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
-import {useProgress} from '@react-three/drei';
+import {Center, useProgress} from '@react-three/drei';
+import {MenuTooltip} from '../inputs/tooltip';
 
 const MenuContainer = styled.div`
-  padding: 15px 30px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 const Rows = [
@@ -181,23 +182,30 @@ function Loader(props: {
   );
 }
 
+const LoaderPane = styled(CenterPane)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  row-gap: 100px;
+`;
+
 export const ConfigurePane = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const loadProgress = useAppSelector(getLoadProgress);
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
-  return (
+  return showLoader ? (
+    <LoaderPane>
+      <Loader
+        {...{
+          loadProgress,
+          selectedDefinition: selectedDefinition ? selectedDefinition : null,
+        }}
+      />
+    </LoaderPane>
+  ) : (
     <ConfigureBasePane>
-      {showLoader ? (
-        <Loader
-          {...{
-            loadProgress,
-            selectedDefinition: selectedDefinition ? selectedDefinition : null,
-          }}
-        />
-      ) : (
-        <ConfigureGrid />
-      )}
+      <ConfigureGrid />
     </ConfigureBasePane>
   );
 };
@@ -206,10 +214,6 @@ const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
   const [selectedRow, setRow] = useState(0);
-
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
-
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const selectedTitle = KeyboardRows[selectedRow]?.Title;
@@ -223,33 +227,19 @@ const ConfigureGrid = () => {
   }, [selectedTitle]);
 
   return (
-    <Grid style={{pointerEvents: 'none'}}>
-      <MenuCell style={{pointerEvents: 'all'}}>
-        <MenuContainer>
-          {(KeyboardRows || []).map(
-            ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
-              <Row
-                key={idx}
-                onClick={(_) => setRow(idx)}
-                selected={selectedRow === idx}
-              >
-                <IconContainer>
-                  <Icon />
-                </IconContainer>
-                {Title}
-              </Row>
-            ),
-          )}
-        </MenuContainer>
-      </MenuCell>
-
+    <>
       <ConfigureFlexCell
-        ref={flexRef}
         onClick={(evt) => {
           if ((evt.target as any).nodeName !== 'CANVAS')
             dispatch(clearSelectedKey());
         }}
-        style={{pointerEvents: 'none'}}
+        style={{
+          pointerEvents: 'none',
+          position: 'absolute',
+          top: 50,
+          left: 0,
+          right: 0,
+        }}
       >
         <div style={{pointerEvents: 'all'}}>
           <ReactTooltip />
@@ -257,7 +247,28 @@ const ConfigureGrid = () => {
           <Badge />
         </div>
       </ConfigureFlexCell>
-      {SelectedPane && <SelectedPane />}
-    </Grid>
+      <Grid style={{pointerEvents: 'none'}}>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            {(KeyboardRows || []).map(
+              ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
+                <Row
+                  key={idx}
+                  onClick={(_) => setRow(idx)}
+                  selected={selectedRow === idx}
+                >
+                  <IconContainer>
+                    <Icon />
+                    <MenuTooltip>{Title}</MenuTooltip>
+                  </IconContainer>
+                </Row>
+              ),
+            )}
+          </MenuContainer>
+        </MenuCell>
+
+        {SelectedPane && <SelectedPane />}
+      </Grid>
+    </>
   );
 };

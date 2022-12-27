@@ -23,7 +23,7 @@ export class Store {
   store: StoreData;
   constructor(defaults: StoreData) {
     const store = localStorage.getItem('via-app-store');
-    this.store = store ? mergeSettings(JSON.parse(store), defaults) : defaults;
+    this.store = store ? mergeSettings(defaults, JSON.parse(store)) : defaults;
   }
   get<K extends keyof StoreData>(key: K): StoreData[K] {
     return this.store[key];

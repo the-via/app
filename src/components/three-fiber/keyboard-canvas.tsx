@@ -32,15 +32,13 @@ export const KeyboardCanvas: React.VFC<{
     showMatrix,
   } = props;
 
-  const containerWidthOffset = DisplayMode.Configure === mode ? -182.5 : 0;
-
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const ratio =
     Math.min(
       Math.min(
         1,
         containerDimensions &&
-          (containerDimensions.width + containerWidthOffset) /
+          containerDimensions.width /
             ((CSSVarObject.keyWidth + CSSVarObject.keyXSpacing) * width -
               CSSVarObject.keyXSpacing +
               70),
