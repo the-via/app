@@ -7,16 +7,10 @@ import {ErrorMessage} from '../styled';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getAllowKeyboardKeyRemapping,
   getShowDesignTab,
   getDisableFastRemap,
-  getDisableHardwareAcceleration,
-  getRestartRequired,
   toggleCreatorMode,
   toggleFastRemap,
-  toggleHardwareAcceleration,
-  requireRestart,
-  toggleKeyRemappingViaKeyboard,
 } from 'src/store/settingsSlice';
 
 const RestartMessage = styled(ErrorMessage)`

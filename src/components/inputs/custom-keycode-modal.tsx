@@ -41,7 +41,7 @@ const ModalContainer = styled.div`
 
 const PromptText = styled.h4`
   font-weight: 500;
-  color: var(--color_medium-grey);
+  color: var(--color_label);
   font-size: 20px;
   margin: 0 0 20px 0;
 `;

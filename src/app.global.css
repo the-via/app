@@ -2,10 +2,10 @@ html,
 body {
   height: 100%;
 }
-* {
-  background-color: #1d1b1b !important;
+.configure-tooltip {
+font-size: 20px !important;
+background-color: rgba(255,255,255,0.4);
 }
-
 body {
   position: relative;
   color: white;
@@ -45,6 +45,7 @@ a:hover {
 :root {
   --color_accent: #ad7070;
   --color_dark-accent: #6d4e4e;
+  --color_error: #d15e5e;
   --color_light-grey: #d9d9d9;
   --color_medium-grey: #707070;
   --color_dark-grey: #414141;
@@ -52,6 +53,24 @@ a:hover {
   --color_jet: #1d1b1b;
   --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 }
+
+html[data-theme-mode=dark] {
+  --color_label: var(--color_medium-grey);
+  --color_label-highlighted: var(--color_light-grey);
+  --color_error: var(--color_error);
+  --border_color_icon: var(--color_medium-grey);
+  --bg_icon: var(--color_medium-grey);
+  --bg_icon-highlighted: var(--color_light-grey);
+}
+html[data-theme-mode=light] {
+  --color_label: var(--color_medium-grey);
+  --color_label-highlighted: var(--color_light-grey);
+  --color_error: var(--color_error);
+  --border_color_icon: var(--color_medium-grey);
+  --bg_icon: var(--color_medium-grey);
+  --bg_icon-highlighted: var(--color_light-grey);
+}
+
 #root {
   background: var(--gradient);
   display: flex;
@@ -301,6 +320,14 @@ a:hover {
     box-shadow: inset 0 0 3px 3px;
   }
 }
+@keyframes fade-in{
+  0% {
+  opacity: 0;
+  }
+  100% {
+  opacity: 1;
+  }
+}
 @keyframes border-glow {
   0% {
     border: 2px dashed var(--color_accent);
@@ -328,7 +355,7 @@ a:hover {
     stroke: var(--color_accent);
   }
   50% {
-    stroke: var(--color_medium-grey);
+    stroke: var(--color_label);
   }
   100% {
     stroke: var(--color_accent);

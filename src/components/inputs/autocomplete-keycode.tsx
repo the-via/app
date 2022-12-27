@@ -8,7 +8,7 @@ const Keycode = styled.span`
 `;
 
 const KeycodeLabel = styled.span`
-  color: var(--color_medium-grey);
+  color: var(--color_label);
   display: flex;
 `;
 const Item = styled.div<{selected?: boolean}>`

@@ -46,8 +46,8 @@ const TextArea = styled.textarea`
   box-sizing: border-box;
   background: var(--color_jet);
   padding: 5px 10px;
-  border-color: var(--color_medium-grey);
-  color: var(--color_medium-grey);
+  border-color: var(--border_color_icon);
+  color: var(--color_label);
   width: 100%;
   height: 200px;
   font-size: 16px;
@@ -108,7 +108,9 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
             width: '100%',
             height: '140px',
             resize: 'none',
-            borderColor: hasError ? '#d15e5e' : 'var(--color_medium-grey)',
+            borderColor: hasError
+              ? 'var(--color_error)'
+              : 'var(--border_color_icon)',
           }}
           containerStyle={{
             border: 'none',

@@ -70,7 +70,7 @@ export type Settings = {
   allowKeyboardKeyRemapping: boolean;
   showDesignTab: boolean;
   disableFastRemap: boolean;
-  disableHardwareAcceleration: boolean;
+  themeMode: 'light' | 'dark';
 };
 
 export type CommonMenusMap = {
