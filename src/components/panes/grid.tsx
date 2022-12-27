@@ -17,7 +17,7 @@ export const Grid = styled.div`
 `;
 
 export const Cell = styled.div`
-  border-right: 1px solid var(--bg_control);
+  border-right: 1px solid var(--border_color_cell);
 `;
 
 export const MenuCell = styled(Cell)`
@@ -25,18 +25,18 @@ export const MenuCell = styled(Cell)`
 `;
 
 export const OverflowCell = styled(Cell)`
-  border-top: 1px solid var(--bg_control);
+  border-top: 1px solid var(--border_color_cell);
   overflow: auto;
 `;
 
 export const SpanOverflowCell = styled(Cell)`
-  border-top: 1px solid var(--bg_control);
+  border-top: 1px solid var(--border_color_cell);
   overflow: auto;
   grid-column: span 2;
 `;
 
 export const SubmenuCell = styled(Cell)`
-  border-top: 1px solid var(--bg_control);
+  border-top: 1px solid var(--border_color_cell);
 `;
 
 export const SubmenuOverflowCell = styled(SubmenuCell)`
@@ -71,7 +71,7 @@ export const ControlRow = styled.div`
   position: relative;
   width: 100%;
   max-width: 960px;
-  border-bottom: 1px solid var(--color_light-jet);
+  border-bottom: 1px solid var(--border_color_cell);
   font-size: 20px;
   justify-content: space-between;
   display: flex;

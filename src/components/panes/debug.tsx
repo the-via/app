@@ -120,6 +120,18 @@ const TestControls = () => {
     <ControlGroup>
       <ControlGroupHeader>Controls</ControlGroupHeader>
       <ControlRow>
+        <Label>Button</Label>
+        <Detail>
+          <AccentButton>Click</AccentButton>
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>Disabled Button</Label>
+        <Detail>
+          <AccentButton disabled>Disabled</AccentButton>
+        </Detail>
+      </ControlRow>
+      <ControlRow>
         <Label>Text Input</Label>
         <Detail>
           <TextInput />

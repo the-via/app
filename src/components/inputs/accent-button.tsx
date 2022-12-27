@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 type AccentButtonProps = {
   disabled?: boolean;
-  onClick: (...a: any[]) => void;
+  onClick?: (...a: any[]) => void;
 };
 
 export const AccentButton = styled.button<AccentButtonProps>`
@@ -13,7 +13,8 @@ export const AccentButton = styled.button<AccentButtonProps>`
   min-width: 100px;
   text-align: center;
   outline: none;
-  background: none;
+  background-color: ${(props) =>
+    props.disabled ? 'var(--bg_control-disabled)' : 'var(--bg_outside_accent)'};
   font-size: 20px;
   border-radius: 5px;
   color: var(--color_accent);
@@ -21,17 +22,17 @@ export const AccentButton = styled.button<AccentButtonProps>`
   display: inline-block;
   box-sizing: border-box;
   pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
-  cursor: ${(props) => (props.disabled ? 'initial' : 'pointer')};
   color: ${(props) =>
     props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   border-color: ${(props) =>
     props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 
   &:hover,
   &:focus {
     border: 1px solid var(--color_accent);
     color: ${(props) =>
-      props.disabled ? 'var(--bg_control)' : 'var(--color_label-highlighted)'};
+      props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
     border-color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
     background-color: ${(props) =>

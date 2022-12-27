@@ -18,7 +18,7 @@ const customStyles = {
         ? 'var(--bg_control)'
         : 'var(--bg_menu)',
       color: state.isSelected
-        ? 'var(--color_light-jet)'
+        ? 'var(--color_inside-accent)'
         : state.isFocused
         ? 'var(--color_accent)'
         : 'var(--color_accent)',

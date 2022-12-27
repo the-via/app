@@ -87,8 +87,8 @@ const CustomKeycode = styled(Button)`
   line-height: 18px;
   font-size: 14px;
   background: var(--color_accent);
-  border-color: var(--color_light-grey);
-  color: var(--color_light_grey);
+  border-color: var(--color_inside_accent);
+  color: var(--color_inside_accent);
   margin: 0;
 `;
 

@@ -24,9 +24,9 @@ const LayerButton = styled.button<{selected?: boolean}>`
   font-variant-numeric: tabular-nums;
   border: none;
   background: ${(props) =>
-    props.selected ? 'var(--color_light-grey)' : 'transparent'};
+    props.selected ? 'var(--bg_control-highlighted)' : 'transparent'};
   color: ${(props) =>
-    props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+    props.selected ? 'var(--color_jet)' : 'var(--color_label-highlighted)'};
   cursor: pointer;
   font-size: 20px;
   &:hover {
