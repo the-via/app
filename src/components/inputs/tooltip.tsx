@@ -57,7 +57,7 @@ export const MenuTooltip: React.FC<any> = (props) => {
   const contentStyles = {
     padding: '5px 5px',
     background: 'var(--color_accent)',
-    color: 'var(--color_label-highlighted)',
+    color: 'var(--color_inside-accent)',
     borderRadius: 10,
     fontFamily: 'Source Code Pro',
     whiteSpace: 'nowrap',
