@@ -1,9 +1,10 @@
 import {KeyColorType} from '@the-via/reader';
 import {useMemo} from 'react';
+import {useAppSelector} from 'src/store/hooks';
+import {getSelectedTheme} from 'src/store/settingsSlice';
 import {getColors} from 'src/utils/keyboard-rendering';
 
 export const KeycapTooltip: React.FC<any> = (props) => {
-  const accent = useMemo(() => getColors({color: KeyColorType.Accent}), []);
   const containerStyles = {
     display: 'flex',
     justifyContent: 'center',
@@ -13,8 +14,8 @@ export const KeycapTooltip: React.FC<any> = (props) => {
   };
   const contentStyles = {
     padding: '70px 70px',
-    background: `${accent.c}`,
-    color: `${accent.t}`,
+    background: 'var(--color_accent)',
+    color: 'var(--color_inside-accent)',
     borderRadius: 100,
     fontSize: 200,
     fontFamily: 'Source Code Pro',
@@ -30,7 +31,7 @@ export const KeycapTooltip: React.FC<any> = (props) => {
     width: 150,
     marginTop: -100,
     transform: 'rotate(45deg)',
-    background: accent.c,
+    background: 'var(--color_accent)',
   };
   return (
     <Tooltip

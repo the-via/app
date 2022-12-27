@@ -29,8 +29,6 @@ import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
-import {getColors} from 'src/utils/keyboard-rendering';
-import {getBrightenedColor, getDarkenedColor} from 'src/utils/color-math';
 import {getSelectedTheme} from 'src/store/settingsSlice';
 
 useGLTF.preload('/models/keyboard_components.glb');

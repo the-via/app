@@ -5,6 +5,7 @@ import {getSettings, setSettings} from '../utils/device-store';
 import type {RootState} from '.';
 import {THEMES} from '@the-via/reader';
 import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
+import {updateCSSVariables} from 'src/utils/color-math';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 export type SettingsState = Settings & {
@@ -49,6 +50,7 @@ export const settingsSlice = createSlice({
     },
     updateThemeName: (state, action: PayloadAction<string>) => {
       state.themeName = action.payload;
+      updateCSSVariables(state.themeName);
       setSettings(state);
     },
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {

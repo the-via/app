@@ -43,7 +43,6 @@ a:hover {
   cursor: pointer;
 }
 :root {
-  --color_accent: #ad7070;
   --color_error: #d15e5e;
   --color_light-grey: #d9d9d9;
   --color_medium-grey: #707070;
@@ -60,7 +59,6 @@ a:hover {
 html[data-theme-mode='dark'] {
   --color_label: var(--color_medium-grey);
   --color_label-highlighted: var(--color_light-grey);
-  --color_inside-accent: var(--color_light-grey);
   --color_error: var(--color_error);
   --border_color_icon: var(--color_medium-grey);
   --border_color_cell: var(--color_dark-grey);
@@ -82,7 +80,6 @@ html[data-theme-mode='light'] {
   --color_error: var(--color_error);
   --border_color_icon: var(--color_medium-grey);
   --border_color_cell: var(--color_tinge-dark);
-  --color_inside-accent: var(--color_warm-white);
   --bg_icon: var(--color_medium-grey);
   --bg_icon-highlighted: var(--color_light-jet);
   --color_icon-highlighted: var(--color_tinge-light);

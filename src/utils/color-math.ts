@@ -1,3 +1,18 @@
+import {THEMES} from '@the-via/reader';
+
+export const updateCSSVariables = (themeName: string) => {
+  const selectedTheme = THEMES[themeName] || THEMES['OLIVIA_DARK'];
+
+  document.documentElement.style.setProperty(
+    '--color_accent',
+    selectedTheme.accent.c,
+  );
+  document.documentElement.style.setProperty(
+    '--color_inside-accent',
+    selectedTheme.accent.t,
+  );
+};
+
 export const getRandomColor = () =>
   Array(3)
     .fill(0)
