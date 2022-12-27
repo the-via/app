@@ -246,6 +246,7 @@ export const DesignTab: FC = () => {
             <Label>Load Draft Definition</Label>
             <Detail>
               <AccentUploadButton
+                multiple
                 inputRef={uploadButton}
                 onLoad={(files) => {
                   importDefinitions(
