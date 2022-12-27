@@ -18,7 +18,7 @@ const Item = styled.div<{selected?: boolean}>`
   display: flex;
   justify-content: space-between;
   background-color: ${(props) =>
-    !props.selected ? 'var(--color_light-jet)' : 'var(--color_dark-grey)'};
+    !props.selected ? 'var(--bg_menu)' : 'var(--color_dark-grey)'};
 
   &:hover {
     background-color: var(--color_dark-grey);

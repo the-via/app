@@ -118,15 +118,15 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           }}
           itemStyle={{
             borderColor: 'var(--color_dark-grey)',
-            backgroundColor: 'var(-color_light-jet)',
+            backgroundColor: 'var(--bg_menu)',
           }}
           dropdownStyle={{
             zIndex: 999,
-            backgroundColor: 'var(--color_light-jet)',
+            backgroundColor: 'var(--bg_menu)',
           }}
           listStyle={{
             position: 'fixed',
-            backgroundColor: 'var(--color_light-jet)',
+            backgroundColor: 'var(--bg_menu)',
             maxHeight: '210px',
             overflow: 'auto',
             border: '1px solid var(--color_dark-grey)',

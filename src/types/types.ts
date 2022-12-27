@@ -8,6 +8,12 @@ import type {
   VIAMenu,
 } from '@the-via/reader';
 
+export enum TestKeyState {
+  Initial,
+  KeyDown,
+  KeyUp,
+}
+
 export type HIDColor = {
   hue: number;
   sat: number;

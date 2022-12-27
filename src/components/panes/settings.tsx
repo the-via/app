@@ -25,10 +25,15 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-const DebugPane = styled(Pane)`
-  display: grid;
-  max-width: 100vw;
-  grid-template-columns: 100vw;
+const MenuPanel = styled(OverflowCell)`
+  flex: 1;
+  padding: 1rem;
+
+  @media (min-width: 1200px) {
+    border: 0 none;
+    border-left: 1px solid var(--color_dark-grey);
+    padding: 1.5rem;
+  }
 `;
 
 export const Settings = () => {
@@ -37,7 +42,7 @@ export const Settings = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
 
   return (
-    <DebugPane>
+    <Pane>
       <OverflowCell>
         <Container>
           <ControlRow>
@@ -60,6 +65,6 @@ export const Settings = () => {
           </ControlRow>
         </Container>
       </OverflowCell>
-    </DebugPane>
+    </Pane>
   );
 };

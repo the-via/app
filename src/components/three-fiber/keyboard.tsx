@@ -10,7 +10,6 @@ import {
 } from 'src/store/definitionsSlice';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import {getSelectedKeymap, setLayer} from 'src/store/keymapSlice';
-import {TestKeyState} from '../test-keyboard';
 import {KeyboardCanvas} from './keyboard-canvas';
 import {useLocation} from 'wouter';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
@@ -27,6 +26,7 @@ import {
 import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {TestContext} from '../panes/test';
+import {TestKeyState} from 'src/types/types';
 
 enum DisplayMode {
   Test = 1,

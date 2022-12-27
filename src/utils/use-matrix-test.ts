@@ -1,9 +1,9 @@
 import {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import {useDispatch} from 'react-redux';
-import {TestKeyState} from 'src/components/test-keyboard';
 import {KeyboardAPI, KeyboardValue} from './keyboard-api';
 import {useEffect, useRef, useState} from 'react';
 import {setTestMatrixEnabled} from 'src/store/settingsSlice';
+import {TestKeyState} from 'src/types/types';
 
 const invertTestKeyState = (s: TestKeyState) =>
   s === TestKeyState.KeyDown ? TestKeyState.KeyUp : TestKeyState.KeyDown;

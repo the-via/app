@@ -1,25 +1,23 @@
 import {useGLTF} from '@react-three/drei';
-import {getLabel} from '../positioned-keyboard/base';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
 import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey, updateSelectedKey} from 'src/store/keymapSlice';
-import {TestKeyState} from '../test-keyboard';
 import {DisplayMode, Keycap} from './keycap';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
   CSSVarObject,
-  getGeometry,
   getKeyboardRowPartitions,
   getKeyId,
+  getLabel,
   getMeshName,
-  getRowProfiles,
   getScale,
   getTextureColors,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
+import {TestKeyState} from 'src/types/types';
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;

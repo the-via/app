@@ -9,7 +9,7 @@ const NormalInput = styled.input`
   border: none;
   border-bottom: 1px solid var(--color_dark-grey);
   color: var(--color_accent);
-  background: var(--color_light-jet);
+  background: var(--bg_menu);
   transition: all 0.4s ease-out;
   font-size: 18px;
   margin-bottom: 25px;

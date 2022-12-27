@@ -24,13 +24,12 @@ export const Cell = styled.div`
 
 export const MenuCell = styled(Cell)`
   grid-area: 1 / 1 / 3 / 2;
-  background: var(--gradient);
+  background: var(--bg_menu);
 `;
 
 export const OverflowCell = styled(Cell)`
   border-top: 1px solid var(--color_dark-grey);
   overflow: auto;
-  background: var(--color_light-jet);
 `;
 
 export const SubmenuCell = styled(Cell)`

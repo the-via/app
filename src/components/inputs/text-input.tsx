@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 const TextInput = styled.input`
-  background: var(--color_light-jet);
+  background: none;
   border: none;
-  border-bottom: 1px solid var(--color_light-jet);
+  border-bottom: 1px solid var(--color_dark-accent);
   color: var(--color_accent);
   font-size: 1rem;
   margin-bottom: 1.5rem;
