@@ -3,15 +3,16 @@ import styled from 'styled-components';
 const TextInput = styled.input`
   background: none;
   border: none;
-  border-bottom: 1px solid var(--color_dark-accent);
+  border-bottom: 1px solid var(--color_accent);
+  filter: brightness(0.7);
   color: var(--color_accent);
-  font-size: 1rem;
+  font-size: 1.2rem;
   margin-bottom: 1.5rem;
   padding: 0.5rem;
-  transition: all 0.4s ease-out;
+  transition: all 0.2s ease-out;
 
   &:focus {
-    border-color: var(--color_accent);
+    filter: brightness(1);
     color: var(--color_accent);
     outline: none;
   }

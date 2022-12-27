@@ -120,10 +120,7 @@ export const Row = styled.div<{selected: boolean}>`
   }
 
   &:hover {
-    color: ${(props) =>
-      props.selected
-        ? getIconColor(props.selected).style.color
-        : 'var(--color_dark-grey)'};
+    color: var(--color_label-highlighted);
     & .tooltip {
       transform: scale(1) translateX(0px);
       opacity: 1;

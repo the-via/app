@@ -39,8 +39,9 @@ const KeyboardTitle = styled.label`
   border: solid 1px var(--bg_control);
   border-top: none;
   cursor: pointer;
+  transition: all 0.1s ease-out;
   &:hover {
-    background: var(--color_dark-accent);
+    filter: brightness(0.7);
   }
 `;
 const KeyboardList = styled.ul<{show: boolean}>`
@@ -93,13 +94,14 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
 
 const ClickCover = styled.div`
   position: fixed;
+  z-index: 10;
   pointer-events: all;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   opacity: 0.4;
-  background: var(--color_jet);
+  background: rgba(0, 0, 0, 0.75);
 `;
 
 type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
