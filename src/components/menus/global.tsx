@@ -9,7 +9,7 @@ const Container = styled.div`
   width: 100vw;
   height: 25px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--color_dark-grey);
+  border-bottom: 1px solid var(--border_color_cell);
   text-align: center;
 `;
 

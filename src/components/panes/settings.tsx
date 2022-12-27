@@ -30,7 +30,7 @@ export const Settings = () => {
 
   return (
     <Pane>
-      <OverflowCell style={{flex: 1}}>
+      <OverflowCell style={{flex: 1, borderWidth: 0}}>
         <Container>
           <ControlRow>
             <Label>Show Design tab</Label>

@@ -61,7 +61,7 @@ export const ColorThumbnail = styled.div`
   height: 20px;
   width: 30px;
   border-radius: 2px;
-  border: 2px solid var(--color_dark-grey);
+  border: 2px solid var(--border_color_cell);
   cursor: pointer;
   &:hover {
     opacity: 0.8;
@@ -69,7 +69,7 @@ export const ColorThumbnail = styled.div`
 `;
 
 const Container = styled.div`
-  border: 4px solid var(--color_dark-grey);
+  border: 4px solid var(--border_color_cell);
   width: 180px;
   height: 180px;
   position: relative;
@@ -91,7 +91,7 @@ const PickerContainer = styled.div`
     position: absolute;
     width: 0px;
     height: 0px;
-    border: 11px solid var(--color_dark-grey);
+    border: 11px solid var(--border_color_cell);
     border-top-color: transparent;
     border-bottom-color: transparent;
     border-right-color: transparent;
@@ -103,7 +103,7 @@ const PickerContainer = styled.div`
 const ColorPreview = styled.div`
   width: 180px;
   height: 24px;
-  border: 4px solid var(--color_dark-grey);
+  border: 4px solid var(--border_color_cell);
   border-bottom: none;
 `;
 

@@ -105,8 +105,12 @@ export const CanvasRouter = () => {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
+  const hasHIDSupport = 'hid' in navigator;
   const hideCanvasScene =
-    ['/settings'].includes(path) || hideDesignScene || hideConfigureScene;
+    !hasHIDSupport ||
+    ['/settings'].includes(path) ||
+    hideDesignScene ||
+    hideConfigureScene;
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );

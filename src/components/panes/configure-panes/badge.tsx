@@ -33,7 +33,7 @@ const KeyboardTitle = styled.label`
   border-bottom-right-radius: 6px;
   font-size: 18px;
   text-transform: uppercase;
-  color: var(--color_label-highlighted);
+  color: var(--color_inside-accent);
   padding: 1px 10px;
   margin-right: 10px;
   border: solid 1px var(--bg_control);

@@ -35,7 +35,7 @@ import {
 import {getNextKey} from 'src/utils/keyboard-rendering';
 
 const ErrorHome = styled.div`
-  background: var(--color_jet);
+  background: var(--bg_gradient);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -46,6 +46,7 @@ const ErrorHome = styled.div`
 const UsbError = styled.div`
   align-items: center;
   display: flex;
+  color: var(--color_label);
   flex-direction: column;
   height: 100%;
   justify-content: center;
@@ -64,6 +65,7 @@ const UsbErrorHeading = styled.h1`
 
 const UsbErrorWebHIDLink = styled.a`
   text-decoration: underline;
+  color: var(--color_label-highlighted);
 `;
 
 const timeoutRepeater =

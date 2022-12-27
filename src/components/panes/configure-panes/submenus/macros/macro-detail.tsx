@@ -117,7 +117,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
             lineHeight: '20px',
           }}
           itemStyle={{
-            borderColor: 'var(--color_dark-grey)',
+            borderColor: 'var(--border_color_cell)',
             backgroundColor: 'var(--bg_menu)',
           }}
           dropdownStyle={{
@@ -129,7 +129,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
             backgroundColor: 'var(--bg_menu)',
             maxHeight: '210px',
             overflow: 'auto',
-            border: '1px solid var(--color_dark-grey)',
+            border: '1px solid var(--border_color_cell)',
           }}
           minChar={0}
           textAreaComponent={TextArea as any}
