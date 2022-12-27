@@ -146,7 +146,7 @@ export const Pane: FC = () => {
 */
   };
 
-  const loadLayout = (file: Blob) => {
+  const loadLayout = ([file]: Blob[]) => {
     setErrorMessage(null);
     setSuccessMessage(null);
     const reader = new FileReader();
