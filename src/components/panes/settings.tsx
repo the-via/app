@@ -11,6 +11,8 @@ import {
   getDisableFastRemap,
   toggleCreatorMode,
   toggleFastRemap,
+  getThemeMode,
+  toggleThemeMode,
 } from 'src/store/settingsSlice';
 
 const Container = styled.div`
@@ -24,6 +26,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const themeMode = useAppSelector(getThemeMode);
 
   return (
     <Pane>
@@ -44,6 +47,15 @@ export const Settings = () => {
               <AccentSlider
                 onChange={() => dispatch(toggleFastRemap())}
                 isChecked={!disableFastRemap}
+              />
+            </Detail>
+          </ControlRow>
+          <ControlRow>
+            <Label>Light Mode</Label>
+            <Detail>
+              <AccentSlider
+                onChange={() => dispatch(toggleThemeMode())}
+                isChecked={themeMode === 'light'}
               />
             </Detail>
           </ControlRow>

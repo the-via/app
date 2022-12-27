@@ -21,7 +21,7 @@ const Slider = styled.span<{ischecked?: boolean}>`
   right: 0;
   bottom: 0;
   background-color: ${(props) =>
-    props.ischecked ? 'var(--color_accent)' : 'var(--color_dark-grey)'};
+    props.ischecked ? 'var(--color_accent)' : 'var(--bg_control)'};
   -webkit-transition: 0.4s;
   transition: 0.4s;
   border-radius: 4px;

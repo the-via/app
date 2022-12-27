@@ -7,15 +7,15 @@ const customStyles = {
       '&:hover': {
         backgroundColor: state.isSelected
           ? 'var(--color_accent)'
-          : 'var(--color_dark-grey)',
+          : 'var(--bg_control)',
       },
       ':active': {
-        backgroundColor: 'var(--color_dark-grey)',
+        backgroundColor: 'var(--bg_control)',
       },
       background: state.isSelected
         ? 'var(--color_accent)'
         : state.isFocused
-        ? 'var(--color_dark-grey)'
+        ? 'var(--bg_control)'
         : 'var(--bg_menu)',
       color: state.isSelected
         ? 'var(--color_light-jet)'
@@ -58,7 +58,7 @@ const customStyles = {
   valueContainer: (provided: any) => ({
     ...provided,
     ':active': {
-      backgroundColor: 'var(--color_dark-grey)',
+      backgroundColor: 'var(--bg_control)',
       borderColor: 'var(--color_accent)',
     },
     '&:hover': {

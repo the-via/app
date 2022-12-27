@@ -44,7 +44,7 @@ const AutoHeightRow = styled(ControlRow)`
 
 const TextArea = styled.textarea`
   box-sizing: border-box;
-  background: var(--color_jet);
+  background: var(--bg_control);
   padding: 5px 10px;
   border-color: var(--border_color_icon);
   color: var(--color_label);

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 const LoadingText = styled.div`
   font-size: 30px;
-  color: var(--color_light-grey);
+  color: var(--color_label-highlighted);
 `;
 
 enum LoadingLabel {
