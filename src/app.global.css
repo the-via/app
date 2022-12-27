@@ -51,7 +51,6 @@ a:hover {
   --color_dark-grey: #414141;
   --color_light-jet: #222;
   --color_jet: #1d1b1b;
-  --gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 }
 
 html[data-theme-mode=dark] {
@@ -61,6 +60,8 @@ html[data-theme-mode=dark] {
   --border_color_icon: var(--color_medium-grey);
   --bg_icon: var(--color_medium-grey);
   --bg_icon-highlighted: var(--color_light-grey);
+  --bg_menu: var(--color_light-jet);
+  --bg_gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 }
 html[data-theme-mode=light] {
   --color_label: var(--color_medium-grey);
@@ -69,10 +70,12 @@ html[data-theme-mode=light] {
   --border_color_icon: var(--color_medium-grey);
   --bg_icon: var(--color_medium-grey);
   --bg_icon-highlighted: var(--color_light-grey);
+  --bg_menu: var(--color_light-jet);
+  --bg_gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
 }
 
 #root {
-  background: var(--gradient);
+  background: var(--bg_gradient);
   display: flex;
   flex-direction: column;
   height: 100%;

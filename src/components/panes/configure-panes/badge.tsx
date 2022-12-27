@@ -48,7 +48,7 @@ const KeyboardList = styled.ul<{show: boolean}>`
   border: 1px solid var(--color_dark-grey);
   width: 160px;
   border-radius: 6px;
-  background-color: var(--color_light-jet);
+  background-color: var(--bg_menu);
   margin: 0;
   margin-top: 5px;
   right: 10px;

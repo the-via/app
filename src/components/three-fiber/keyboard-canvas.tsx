@@ -1,10 +1,10 @@
 import {PresentationControls} from '@react-three/drei';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
+import {TestKeyState} from 'src/types/types';
 import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,
 } from 'src/utils/keyboard-rendering';
-import {TestKeyState} from '../test-keyboard';
 import {Case} from './case';
 import {KeyGroup} from './key-group';
 import {DisplayMode} from './keycap';

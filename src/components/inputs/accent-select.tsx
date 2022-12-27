@@ -16,7 +16,7 @@ const customStyles = {
         ? 'var(--color_accent)'
         : state.isFocused
         ? 'var(--color_dark-grey)'
-        : 'var(--color_light-jet)',
+        : 'var(--bg_menu)',
       color: state.isSelected
         ? 'var(--color_light-jet)'
         : state.isFocused
@@ -49,7 +49,7 @@ const customStyles = {
   menuList: (provided: any) => ({
     ...provided,
     borderColor: 'var(--color_accent)',
-    backgroundColor: 'var(--color_light-jet)',
+    backgroundColor: 'var(--bg_menu)',
   }),
   placeholder: (provided: any) => ({
     ...provided,
@@ -65,7 +65,7 @@ const customStyles = {
       borderColor: 'var(--color_accent)',
     },
     color: 'var(--color_accent)',
-    background: 'var(--color_light-jet)',
+    background: 'var(--bg_menu)',
   }),
   control: (provided: any, state: any) => {
     const res = {
@@ -80,7 +80,7 @@ const customStyles = {
       },
       color: 'var(--color_accent)',
       borderColor: '1px solid var(--color_accent)',
-      background: 'var(--color_light-jet)',
+      background: 'var(--bg_menu)',
       overflow: 'hidden',
       width: state.selectProps.width || 250,
     };

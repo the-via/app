@@ -4,9 +4,9 @@ import {ThreeEvent} from '@react-three/fiber';
 import {KeyColorType, VIAKey} from '@the-via/reader';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
+import {TestKeyState} from 'src/types/types';
 import {getColors} from 'src/utils/keyboard-rendering';
 import * as THREE from 'three';
-import {TestKeyState} from '../test-keyboard';
 const DEBUG_ENABLE = false;
 
 export enum DisplayMode {

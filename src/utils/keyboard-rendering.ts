@@ -1,7 +1,26 @@
-import {getBoundingBox, KeyColorType, Result, VIAKey} from '@the-via/reader';
+import {
+  getBoundingBox,
+  KeyColorType,
+  Result,
+  VIADefinitionV2,
+  VIADefinitionV3,
+  VIAKey,
+} from '@the-via/reader';
 import partition from 'lodash.partition';
+import {RootState} from 'src/store';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
+import {
+  getLabelForByte,
+  getShortNameForKeycode,
+  getUserKeycodeIndex,
+  IKeycode,
+  isAlpha,
+  isMacro,
+  isNumericOrShiftedSymbol,
+  isNumericSymbol,
+  isUserKeycodeByte,
+} from './key';
 
 export type KeyColorPair = {
   c: string;
@@ -366,5 +385,71 @@ export const getScale = (k: VIAKey, scale: number[]) => {
     default: {
       return scale;
     }
+  }
+};
+
+export const getLabel = (
+  keycodeByte: number,
+  width: number,
+  macros: RootState['macros'],
+  selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) => {
+  let label: string = '';
+  // Full name
+  let tooltipLabel: string = '';
+  if (
+    isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
+    selectedDefinition?.customKeycodes
+  ) {
+    const userKeycodeIdx = getUserKeycodeIndex(keycodeByte, basicKeyToByte);
+    label = getShortNameForKeycode(
+      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+    );
+    tooltipLabel = getShortNameForKeycode(
+      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      700,
+    );
+  } else if (keycodeByte) {
+    label =
+      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
+      '';
+    tooltipLabel =
+      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
+  }
+  let macroExpression: string | undefined;
+  if (isMacro(label)) {
+    macroExpression = macros.expressions[label.substring(1) as any];
+    tooltipLabel = macroExpression || '';
+  }
+
+  if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {
+    return (
+      label && {
+        label: label.toUpperCase(),
+        macroExpression,
+        key: (label || '') + (macroExpression || ''),
+      }
+    );
+  } else if (isNumericSymbol(label)) {
+    const topLabel = label[0];
+    const bottomLabel = label[label.length - 1];
+    return (
+      bottomLabel && {
+        topLabel,
+        bottomLabel,
+        macroExpression,
+        key: (label || '') + (macroExpression || ''),
+      }
+    );
+  } else {
+    return {
+      label,
+      centerLabel: label,
+      tooltipLabel,
+      macroExpression,
+      key: (label || '') + (macroExpression || ''),
+    };
   }
 };

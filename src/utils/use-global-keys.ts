@@ -1,7 +1,6 @@
 import {useEffect, useState} from 'react';
 import {useDispatch} from 'react-redux';
-import {TestKeyState} from 'src/components/test-keyboard';
-import {setTestMatrixEnabled} from 'src/store/settingsSlice';
+import {TestKeyState} from 'src/types/types';
 import {getIndexByEvent} from './key-event';
 
 type TestKeys = {[code: number]: TestKeyState};

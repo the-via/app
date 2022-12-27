@@ -48,38 +48,6 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-const DebugPane = styled(Pane)`
-  height: 100%;
-  max-width: 100vw;
-
-  @media (min-width: 1200px) {
-    flex-direction: row;
-  }
-`;
-
-const MenuPanel = styled(OverflowCell)`
-  flex: 1;
-  padding: 1rem;
-
-  @media (min-width: 1200px) {
-    border: 0 none;
-    border-left: 1px solid var(--color_dark-grey);
-    max-width: 33rem;
-    padding: 1.5rem;
-  }
-`;
-
-const KeyboardPanel = styled(FlexCell)`
-  flex: 1;
-  flex-direction: column;
-
-  @media (min-width: 1200px) {
-    border: 0 none;
-    box-sizing: border-box;
-    height: 100%;
-  }
-`;
-
 const ControlGroup = styled.div`
   margin-bottom: 0.75rem;
   padding-bottom: 0.75rem;
@@ -253,8 +221,8 @@ export const Debug: FC = () => {
   const dimensions = useSize(flexRef);
 
   return (
-    <DebugPane>
-      <MenuPanel>
+    <Pane>
+      <OverflowCell>
         <Container>
           <GithubUserData />
           <ControlGroup>
@@ -446,7 +414,7 @@ export const Debug: FC = () => {
           </ControlGroup>
           <TestControls />
         </Container>
-      </MenuPanel>
-    </DebugPane>
+      </OverflowCell>
+    </Pane>
   );
 };

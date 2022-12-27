@@ -55,7 +55,7 @@ const RowDiv = styled.div`
 
 const AutocompleteContainer = styled.li`
   position: fixed;
-  background-color: var(--color_light-jet);
+  background-color: var(--bg_menu);
   max-height: 210px;
   overflow: auto;
   border: 1px solid var(--color_dark-grey);
