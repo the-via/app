@@ -29,6 +29,21 @@ export function getRGBPrime(
   throw new Error('Invalid hue');
 }
 
+export const getDarkenedColor = (color: string) => {
+  const cleanedColor = color.replace('#', '');
+  const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
+  const g = parseInt(cleanedColor[2], 16) * 16 + parseInt(cleanedColor[3], 16);
+  const b = parseInt(cleanedColor[4], 16) * 16 + parseInt(cleanedColor[5], 16);
+  const hr = Math.round(r * 0.8).toString(16);
+  const hg = Math.round(g * 0.8).toString(16);
+  const hb = Math.round(b * 0.8).toString(16);
+  const res = `#${hr.padStart(2, '0')}${hg.padStart(2, '0')}${hb.padStart(
+    2,
+    '0',
+  )}`;
+  return res;
+};
+
 export function getRGB({hue, sat}: {hue: number; sat: number}): string {
   sat = sat / 255;
   hue = Math.round(360 * hue) / 255;

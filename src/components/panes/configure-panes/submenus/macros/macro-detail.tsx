@@ -31,10 +31,10 @@ const Link = styled.a`
 `;
 
 const DescriptionLabel = styled(Label)`
+  margin: 1em 0;
   font-size: 14px;
   line-height: 18px;
   font-style: oblique;
-  color: var(--color_dark-grey);
   padding-left: 5px;
 `;
 
@@ -56,7 +56,7 @@ const TextArea = styled.textarea`
   font-family: 'Source Code Pro';
   font-weight: 500;
   &::placeholder {
-    color: var(--color_dark-grey);
+    color: var(--color_label);
   }
   &:focus {
     color: var(--color_accent);

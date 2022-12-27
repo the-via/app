@@ -34,7 +34,6 @@ import {
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
-import {DebugKeyboard} from '../three-fiber/keyboard';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 
 // TODO: should we differentiate between firwmare versions in the UI?
