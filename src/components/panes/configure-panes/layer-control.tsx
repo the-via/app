@@ -16,7 +16,7 @@ const Container = styled.div`
 const Label = styled.label`
   font-size: 20px;
   text-transform: uppercase;
-  color: var(--color_inside-accent);
+  color: var(--color_label-highlighted);
   margin-right: 8px;
 `;
 const LayerButton = styled.button<{selected?: boolean}>`
@@ -28,7 +28,7 @@ const LayerButton = styled.button<{selected?: boolean}>`
   color: ${(props) =>
     props.selected
       ? 'var(--color_inside-accent)'
-      : 'var(--color_inside-accent)'};
+      : 'var(--color_label-highlighted)'};
   cursor: pointer;
   font-size: 20px;
   &:hover {

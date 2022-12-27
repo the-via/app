@@ -3,7 +3,11 @@ import {createRoot} from 'react-dom/client';
 import Root from './containers/Root';
 import {ApplicationInsights} from '@microsoft/applicationinsights-web';
 import './app.global.css';
-import {getThemeModeFromStore} from './utils/device-store';
+import {
+  getThemeModeFromStore,
+  getThemeNameFromStore,
+} from './utils/device-store';
+import {updateCSSVariables} from './utils/color-math';
 
 const appInsights = new ApplicationInsights({
   config: {
@@ -18,4 +22,5 @@ if (elem) {
   const root = createRoot(elem);
   root.render(<Root />);
   document.documentElement.dataset['themeMode'] = getThemeModeFromStore();
+  updateCSSVariables(getThemeNameFromStore());
 }
