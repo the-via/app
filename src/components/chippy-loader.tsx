@@ -8,7 +8,6 @@ const defaultChippy = {
 };
 
 const LoaderContainer = styled.div`
-  margin-top: 500px;
   width: 100%;
   display: flex;
   justify-content: center;

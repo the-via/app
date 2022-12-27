@@ -186,7 +186,7 @@ const Lights = React.memo(() => {
 }, shallowEqual);
 
 const getRouteX = (route: string) => {
-  const configurePosition = 0.48;
+  const configurePosition = 0;
   const spaceMultiplier = 20;
   const testPosition = -spaceMultiplier * 1;
   const designPosition = -spaceMultiplier * 2;

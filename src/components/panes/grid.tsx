@@ -4,15 +4,13 @@ export const Grid1Col = styled.div`
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-rows: minmax(350px, min-content) minmax(0, 1fr);
   grid-template-columns: 100vw;
 `;
 export const Grid = styled.div`
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-rows: minmax(350px, min-content) minmax(0, 1fr);
-  grid-template-columns: min-content minmax(0, 1fr);
+  grid-template-columns: min-content min-content minmax(0, 1fr);
   > div {
     pointer-events: all;
   }
@@ -23,7 +21,6 @@ export const Cell = styled.div`
 `;
 
 export const MenuCell = styled(Cell)`
-  grid-area: 1 / 1 / 3 / 2;
   background: var(--bg_menu);
 `;
 
@@ -32,9 +29,14 @@ export const OverflowCell = styled(Cell)`
   overflow: auto;
 `;
 
+export const SpanOverflowCell = styled(Cell)`
+  border-top: 1px solid var(--color_dark-grey);
+  overflow: auto;
+  grid-column: span 2;
+`;
+
 export const SubmenuCell = styled(Cell)`
   border-top: 1px solid var(--color_dark-grey);
-  grid-area: 2 / 1 / 3 / 2;
 `;
 
 export const SubmenuOverflowCell = styled(SubmenuCell)`
@@ -59,6 +61,10 @@ export const IconContainer = styled.span`
   display: inline-block;
   text-align: center;
   width: 35px;
+  position: relative;
+  &:hover > span > div {
+    background-color: red;
+  }
 `;
 
 export const ControlRow = styled.div`
@@ -117,6 +123,14 @@ export const Row = styled.div<{selected: boolean}>`
       props.selected
         ? getIconColor(props.selected).style.color
         : 'var(--color_dark-grey)'};
+    & .tooltip {
+      transform: scale(1) translateX(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: scale(0.6) translateX(-5px);
+    opacity: 0;
   }
 `;
 

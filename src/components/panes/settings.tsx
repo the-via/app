@@ -13,27 +13,11 @@ import {
   toggleFastRemap,
 } from 'src/store/settingsSlice';
 
-const RestartMessage = styled(ErrorMessage)`
-  margin: 0;
-  font-size: 20px;
-`;
-
 const Container = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
   padding: 0 12px;
-`;
-
-const MenuPanel = styled(OverflowCell)`
-  flex: 1;
-  padding: 1rem;
-
-  @media (min-width: 1200px) {
-    border: 0 none;
-    border-left: 1px solid var(--color_dark-grey);
-    padding: 1.5rem;
-  }
 `;
 
 export const Settings = () => {
@@ -43,7 +27,7 @@ export const Settings = () => {
 
   return (
     <Pane>
-      <OverflowCell>
+      <OverflowCell style={{flex: 1}}>
         <Container>
           <ControlRow>
             <Label>Show Design tab</Label>

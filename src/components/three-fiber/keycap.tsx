@@ -1,12 +1,11 @@
 import {animated, useSpring} from '@react-spring/three';
 import {Html} from '@react-three/drei';
 import {ThreeEvent} from '@react-three/fiber';
-import {KeyColorType, VIAKey} from '@the-via/reader';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
-import {getColors} from 'src/utils/keyboard-rendering';
 import * as THREE from 'three';
+import {KeycapTooltip} from '../inputs/tooltip';
 const DEBUG_ENABLE = false;
 
 export enum DisplayMode {
@@ -278,7 +277,7 @@ export const Keycap = React.memo(
                   pointerEvents: 'none',
                 }}
               >
-                <Tooltip>{macroData || label.tooltipLabel}</Tooltip>
+                <KeycapTooltip>{macroData || label.tooltipLabel}</KeycapTooltip>
               </Html>
             </animated.group>
           </React.Suspense>
@@ -288,46 +287,3 @@ export const Keycap = React.memo(
   },
   shallowEqual,
 );
-
-const Tooltip: React.FC<any> = (props) => {
-  const accent = useMemo(() => getColors({color: KeyColorType.Accent}), []);
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        marginTop: -800,
-      }}
-    >
-      <div
-        style={{
-          padding: '70px 70px',
-          background: `${accent.c}`,
-          color: `${accent.t}`,
-          borderRadius: 100,
-          fontSize: 200,
-          fontFamily: 'Source Code Pro',
-          whiteSpace: 'nowrap',
-          letterSpacing: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontWeight: 'bold',
-        }}
-      >
-        {props.children}
-      </div>
-      <div
-        style={{
-          height: 150,
-          width: 150,
-          marginTop: -100,
-          transform: 'rotate(45deg)',
-          background: accent.c,
-        }}
-      ></div>
-    </div>
-  );
-};
