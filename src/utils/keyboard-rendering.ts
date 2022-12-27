@@ -2,6 +2,7 @@ import {
   getBoundingBox,
   KeyColorType,
   Result,
+  ThemeDefinition,
   VIADefinitionV2,
   VIADefinitionV3,
   VIAKey,
@@ -261,6 +262,13 @@ const srgbTheme = Object.entries(theme).reduce((p, [key, colorPair]) => {
 export const getColors = ({color}: {color: KeyColorType}): KeyColorPair => {
   return theme[color];
 };
+
+export const makeSRGBTheme = (theme: ThemeDefinition) =>
+  Object.entries(theme).reduce((p, [key, colorPair]) => {
+    const c = `#${new Color(colorPair.c).convertSRGBToLinear().getHexString()}`;
+    const t = `#${new Color(colorPair.t).convertSRGBToLinear().getHexString()}`;
+    return {...p, [key]: {c, t}};
+  }, {}) as ReturnType<typeof getThemeFromStore>;
 
 export const getTextureColors = ({
   color,

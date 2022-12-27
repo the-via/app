@@ -1,8 +1,10 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {Settings} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
 import type {RootState} from '.';
+import {THEMES} from '@the-via/reader';
+import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 export type SettingsState = Settings & {
@@ -45,6 +47,10 @@ export const settingsSlice = createSlice({
       state.themeMode = newThemeMode;
       setSettings(state);
     },
+    updateThemeName: (state, action: PayloadAction<string>) => {
+      state.themeName = action.payload;
+      setSettings(state);
+    },
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
       state.isTestMatrixEnabled = action.payload;
     },
@@ -65,6 +71,7 @@ export const {
   toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
+  updateThemeName,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
@@ -82,3 +89,14 @@ export const getRestartRequired = (state: RootState) =>
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
 export const getThemeMode = (state: RootState) => state.settings.themeMode;
+export const getThemeName = (state: RootState) => state.settings.themeName;
+export const getSelectedTheme = createSelector(getThemeName, (themeName) => {
+  return THEMES[themeName];
+});
+
+export const getSelectedSRGBTheme = createSelector(
+  getThemeName,
+  (themeName) => {
+    return makeSRGBTheme(THEMES[themeName]);
+  },
+);

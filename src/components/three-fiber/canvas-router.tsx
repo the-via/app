@@ -27,8 +27,11 @@ import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
-import {DefinitionVersionMap} from '@the-via/reader';
+import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
+import {getColors} from 'src/utils/keyboard-rendering';
+import {getBrightenedColor, getDarkenedColor} from 'src/utils/color-math';
+import {getSelectedTheme} from 'src/store/settingsSlice';
 
 useGLTF.preload('/models/keyboard_components.glb');
 useTexture.preload('/images/chippy.png');
@@ -89,6 +92,8 @@ export const CanvasRouter = () => {
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
+  const theme = useAppSelector(getSelectedTheme);
+  const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
@@ -114,7 +119,7 @@ export const CanvasRouter = () => {
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
-
+  const a = '#aa9a9a';
   return (
     <>
       <UpdateUVMaps />
@@ -136,7 +141,7 @@ export const CanvasRouter = () => {
             onClick={terrainOnClick}
           >
             <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color="#aa9a9a" />
+            <meshStandardMaterial color={accentColor} />
           </mesh>
           <Camera />
           <Float
