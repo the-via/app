@@ -41,47 +41,16 @@ export const SubmenuOverflowCell = styled(SubmenuCell)`
   overflow: auto;
 `;
 
-export const FlexCell = styled(Cell)`
+export const SinglePaneFlexCell = styled(Cell)`
   display: flex;
   overflow: hidden;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 50px 10px;
   position: relative;
 `;
 
-export const DesignFlexCell = styled(Cell)`
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  background: var(--gradient);
-`;
-
-export const TestFlexCell = styled(Cell)`
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  background: var(--gradient);
-  animation-duration: 2s;
-  animation-timing-function: ease-in;
-`;
-
-export const ConfigureFlexCell = styled(Cell)`
-  display: flex;
-  overflow: hidden;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  animation-duration: 2s;
-  animation-timing-function: ease-in;
+export const ConfigureFlexCell = styled(SinglePaneFlexCell)`
   pointer-events: none;
   height: 500px;
 `;

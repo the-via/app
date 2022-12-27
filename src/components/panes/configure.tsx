@@ -15,14 +15,7 @@ import {
   VIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {
-  Grid,
-  Row,
-  FlexCell,
-  IconContainer,
-  MenuCell,
-  ConfigureFlexCell,
-} from './grid';
+import {Grid, Row, IconContainer, MenuCell, ConfigureFlexCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
 import * as Lighting from './configure-panes/lighting';
 import * as Macros from './configure-panes/macros';

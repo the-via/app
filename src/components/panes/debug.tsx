@@ -17,7 +17,6 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  FlexCell,
 } from './grid';
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
