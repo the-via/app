@@ -189,7 +189,7 @@ export const Keycap = React.memo(
       color.c,
       shouldRotate,
     ]);
-    useEffect(redraw, [label && label.key]);
+    useEffect(redraw, [label && label.key, color.c, color.t]);
 
     const glow = useSpring({
       config: {duration: 800},

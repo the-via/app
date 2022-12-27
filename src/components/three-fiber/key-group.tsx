@@ -16,8 +16,10 @@ import {
   getScale,
   getTextureColors,
   KeycapMetric,
+  makeSRGBTheme,
 } from 'src/utils/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
+import {getSelectedSRGBTheme, getSelectedTheme} from 'src/store/settingsSlice';
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -32,6 +34,8 @@ export const KeyGroup: React.VFC<{
   const dispatch = useAppDispatch();
   const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
   const selectedKey = useAppSelector(getSelectedKey);
+  const selectedTheme = useAppSelector(getSelectedTheme);
+  const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;
@@ -66,7 +70,7 @@ export const KeyGroup: React.VFC<{
           ],
           rotation: [0, 0, -r],
           scale: [normalizedWidth, normalizedHeight, 1],
-          color: getTextureColors(k),
+          color: selectedSRGBTheme[k.color],
           meshKey,
           idx: i,
           onClick: (evt: any, idx: number) => {
@@ -76,7 +80,7 @@ export const KeyGroup: React.VFC<{
         };
       }),
     };
-  }, [keys]);
+  }, [keys, selectedSRGBTheme]);
   const labels = useMemo(() => {
     return !props.matrixKeycodes.length
       ? []
@@ -129,6 +133,7 @@ export const KeyGroup: React.VFC<{
     labels,
     props.pressedKeys,
     props.selectable,
+    selectedSRGBTheme,
     props.definition.vendorProductId,
   ]);
   return (

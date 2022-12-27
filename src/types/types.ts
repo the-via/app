@@ -77,6 +77,7 @@ export type Settings = {
   showDesignTab: boolean;
   disableFastRemap: boolean;
   themeMode: 'light' | 'dark';
+  themeName: string;
 };
 
 export type CommonMenusMap = {

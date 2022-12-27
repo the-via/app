@@ -13,7 +13,12 @@ import {
   toggleFastRemap,
   getThemeMode,
   toggleThemeMode,
+  getThemeName,
+  updateThemeName,
 } from 'src/store/settingsSlice';
+import {getThemeFromStore, getThemeNameFromStore} from 'src/utils/device-store';
+import {AccentSelect} from '../inputs/accent-select';
+import {THEMES} from '@the-via/reader';
 
 const Container = styled.div`
   display: flex;
@@ -27,6 +32,12 @@ export const Settings = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const themeMode = useAppSelector(getThemeMode);
+  const themeName = useAppSelector(getThemeName);
+  const selectOptions = Object.keys(THEMES).map((k) => ({
+    label: k.replaceAll('_', ' '),
+    value: k,
+  }));
+  const defaultValue = selectOptions.find((opt) => opt.value === themeName);
 
   return (
     <Pane>
@@ -56,6 +67,18 @@ export const Settings = () => {
               <AccentSlider
                 onChange={() => dispatch(toggleThemeMode())}
                 isChecked={themeMode === 'light'}
+              />
+            </Detail>
+          </ControlRow>
+          <ControlRow>
+            <Label>Keycap Theme</Label>
+            <Detail>
+              <AccentSelect
+                defaultValue={defaultValue}
+                options={selectOptions}
+                onChange={(option: any) => {
+                  option && dispatch(updateThemeName(option.value));
+                }}
               />
             </Detail>
           </ControlRow>

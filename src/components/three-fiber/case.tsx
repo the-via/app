@@ -8,6 +8,8 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
+import {getSelectedTheme} from 'src/store/settingsSlice';
+import {getDarkenedColor} from 'src/utils/color-math';
 import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
@@ -333,11 +335,9 @@ export const Case = (props: {width: number; height: number}) => {
   const widthOffset = 0.4;
   const heightOffset = 0.5;
   const depthOffset = 0.5;
+  const theme = useAppSelector(getSelectedTheme);
 
-  const outsideColor = useMemo(
-    () => getColors({color: KeyColorType.Accent}).c,
-    [],
-  );
+  const outsideColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const outsideShape = useMemo(() => {
     return makeShape({
       width: 0.4 + widthOffset,
@@ -380,7 +380,12 @@ export const Case = (props: {width: number; height: number}) => {
             },
           ]}
         />
-        <meshPhongMaterial color={outsideColor} />
+        <meshPhongMaterial
+          color={outsideColor}
+          shininess={100}
+          reflectivity={1}
+          specular={getDarkenedColor(outsideColor, 0.2)}
+        />
       </mesh>
       {false ? (
         <SimplePlate width={props.width} height={props.height} />
@@ -402,7 +407,7 @@ export const Case = (props: {width: number; height: number}) => {
             color={innerColor}
             shininess={100}
             reflectivity={1}
-            specular={'#161212'}
+            specular={getDarkenedColor(outsideColor, 0.2)}
           />
         </mesh>
       )}
