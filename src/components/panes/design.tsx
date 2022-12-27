@@ -26,7 +26,7 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  DesignFlexCell,
+  SinglePaneFlexCell,
 } from './grid';
 import {useDispatch} from 'react-redux';
 import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
@@ -220,7 +220,7 @@ export const DesignTab: FC = () => {
         evt.stopPropagation();
       }}
     >
-      <DesignFlexCell ref={flexRef}>
+      <SinglePaneFlexCell ref={flexRef}>
         {!definition && (
           <UploadIcon
             onClick={() => {
@@ -239,7 +239,7 @@ export const DesignTab: FC = () => {
             <FontAwesomeIcon icon={faUpload} />
           </UploadIcon>
         )}
-      </DesignFlexCell>
+      </SinglePaneFlexCell>
       <OverflowCell>
         <Container>
           <ControlRow>
