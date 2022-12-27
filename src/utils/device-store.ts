@@ -30,7 +30,7 @@ const defaultStoreData = {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
     disableFastRemap: false,
-    disableHardwareAcceleration: false,
+    themeMode: 'dark' as const,
   },
   commonMenus: {},
 };
@@ -159,6 +159,10 @@ export const getDefinitionsFromStore = (): KeyboardDictionary =>
 
 export const getThemeFromStore = (): ThemeDefinition =>
   deviceStore.get('definitionIndex')?.theme;
+
+export const getThemeModeFromStore = (): 'dark' | 'light' => {
+  return deviceStore.get('settings')?.themeMode;
+};
 
 export const getSettings = (): Settings => deviceStore.get('settings');
 

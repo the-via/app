@@ -113,7 +113,7 @@ export const IndentedControlRow = styled(ControlRow)`
 `;
 
 export const Label = styled.label`
-  color: var(--color_medium-grey);
+  color: var(--color_label);
 `;
 
 export const SubLabel = styled(Label)`

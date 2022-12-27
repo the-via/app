@@ -36,9 +36,6 @@ export const settingsSlice = createSlice({
     toggleFastRemap: (state) => {
       toggleBool(state, 'disableFastRemap');
     },
-    toggleHardwareAcceleration: (state) => {
-      toggleBool(state, 'disableHardwareAcceleration');
-    },
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
     },
@@ -51,19 +48,14 @@ export const settingsSlice = createSlice({
     enableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = true;
     },
-    requireRestart: (state) => {
-      state.restartRequired = true;
-    },
   },
 });
 
 export const {
   toggleKeyRemappingViaKeyboard,
   toggleFastRemap,
-  toggleHardwareAcceleration,
   toggleCreatorMode,
   setTestMatrixEnabled,
-  requireRestart,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
 } = settingsSlice.actions;
@@ -78,8 +70,6 @@ export const getDisableFastRemap = (state: RootState) =>
   state.settings.disableFastRemap;
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
-export const getDisableHardwareAcceleration = (state: RootState) =>
-  state.settings.disableHardwareAcceleration;
 export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>

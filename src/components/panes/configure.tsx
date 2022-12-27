@@ -15,7 +15,6 @@ import {
   VIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {PositionedKeyboard} from '../positioned-keyboard';
 import {
   Grid,
   Row,

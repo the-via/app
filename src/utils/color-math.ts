@@ -1,3 +1,11 @@
+export const getRandomColor = () =>
+  Array(3)
+    .fill(0)
+    .reduce(
+      (a) => `${a}${(~~(Math.random() * 255)).toString(16).padStart(2, '0')}`,
+      '#',
+    );
+
 export function getRGBPrime(
   hue: number,
   c: number,

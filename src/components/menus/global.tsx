@@ -25,10 +25,9 @@ const MenuItem = styled.button<{selected?: boolean}>`
   text-transform: uppercase;
   cursor: pointer;
   color: ${(props) =>
-    props.selected ? 'var(--color_light-grey)' : 'var(--color_medium-grey)'};
+    props.selected ? 'var(--color_label-highlighted)' : 'var(--color_label)'};
   &:hover {
-    color: ${(props) =>
-      props.selected ? 'var(--color_light-grey)' : 'var(--color_light-grey)'};
+    color: var(--color_label-highlighted);
   }
 `;
 

@@ -385,24 +385,30 @@ export const Debug: FC = () => {
               <Label>Connected Devices</Label>
               <Detail>{Object.values(connectedDevices).length} Devices</Detail>
             </ControlRow>
-            {Object.values(connectedDevices).map((device) => (
-              <IndentedControlRow key={device.device.path}>
-                <SubLabel>
-                  {
-                    (
-                      (
-                        allDefinitions.find(
-                          ([id]) => id === device.vendorProductId.toString(),
-                        ) as KeyboardDefinitionEntry
-                      )[1] as VIADefinitionV2 | VIADefinitionV3
-                    ).name
-                  }
-                </SubLabel>
-                <Detail>
-                  0x{device.vendorProductId.toString(16).toUpperCase()}
-                </Detail>
-              </IndentedControlRow>
-            ))}
+            {Object.values(connectedDevices).map((device) => {
+              const definitionEntry = allDefinitions.find(
+                ([id]) => id === device.vendorProductId.toString(),
+              ) as KeyboardDefinitionEntry;
+              if (definitionEntry) {
+                return (
+                  <IndentedControlRow key={device.device.path}>
+                    <SubLabel>
+                      {
+                        (
+                          definitionEntry[1] as
+                            | VIADefinitionV2
+                            | VIADefinitionV3
+                        ).name
+                      }
+                    </SubLabel>
+                    <Detail>
+                      0x{device.vendorProductId.toString(16).toUpperCase()}
+                    </Detail>
+                  </IndentedControlRow>
+                );
+              }
+              return null;
+            })}
             <ControlRow>
               <Label>Local definitions</Label>
               <Detail>
