@@ -91,12 +91,12 @@ export const getIsTestMatrixEnabled = (state: RootState) =>
 export const getThemeMode = (state: RootState) => state.settings.themeMode;
 export const getThemeName = (state: RootState) => state.settings.themeName;
 export const getSelectedTheme = createSelector(getThemeName, (themeName) => {
-  return THEMES[themeName];
+  return THEMES[themeName] || THEMES['OLIVIA_DARK'];
 });
 
 export const getSelectedSRGBTheme = createSelector(
   getThemeName,
   (themeName) => {
-    return makeSRGBTheme(THEMES[themeName]);
+    return makeSRGBTheme(THEMES[themeName] || THEMES['OLIVIA_DARK']);
   },
 );

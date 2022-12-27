@@ -34,7 +34,6 @@ export const KeyGroup: React.VFC<{
   const dispatch = useAppDispatch();
   const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
   const selectedKey = useAppSelector(getSelectedKey);
-  const selectedTheme = useAppSelector(getSelectedTheme);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
