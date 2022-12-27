@@ -23,17 +23,17 @@ export const AccentButton = styled.button<AccentButtonProps>`
   pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
   cursor: ${(props) => (props.disabled ? 'initial' : 'pointer')};
   color: ${(props) =>
-    props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
+    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   border-color: ${(props) =>
-    props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
+    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
 
   &:hover,
   &:focus {
     border: 1px solid var(--color_accent);
     color: ${(props) =>
-      props.disabled ? 'var(--color_dark-grey)' : 'var(--color_light-grey)'};
+      props.disabled ? 'var(--bg_control)' : 'var(--color_label-highlighted)'};
     border-color: ${(props) =>
-      props.disabled ? 'var(--color_dark-grey)' : 'var(--color_accent)'};
+      props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
     background-color: ${(props) =>
       props.disabled ? 'transparent' : 'var(--color_accent)'};
   }

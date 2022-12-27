@@ -31,7 +31,7 @@ const ModalBackground = styled.div`
 const ModalContainer = styled.div`
   width: 480px;
   height: 200px;
-  background-color: var(--color_jet);
+  background-color: var(--bg_control);
   border-radius: 2px;
   display: flex;
   justify-content: center;
@@ -58,7 +58,7 @@ const AutocompleteContainer = styled.li`
   background-color: var(--bg_menu);
   max-height: 210px;
   overflow: auto;
-  border: 1px solid var(--color_dark-grey);
+  border: 1px solid var(--bg_control);
   margin: 0;
   padding: 0;
   width: auto;
@@ -68,7 +68,7 @@ const AutocompleteContainer = styled.li`
 
 const AutocompleteItemRow = styled.li`
   &:not(:last-child) {
-    border-bottom: 1px solid var(--color_dark-grey);
+    border-bottom: 1px solid var(--bg_control);
   }
 `;
 

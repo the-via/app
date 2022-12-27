@@ -33,10 +33,10 @@ const KeyboardTitle = styled.label`
   border-bottom-right-radius: 6px;
   font-size: 18px;
   text-transform: uppercase;
-  color: var(--color_light-grey);
+  color: var(--color_label-highlighted);
   padding: 1px 10px;
   margin-right: 10px;
-  border: solid 1px var(--color_dark-grey);
+  border: solid 1px var(--bg_control);
   border-top: none;
   cursor: pointer;
   &:hover {
@@ -45,7 +45,7 @@ const KeyboardTitle = styled.label`
 `;
 const KeyboardList = styled.ul<{show: boolean}>`
   padding: 0;
-  border: 1px solid var(--color_dark-grey);
+  border: 1px solid var(--bg_control);
   width: 160px;
   border-radius: 6px;
   background-color: var(--bg_menu);
@@ -70,9 +70,11 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   width: 100%;
   border: none;
   background: ${(props) =>
-    props.selected ? 'var(--color_light-grey)' : 'transparent'};
+    props.selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
   color: ${(props) =>
-    props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+    props.selected
+      ? 'var(--color_icon_highlighted)'
+      : 'var(--color_label-highlighted)'};
   cursor: pointer;
   text-align: left;
   font-size: 14px;
@@ -81,9 +83,11 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   &:hover {
     border: none;
     background: ${(props) =>
-      props.selected ? 'var(--color_light-grey)' : 'var(--color_dark-grey)'};
+      props.selected ? 'var(--bg_icon-highlighted)' : 'var(--bg_control)'};
     color: ${(props) =>
-      props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+      props.selected
+        ? 'var(--color_control-highlighted)'
+        : 'var(--color_label-highlighted)'};
   }
 `;
 

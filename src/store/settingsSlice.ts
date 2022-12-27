@@ -39,6 +39,12 @@ export const settingsSlice = createSlice({
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
     },
+    toggleThemeMode: (state) => {
+      const newThemeMode = state.themeMode === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.themeMode = newThemeMode;
+      state.themeMode = newThemeMode;
+      setSettings(state);
+    },
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
       state.isTestMatrixEnabled = action.payload;
     },
@@ -56,6 +62,7 @@ export const {
   toggleFastRemap,
   toggleCreatorMode,
   setTestMatrixEnabled,
+  toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
 } = settingsSlice.actions;
@@ -74,3 +81,4 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
+export const getThemeMode = (state: RootState) => state.settings.themeMode;

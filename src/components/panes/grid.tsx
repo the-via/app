@@ -17,7 +17,7 @@ export const Grid = styled.div`
 `;
 
 export const Cell = styled.div`
-  border-right: 1px solid var(--color_dark-grey);
+  border-right: 1px solid var(--bg_control);
 `;
 
 export const MenuCell = styled(Cell)`
@@ -25,18 +25,18 @@ export const MenuCell = styled(Cell)`
 `;
 
 export const OverflowCell = styled(Cell)`
-  border-top: 1px solid var(--color_dark-grey);
+  border-top: 1px solid var(--bg_control);
   overflow: auto;
 `;
 
 export const SpanOverflowCell = styled(Cell)`
-  border-top: 1px solid var(--color_dark-grey);
+  border-top: 1px solid var(--bg_control);
   overflow: auto;
   grid-column: span 2;
 `;
 
 export const SubmenuCell = styled(Cell)`
-  border-top: 1px solid var(--color_dark-grey);
+  border-top: 1px solid var(--bg_control);
 `;
 
 export const SubmenuOverflowCell = styled(SubmenuCell)`
@@ -111,7 +111,8 @@ export const Row = styled.div<{selected: boolean}>`
   text-transform: uppercase;
   color: ${(props) => getIconColor(props.selected).style.color};
   border-left: 2px solid
-    ${(props) => (props.selected ? 'var(--color_light-grey)' : 'transparent')};
+    ${(props) =>
+      props.selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
 
   svg {
     height: 20px;
@@ -129,7 +130,7 @@ export const Row = styled.div<{selected: boolean}>`
     }
   }
   .tooltip {
-    transform: scale(0.6) translateX(-5px);
+    transform: translateX(-5px) scale(0.6);
     opacity: 0;
   }
 `;

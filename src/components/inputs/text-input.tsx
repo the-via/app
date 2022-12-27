@@ -17,7 +17,7 @@ const TextInput = styled.input`
   }
 
   &::placeholder {
-    color: var(--color_dark-grey);
+    color: var(--color_control);
   }
 `;
 

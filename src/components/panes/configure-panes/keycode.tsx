@@ -65,8 +65,8 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   font-size: 14px;
 
   border: 1px solid var(--border_color_icon);
-  background: var(--color_dark-grey);
-  color: var(--color_light_grey);
+  background: var(--bg_control);
+  color: var(--color_label-highlighted);
   margin: 0;
   box-shadow: none;
   &:hover {

@@ -7,7 +7,7 @@ import {
 
 const NormalInput = styled.input`
   border: none;
-  border-bottom: 1px solid var(--color_dark-grey);
+  border-bottom: 1px solid var(--bg_control);
   color: var(--color_accent);
   background: var(--bg_menu);
   transition: all 0.4s ease-out;
@@ -21,7 +21,7 @@ const NormalInput = styled.input`
     border-color: var(--color_accent);
   }
   &::placeholder {
-    color: var(--color_dark-grey);
+    color: var(--bg_control);
   }
 `;
 
