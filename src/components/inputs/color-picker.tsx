@@ -14,14 +14,21 @@ type Color = {
 };
 
 type Props = {
+  isSelected?: boolean;
   color: Color;
   setColor: (hue: number, sat: number) => void;
+  onOpen?: () => void;
 };
 
 type State = {
   lensTransform: string;
   showPicker: boolean;
 };
+
+const ColorPickerContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 const ColorLens = styled.div`
   position: absolute;
@@ -58,10 +65,10 @@ const ColorOuter = styled.div`
 
 export const ColorThumbnail = styled.div`
   display: inline-block;
-  height: 20px;
-  width: 30px;
+  height: 25px;
+  width: 25px;
   border-radius: 2px;
-  border: 2px solid var(--border_color_cell);
+  border: 4px solid var(--border_color_cell);
   cursor: pointer;
   &:hover {
     opacity: 0.8;
@@ -84,7 +91,7 @@ const PickerContainer = styled.div`
   z-index: 1;
   box-shadow: rgba(0, 0, 0, 0.11) 0 1px 1px 1px;
   position: absolute;
-  transform: translate3d(-205px, 47px, 0);
+  transform: translate3d(-205px, 50px, 0);
 
   &::after {
     content: '';
@@ -207,6 +214,9 @@ export class ColorPicker extends Component<Props, State> {
   }
 
   onThumbnailClick = () => {
+    if (this.props.onOpen) {
+      this.props.onOpen();
+    }
     this.setState({showPicker: true});
   };
 
@@ -227,32 +237,42 @@ export class ColorPicker extends Component<Props, State> {
 
   render() {
     const color = this.getRGB(this.props.color);
+    const {isSelected = false, onOpen} = this.props;
     return (
       <>
-        <ColorThumbnail
-          ref={this.colorThumbnail}
-          onClick={this.onThumbnailClick}
-          style={{background: color}}
-        />
-        {this.state.showPicker && (
-          <PickerContainer
-            ref={this.pickerContainer}
-            onMouseUp={this.onMouseUp}
-          >
-            <ColorPreview style={{background: this.getRGB(this.props.color)}} />
-            <Container>
-              <ColorOuter
-                onMouseDown={this.onMouseDown}
-                onMouseMove={this.onMouseMove}
-                ref={(ref) => (this.ref = ref)}
-              >
-                <ColorInner>
-                  <ColorLens style={{transform: this.state.lensTransform}} />
-                </ColorInner>
-              </ColorOuter>
-            </Container>
-          </PickerContainer>
-        )}
+        <ColorPickerContainer>
+          <ColorThumbnail
+            ref={this.colorThumbnail}
+            onClick={this.onThumbnailClick}
+            style={{
+              background: color,
+              borderColor: !isSelected
+                ? 'var(--border_color_cell)'
+                : 'var(--color_accent)',
+            }}
+          />
+          {this.state.showPicker && (
+            <PickerContainer
+              ref={this.pickerContainer}
+              onMouseUp={this.onMouseUp}
+            >
+              <ColorPreview
+                style={{background: this.getRGB(this.props.color)}}
+              />
+              <Container>
+                <ColorOuter
+                  onMouseDown={this.onMouseDown}
+                  onMouseMove={this.onMouseMove}
+                  ref={(ref) => (this.ref = ref)}
+                >
+                  <ColorInner>
+                    <ColorLens style={{transform: this.state.lensTransform}} />
+                  </ColorInner>
+                </ColorOuter>
+              </Container>
+            </PickerContainer>
+          )}
+        </ColorPickerContainer>
       </>
     );
   }

@@ -12,6 +12,7 @@ export enum DisplayMode {
   Test = 1,
   Configure = 2,
   Design = 3,
+  ConfigureColors = 4,
 }
 
 export enum KeycapState {
@@ -151,6 +152,8 @@ export const Keycap = React.memo(
       textureOffsetX,
       textureWidth,
       textureHeight,
+      onPointerOver,
+      onPointerDown,
       idx,
     } = props;
     const ref = useRef<any>();
@@ -231,16 +234,31 @@ export const Keycap = React.memo(
       tooltipScale: !hovered ? 0 : 1,
     });
 
-    const [meshOnClick, meshOnPointerOver, meshOnPointerOut] = useMemo(() => {
+    const [
+      meshOnClick,
+      meshOnPointerOver,
+      meshOnPointerOut,
+      meshOnPointerDown,
+    ] = useMemo(() => {
       const noop = () => {};
       return disabled
-        ? [noop, noop, noop]
+        ? [noop, noop, noop, noop]
         : [
             (evt: ThreeEvent<MouseEvent>) => onClick(evt, idx),
-            () => hover(true),
+            (evt: ThreeEvent<MouseEvent>) => {
+              if (onPointerOver) {
+                onPointerOver(evt, idx);
+              }
+              hover(true);
+            },
             () => hover(false),
+            (evt: ThreeEvent<MouseEvent>) => {
+              if (onPointerDown) {
+                onPointerDown(evt, idx);
+              }
+            },
           ];
-    }, [disabled, onClick, hover, idx]);
+    }, [disabled, onClick, onPointerDown, onPointerOver, hover, idx]);
 
     const AniMeshMaterial = animated.meshPhongMaterial as any;
 
@@ -252,6 +270,7 @@ export const Keycap = React.memo(
           position-z={z}
           rotation-z={rotateZ}
           onClick={meshOnClick}
+          onPointerDown={meshOnPointerDown}
           onPointerOver={meshOnPointerOver}
           onPointerOut={meshOnPointerOut}
           geometry={keycapGeometry}

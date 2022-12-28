@@ -59,11 +59,16 @@ export const getBrightenedColor = (color: string, multiplier = 0.8) => {
   return res;
 };
 
-export const getDarkenedColor = (color: string, multiplier = 0.8) => {
+export const getColorByte = (color: string) => {
   const cleanedColor = color.replace('#', '');
   const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
   const g = parseInt(cleanedColor[2], 16) * 16 + parseInt(cleanedColor[3], 16);
   const b = parseInt(cleanedColor[4], 16) * 16 + parseInt(cleanedColor[5], 16);
+  return [r, g, b];
+};
+
+export const getDarkenedColor = (color: string, multiplier = 0.8) => {
+  const [r, g, b] = getColorByte(color);
   const hr = Math.round(r * multiplier).toString(16);
   const hg = Math.round(g * multiplier).toString(16);
   const hb = Math.round(b * multiplier).toString(16);
@@ -72,6 +77,39 @@ export const getDarkenedColor = (color: string, multiplier = 0.8) => {
     '0',
   )}`;
   return res;
+};
+
+export const get256HSV = (color: string) => {
+  const [h, s, v] = getHSV(color);
+  return [
+    Math.round((255 * h) / 360),
+    Math.round(255 * s),
+    Math.round(255 * v),
+  ];
+};
+export const getHSV = (color: string) => {
+  const [rPrime, gPrime, bPrime] = getColorByte(color).map((c) => c / 255);
+  const [cmax, cmin] = [
+    Math.max(rPrime, gPrime, bPrime),
+    Math.min(rPrime, gPrime, bPrime),
+  ];
+  const delta = cmax - cmin;
+  let h = 60;
+  let s = 0;
+  let v = cmax;
+  if (delta === 0) {
+    h = h * 0;
+  } else if (cmax === rPrime) {
+    h = h * (((gPrime - bPrime) / delta) % 6);
+  } else if (cmax === gPrime) {
+    h = h * ((bPrime - rPrime) / delta + 2);
+  } else if (cmax === bPrime) {
+    h = h * ((rPrime - gPrime) / delta + 4);
+  }
+  if (cmax !== 0) {
+    s = delta / cmax;
+  }
+  return [(h + 360) % 360, s, v];
 };
 
 export function getRGB({hue, sat}: {hue: number; sat: number}): string {
