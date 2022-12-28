@@ -67,7 +67,8 @@ export async function syncStore(): Promise<DefinitionIndex> {
   // TODO: fall back to cache if can't hit endpoint, notify user
   try {
     // Get hash file
-    const hash = await (await fetch('/definitions/hash.json')).json();
+    //    const hash = await (await fetch('/definitions/hash.json')).json();
+    const hash = document.getElementById('definition_hash')?.dataset.hash || '';
 
     if (hash === currentDefinitionIndex.hash) {
       return currentDefinitionIndex;
