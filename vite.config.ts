@@ -20,11 +20,13 @@ export default defineConfig({
     }),
     splitVendorChunkPlugin(),
   ],
+  assetsInclude: ['**/*.glb'],
   envDir: '.',
   server: {open: true},
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
+      assets: path.resolve(__dirname, './src/assets'),
     },
   },
   optimizeDeps: {

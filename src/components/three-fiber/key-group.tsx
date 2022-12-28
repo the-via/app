@@ -29,6 +29,7 @@ import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
 import {ThreeEvent} from '@react-three/fiber';
 import {getRGB} from 'src/utils/color-math';
 import {Color} from 'three';
+import glbSrc from 'assets/models/keyboard_components.glb';
 
 const getSRGBArray = (keyColors: number[][]) => {
   return keyColors.map(([hue, sat]) => {
@@ -58,7 +59,7 @@ export const KeyGroup: React.VFC<{
   onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
 }> = (props) => {
   const dispatch = useAppDispatch();
-  const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
+  const keycapNodes = useGLTF(glbSrc, true).nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
   const keyColorPalette = props.keyColors

@@ -35,12 +35,13 @@ import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
 import {getSelectedTheme} from 'src/store/settingsSlice';
-
-useGLTF.preload('/models/keyboard_components.glb');
-useTexture.preload('/images/chippy.png');
+import glbSrc from 'assets/models/keyboard_components.glb';
+console.log('hiii', glbSrc);
+useGLTF.preload(glbSrc);
+//useTexture.preload('/images/chippy.png');
 
 const LoaderSpinner = () => {
-  const [chippyMap] = useTexture(['/images/chippy.png']);
+  const [chippyMap] = useTexture(['/images/chippy_600.png']);
   const spinnerRef = useRef<any>();
 
   const [{background}] = useSpring(() => ({
