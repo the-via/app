@@ -1,4 +1,4 @@
-import {useCallback, useContext, useEffect, useMemo} from 'react';
+import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
@@ -9,12 +9,17 @@ import {
   getCustomDefinitions,
 } from 'src/store/definitionsSlice';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
-import {getSelectedKeymap, setLayer} from 'src/store/keymapSlice';
+import {
+  getSelectedKeymap,
+  getSelectedPaletteColor,
+  setLayer,
+} from 'src/store/keymapSlice';
 import {KeyboardCanvas} from './keyboard-canvas';
 import {useLocation} from 'wouter';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
+  getSelectedTheme,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
@@ -27,13 +32,48 @@ import {useGlobalKeys} from 'src/utils/use-global-keys';
 import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {TestContext} from '../panes/test';
 import {TestKeyState} from 'src/types/types';
+import {useColorPainter} from 'src/utils/use-color-painter';
 
 enum DisplayMode {
   Test = 1,
   Configure = 2,
   Design = 3,
+  ConfigureColors = 4,
 }
 
+export const ConfigureRGBKeyboard = (props: {dimensions?: DOMRect}) => {
+  const {dimensions} = props;
+  const matrixKeycodes = useAppSelector(
+    (state) => getSelectedKeymap(state) || [],
+  );
+  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
+    getSelectedKeyDefinitions,
+  );
+  const selectedPaletteColor = useAppSelector(getSelectedPaletteColor);
+  const definition = useAppSelector(getSelectedDefinition);
+  const {keyColors, onKeycapPointerDown, onKeycapPointerOver} = useColorPainter(
+    keys,
+    selectedPaletteColor,
+  );
+
+  if (!definition || !dimensions) {
+    return null;
+  }
+
+  return (
+    <KeyboardCanvas
+      matrixKeycodes={matrixKeycodes}
+      keys={keys}
+      selectable={true}
+      definition={definition}
+      containerDimensions={dimensions}
+      mode={DisplayMode.ConfigureColors}
+      keyColors={keyColors}
+      onKeycapPointerDown={onKeycapPointerDown}
+      onKeycapPointerOver={onKeycapPointerOver}
+    />
+  );
+};
 export const ConfigureKeyboard = (props: {
   selectable?: boolean;
   containerDimensions?: DOMRect;

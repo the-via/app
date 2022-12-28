@@ -23,6 +23,7 @@ export type KeymapState = {
   selectedLayerIndex: number;
   selectedKey: number | null;
   configureKeyboardIsSelectable: boolean;
+  selectedPaletteColor: [number, number];
 };
 
 const initialState: KeymapState = {
@@ -31,12 +32,19 @@ const initialState: KeymapState = {
   selectedLayerIndex: 0,
   selectedKey: null,
   configureKeyboardIsSelectable: false,
+  selectedPaletteColor: [0, 0],
 };
 
 export const keymapSlice = createSlice({
   name: 'keymap',
   initialState,
   reducers: {
+    setSelectedPaletteColor: (
+      state,
+      action: PayloadAction<[number, number]>,
+    ) => {
+      state.selectedPaletteColor = action.payload;
+    },
     setNumberOfLayers: (state, action: PayloadAction<number>) => {
       state.numberOfLayers = action.payload;
     },
@@ -114,6 +122,7 @@ export const {
   updateSelectedKey,
   saveKeymapSuccess,
   setConfigureKeyboardIsSelectable,
+  setSelectedPaletteColor,
 } = keymapSlice.actions;
 
 export default keymapSlice.reducer;
@@ -196,6 +205,14 @@ export const getNumberOfLayers = (state: RootState) =>
   state.keymap.numberOfLayers;
 export const getSelectedLayerIndex = (state: RootState) =>
   state.keymap.selectedLayerIndex;
+export const getSelected256PaletteColor = (state: RootState) =>
+  state.keymap.selectedPaletteColor;
+export const getSelectedPaletteColor = createSelector(
+  getSelected256PaletteColor,
+  ([hue, sat]) => {
+    return [(360 * hue) / 255, sat / 255] as [number, number];
+  },
+);
 
 export const getSelectedRawLayers = createSelector(
   getRawDeviceMap,

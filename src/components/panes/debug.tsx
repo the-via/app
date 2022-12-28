@@ -1,4 +1,4 @@
-import React, {useRef, useState, FC, useEffect, useCallback} from 'react';
+import {useRef, useState, FC, useEffect, useCallback, useMemo} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
@@ -35,6 +35,13 @@ import {
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import {ColorPalettePicker} from '../inputs/color-palette-picker';
+import {get256HSV, getHSV, getRandomColor} from 'src/utils/color-math';
+import {useDispatch} from 'react-redux';
+import {
+  getSelectedPaletteColor,
+  setSelectedPaletteColor,
+} from 'src/store/keymapSlice';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -110,11 +117,19 @@ const TestControls = () => {
   const [selectionVal, setSelectionVal] = useState(0);
   const [keycode, setKeycode] = useState(0);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const selectedPaletteColor = useAppSelector(getSelectedPaletteColor);
+  const dispatch = useDispatch();
   const selectOptions = [
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
   ];
-
+  const initialColorPalette = useMemo(
+    () =>
+      Array(9)
+        .fill(0)
+        .map(() => get256HSV(getRandomColor())),
+    [],
+  );
   return (
     <ControlGroup>
       <ControlGroupHeader>Controls</ControlGroupHeader>
@@ -152,6 +167,20 @@ const TestControls = () => {
           <ArrayColorPicker
             color={colorVal}
             setColor={(hue, sat) => setColorVal([hue, sat])}
+          />
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>
+          {colorVal[0]}, {colorVal[1]}
+        </Label>
+        <Detail>
+          <ColorPalettePicker
+            color={selectedPaletteColor}
+            initialColors={initialColorPalette}
+            setColor={(hue, sat) =>
+              dispatch(setSelectedPaletteColor([hue, sat]))
+            }
           />
         </Detail>
       </ControlRow>

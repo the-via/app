@@ -6,7 +6,6 @@ import {getIndexByEvent} from './key-event';
 type TestKeys = {[code: number]: TestKeyState};
 export const useGlobalKeys = (enableGlobalKeys: boolean) => {
   const startMatrixTest = !enableGlobalKeys;
-  const dispatch = useDispatch();
   const selectedKeysState = useState<TestKeys>({});
   const [selectedKeys, setSelectedKeys] = selectedKeysState;
   // If pressed key is our target key then set to true

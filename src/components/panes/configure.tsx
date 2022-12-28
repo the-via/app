@@ -41,7 +41,7 @@ import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
-import {Center, useProgress} from '@react-three/drei';
+import {useProgress} from '@react-three/drei';
 import {MenuTooltip} from '../inputs/tooltip';
 
 const MenuContainer = styled.div`

@@ -1,5 +1,11 @@
 import {useGLTF} from '@react-three/drei';
-import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
+import {
+  KeyColorType,
+  ThemeDefinition,
+  VIADefinitionV2,
+  VIADefinitionV3,
+  VIAKey,
+} from '@the-via/reader';
 import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
@@ -19,7 +25,24 @@ import {
   makeSRGBTheme,
 } from 'src/utils/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
-import {getSelectedSRGBTheme, getSelectedTheme} from 'src/store/settingsSlice';
+import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
+import {ThreeEvent} from '@react-three/fiber';
+import {getRGB} from 'src/utils/color-math';
+import {Color} from 'three';
+
+const getSRGBArray = (keyColors: number[][]) => {
+  return keyColors.map(([hue, sat]) => {
+    const rgbStr = getRGB({
+      hue: Math.round((255 * hue) / 360),
+      sat: Math.round(255 * sat),
+    });
+    const srgbStr = `#${new Color(rgbStr)
+      .convertSRGBToLinear()
+      .getHexString()}`;
+    const keyColor = {c: srgbStr, t: srgbStr};
+    return keyColor;
+  });
+};
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -29,12 +52,18 @@ export const KeyGroup: React.VFC<{
   definition: VIADefinitionV2 | VIADefinitionV3;
   mode: DisplayMode;
   pressedKeys?: TestKeyState[];
+  keyColors?: number[][];
   selectedKey?: number;
+  onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
+  onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
 }> = (props) => {
   const dispatch = useAppDispatch();
   const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
+  const keyColorPalette = props.keyColors
+    ? getSRGBArray(props.keyColors)
+    : selectedSRGBTheme;
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;
@@ -61,6 +90,9 @@ export const KeyGroup: React.VFC<{
         const normalizedHeight =
           k.h * (1 + normalizedKeyYSpacing) - normalizedKeyYSpacing;
         const meshKey = getMeshName(k, rowMap[getKeyId(k)], false);
+        const paletteKey = props.keyColors ? i : k.color;
+        const color = (keyColorPalette as any)[paletteKey];
+
         return {
           position: [
             (KeycapMetric.keyXPos * x) / CSSVarObject.keyXPos,
@@ -69,17 +101,24 @@ export const KeyGroup: React.VFC<{
           ],
           rotation: [0, 0, -r],
           scale: [normalizedWidth, normalizedHeight, 1],
-          color: selectedSRGBTheme[k.color],
+          color,
           meshKey,
           idx: i,
           onClick: (evt: any, idx: number) => {
             evt.stopPropagation();
             dispatch(updateSelectedKey(idx));
           },
+          onPointerDown: props.onKeycapPointerDown,
+          onPointerOver: props.onKeycapPointerOver,
         };
       }),
     };
-  }, [keys, selectedSRGBTheme]);
+  }, [
+    keys,
+    keyColorPalette,
+    props.onKeycapPointerDown,
+    props.onKeycapPointerOver,
+  ]);
   const labels = useMemo(() => {
     return !props.matrixKeycodes.length
       ? []
@@ -97,8 +136,17 @@ export const KeyGroup: React.VFC<{
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {
-      const {position, meshKey, rotation, scale, color, idx, onClick} =
-        keysKeys.coords[i];
+      const {
+        position,
+        meshKey,
+        rotation,
+        scale,
+        color,
+        idx,
+        onClick,
+        onPointerDown,
+        onPointerOver,
+      } = keysKeys.coords[i];
       const key = keysKeys.indices[i];
       const isEncoder = k['ei'] !== undefined;
 
@@ -114,6 +162,8 @@ export const KeyGroup: React.VFC<{
           textureOffsetX={!!k.w2 ? Math.abs(k.w2 - k.w) : 0}
           color={color}
           shouldRotate={isEncoder}
+          onPointerDown={onPointerDown}
+          onPointerOver={onPointerOver}
           keycapGeometry={
             ((keycapNodes[meshKey] as any) || keycapNodes['K-R1-100']).geometry
           }
@@ -132,7 +182,7 @@ export const KeyGroup: React.VFC<{
     labels,
     props.pressedKeys,
     props.selectable,
-    selectedSRGBTheme,
+    keyColorPalette,
     props.definition.vendorProductId,
   ]);
   return (

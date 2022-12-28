@@ -7,7 +7,12 @@ import {
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {Camera} from './camera';
-import {ConfigureKeyboard, Design, Test} from './keyboard';
+import {
+  ConfigureKeyboard,
+  ConfigureRGBKeyboard,
+  Design,
+  Test,
+} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   Decal,
@@ -197,8 +202,12 @@ const getRouteX = (route: string) => {
   const spaceMultiplier = 20;
   const testPosition = -spaceMultiplier * 1;
   const designPosition = -spaceMultiplier * 2;
+  const debugPosition = -spaceMultiplier * 3;
   const otherPosition = -spaceMultiplier * 3;
   switch (route) {
+    case '/debug': {
+      return debugPosition;
+    }
     case '/design': {
       return designPosition;
     }
@@ -219,6 +228,7 @@ const Keyboards = React.memo((props: any) => {
   const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
   const testPosition = -getRouteX('/test');
   const designPosition = -getRouteX('/design');
+  const debugPosition = -getRouteX('/debug');
   const routeX = getRouteX(path);
   const slide = useSpring({
     config: config.stiff,
@@ -238,6 +248,9 @@ const Keyboards = React.memo((props: any) => {
       </group>
       <group position-x={designPosition}>
         <Design dimensions={dimensions} />
+      </group>
+      <group position-x={debugPosition}>
+        <ConfigureRGBKeyboard dimensions={dimensions} />
       </group>
     </a.group>
   );

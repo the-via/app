@@ -1,4 +1,5 @@
 import {PresentationControls} from '@react-three/drei';
+import {ThreeEvent} from '@react-three/fiber';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
 import {TestKeyState} from 'src/types/types';
 import {
@@ -20,9 +21,11 @@ export const KeyboardCanvas: React.VFC<{
   mode: DisplayMode;
   showMatrix?: boolean;
   selectedKey?: number;
+  keyColors?: number[][];
+  onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
+  onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
 }> = (props) => {
   const {
-    selectable,
     containerDimensions,
     matrixKeycodes,
     keys,
@@ -53,7 +56,7 @@ export const KeyboardCanvas: React.VFC<{
     <>
       <group position={[0, -0.0, -19]} scale={0.015 * ratio}>
         <PresentationControls
-          enabled={true} // the controls can be disabled by setting this to false
+          enabled={props.mode !== DisplayMode.ConfigureColors} // the controls can be disabled by setting this to false
           global={true} // Spin globally or by dragging the model
           snap={true} // Snap-back to center (can also be a spring config)
           speed={1} // Speed factor
