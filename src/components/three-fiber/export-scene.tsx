@@ -4,7 +4,6 @@ import {Html} from '@react-three/drei';
 
 export const ExportScene = () => {
   const state = useThree();
-  console.log(state);
   const onButtonClick = async () => {
     if (state) {
       try {

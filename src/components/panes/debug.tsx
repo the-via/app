@@ -39,6 +39,7 @@ import {ColorPalettePicker} from '../inputs/color-palette-picker';
 import {get256HSV, getHSV, getRandomColor} from 'src/utils/color-math';
 import {useDispatch} from 'react-redux';
 import {
+  getSelected256PaletteColor,
   getSelectedPaletteColor,
   setSelectedPaletteColor,
 } from 'src/store/keymapSlice';
@@ -117,7 +118,7 @@ const TestControls = () => {
   const [selectionVal, setSelectionVal] = useState(0);
   const [keycode, setKeycode] = useState(0);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
-  const selectedPaletteColor = useAppSelector(getSelectedPaletteColor);
+  const selectedPaletteColor = useAppSelector(getSelected256PaletteColor);
   const dispatch = useDispatch();
   const selectOptions = [
     {label: 'Option 1', value: '0'},
