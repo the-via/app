@@ -1,6 +1,6 @@
-import {THEMES} from '@the-via/reader';
+import {THEMES} from 'src/utils/themes';
 
-export const updateCSSVariables = (themeName: string) => {
+export const updateCSSVariables = (themeName: keyof typeof THEMES) => {
   const selectedTheme = THEMES[themeName] || THEMES['OLIVIA_DARK'];
 
   document.documentElement.style.setProperty(

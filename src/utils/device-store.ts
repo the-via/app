@@ -4,8 +4,8 @@ import {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   ThemeDefinition,
-  THEMES,
 } from '@the-via/reader';
+import {THEMES} from 'src/utils/themes';
 import {Store} from '../shims/via-app-store';
 import type {
   DefinitionIndex,
@@ -15,21 +15,6 @@ import type {
   CommonMenusMap,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
-
-const PROTOLIVIA = {
-  alpha: {
-    c: '#505557',
-    t: '#aeb0b0',
-  },
-  mod: {
-    c: '#6b7173',
-    t: '#aeb0b0',
-  },
-  accent: {
-    c: '#afb0ae',
-    t: '#505557',
-  },
-};
 
 let deviceStore: Store;
 const defaultStoreData = {
@@ -176,7 +161,8 @@ export const getDefinitionsFromStore = (): KeyboardDictionary =>
   deviceStore.get('definitions');
 
 export const getThemeFromStore = (): ThemeDefinition =>
-  THEMES[getThemeNameFromStore()] || deviceStore.get('definitionIndex')?.theme;
+  THEMES[getThemeNameFromStore() as keyof typeof THEMES] ||
+  deviceStore.get('definitionIndex')?.theme;
 
 export const getThemeModeFromStore = (): 'dark' | 'light' => {
   return deviceStore.get('settings')?.themeMode;
