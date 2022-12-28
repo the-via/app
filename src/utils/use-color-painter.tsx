@@ -21,28 +21,9 @@ export const useColorPainter = (
     }),
   );
 
-  const onKeycapPointerDown = useCallback(
+  const onKeycapPointerHandler = useCallback(
     (evt: ThreeEvent<MouseEvent>, idx: number) => {
       if (evt.buttons === 1) {
-        setKeyColors((colors) => {
-          console.log(colorOpts);
-          colors[idx] = selectedPaletteColor;
-          return [...colors];
-        });
-      }
-    },
-    [setKeyColors, selectedPaletteColor],
-  );
-  const onKeycapPointerOver = useCallback(
-    (evt: ThreeEvent<MouseEvent>, idx: number) => {
-      if (evt.buttons === 1) {
-        debugger;
-        setKeyColors((colors) => {
-          console.log(colorOpts);
-          colors[idx] = selectedPaletteColor;
-          return [...colors];
-        });
-      } else if (evt.buttons === 4) {
         setKeyColors((colors) => {
           colors[idx] = selectedPaletteColor;
           return [...colors];
@@ -52,5 +33,9 @@ export const useColorPainter = (
     [setKeyColors, selectedPaletteColor],
   );
 
-  return {keyColors, onKeycapPointerDown, onKeycapPointerOver};
+  return {
+    keyColors,
+    onKeycapPointerDown: onKeycapPointerHandler,
+    onKeycapPointerOver: onKeycapPointerHandler,
+  };
 };

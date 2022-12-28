@@ -14,6 +14,11 @@ const ColorPalettePickerContainer = styled.div`
   align-items: center;
   column-gap: 10px;
 `;
+export const PreviousColorContainer = styled.div`
+  display: flex;
+  background: var(--bg_control);
+  border-radius: 15px;
+`;
 
 export const PreviousColorOption = styled.div<{selected: boolean}>`
   display: inline-block;
@@ -22,10 +27,11 @@ export const PreviousColorOption = styled.div<{selected: boolean}>`
   border-radius: 50%;
   border: 4px solid var(--border_color_cell);
   cursor: pointer;
+  transition: transform 0.2s ease-out;
   &:hover {
     opacity: 0.8;
   }
-  transform: ${(props) => (props.selected ? 'scale(1)' : 'scale(0.8)')};
+  transform: ${(props) => (props.selected ? 'scale(0.8)' : 'scale(0.6)')};
   border-color: ${(props) =>
     props.selected ? 'var(--color_accent)' : 'var(--border_color_cell)'};
 `;
@@ -41,26 +47,28 @@ export const ColorPalettePicker: React.FC<{
   console.log(initialColors);
   return (
     <ColorPalettePickerContainer>
-      {initialColors.map((savedColor) => {
-        const isSelected =
-          selectedColor[0] === savedColor[0] &&
-          selectedColor[1] === savedColor[1];
-        return (
-          <PreviousColorOption
-            selected={isSelected}
-            style={{
-              background: getRGB({
-                hue: savedColor[0] ?? 0,
-                sat: savedColor[1] ?? 0,
-              }),
-            }}
-            onClick={() => {
-              setSelectedColor(savedColor as [number, number]);
-              setColor(savedColor[0], savedColor[1]);
-            }}
-          />
-        );
-      })}
+      <PreviousColorContainer>
+        {initialColors.map((savedColor) => {
+          const isSelected =
+            selectedColor[0] === savedColor[0] &&
+            selectedColor[1] === savedColor[1];
+          return (
+            <PreviousColorOption
+              selected={isSelected}
+              style={{
+                background: getRGB({
+                  hue: savedColor[0] ?? 0,
+                  sat: savedColor[1] ?? 0,
+                }),
+              }}
+              onClick={() => {
+                setSelectedColor(savedColor as [number, number]);
+                setColor(savedColor[0], savedColor[1]);
+              }}
+            />
+          );
+        })}
+      </PreviousColorContainer>
       <ColorPicker
         isSelected={
           colorPickerColor[0] === selectedColor[0] &&
@@ -70,9 +78,12 @@ export const ColorPalettePicker: React.FC<{
         setColor={(h, s) => {
           setSelectedColor([h, s]);
           setPickerColor([h, s]);
-          setColor(h, s);
         }}
         onOpen={() => {
+          setSelectedColor([colorPickerColor[0], colorPickerColor[1]]);
+          setColor(colorPickerColor[0], colorPickerColor[1]);
+        }}
+        onMouseUp={() => {
           setSelectedColor([colorPickerColor[0], colorPickerColor[1]]);
           setColor(colorPickerColor[0], colorPickerColor[1]);
         }}

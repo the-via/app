@@ -243,6 +243,21 @@ export const Keycap = React.memo(
       const noop = () => {};
       return disabled
         ? [noop, noop, noop, noop]
+        : props.mode === DisplayMode.ConfigureColors
+        ? [
+            noop,
+            (evt: ThreeEvent<MouseEvent>) => {
+              if (onPointerOver) {
+                onPointerOver(evt, idx);
+              }
+            },
+            noop,
+            (evt: ThreeEvent<MouseEvent>) => {
+              if (onPointerDown) {
+                onPointerDown(evt, idx);
+              }
+            },
+          ]
         : [
             (evt: ThreeEvent<MouseEvent>) => onClick(evt, idx),
             (evt: ThreeEvent<MouseEvent>) => {
@@ -258,7 +273,7 @@ export const Keycap = React.memo(
               }
             },
           ];
-    }, [disabled, onClick, onPointerDown, onPointerOver, hover, idx]);
+    }, [disabled, onClick, onPointerDown, onPointerOver, hover, idx, mode]);
 
     const AniMeshMaterial = animated.meshPhongMaterial as any;
 

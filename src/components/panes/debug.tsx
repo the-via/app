@@ -172,7 +172,7 @@ const TestControls = () => {
       </ControlRow>
       <ControlRow>
         <Label>
-          {colorVal[0]}, {colorVal[1]}
+          {selectedPaletteColor[0]}, {selectedPaletteColor[1]}
         </Label>
         <Detail>
           <ColorPalettePicker
