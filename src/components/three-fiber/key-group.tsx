@@ -65,6 +65,7 @@ export const KeyGroup: React.VFC<{
   const keyColorPalette = props.keyColors
     ? getSRGBArray(props.keyColors)
     : selectedSRGBTheme;
+  console.log(keyColorPalette, 'colors');
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;

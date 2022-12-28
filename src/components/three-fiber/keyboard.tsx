@@ -56,7 +56,7 @@ export const ConfigureRGBKeyboard = (props: {dimensions?: DOMRect}) => {
     selectedPaletteColor,
   );
 
-  if (!definition || !dimensions) {
+  if (!definition || !dimensions || !keyColors || !keyColors.length) {
     return null;
   }
 
