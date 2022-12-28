@@ -1,5 +1,4 @@
 import {useEffect, useState} from 'react';
-import {useDispatch} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
 import {getIndexByEvent} from './key-event';
 

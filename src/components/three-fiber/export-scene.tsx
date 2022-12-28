@@ -7,7 +7,6 @@ export const ExportScene = () => {
   console.log(state);
   const onButtonClick = async () => {
     if (state) {
-      debugger;
       try {
         const handle = await window.showSaveFilePicker({
           suggestedName: 'scene',
