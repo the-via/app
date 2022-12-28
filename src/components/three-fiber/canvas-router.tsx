@@ -1,5 +1,5 @@
-import {Canvas, useFrame, useThree} from '@react-three/fiber';
-import {useEffect, useCallback, useMemo, useRef} from 'react';
+import {Canvas, useFrame} from '@react-three/fiber';
+import {useCallback, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,

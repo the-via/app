@@ -2,10 +2,24 @@ import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {splitVendorChunkPlugin} from 'vite';
+import {createHtmlPlugin} from 'vite-plugin-html';
+import fs from 'fs';
+
+const hash = fs.readFileSync('public/definitions/hash.json', 'utf8');
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), splitVendorChunkPlugin()],
+  plugins: [
+    react(),
+    createHtmlPlugin({
+      inject: {
+        data: {
+          hash,
+        },
+      },
+    }),
+    splitVendorChunkPlugin(),
+  ],
   envDir: '.',
   server: {open: true},
   resolve: {
