@@ -3,7 +3,7 @@ import type {Settings} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
 import type {RootState} from '.';
-import {THEMES} from '@the-via/reader';
+import {THEMES} from 'src/utils/themes';
 import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
 import {updateCSSVariables} from 'src/utils/color-math';
 
@@ -50,7 +50,7 @@ export const settingsSlice = createSlice({
     },
     updateThemeName: (state, action: PayloadAction<string>) => {
       state.themeName = action.payload;
-      updateCSSVariables(state.themeName);
+      updateCSSVariables(state.themeName as keyof typeof THEMES);
       setSettings(state);
     },
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
@@ -93,12 +93,12 @@ export const getIsTestMatrixEnabled = (state: RootState) =>
 export const getThemeMode = (state: RootState) => state.settings.themeMode;
 export const getThemeName = (state: RootState) => state.settings.themeName;
 export const getSelectedTheme = createSelector(getThemeName, (themeName) => {
-  return THEMES[themeName] || THEMES['OLIVIA_DARK'];
+  return THEMES[themeName as keyof typeof THEMES];
 });
 
 export const getSelectedSRGBTheme = createSelector(
-  getThemeName,
-  (themeName) => {
-    return makeSRGBTheme(THEMES[themeName] || THEMES['OLIVIA_DARK']);
+  getSelectedTheme,
+  (selectedTheme) => {
+    return makeSRGBTheme(selectedTheme);
   },
 );

@@ -1,58 +1,73 @@
+import {THEMES as REMOTETHEMES} from '@the-via/reader';
 export type KeyColor = {
   c: string;
   t: string;
 };
 
 export type Theme = {
-  alphas: KeyColor;
-  mods: KeyColor;
-  accents: KeyColor;
+  alpha: KeyColor;
+  mod: KeyColor;
+  accent: KeyColor;
 };
 
 export const THEMES = {
-  PBT_HEAVY_INDUSTRY: {
-    alphas: {
-      c: '#f7f2ea',
-      t: '#000000'
+  ...{
+    OLIVIA_DARK: {
+      alpha: {
+        c: '#363434',
+        t: '#E8C4B8',
+      },
+      mod: {
+        c: '#363434',
+        t: '#E8C4B8',
+      },
+      accent: {
+        c: '#E8C4B8',
+        t: '#363434',
+      },
     },
-    mods: {
-      c: '#C2C7CA',
-      t: '#000000'
+    OLIVE: {
+      alpha: {
+        t: '#66665A',
+        c: '#D9D7C4',
+      },
+      mod: {
+        c: '#66665A',
+        t: '#9DA183',
+      },
+      accent: {
+        c: '#9DA183',
+        t: '#66665A',
+      },
     },
-    accents: {
-      c: '#FFC700',
-      t: '#000000'
-    }
+    OLIVE_DARK: {
+      alpha: {
+        c: '#66665A',
+        t: '#9DA183',
+      },
+      mod: {
+        c: '#66665A',
+        t: '#9DA183',
+      },
+      accent: {
+        c: '#9DA183',
+        t: '#66665A',
+      },
+    },
+    OLNY: {
+      alpha: {
+        c: '#c20018',
+        t: '#cfa174',
+      },
+      mod: {
+        c: '#c20018',
+        t: '#cfa174',
+      },
+      accent: {
+        t: '#c20018',
+        c: '#cfa174',
+      },
+    },
   },
-  OLIVIA: {
-    alphas: {
-      c: '#f0f0f0',
-      t: '#363434'
-    },
-    mods: {
-      c: '#363434',
-      t: '#E8C4B8'
-    },
-    accents: {
-      c: '#E8C4B8',
-      t: '#363434'
-    }
-  },
-  OLIVIA_DARK: {
-    alphas: {
-      c: '#363434',
-      t: '#E8C4B8'
-    },
-    mods: {
-      c: '#363434',
-      t: '#E8C4B8'
-    },
-    accents: {
-      c: '#E8C4B8',
-      t: '#363434'
-    }
-  }
+  ...REMOTETHEMES,
 };
-
-export const RANDOM_THEME =
-  Math.random() < 1 ? THEMES.OLIVIA_DARK : THEMES.OLIVIA;

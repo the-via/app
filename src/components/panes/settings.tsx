@@ -3,7 +3,6 @@ import {Pane} from './pane';
 import styled from 'styled-components';
 import {ControlRow, Label, Detail, OverflowCell} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
-import {ErrorMessage} from '../styled';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
@@ -16,10 +15,8 @@ import {
   getThemeName,
   updateThemeName,
 } from 'src/store/settingsSlice';
-import {getThemeFromStore, getThemeNameFromStore} from 'src/utils/device-store';
 import {AccentSelect} from '../inputs/accent-select';
-import {THEMES} from '@the-via/reader';
-
+import {THEMES} from 'src/utils/themes';
 const Container = styled.div`
   display: flex;
   align-items: center;

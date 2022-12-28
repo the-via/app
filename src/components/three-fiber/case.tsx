@@ -289,7 +289,12 @@ const ComplexPlate = () => {
 };
 
 const Heart = React.memo(
-  (props: {caseWidth: number; caseHeight: number; caseThickness: number}) => {
+  (props: {
+    caseWidth: number;
+    caseHeight: number;
+    caseThickness: number;
+    color: string;
+  }) => {
     const heartShape = new Shape();
 
     heartShape.moveTo(25, 25);
@@ -323,7 +328,7 @@ const Heart = React.memo(
           attach="geometry"
           args={[heartShape, extrudeSettings]}
         />
-        <meshPhongMaterial color={'darkgrey'} transparent={true} opacity={1} />
+        <meshPhongMaterial color={props.color} transparent={true} opacity={1} />
       </mesh>
     );
   },
@@ -338,6 +343,7 @@ export const Case = (props: {width: number; height: number}) => {
   const theme = useAppSelector(getSelectedTheme);
 
   const outsideColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
+  const heartColor = useMemo(() => theme[KeyColorType.Accent].t, [theme]);
   const outsideShape = useMemo(() => {
     return makeShape({
       width: 0.4 + widthOffset,
@@ -365,6 +371,7 @@ export const Case = (props: {width: number; height: number}) => {
         caseWidth={props.width}
         caseHeight={props.height + heightOffset / 2}
         caseThickness={2 * widthOffset}
+        color={heartColor}
       />
       <mesh position={[0, -0.1, 0]} castShadow={true}>
         <extrudeGeometry
