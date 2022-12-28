@@ -1,10 +1,10 @@
-import React from 'react';
 import styled from 'styled-components';
+import imgSrc from 'assets/images/chippy_600.png';
 
 const defaultChippy = {
   width: 300,
   height: 300,
-  src: '/images/chippy.png',
+  src: imgSrc,
 };
 
 const LoaderContainer = styled.div`

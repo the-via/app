@@ -1,9 +1,10 @@
 import {useGLTF} from '@react-three/drei';
 import {useEffect} from 'react';
 import {Box3, BufferAttribute, BufferGeometry} from 'three';
+import glbSrc from 'assets/models/keyboard_components.glb';
 
 export const UpdateUVMaps = () => {
-  const keycapNodes = useGLTF('/models/keyboard_components.glb', true).nodes;
+  const keycapNodes = useGLTF(glbSrc, true).nodes;
   useEffect(() => {
     // updating uv maps
     // let's assume of now we want to contain uvs in the bottom 1/3

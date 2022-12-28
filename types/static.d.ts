@@ -7,6 +7,17 @@ declare module '*.json5' {
   export default value;
 }
 
+/* glb */
+declare module '*.glb' {
+  const ref: string;
+  export default ref;
+}
+
+declare module '*.gltf' {
+  const ref: string;
+  export default ref;
+}
+
 /* CSS */
 declare module '*.css';
 

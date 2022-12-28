@@ -8,6 +8,7 @@ import {
   getThemeNameFromStore,
 } from './utils/device-store';
 import {updateCSSVariables} from './utils/color-math';
+import {THEMES} from './utils/themes';
 
 const appInsights = new ApplicationInsights({
   config: {
@@ -22,5 +23,5 @@ if (elem) {
   const root = createRoot(elem);
   root.render(<Root />);
   document.documentElement.dataset['themeMode'] = getThemeModeFromStore();
-  updateCSSVariables(getThemeNameFromStore());
+  updateCSSVariables(getThemeNameFromStore() as keyof typeof THEMES);
 }
