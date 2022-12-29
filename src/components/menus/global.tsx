@@ -20,7 +20,7 @@ const MenuItem = styled.button<{selected?: boolean}>`
   border: none;
   font-family: inherit;
   outline: none;
-  padding: 5px 10px;
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 18px;
   margin: 0 5px;
