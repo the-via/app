@@ -22,6 +22,7 @@ export const Cell = styled.div`
 
 export const MenuCell = styled(Cell)`
   background: var(--bg_menu);
+  border-top: 1px solid var(--border_color_cell);
 `;
 
 export const OverflowCell = styled(Cell)`
@@ -37,6 +38,7 @@ export const SpanOverflowCell = styled(Cell)`
 
 export const SubmenuCell = styled(Cell)`
   border-top: 1px solid var(--border_color_cell);
+  background: var(--bg_control);
 `;
 
 export const SubmenuOverflowCell = styled(SubmenuCell)`
@@ -133,5 +135,10 @@ export const Row = styled.div<{selected: boolean}>`
 `;
 
 export const SubmenuRow = styled(Row)`
-  padding-left: 8px;
+  background: ${(props) => (props.selected ? 'var(--bg_icon)' : 'inherit')};
+  padding: 4px 8px;
+  min-width: min-content;
+  border-color: transparent;
+  margin-bottom: 11px;
+  border-radius: 12px;
 `;

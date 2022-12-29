@@ -21,7 +21,7 @@ import {
   isVIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
+import {OverflowCell, SubmenuOverflowCell, Row, SubmenuRow} from '../grid';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getBasicKeyToByte,
@@ -44,8 +44,8 @@ import {
 import {getNextKey} from 'src/utils/keyboard-rendering';
 const KeycodeList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, 54px);
-  grid-auto-rows: 54px;
+  grid-template-columns: repeat(auto-fill, 64px);
+  grid-auto-rows: 64px;
   justify-content: center;
   grid-gap: 10px;
 `;
@@ -54,23 +54,21 @@ const MenuContainer = styled.div`
   padding: 15px 20px 20px 10px;
 `;
 
-const SubmenuRow = styled(Row)`
-  padding-left: 8px;
-`;
-
 const Keycode = styled(Button)<{disabled: boolean}>`
   width: 50px;
   height: 50px;
   line-height: 18px;
+  border-radius: 64px;
   font-size: 14px;
-
-  border: 1px solid var(--border_color_icon);
+  border: 4px solid var(--border_color_icon);
   background: var(--bg_control);
   color: var(--color_label-highlighted);
   margin: 0;
   box-shadow: none;
+  position: relative;
+  border-radius: 10px;
   &:hover {
-    border-bottom: 2px solid var(--color_accent);
+    border-color: var(--color_accent);
     transform: translate3d(0, -2px, 0);
   }
   ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
@@ -85,7 +83,9 @@ const CustomKeycode = styled(Button)`
   width: 50px;
   height: 50px;
   line-height: 18px;
+  border-radius: 10px;
   font-size: 14px;
+  border: 4px solid var(--border_color_icon);
   background: var(--color_accent);
   border-color: var(--color_inside_accent);
   color: var(--color_inside_accent);

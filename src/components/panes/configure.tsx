@@ -45,7 +45,7 @@ import {useProgress} from '@react-three/drei';
 import {MenuTooltip} from '../inputs/tooltip';
 
 const MenuContainer = styled.div`
-  padding: 15px 10px 20px 10px;
+  padding: 20px 10px 20px 10px;
 `;
 
 const Rows = [
