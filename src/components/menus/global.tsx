@@ -10,18 +10,20 @@ const Container = styled.div`
   height: 25px;
   padding: 12px 0;
   border-bottom: 1px solid var(--border_color_cell);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const MenuItem = styled.button<{selected?: boolean}>`
-  background: none;
+  background: ${(props) => (props.selected ? 'var(--bg_icon)' : 'none')};
   border: none;
   font-family: inherit;
   outline: none;
-  padding: 0;
-
-  margin: 0 15px;
+  padding: 5px 10px;
+  border-radius: 20px;
   font-size: 18px;
+  margin: 0 5px;
   text-transform: uppercase;
   cursor: pointer;
   color: ${(props) =>
