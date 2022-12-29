@@ -56,6 +56,7 @@ const KeyboardList = styled.ul<{show: boolean}>`
   position: absolute;
   pointer-events: ${(props) => (props.show ? 'all' : 'none')};
   transition: all 0.2s ease-out;
+  z-index: 11;
   opacity: ${(props) => (props.show ? 1 : 0)};
   overflow: hidden;
   transform: ${(props) => (props.show ? 0 : `translateY(-5px)`)};
