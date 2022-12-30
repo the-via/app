@@ -154,7 +154,8 @@ function Loader(props: {
   const noSupportedIds = !Object.values(supportedIds).length;
   const noConnectedDevices = !Object.values(connectedDevices).length;
   const [showButton, setShowButton] = useState<boolean>(false);
-  const {progress} = useProgress();
+  const fullProgress = useProgress();
+  const {progress} = fullProgress;
   const chippyProgress =
     loadProgress > 0 ? (loadProgress + progress / 100) / 2 : loadProgress;
   useEffect(() => {

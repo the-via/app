@@ -5,7 +5,7 @@ import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
 import {CanvasRouter} from './components/three-fiber/canvas-router';
 import {TestContext} from './components/panes/test';
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -16,9 +16,15 @@ const GlobalStyle = createGlobalStyle`
 export default () => {
   const hasHIDSupport = 'hid' in navigator;
 
-  const RouteComponents = PANES.map((pane) => {
-    return <Route component={pane.component} key={pane.key} path={pane.path} />;
-  });
+  const RouteComponents = useMemo(
+    () =>
+      PANES.map((pane) => {
+        return (
+          <Route component={pane.component} key={pane.key} path={pane.path} />
+        );
+      }),
+    [],
+  );
 
   const testContextState = useState({clearTestKeys: () => {}});
   return (

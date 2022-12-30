@@ -335,7 +335,7 @@ const Heart = React.memo(
   shallowEqual,
 );
 
-export const Case = (props: {width: number; height: number}) => {
+export const Case = React.memo((props: {width: number; height: number}) => {
   const innerColor = '#212020';
   const widthOffset = 0.4;
   const heightOffset = 0.5;
@@ -420,4 +420,4 @@ export const Case = (props: {width: number; height: number}) => {
       )}
     </group>
   );
-};
+}, shallowEqual);
