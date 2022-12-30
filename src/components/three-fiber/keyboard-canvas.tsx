@@ -1,6 +1,8 @@
 import {PresentationControls} from '@react-three/drei';
 import {ThreeEvent} from '@react-three/fiber';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
+import React, {useMemo} from 'react';
+import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
 import {
   calculateKeyboardFrameDimensions,
@@ -10,10 +12,8 @@ import {Case} from './case';
 import {KeyGroup} from './key-group';
 import {DisplayMode} from './keycap';
 import {MatrixLines} from './matrix-lines';
-
-export const KeyboardCanvas: React.VFC<{
+type KeyboardCanvasContent = {
   selectable: boolean;
-  containerDimensions: DOMRect;
   matrixKeycodes: number[];
   keys: (VIAKey & {ei?: number})[];
   definition: VIADefinitionV2 | VIADefinitionV3;
@@ -24,18 +24,17 @@ export const KeyboardCanvas: React.VFC<{
   keyColors?: number[][];
   onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
   onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
-}> = (props) => {
-  const {
-    containerDimensions,
-    matrixKeycodes,
-    keys,
-    definition,
-    pressedKeys,
-    mode,
-    showMatrix,
-  } = props;
-
-  const {width, height} = calculateKeyboardFrameDimensions(keys);
+};
+export const KeyboardCanvas: React.FC<
+  KeyboardCanvasContent & {
+    containerDimensions: DOMRect;
+  }
+> = (props) => {
+  const {containerDimensions, ...otherProps} = props;
+  const {width, height} = useMemo(
+    () => calculateKeyboardFrameDimensions(otherProps.keys),
+    [otherProps.keys],
+  );
   const ratio =
     Math.min(
       Math.min(
@@ -53,40 +52,80 @@ export const KeyboardCanvas: React.VFC<{
     ) || 1;
 
   return (
-    <>
-      <group position={[0, -0.0, -19]} scale={0.015 * ratio}>
-        <PresentationControls
-          enabled={props.mode !== DisplayMode.ConfigureColors} // the controls can be disabled by setting this to false
-          global={true} // Spin globally or by dragging the model
-          snap={true} // Snap-back to center (can also be a spring config)
-          speed={1} // Speed factor
-          zoom={1} // Zoom factor when half the polar-max is reached
-          rotation={[0, 0, 0]} // Default rotation
-          polar={[-Math.PI / 10, Math.PI / 10]} // Vertical limits
-          azimuth={[-Math.PI / 16, Math.PI / 16]} // Horizontal limits
-          config={{mass: 1, tension: 170, friction: 26}} // Spring config
-        >
-          <Case width={width} height={height} />
-          <KeyGroup
-            {...props}
-            containerDimensions={containerDimensions}
-            keys={keys}
-            mode={mode}
-            matrixKeycodes={matrixKeycodes}
-            definition={definition}
-            pressedKeys={pressedKeys}
-          />
-          {showMatrix && (
-            <MatrixLines
-              keys={keys}
-              rows={definition.matrix.rows}
-              cols={definition.matrix.cols}
-              width={width}
-              height={height}
-            />
-          )}
-        </PresentationControls>
-      </group>
-    </>
+    <group position={[0, -0.0, -19]} scale={0.015 * ratio}>
+      <KeyboardCanvasContent {...otherProps} width={width} height={height} />
+    </group>
   );
+};
+
+export const KeyboardCanvasContent: React.VFC<{
+  selectable: boolean;
+  matrixKeycodes: number[];
+  keys: (VIAKey & {ei?: number})[];
+  definition: VIADefinitionV2 | VIADefinitionV3;
+  pressedKeys?: TestKeyState[];
+  mode: DisplayMode;
+  showMatrix?: boolean;
+  selectedKey?: number;
+  width: number;
+  height: number;
+  keyColors?: number[][];
+  onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
+  onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
+}> = React.memo((props) => {
+  const {
+    matrixKeycodes,
+    keys,
+    definition,
+    pressedKeys,
+    mode,
+    showMatrix,
+    selectable,
+    width,
+    height,
+  } = props;
+
+  return (
+    <PresentationControls
+      enabled={props.mode !== DisplayMode.ConfigureColors} // the controls can be disabled by setting this to false
+      global={true} // Spin globally or by dragging the model
+      snap={true} // Snap-back to center (can also be a spring config)
+      speed={1} // Speed factor
+      zoom={1} // Zoom factor when half the polar-max is reached
+      rotation={[0, 0, 0]} // Default rotation
+      polar={[-Math.PI / 10, Math.PI / 10]} // Vertical limits
+      azimuth={[-Math.PI / 16, Math.PI / 16]} // Horizontal limits
+      config={{mass: 1, tension: 170, friction: 26}} // Spring config
+    >
+      <Case width={width} height={height} />
+      <KeyGroup
+        {...props}
+        keys={keys}
+        mode={mode}
+        matrixKeycodes={matrixKeycodes}
+        selectable={selectable}
+        definition={definition}
+        pressedKeys={pressedKeys}
+      />
+      {showMatrix && (
+        <MatrixLines
+          keys={keys}
+          rows={definition.matrix.rows}
+          cols={definition.matrix.cols}
+          width={width}
+          height={height}
+        />
+      )}
+    </PresentationControls>
+  );
+}, shallowEqual);
+
+const debugShallowEqual = (obj: any, obj2: any) => {
+  return !Object.keys(obj).some((k) => {
+    const comparison = obj[k] !== obj2[k];
+    if (obj[k] !== obj2[k]) {
+      console.log(k, obj[k], obj2[k]);
+    }
+    return comparison;
+  });
 };

@@ -47,7 +47,6 @@ const getSRGBArray = (keyColors: number[][]) => {
 
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
-  containerDimensions?: DOMRect;
   keys: VIAKey[];
   matrixKeycodes: number[];
   definition: VIADefinitionV2 | VIADefinitionV3;

@@ -37,6 +37,8 @@ import {
   faSquare,
   faSquareCheck,
 } from '@fortawesome/free-solid-svg-icons';
+import {useProgress} from '@react-three/drei';
+import ChippyLoader from '../chippy-loader';
 
 const Container = styled.div`
   display: flex;
@@ -64,6 +66,7 @@ export const Test: FC = () => {
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
   const [testContextObj] = useContext(TestContext);
+  const {progress} = useProgress();
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;
@@ -77,7 +80,9 @@ export const Test: FC = () => {
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
-  return (
+  return progress !== 100 ? (
+    <ChippyLoader progress={progress / 100} />
+  ) : (
     <TestPane>
       <Grid>
         <MenuCell style={{pointerEvents: 'all'}}>

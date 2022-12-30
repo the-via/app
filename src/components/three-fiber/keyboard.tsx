@@ -134,7 +134,6 @@ export const TestKeyboard = (props: {
     />
   );
 };
-
 export const DesignKeyboard = (props: {
   containerDimensions?: DOMRect;
   definition: VIADefinitionV2 | VIADefinitionV3;
@@ -148,24 +147,27 @@ export const DesignKeyboard = (props: {
     return null;
   }
 
-  const displayedOptionKeys = optionKeys
-    ? Object.entries(optionKeys).flatMap(([key, options]) => {
-        const optionKey = parseInt(key);
+  const displayedOptionKeys = useMemo(
+    () =>
+      optionKeys
+        ? Object.entries(optionKeys).flatMap(([key, options]) => {
+            const optionKey = parseInt(key);
 
-        // If a selection option has been set for this optionKey, use that
-        return selectedOptionKeys[optionKey]
-          ? options[selectedOptionKeys[optionKey]]
-          : options[0];
-      })
-    : [];
+            // If a selection option has been set for this optionKey, use that
+            return selectedOptionKeys[optionKey]
+              ? options[selectedOptionKeys[optionKey]]
+              : options[0];
+          })
+        : [],
+    [optionKeys, selectedOptionKeys],
+  );
 
-  const displayedKeys = [...keys, ...displayedOptionKeys];
-  useMemo(() => {
+  const displayedKeys = useMemo(() => {
     return [...keys, ...displayedOptionKeys];
   }, [keys, displayedOptionKeys]);
   return (
     <KeyboardCanvas
-      matrixKeycodes={[]}
+      matrixKeycodes={EMPTY_ARR}
       keys={displayedKeys}
       selectable={false}
       definition={definition}
@@ -251,6 +253,7 @@ export const Design = (props: {dimensions?: DOMRect}) => {
     </group>
   );
 };
+const EMPTY_ARR = [] as any[];
 export const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
@@ -274,8 +277,8 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   );
 
   const clearTestKeys = useCallback(() => {
-    setGlobalPressedKeys([]);
-    setMatrixPressedKeys([]);
+    setGlobalPressedKeys(EMPTY_ARR);
+    setMatrixPressedKeys(EMPTY_ARR);
   }, [setGlobalPressedKeys, setMatrixPressedKeys]);
 
   const testContext = useContext(TestContext);

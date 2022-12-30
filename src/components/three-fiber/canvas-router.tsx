@@ -89,7 +89,6 @@ const LoaderSpinner = () => {
 export const CanvasRouter = () => {
   const [path] = useLocation();
   const containerRef = useRef(null);
-  const dimensions = useSize(containerRef);
   const loadProgress = useAppSelector(getLoadProgress);
   const {progress} = useProgress();
   const dispatch = useAppDispatch();
@@ -154,9 +153,9 @@ export const CanvasRouter = () => {
             floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
             floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
           >
-            <Keyboards
+            <KeyboardGroup
+              containerRef={containerRef}
               configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-              dimensions={dimensions}
               loadProgress={loadProgress}
             />
           </Float>
@@ -224,20 +223,34 @@ const getRouteX = (route: string) => {
   }
 };
 
-const Keyboards = React.memo((props: any) => {
+const KeyboardGroup = React.memo((props: any) => {
+  const {loadProgress, configureKeyboardIsSelectable} = props;
   const [path] = useLocation();
-  const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
-  const testPosition = -getRouteX('/test');
-  const designPosition = -getRouteX('/design');
-  const debugPosition = -getRouteX('/debug');
   const routeX = getRouteX(path);
   const slide = useSpring({
     config: config.stiff,
     x: routeX,
   });
-
+  const dimensions = useSize(props.containerRef);
   return (
     <a.group position-x={slide.x}>
+      <Keyboards
+        configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+        loadProgress={loadProgress}
+        dimensions={dimensions}
+      />
+    </a.group>
+  );
+}, shallowEqual);
+const Keyboards = React.memo((props: any) => {
+  const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
+  const testPosition = -getRouteX('/test');
+  const designPosition = -getRouteX('/design');
+  const debugPosition = -getRouteX('/debug');
+
+  console.log('rerender');
+  return (
+    <>
       <group visible={loadProgress === 1}>
         <ConfigureKeyboard
           containerDimensions={dimensions}
@@ -253,6 +266,6 @@ const Keyboards = React.memo((props: any) => {
       <group position-x={debugPosition}>
         <ConfigureRGBKeyboard dimensions={dimensions} />
       </group>
-    </a.group>
+    </>
   );
 }, shallowEqual);
