@@ -3,7 +3,18 @@ import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {PROTOCOL_GAMMA} from '../../utils/keyboard-api';
-import {ControlRow, Label, Detail, OverflowCell, Grid1Col} from './grid';
+import {
+  ControlRow,
+  Label,
+  Detail,
+  OverflowCell,
+  Grid1Col,
+  MenuCell,
+  Row,
+  IconContainer,
+  Grid,
+  SpanOverflowCell,
+} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentButton} from '../inputs/accent-button';
 import {useDispatch} from 'react-redux';
@@ -17,6 +28,15 @@ import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
+import {MenuContainer} from './configure-panes/custom/menu-generator';
+import Icon from './configure-panes/custom/icon';
+import {MenuTooltip} from '../inputs/tooltip';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {
+  faCircleQuestion,
+  faSquare,
+  faSquareCheck,
+} from '@fortawesome/free-solid-svg-icons';
 
 const Container = styled.div`
   display: flex;
@@ -59,8 +79,18 @@ export const Test: FC = () => {
   }
   return (
     <TestPane>
-      <Grid1Col>
-        <OverflowCell>
+      <Grid>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            <Row selected={true}>
+              <IconContainer>
+                <FontAwesomeIcon icon={faCircleQuestion} />
+                <MenuTooltip>Check Key</MenuTooltip>
+              </IconContainer>
+            </Row>
+          </MenuContainer>
+        </MenuCell>
+        <SpanOverflowCell>
           <Container>
             <ControlRow>
               <Label>Reset Keyboard</Label>
@@ -86,8 +116,8 @@ export const Test: FC = () => {
               </ControlRow>
             ) : null}
           </Container>
-        </OverflowCell>
-      </Grid1Col>
+        </SpanOverflowCell>
+      </Grid>
     </TestPane>
   );
 };

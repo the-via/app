@@ -63,6 +63,7 @@ export const CategoryIconContainer = styled.span<{selected?: boolean}>`
   position: relative;
   color: var(--color_inside-accent);
   height: 35px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
