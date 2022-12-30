@@ -43,12 +43,62 @@ export const KeycapTooltip: React.FC<any> = (props) => {
   );
 };
 
+export const CategoryMenuTooltip: React.FC<any> = (props) => {
+  const accent = useMemo(() => getColors({color: KeyColorType.Accent}), []);
+  const containerStyles = {
+    position: 'absolute',
+    top: 45,
+    left: 0,
+    transformOrigin: 'left',
+    transition: 'all 0.1s ease-in-out',
+    marginTop: 0,
+    zIndex: 4,
+    pointerEvents: 'none',
+  };
+  const contentStyles = {
+    padding: '5px 10px',
+    borderRadius: 10,
+    background: 'var(--color_accent)',
+    color: 'var(--color_inside-accent)',
+    fontFamily: "'Source Sans Pro', Helvetica, Helvetica Neue, Arial, serif",
+    fontSize: 18,
+    fontWeight: 'bold',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textTransform: 'uppercase',
+    zIndex: 5,
+    transform: 'translateX(-50%)',
+    marginLeft: 18,
+  };
+  const pointerStyles = {
+    borderStyle: 'solid',
+    borderColor: 'transparent',
+    borderLeft: '6px solid transparent',
+    borderRight: '6px solid transparent',
+    borderBottom: `6px solid var(--color_accent)`,
+    position: 'absolute',
+    marginLeft: 15,
+    marginTop: -42,
+    width: 0,
+  };
+  return (
+    <Tooltip
+      {...props}
+      containerStyles={containerStyles}
+      contentStyles={contentStyles}
+      pointerStyles={pointerStyles}
+    />
+  );
+};
+
 export const MenuTooltip: React.FC<any> = (props) => {
   const accent = useMemo(() => getColors({color: KeyColorType.Accent}), []);
   const containerStyles = {
     position: 'absolute',
     top: 0,
-    left: 40,
+    left: 45,
     transformOrigin: 'left',
     transition: 'all 0.1s ease-in-out',
     marginTop: -5,
@@ -57,8 +107,8 @@ export const MenuTooltip: React.FC<any> = (props) => {
   };
   const contentStyles = {
     padding: '5px 5px',
-    background: 'var(--color_accent)',
-    color: 'var(--color_inside-accent)',
+    background: 'var(--color_inside-accent)',
+    color: 'var(--color_accent)',
     borderRadius: 10,
     fontFamily: 'Source Code Pro',
     whiteSpace: 'nowrap',
@@ -72,7 +122,7 @@ export const MenuTooltip: React.FC<any> = (props) => {
     borderColor: 'transparent',
     borderTop: '6px solid transparent',
     borderBottom: '6px solid transparent',
-    borderRight: `6px solid var(--color_accent)`,
+    borderRight: `6px solid var(--color_inside-accent)`,
     position: 'absolute',
     marginLeft: -9,
     marginTop: -21,
