@@ -68,7 +68,7 @@ html[data-theme-mode='dark'] {
   --bg_menu: var(--color_light-jet);
   --color_control: var(--color_dark-grey);
   --bg_control: var(--color_dark-grey);
-  --bg_outside_accent: var(--color_dark-grey);
+  --bg_outside-accent: var(--color_dark-grey);
   --bg_control_disabled: var(--color_dark-grey);
   --bg_control-highlighted: var(--color_light-grey);
   --bg_gradient: linear-gradient(var(--color_jet), var(--color_light-jet));
@@ -87,7 +87,7 @@ html[data-theme-mode='light'] {
   --color_control: var(--color_tinge-light);
   --color_control-disabled: var(--color_tinge-light);
   --bg_control: var(--color_tinge);
-  --bg_outside_accent: var(--color_tinge-light);
+  --bg_outside-accent: var(--color_tinge-light);
   --bg_control-highlighted: var(--color_warm-white);
   --bg_control-disabled: transparent;
   --bg_gradient: linear-gradient(

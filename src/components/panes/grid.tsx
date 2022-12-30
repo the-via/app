@@ -59,6 +59,31 @@ export const ConfigureFlexCell = styled(SinglePaneFlexCell)`
   height: 500px;
 `;
 
+export const CategoryIconContainer = styled.span<{selected?: boolean}>`
+  position: relative;
+  color: var(--color_inside-accent);
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) =>
+    props.selected ? 'var(--color_accent)' : 'transparent'};
+  border-radius: 10px;
+  width: 40px;
+  &:hover {
+    color: ${(props) =>
+      props.selected ? 'var(--color_inside-accent)' : 'var(--color_accent)'};
+    & .tooltip {
+      transform: scale(1) translateX(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: translateX(-5px) scale(0.6);
+    opacity: 0;
+  }
+`;
+
 export const IconContainer = styled.span`
   display: inline-block;
   text-align: center;
@@ -108,13 +133,10 @@ export const Row = styled.div<{selected: boolean}>`
   white-space: nowrap;
   margin-bottom: 15px;
   font-size: 20px;
-  height: 20px;
   line-height: 20px;
   text-transform: uppercase;
   color: ${(props) => getIconColor(props.selected).style.color};
-  border-left: 2px solid
-    ${(props) =>
-      props.selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
+  border-left: 2px solid transparent;
 
   svg {
     height: 20px;
@@ -140,5 +162,7 @@ export const SubmenuRow = styled(Row)`
   min-width: min-content;
   border-color: transparent;
   margin-bottom: 11px;
+  color: ${(props) =>
+    props.selected ? 'var(--color_label-highlighted)' : 'var(--color_label)'};
   border-radius: 12px;
 `;

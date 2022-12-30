@@ -14,7 +14,7 @@ export const AccentButton = styled.button<AccentButtonProps>`
   text-align: center;
   outline: none;
   background-color: ${(props) =>
-    props.disabled ? 'var(--bg_control-disabled)' : 'var(--bg_outside_accent)'};
+    props.disabled ? 'var(--bg_control-disabled)' : 'var(--bg_outside-accent)'};
   font-size: 20px;
   border-radius: 5px;
   color: var(--color_accent);

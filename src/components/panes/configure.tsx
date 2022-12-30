@@ -1,11 +1,10 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import {useSize} from '../../utils/use-size';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
 import {CenterPane, ConfigureBasePane} from './pane';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import ReactTooltip from 'react-tooltip';
 import {
   CustomFeaturesV2,
@@ -42,10 +41,10 @@ import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
 import {useProgress} from '@react-three/drei';
-import {MenuTooltip} from '../inputs/tooltip';
+import {CategoryMenuTooltip, MenuTooltip} from '../inputs/tooltip';
 
 const MenuContainer = styled.div`
-  padding: 20px 10px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 const Rows = [

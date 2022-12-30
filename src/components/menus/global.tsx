@@ -4,6 +4,9 @@ import {Link, useLocation} from 'wouter';
 import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowDesignTab} from 'src/store/settingsSlice';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {CategoryMenuTooltip} from '../inputs/tooltip';
+import {CategoryIconContainer} from '../panes/grid';
 
 const Container = styled.div`
   width: 100vw;
@@ -36,6 +39,11 @@ const MenuItem = styled.button<{selected?: boolean}>`
 const {DEBUG_PROD, MODE, DEV} = import.meta.env;
 const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 
+const GlobalContainer = styled(Container)`
+  background: var(--bg_outside-accent);
+  column-gap: 20px;
+`;
+
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
 
@@ -47,7 +55,10 @@ export const UnconnectedGlobalMenu = () => {
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
         <Link key={pane.key} to={pane.path}>
-          <MenuItem selected={pane.path === location}>{pane.title}</MenuItem>
+          <CategoryIconContainer selected={pane.path === location}>
+            <FontAwesomeIcon size={'xl'} icon={pane.icon} />
+            <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
+          </CategoryIconContainer>
         </Link>
       );
     });
@@ -55,7 +66,7 @@ export const UnconnectedGlobalMenu = () => {
 
   return (
     <React.Fragment>
-      <Container>{Panes}</Container>
+      <GlobalContainer>{Panes}</GlobalContainer>
     </React.Fragment>
   );
 };
