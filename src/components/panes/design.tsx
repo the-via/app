@@ -8,7 +8,12 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
 import Layouts from '../Layouts';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faUpload} from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowUpFromBracket,
+  faBook,
+  faPlus,
+  faUpload,
+} from '@fortawesome/free-solid-svg-icons';
 import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
@@ -27,6 +32,11 @@ import {
   IndentedControlRow,
   OverflowCell,
   SinglePaneFlexCell,
+  Grid,
+  SpanOverflowCell,
+  MenuCell,
+  Row,
+  IconContainer,
 } from './grid';
 import {useDispatch} from 'react-redux';
 import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
@@ -42,6 +52,8 @@ import {
   updateSelectedOptionKeys,
   updateShowMatrix,
 } from 'src/store/designSlice';
+import {MenuContainer} from './configure-panes/custom/menu-generator';
+import {MenuTooltip} from '../inputs/tooltip';
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -240,103 +252,115 @@ export const DesignTab: FC = () => {
           </UploadIcon>
         )}
       </SinglePaneFlexCell>
-      <OverflowCell>
-        <Container>
-          <ControlRow>
-            <Label>Load Draft Definition</Label>
-            <Detail>
-              <AccentUploadButton
-                multiple
-                inputRef={uploadButton}
-                onLoad={(files) => {
-                  importDefinitions(
-                    Array.from(files),
-                    definitionVersion,
-                    dispatch,
-                    setErrors,
-                  );
-                }}
-              >
-                Load
-              </AccentUploadButton>
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Use V2 definitions (deprecated)</Label>
-            <Detail>
-              <AccentSlider
-                isChecked={definitionVersion === 'v2'}
-                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
-              />
-            </Detail>
-          </ControlRow>
-          {definition && (
+      <Grid style={{overflow: 'hidden'}}>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            <Row selected={true}>
+              <IconContainer>
+                <FontAwesomeIcon icon={faBook} />
+                <MenuTooltip>Add Definition</MenuTooltip>
+              </IconContainer>
+            </Row>
+          </MenuContainer>
+        </MenuCell>
+        <SpanOverflowCell>
+          <Container>
             <ControlRow>
-              <Label>Shown Keyboard Definition</Label>
+              <Label>Load Draft Definition</Label>
               <Detail>
-                <AccentSelect
-                  onChange={(option: any) => {
-                    // Reset selected layouts when choosing a different
-                    // definition
-                    dispatch(updateSelectedOptionKeys([]));
-
-                    if (option) {
-                      dispatch(updateSelectedDefinitionIndex(+option.value));
-                    }
+                <AccentUploadButton
+                  multiple
+                  inputRef={uploadButton}
+                  onLoad={(files) => {
+                    importDefinitions(
+                      Array.from(files),
+                      definitionVersion,
+                      dispatch,
+                      setErrors,
+                    );
                   }}
-                  value={options[selectedDefinitionIndex]}
-                  options={options}
-                />
+                >
+                  Load
+                </AccentUploadButton>
               </Detail>
             </ControlRow>
-          )}
-          {definition && (
-            <Layouts
-              definition={definition}
-              onLayoutChange={(newSelectedOptionKeys) => {
-                dispatch(updateSelectedOptionKeys(newSelectedOptionKeys));
-              }}
-            />
-          )}
-          {definition && (
             <ControlRow>
-              <Label>Show Matrix</Label>
+              <Label>Use V2 definitions (deprecated)</Label>
               <Detail>
                 <AccentSlider
-                  isChecked={showMatrix}
-                  onChange={(val) => {
-                    dispatch(updateShowMatrix(val));
-                  }}
+                  isChecked={definitionVersion === 'v2'}
+                  onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
                 />
               </Detail>
             </ControlRow>
-          )}
-          {errors.map((error: string) => (
-            <IndentedControlRow>
-              <DesignErrorMessage>{error}</DesignErrorMessage>
-            </IndentedControlRow>
-          ))}
-          <ControlRow>
-            <Label>Draft Definitions</Label>
-            <Detail>
-              {Object.values(versionDefinitions).length} Definitions
-            </Detail>
-          </ControlRow>
-          {versionDefinitions.map((definition) => {
-            return (
-              <IndentedControlRow>
-                <SubLabel>{definition[definitionVersion].name}</SubLabel>
+            {definition && (
+              <ControlRow>
+                <Label>Shown Keyboard Definition</Label>
                 <Detail>
-                  0x
-                  {definition[definitionVersion].vendorProductId
-                    .toString(16)
-                    .toUpperCase()}
+                  <AccentSelect
+                    onChange={(option: any) => {
+                      // Reset selected layouts when choosing a different
+                      // definition
+                      dispatch(updateSelectedOptionKeys([]));
+
+                      if (option) {
+                        dispatch(updateSelectedDefinitionIndex(+option.value));
+                      }
+                    }}
+                    value={options[selectedDefinitionIndex]}
+                    options={options}
+                  />
                 </Detail>
+              </ControlRow>
+            )}
+            {definition && (
+              <Layouts
+                definition={definition}
+                onLayoutChange={(newSelectedOptionKeys) => {
+                  dispatch(updateSelectedOptionKeys(newSelectedOptionKeys));
+                }}
+              />
+            )}
+            {definition && (
+              <ControlRow>
+                <Label>Show Matrix</Label>
+                <Detail>
+                  <AccentSlider
+                    isChecked={showMatrix}
+                    onChange={(val) => {
+                      dispatch(updateShowMatrix(val));
+                    }}
+                  />
+                </Detail>
+              </ControlRow>
+            )}
+            {errors.map((error: string) => (
+              <IndentedControlRow>
+                <DesignErrorMessage>{error}</DesignErrorMessage>
               </IndentedControlRow>
-            );
-          })}
-        </Container>
-      </OverflowCell>
+            ))}
+            <ControlRow>
+              <Label>Draft Definitions</Label>
+              <Detail>
+                {Object.values(versionDefinitions).length} Definitions
+              </Detail>
+            </ControlRow>
+            {versionDefinitions.map((definition) => {
+              return (
+                <IndentedControlRow>
+                  <SubLabel>{definition[definitionVersion].name}</SubLabel>
+                  <Detail>
+                    0x
+                    {definition[definitionVersion].vendorProductId
+                      .toString(16)
+                      .toUpperCase()}
+                  </Detail>
+                </IndentedControlRow>
+              );
+            })}
+          </Container>
+        </SpanOverflowCell>
+      </Grid>
     </DesignPane>
   );
 };

@@ -1,5 +1,6 @@
 import {
   faArrowUpFromBracket,
+  faBrush,
   faBug,
   faGear,
   faKeyboard,
@@ -29,7 +30,7 @@ export default [
   {
     key: 'design',
     component: DesignTab,
-    icon: faArrowUpFromBracket,
+    icon: faBrush,
     path: '/design',
     title: 'Design',
   },
