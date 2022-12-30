@@ -311,7 +311,9 @@ export const Keycap = React.memo(
                   pointerEvents: 'none',
                 }}
               >
-                <KeycapTooltip>{macroData || label.tooltipLabel}</KeycapTooltip>
+                <KeycapTooltip>
+                  {macroData || (label && label.tooltipLabel)}
+                </KeycapTooltip>
               </Html>
             </animated.group>
           </React.Suspense>
