@@ -19,7 +19,6 @@ import {useLocation} from 'wouter';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
-  getSelectedTheme,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
