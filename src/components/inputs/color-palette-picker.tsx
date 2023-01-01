@@ -1,5 +1,8 @@
 import {Color} from '@the-via/reader';
-import {useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {setSelectedPaletteColor} from 'src/store/keymapSlice';
+import {updateShowKeyPainter} from 'src/store/menusSlice';
 import {getRGB} from 'src/utils/color-math';
 import styled from 'styled-components';
 import {ColorPicker} from './color-picker';
@@ -36,15 +39,34 @@ export const PreviousColorOption = styled.div<{selected: boolean}>`
     props.selected ? 'var(--color_accent)' : 'var(--border_color_cell)'};
 `;
 
+export const ConnectedColorPalettePicker: React.FC = () => {
+  const dispatch = useDispatch();
+  const setColor = useCallback(
+    (hue: number, sat: number) => dispatch(setSelectedPaletteColor([hue, sat])),
+    [dispatch],
+  );
+  useEffect(() => {
+    dispatch(updateShowKeyPainter(true));
+    return () => {
+      dispatch(updateShowKeyPainter(false));
+    };
+  });
+  return <ColorPalettePicker color={[0, 0]} setColor={setColor} />;
+};
 export const ColorPalettePicker: React.FC<{
   color: [number, number];
   setColor: Props['setColor'];
-  initialColors?: number[][];
 }> = (props) => {
-  const {color, setColor, initialColors = []} = props;
+  const {color, setColor} = props;
   const [selectedColor, setSelectedColor] = useState(color);
   const [colorPickerColor, setPickerColor] = useState(color);
-  console.log(initialColors);
+  const initialColors = useMemo(() => {
+    return Array(9)
+      .fill(0)
+      .map((_, i) => {
+        return [Math.round((i * 255) / 10), 255, 255];
+      });
+  }, []);
   return (
     <ColorPalettePickerContainer>
       <PreviousColorContainer>

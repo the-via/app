@@ -164,7 +164,7 @@ export const Keycap = React.memo(
     const textureRef = useRef<THREE.CanvasTexture>();
     const canvasRef = useRef(document.createElement('canvas'));
     const redraw = React.useCallback(() => {
-      if (canvasRef.current) {
+      if (canvasRef.current && color) {
         if (shouldRotate) {
           paintEncoder(canvasRef.current, scale, color.c, color.t);
         } else {
@@ -188,11 +188,11 @@ export const Keycap = React.memo(
       label && label.key,
       scale[0],
       scale[1],
-      color.t,
-      color.c,
+      color && color.t,
+      color && color.c,
       shouldRotate,
     ]);
-    useEffect(redraw, [label && label.key, color.c, color.t]);
+    useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
 
     const glow = useSpring({
       config: {duration: 800},

@@ -19,24 +19,29 @@ import {
 } from 'src/components/panes/configure-panes/custom/menu-generator';
 
 type CustomMenuData = {
-  [commandName: string]: number[];
+  [commandName: string]: number[] | number[][];
 };
 type CustomMenuDataMap = {[devicePath: string]: CustomMenuData};
 
 export type MenusState = {
   customMenuDataMap: CustomMenuDataMap;
   commonMenusMap: CommonMenusMap;
+  showKeyPainter: boolean;
 };
 
 const initialState: MenusState = {
   customMenuDataMap: {},
   commonMenusMap: {},
+  showKeyPainter: false,
 };
 
 const menusSlice = createSlice({
   name: 'menus',
   initialState,
   reducers: {
+    updateShowKeyPainter: (state, action: PayloadAction<boolean>) => {
+      state.showKeyPainter = action.payload;
+    },
     updateSelectedCustomMenuData: (
       state,
       action: PayloadAction<{menuData: CustomMenuData; devicePath: string}>,
@@ -57,8 +62,11 @@ const menusSlice = createSlice({
   },
 });
 
-export const {updateSelectedCustomMenuData, updateCustomMenuData} =
-  menusSlice.actions;
+export const {
+  updateShowKeyPainter,
+  updateSelectedCustomMenuData,
+  updateCustomMenuData,
+} = menusSlice.actions;
 
 export default menusSlice.reducer;
 
@@ -90,7 +98,7 @@ export const updateCustomMenuValue =
     api.commitCustomMenu(channel);
   };
 
-// COMMON MENU IDENTIFIER RESOLCES INTO ACTUAL MODULE
+// COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
 export const tryResolveCommonMenu = (
   id: VIAMenu | string,
 ): VIAMenu | VIAMenu[] => {
@@ -115,7 +123,7 @@ export const updateV3MenuData =
     const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
     if (commands.length !== 0 && protocol >= 11) {
-      let props = {};
+      let props = {} as CustomMenuData;
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
         command: name,
         promise: api.getCustomMenuValue([channelId].concat(command)),
@@ -131,9 +139,26 @@ export const updateV3MenuData =
         {res: props, ref: commandPromisesRes},
       ).res;
 
+      // Update to detect instance of color-palette control and an li on a key
+      const maxLedIndex = Math.max(
+        ...definition.layouts.keys.map((key) => key.li ?? -1),
+      );
+      console.log(maxLedIndex, 'max');
+
+      if (maxLedIndex >= 0) {
+        // Ask for PerKeyRGBValues -- hardcoded to 62
+        const perKeyRGB = await api.getPerKeyRGBMatrix(
+          Array(maxLedIndex + 1)
+            .fill(0)
+            .map((_, i) => i),
+        );
+        props.__perKeyRGB = perKeyRGB;
+      }
+
       dispatch(
-        updateCustomMenuData({
-          [device.path]: {
+        updateSelectedCustomMenuData({
+          devicePath: device.path,
+          menuData: {
             ...props,
           },
         }),
@@ -155,6 +180,9 @@ const extractCommands = (menuOrControls: any) => {
 
 export const getCommonMenusDataMap = (state: RootState) =>
   state.menus.commonMenusMap;
+
+export const getShowKeyPainter = (state: RootState) =>
+  state.menus.showKeyPainter;
 
 export const getCustomMenuDataMap = (state: RootState) =>
   state.menus.customMenuDataMap;

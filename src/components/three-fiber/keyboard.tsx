@@ -32,6 +32,10 @@ import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {TestContext} from '../panes/test';
 import {TestKeyState} from 'src/types/types';
 import {useColorPainter} from 'src/utils/use-color-painter';
+import {
+  getSelectedCustomMenuData,
+  getShowKeyPainter,
+} from 'src/store/menusSlice';
 
 enum DisplayMode {
   Test = 1,
@@ -41,6 +45,13 @@ enum DisplayMode {
 }
 
 export const ConfigureRGBKeyboard = (props: {dimensions?: DOMRect}) => {
+  const customMenuData = useAppSelector(getSelectedCustomMenuData);
+  if (customMenuData && customMenuData.__perKeyRGB) {
+    return <ConfigureRGBKeyboardWithData dimensions={props.dimensions} />;
+  }
+  return null;
+};
+export const ConfigureRGBKeyboardWithData = (props: {dimensions?: DOMRect}) => {
   const {dimensions} = props;
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
@@ -55,7 +66,24 @@ export const ConfigureRGBKeyboard = (props: {dimensions?: DOMRect}) => {
     selectedPaletteColor,
   );
 
-  if (!definition || !dimensions || !keyColors || !keyColors.length) {
+  const [normalizedKeys, normalizedColors] = useMemo(() => {
+    // skip keys without colors on it
+    return keyColors && keys
+      ? [
+          keys.filter((_, i) => keyColors[i] && keyColors[i].length),
+          keyColors.filter((i) => i && i.length),
+        ]
+      : [null, null];
+  }, [keys, keyColors]);
+
+  if (
+    !definition ||
+    !dimensions ||
+    !normalizedKeys ||
+    !normalizedColors ||
+    !normalizedColors.length ||
+    !normalizedKeys.length
+  ) {
     return null;
   }
 
@@ -85,19 +113,55 @@ export const ConfigureKeyboard = (props: {
     getSelectedKeyDefinitions,
   );
   const definition = useAppSelector(getSelectedDefinition);
+  const showKeyPainter = useAppSelector(getShowKeyPainter);
+  const selectedPaletteColor = useAppSelector(getSelectedPaletteColor);
+  const {keyColors, onKeycapPointerDown, onKeycapPointerOver} = useColorPainter(
+    keys,
+    selectedPaletteColor,
+  );
+  const [normalizedKeys, normalizedColors] = useMemo(() => {
+    // skip keys without colors on it
+    return keyColors && keys
+      ? [
+          keys.filter((_, i) => keyColors[i] && keyColors[i].length),
+          keyColors.filter((i) => i && i.length),
+        ]
+      : [null, null];
+  }, [keys, keyColors]);
+
   if (!definition || !containerDimensions) {
     return null;
   }
 
   return (
-    <KeyboardCanvas
-      matrixKeycodes={matrixKeycodes}
-      keys={keys}
-      selectable={!!selectable}
-      definition={definition}
-      containerDimensions={containerDimensions}
-      mode={DisplayMode.Configure}
-    />
+    <>
+      <KeyboardCanvas
+        matrixKeycodes={matrixKeycodes}
+        keys={keys}
+        selectable={!!selectable}
+        definition={definition}
+        containerDimensions={containerDimensions}
+        mode={DisplayMode.Configure}
+        shouldHide={showKeyPainter}
+      />
+      {normalizedKeys &&
+      normalizedKeys.length &&
+      normalizedColors &&
+      normalizedColors.length ? (
+        <KeyboardCanvas
+          matrixKeycodes={matrixKeycodes}
+          keys={normalizedKeys}
+          selectable={showKeyPainter}
+          definition={definition}
+          containerDimensions={containerDimensions}
+          mode={DisplayMode.ConfigureColors}
+          keyColors={normalizedColors}
+          onKeycapPointerDown={onKeycapPointerDown}
+          onKeycapPointerOver={onKeycapPointerOver}
+          shouldHide={!showKeyPainter}
+        />
+      ) : null}
+    </>
   );
 };
 

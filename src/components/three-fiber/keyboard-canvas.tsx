@@ -22,6 +22,7 @@ type KeyboardCanvasContent = {
   showMatrix?: boolean;
   selectedKey?: number;
   keyColors?: number[][];
+  shouldHide?: boolean;
   onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
   onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
 };
@@ -30,7 +31,7 @@ export const KeyboardCanvas: React.FC<
     containerDimensions: DOMRect;
   }
 > = (props) => {
-  const {containerDimensions, ...otherProps} = props;
+  const {containerDimensions, shouldHide, ...otherProps} = props;
   const {width, height} = useMemo(
     () => calculateKeyboardFrameDimensions(otherProps.keys),
     [otherProps.keys],
@@ -52,7 +53,11 @@ export const KeyboardCanvas: React.FC<
     ) || 1;
 
   return (
-    <group position={[0, -0.0, -19]} scale={0.015 * ratio}>
+    <group
+      position={[0, -0.0, -19]}
+      scale={0.015 * ratio}
+      visible={!shouldHide}
+    >
       <KeyboardCanvasContent {...otherProps} width={width} height={height} />
     </group>
   );

@@ -19,6 +19,7 @@ const DYNAMIC_KEYMAP_SET_KEYCODE = 0x05;
 const CUSTOM_MENU_SET_VALUE = 0x07;
 const CUSTOM_MENU_GET_VALUE = 0x08;
 const CUSTOM_MENU_SAVE = 0x09;
+const PER_KEY_RGB_CHANNEL_COMMAND = [0, 1];
 
 const EEPROM_RESET = 0x0a;
 const BOOTLOADER_JUMP = 0x0b;
@@ -356,6 +357,31 @@ export class KeyboardAPI {
 
   async setCustomMenuValue(...args: number[]): Promise<void> {
     await this.hidCommand(CUSTOM_MENU_SET_VALUE, args);
+  }
+
+  async getPerKeyRGBMatrix(ledIndexMapping: number[]): Promise<number[][]> {
+    const res = await Promise.all(
+      ledIndexMapping.map((ledIndex) =>
+        this.hidCommand(CUSTOM_MENU_GET_VALUE, [
+          ...PER_KEY_RGB_CHANNEL_COMMAND,
+          ledIndex,
+        ]),
+      ),
+    );
+    return res.map((r) => [...r.slice(4, 6)]);
+  }
+
+  async setPerKeyRGBMatrix(
+    index: number,
+    hue: number,
+    sat: number,
+  ): Promise<void> {
+    await this.hidCommand(CUSTOM_MENU_SET_VALUE, [
+      ...PER_KEY_RGB_CHANNEL_COMMAND,
+      index,
+      hue,
+      sat,
+    ]);
   }
 
   async getBacklightValue(
