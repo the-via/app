@@ -1,3 +1,4 @@
+import * as Reader from '@the-via/reader';
 import {THEMES as REMOTETHEMES} from '@the-via/reader';
 export type KeyColor = {
   c: string;

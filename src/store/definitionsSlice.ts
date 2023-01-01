@@ -46,7 +46,7 @@ const definitionsSlice = createSlice({
     updateDefinitions: (state, action: PayloadAction<KeyboardDictionary>) => {
       state.definitions = {...state.definitions, ...action.payload};
     },
-    loadDefinition: (
+    loadCustomDefinition: (
       state,
       action: PayloadAction<{
         definition: VIADefinitionV2 | VIADefinitionV3;
@@ -69,7 +69,7 @@ const definitionsSlice = createSlice({
   },
 });
 
-export const {loadDefinition, updateDefinitions, updateLayoutOptions} =
+export const {loadCustomDefinition, updateDefinitions, updateLayoutOptions} =
   definitionsSlice.actions;
 
 export default definitionsSlice.reducer;

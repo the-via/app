@@ -9,9 +9,11 @@ import type {
   VIADefinitionV3,
   VIAItem,
   VIAControlItem,
+  VIAUniqueControlItem,
 } from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
+import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 
 type Props = {
   lightingData: LightingData;
@@ -49,7 +51,8 @@ type ControlGetSet = {
   updateValue: (name: string, ...command: number[]) => void;
 };
 
-type VIACustomControlProps = VIAControlItem & ControlGetSet;
+type VIACustomControlProps = (VIAUniqueControlItem | VIAControlItem) &
+  ControlGetSet;
 
 const boxOrArr = <N extends any>(elem: N | N[]) =>
   Array.isArray(elem) ? elem : [elem];
@@ -125,6 +128,9 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
           setColor={(hue, sat) => props.updateValue(name, ...command, hue, sat)}
         />
       );
+    }
+    case 'color-palette': {
+      return <ConnectedColorPalettePicker />;
     }
   }
   return null;

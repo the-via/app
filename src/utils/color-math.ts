@@ -111,6 +111,9 @@ export const getHSV = (color: string) => {
   }
   return [(h + 360) % 360, s, v];
 };
+export const getHSVFrom256 = (color: number[]) => {
+  return [Math.round((360 * color[0]) / 255), Math.round(color[1] / 255), 1];
+};
 
 export function getRGB({hue, sat}: {hue: number; sat: number}): string {
   sat = sat / 255;

@@ -30,6 +30,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    include: ['@the-via/reader'],
     esbuildOptions: {
       // Node.js global to browser globalThis
       define: {

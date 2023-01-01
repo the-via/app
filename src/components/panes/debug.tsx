@@ -124,13 +124,6 @@ const TestControls = () => {
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
   ];
-  const initialColorPalette = useMemo(
-    () =>
-      Array(9)
-        .fill(0)
-        .map(() => get256HSV(getRandomColor())),
-    [],
-  );
   return (
     <ControlGroup>
       <ControlGroupHeader>Controls</ControlGroupHeader>
@@ -178,7 +171,6 @@ const TestControls = () => {
         <Detail>
           <ColorPalettePicker
             color={selectedPaletteColor}
-            initialColors={initialColorPalette}
             setColor={(hue, sat) =>
               dispatch(setSelectedPaletteColor([hue, sat]))
             }

@@ -42,7 +42,10 @@ import {useDispatch} from 'react-redux';
 import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
-import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
+import {
+  getCustomDefinitions,
+  loadCustomDefinition,
+} from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
   getSelectedVersion,
@@ -102,6 +105,19 @@ const UploadIcon = styled.div`
   }
 `;
 
+const makeReaderPromise = (file: File): Promise<string> => {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (!reader.result) return rej();
+      res(reader.result.toString());
+    };
+    reader.onerror = rej;
+    reader.onabort = rej;
+    reader.readAsBinaryString(file);
+  });
+};
+
 // TODO: move this inside function component and then use the closured dispatch?
 function importDefinitions(
   files: File[],
@@ -109,12 +125,10 @@ function importDefinitions(
   dispatch: Dispatch<any>,
   setErrors: (errors: string[]) => void,
 ) {
-  files.forEach((file) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
+  Promise.all(files.map(makeReaderPromise)).then((results) =>
+    results.forEach((result) => {
       try {
-        if (!reader.result) return;
-        const res = JSON.parse(reader.result.toString());
+        const res = JSON.parse(result.toString());
         const isValid =
           version === 'v2'
             ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
@@ -144,7 +158,7 @@ function importDefinitions(
               );
             }
           }
-          dispatch(loadDefinition({definition, version}));
+          dispatch(loadCustomDefinition({definition, version}));
 
           dispatch(
             ensureSupportedId({
@@ -172,9 +186,8 @@ function importDefinitions(
           setErrors([`${err}`]);
         }
       }
-    };
-    reader.readAsBinaryString(file);
-  });
+    }),
+  );
 }
 
 function onDrop(
