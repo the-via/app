@@ -68,6 +68,43 @@ const paintEncoder = (
     context.fill();
   }
 };
+
+type Coordinate = {
+  x: number;
+  y: number;
+};
+
+const drawDebugLines = (
+  context: CanvasRenderingContext2D,
+  canvasWidth: number,
+  canvasHeight: number,
+  bottomLeft: Coordinate,
+  topRight: Coordinate,
+) => {
+  context.beginPath();
+  context.moveTo(
+    bottomLeft.x * canvasWidth,
+    canvasHeight - bottomLeft.y * canvasHeight,
+  );
+  context.lineTo(
+    bottomLeft.x * canvasWidth,
+    canvasHeight - topRight.y * canvasHeight,
+  );
+  context.lineTo(
+    topRight.x * canvasWidth,
+    canvasHeight - topRight.y * canvasHeight,
+  );
+  context.lineTo(
+    topRight.x * canvasWidth,
+    canvasHeight - bottomLeft.y * canvasHeight,
+  );
+  context.lineTo(
+    bottomLeft.x * canvasWidth,
+    canvasHeight - bottomLeft.y * canvasHeight,
+  );
+  context.stroke();
+};
+
 const paintKeycap = (
   canvas: HTMLCanvasElement,
   [widthMultiplier, heightMultiplier]: [number, number],
@@ -99,6 +136,9 @@ const paintKeycap = (
     const unitScale = 19.05;
     const offsetToCorner = 0.445;
     const gap = (offsetToCorner / unitScale) * size1u;
+
+    // Margins from face edge to where text is drawn
+    const margin = {x: 0.02, y: 0.02};
 
     // textureWidth,textureHeight is the size of the keycap in U
     // Clip this to 2.75U because the texture coordinates (UV)
@@ -162,57 +202,26 @@ const paintKeycap = (
     // Leaving this here for future maintenance.
     // This draws lines around the keycap edge and the top face edge,
     // *or* a clipped area within it when keycaps are large, vertical or odd shapes.
-    const drawDebugLines = true;
-    if (drawDebugLines) {
+    const debug = false;
+    if (debug) {
       context.strokeStyle = 'cyan';
       context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(
-        faceBottomLeft.x * canvasWidth,
-        canvasHeight - faceBottomLeft.y * canvasHeight,
+      drawDebugLines(
+        context,
+        canvasWidth,
+        canvasHeight,
+        faceBottomLeft,
+        faceTopRight,
       );
-      context.lineTo(
-        faceTopLeft.x * canvasWidth,
-        canvasHeight - faceTopLeft.y * canvasHeight,
-      );
-      context.lineTo(
-        faceTopRight.x * canvasWidth,
-        canvasHeight - faceTopRight.y * canvasHeight,
-      );
-      context.lineTo(
-        faceBottomRight.x * canvasWidth,
-        canvasHeight - faceBottomRight.y * canvasHeight,
-      );
-      context.lineTo(
-        faceBottomLeft.x * canvasWidth,
-        canvasHeight - faceBottomLeft.y * canvasHeight,
-      );
-      context.stroke();
-
       context.strokeStyle = 'magenta';
       context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(
-        keycapBottomLeft.x * canvasWidth,
-        canvasHeight - keycapBottomLeft.y * canvasHeight,
+      drawDebugLines(
+        context,
+        canvasWidth,
+        canvasHeight,
+        keycapBottomLeft,
+        keycapTopRight,
       );
-      context.lineTo(
-        keycapTopLeft.x * canvasWidth,
-        canvasHeight - keycapTopLeft.y * canvasHeight,
-      );
-      context.lineTo(
-        keycapTopRight.x * canvasWidth,
-        canvasHeight - keycapTopRight.y * canvasHeight,
-      );
-      context.lineTo(
-        keycapBottomRight.x * canvasWidth,
-        canvasHeight - keycapBottomRight.y * canvasHeight,
-      );
-      context.lineTo(
-        keycapBottomLeft.x * canvasWidth,
-        canvasHeight - keycapBottomLeft.y * canvasHeight,
-      );
-      context.stroke();
     }
 
     // Define a clipping path for the top face, so text is not drawn on the side.
@@ -246,13 +255,13 @@ const paintKeycap = (
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.topLabel,
-        (faceTopLeft.x + 0.02) * canvasWidth,
-        canvasHeight - (faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight,
+        (faceTopLeft.x + margin.x) * canvasWidth,
+        canvasHeight - (faceTopLeft.y - fontHeightTU - margin.y) * canvasHeight,
       );
       context.fillText(
         label.bottomLabel,
-        (faceBottomLeft.x + 0.02) * canvasWidth,
-        canvasHeight - (faceBottomLeft.y + 0.02) * canvasHeight,
+        (faceBottomLeft.x + margin.x) * canvasWidth,
+        canvasHeight - (faceBottomLeft.y + margin.y) * canvasHeight,
       );
     } else if (label.centerLabel) {
       let fontSize = 37.5 * label.size;
@@ -260,13 +269,13 @@ const paintKeycap = (
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.label,
-        (faceMidLeft.x + 0.02) * canvasWidth,
+        (faceMidLeft.x + margin.x) * canvasWidth,
         canvasHeight - (faceMidLeft.y - 0.5 * fontHeightTU) * canvasHeight,
       );
       // return if label would have overflowed so that we know to show tooltip
       return (
         context.measureText(label.centerLabel).width >
-        (faceBottomRight.x - (faceBottomLeft.x + 0.02)) * canvasWidth
+        (faceBottomRight.x - (faceBottomLeft.x + margin.x)) * canvasWidth
       );
     } else if (typeof label.label === 'string') {
       let fontSize = 75;
@@ -274,8 +283,8 @@ const paintKeycap = (
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.label,
-        (faceTopLeft.x + 0.02) * canvasWidth,
-        canvasHeight - (faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight,
+        (faceTopLeft.x + margin.x) * canvasWidth,
+        canvasHeight - (faceTopLeft.y - fontHeightTU - margin.y) * canvasHeight,
       );
     }
   }
