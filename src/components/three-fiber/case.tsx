@@ -233,11 +233,9 @@ const Heart = React.memo(
 
     return (
       <mesh
-        position={[
-          props.caseThickness,
-          props.caseHeight / 2,
-          props.caseWidth / 2,
-        ]}
+        position={[-6, props.caseHeight / 2 + 5, -12.5 / 3]}
+        scale={0.15}
+        rotation={[Math.PI / 2, 0, Math.PI / 2]}
       >
         <extrudeGeometry
           attach="geometry"
