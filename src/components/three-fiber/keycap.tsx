@@ -200,6 +200,8 @@ export const Keycap = React.memo(
       loop: selected ? {reverse: true} : false,
       to: {x: 100, y: '#b49999'},
     });
+    // Set Z to half the total height so that keycaps are at the same level since the center
+    // is in the middle and each row has a different height
     let maxZ = keycapGeometry.boundingBox.max.z;
     const [zDown, zUp] = [maxZ, maxZ + 8];
     const pressedState =

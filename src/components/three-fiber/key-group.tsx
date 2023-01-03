@@ -1,11 +1,5 @@
 import {useGLTF} from '@react-three/drei';
-import {
-  KeyColorType,
-  ThemeDefinition,
-  VIADefinitionV2,
-  VIADefinitionV3,
-  VIAKey,
-} from '@the-via/reader';
+import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
 import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
@@ -20,9 +14,7 @@ import {
   getLabel,
   getMeshName,
   getScale,
-  getTextureColors,
   KeycapMetric,
-  makeSRGBTheme,
 } from 'src/utils/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
 import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
@@ -190,8 +182,8 @@ export const KeyGroup: React.VFC<{
     <group
       scale={1}
       position={[
-        (-width * KeycapMetric.keyXPos) / 2,
-        (KeycapMetric.keyYPos * height) / 2,
+        (-width * KeycapMetric.keyXPos + KeycapMetric.keyXSpacing) / 2,
+        (KeycapMetric.keyYPos * height - KeycapMetric.keyYSpacing) / 2,
         0,
       ]}
     >
