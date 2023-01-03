@@ -92,119 +92,176 @@ const paintKeycap = (
     context.fillStyle = bgColor;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = legendColor;
-  
+
     // Constants used in texture coordinate (UV) mapping
     // See update-uv-maps.ts
     const size1u = 1 / 2.6;
     const unitScale = 19.05;
     const offsetToCorner = 0.445;
-    const gap = offsetToCorner/unitScale*size1u;
+    const gap = (offsetToCorner / unitScale) * size1u;
 
     // textureWidth,textureHeight is the size of the keycap in U
     // Clip this to 2.75U because the texture coordinates (UV)
     // only spans 2.6U, which is *just* enough to reach the right
     // edge of the top face of a 2.75U keycap.
-    let keycapWidth = Math.min(2.75,textureWidth);
-    let keycapHeight = Math.min(2.75,textureHeight);
+    let keycapWidth = Math.min(2.75, textureWidth);
+    let keycapHeight = Math.min(2.75, textureHeight);
 
     // If the model is a "stretched" 1U key,
     // pretend it's a 1U key, since the texture coordinates (UVs)
     // will be for a 1U key.
-    if ( widthMultiplier > 1 || heightMultiplier > 1 ) {
+    if (widthMultiplier > 1 || heightMultiplier > 1) {
       keycapWidth = 1;
       keycapHeight = 1;
     }
 
     // coordinates of corners of keycap in texture coordinates (UVs)
-    let keycapBottomLeft = { x: gap, y: gap };
-    let keycapTopLeft = { x: gap, y: keycapHeight*size1u - gap };
-    let keycapBottomRight = { x: keycapWidth*size1u-gap, y: keycapBottomLeft.y };
-    let keycapTopRight = { x: keycapWidth*size1u-gap, y: keycapTopLeft.y };
+    let keycapBottomLeft = {x: gap, y: gap};
+    let keycapTopLeft = {x: gap, y: keycapHeight * size1u - gap};
+    let keycapBottomRight = {
+      x: keycapWidth * size1u - gap,
+      y: keycapBottomLeft.y,
+    };
+    let keycapTopRight = {x: keycapWidth * size1u - gap, y: keycapTopLeft.y};
 
     // coordinates of corners of top face in texture coordinates (UVs)
-    let faceBottomLeft = { x: keycapBottomLeft.x + 0.07, y: keycapBottomLeft.y + 0.08 };
-    let faceTopLeft = { x: keycapBottomLeft.x + 0.07, y: keycapTopLeft.y - 0.0146 };
-    let faceBottomRight = { x: keycapBottomRight.x - 0.07, y: faceBottomLeft.y };
-    let faceTopRight = { x: keycapBottomRight.x - 0.07, y: faceTopLeft.y };
+    let faceBottomLeft = {
+      x: keycapBottomLeft.x + 0.07,
+      y: keycapBottomLeft.y + 0.08,
+    };
+    let faceTopLeft = {
+      x: keycapBottomLeft.x + 0.07,
+      y: keycapTopLeft.y - 0.0146,
+    };
+    let faceBottomRight = {x: keycapBottomRight.x - 0.07, y: faceBottomLeft.y};
+    let faceTopRight = {x: keycapBottomRight.x - 0.07, y: faceTopLeft.y};
 
     // coordinates of vertical center of top face in texture coordinates (UVs)
     // (used for vertically centered legends)
-    let faceMidLeft = { x: faceBottomLeft.x, y: (faceTopLeft.y + faceBottomLeft.y) / 2 };
+    let faceMidLeft = {
+      x: faceBottomLeft.x,
+      y: (faceTopLeft.y + faceBottomLeft.y) / 2,
+    };
 
     // textureOffsetX is the X offset in U from the left edge of the keycap shape
     // to the left edge of the narrower part of the keycap shape, when it's an ISO or BAE.
     // Multiplying by size1u converts it to an offset in TU
     // Add to the existing offset from keycap left edge to face left edge
-    if ( textureOffsetX > 0 ) {
-      faceBottomLeft.x += (textureOffsetX * size1u );
-      faceTopLeft.x += (textureOffsetX * size1u );
-      faceMidLeft.x += (textureOffsetX * size1u );
-      faceBottomRight.x += (textureOffsetX * size1u );
-      faceTopRight.x += (textureOffsetX * size1u );
-      keycapBottomLeft.x += (textureOffsetX * size1u );
-      keycapTopLeft.x += (textureOffsetX * size1u );
-      keycapBottomRight.x += (textureOffsetX * size1u );
-      keycapTopRight.x += (textureOffsetX * size1u );
+    if (textureOffsetX > 0) {
+      faceBottomLeft.x += textureOffsetX * size1u;
+      faceTopLeft.x += textureOffsetX * size1u;
+      faceMidLeft.x += textureOffsetX * size1u;
+      faceBottomRight.x += textureOffsetX * size1u;
+      faceTopRight.x += textureOffsetX * size1u;
+      keycapBottomLeft.x += textureOffsetX * size1u;
+      keycapTopLeft.x += textureOffsetX * size1u;
+      keycapBottomRight.x += textureOffsetX * size1u;
+      keycapTopRight.x += textureOffsetX * size1u;
     }
 
     // Leaving this here for future maintenance.
     // This draws lines around the keycap edge and the top face edge,
     // *or* a clipped area within it when keycaps are large, vertical or odd shapes.
     const drawDebugLines = true;
-    if ( drawDebugLines ) {
+    if (drawDebugLines) {
       context.strokeStyle = 'cyan';
       context.lineWidth = 2;
       context.beginPath();
-      context.moveTo( faceBottomLeft.x * canvasWidth, canvasHeight - faceBottomLeft.y * canvasHeight );
-      context.lineTo( faceTopLeft.x * canvasWidth, canvasHeight - faceTopLeft.y * canvasHeight );
-      context.lineTo( faceTopRight.x * canvasWidth, canvasHeight - faceTopRight.y * canvasHeight );
-      context.lineTo( faceBottomRight.x * canvasWidth, canvasHeight - faceBottomRight.y * canvasHeight );
-      context.lineTo( faceBottomLeft.x * canvasWidth, canvasHeight - faceBottomLeft.y * canvasHeight );
+      context.moveTo(
+        faceBottomLeft.x * canvasWidth,
+        canvasHeight - faceBottomLeft.y * canvasHeight,
+      );
+      context.lineTo(
+        faceTopLeft.x * canvasWidth,
+        canvasHeight - faceTopLeft.y * canvasHeight,
+      );
+      context.lineTo(
+        faceTopRight.x * canvasWidth,
+        canvasHeight - faceTopRight.y * canvasHeight,
+      );
+      context.lineTo(
+        faceBottomRight.x * canvasWidth,
+        canvasHeight - faceBottomRight.y * canvasHeight,
+      );
+      context.lineTo(
+        faceBottomLeft.x * canvasWidth,
+        canvasHeight - faceBottomLeft.y * canvasHeight,
+      );
       context.stroke();
 
       context.strokeStyle = 'magenta';
       context.lineWidth = 2;
       context.beginPath();
-      context.moveTo( keycapBottomLeft.x * canvasWidth, canvasHeight - keycapBottomLeft.y * canvasHeight );
-      context.lineTo( keycapTopLeft.x * canvasWidth, canvasHeight - keycapTopLeft.y * canvasHeight );
-      context.lineTo( keycapTopRight.x * canvasWidth, canvasHeight - keycapTopRight.y * canvasHeight );
-      context.lineTo( keycapBottomRight.x * canvasWidth, canvasHeight - keycapBottomRight.y * canvasHeight );
-      context.lineTo( keycapBottomLeft.x * canvasWidth, canvasHeight - keycapBottomLeft.y * canvasHeight );
+      context.moveTo(
+        keycapBottomLeft.x * canvasWidth,
+        canvasHeight - keycapBottomLeft.y * canvasHeight,
+      );
+      context.lineTo(
+        keycapTopLeft.x * canvasWidth,
+        canvasHeight - keycapTopLeft.y * canvasHeight,
+      );
+      context.lineTo(
+        keycapTopRight.x * canvasWidth,
+        canvasHeight - keycapTopRight.y * canvasHeight,
+      );
+      context.lineTo(
+        keycapBottomRight.x * canvasWidth,
+        canvasHeight - keycapBottomRight.y * canvasHeight,
+      );
+      context.lineTo(
+        keycapBottomLeft.x * canvasWidth,
+        canvasHeight - keycapBottomLeft.y * canvasHeight,
+      );
       context.stroke();
     }
 
     // Define a clipping path for the top face, so text is not drawn on the side.
     context.beginPath();
-    context.moveTo( faceBottomLeft.x * canvasWidth, canvasHeight - faceBottomLeft.y * canvasHeight );
-    context.lineTo( faceTopLeft.x * canvasWidth, canvasHeight - faceTopLeft.y * canvasHeight );
-    context.lineTo( faceTopRight.x * canvasWidth, canvasHeight - faceTopRight.y * canvasHeight );
-    context.lineTo( faceBottomRight.x * canvasWidth, canvasHeight - faceBottomRight.y * canvasHeight );
-    context.lineTo( faceBottomLeft.x * canvasWidth, canvasHeight - faceBottomLeft.y * canvasHeight );
+    context.moveTo(
+      faceBottomLeft.x * canvasWidth,
+      canvasHeight - faceBottomLeft.y * canvasHeight,
+    );
+    context.lineTo(
+      faceTopLeft.x * canvasWidth,
+      canvasHeight - faceTopLeft.y * canvasHeight,
+    );
+    context.lineTo(
+      faceTopRight.x * canvasWidth,
+      canvasHeight - faceTopRight.y * canvasHeight,
+    );
+    context.lineTo(
+      faceBottomRight.x * canvasWidth,
+      canvasHeight - faceBottomRight.y * canvasHeight,
+    );
+    context.lineTo(
+      faceBottomLeft.x * canvasWidth,
+      canvasHeight - faceBottomLeft.y * canvasHeight,
+    );
     context.clip();
 
     if (label === undefined) {
     } else if (label.topLabel && label.bottomLabel) {
       let fontSize = 54;
-      let fontHeightTU = 0.75 * fontSize / canvasHeight;
+      let fontHeightTU = (0.75 * fontSize) / canvasHeight;
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.topLabel,
-        ( faceTopLeft.x + 0.02 ) * canvasWidth,
-        canvasHeight - ((faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight)
+        (faceTopLeft.x + 0.02) * canvasWidth,
+        canvasHeight - (faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight,
       );
       context.fillText(
         label.bottomLabel,
-        ( faceBottomLeft.x + 0.02 ) * canvasWidth,
-        canvasHeight - ((faceBottomLeft.y + 0.02) * canvasHeight)
+        (faceBottomLeft.x + 0.02) * canvasWidth,
+        canvasHeight - (faceBottomLeft.y + 0.02) * canvasHeight,
       );
     } else if (label.centerLabel) {
       let fontSize = 37.5 * label.size;
-      let fontHeightTU = 0.75 * fontSize / canvasHeight;
+      let fontHeightTU = (0.75 * fontSize) / canvasHeight;
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.label,
-        ( faceMidLeft.x + 0.02 ) * canvasWidth,
-        canvasHeight - ((faceMidLeft.y - 0.5 * fontHeightTU ) * canvasHeight)
+        (faceMidLeft.x + 0.02) * canvasWidth,
+        canvasHeight - (faceMidLeft.y - 0.5 * fontHeightTU) * canvasHeight,
       );
       // return if label would have overflowed so that we know to show tooltip
       return (
@@ -213,12 +270,12 @@ const paintKeycap = (
       );
     } else if (typeof label.label === 'string') {
       let fontSize = 75;
-      let fontHeightTU = 0.75 * fontSize / canvasHeight;
+      let fontHeightTU = (0.75 * fontSize) / canvasHeight;
       context.font = `bold ${fontSize}px ${fontFamily}`;
       context.fillText(
         label.label,
-        ( faceTopLeft.x + 0.02 ) * canvasWidth,
-        canvasHeight - ((faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight)
+        (faceTopLeft.x + 0.02) * canvasWidth,
+        canvasHeight - (faceTopLeft.y - fontHeightTU - 0.02) * canvasHeight,
       );
     }
   }
