@@ -8,7 +8,7 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
-import { Label } from 'src/components/panes/grid';
+import {Label} from 'src/components/panes/grid';
 import {RootState} from 'src/store';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
@@ -304,7 +304,7 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
     return `K-R2-ISO`;
   } else if (k.w === 1.5 && k.w2 === 2.25) {
     return `K-R2-BAE`;
-  } else if ( k.h > 1 ) {
+  } else if (k.h > 1) {
     return isLastRow ? 'K-R4C-100' : 'K-R4-100';
   }
 
@@ -383,11 +383,11 @@ export const getScale = (k: VIAKey, scale: number[]) => {
     return [1, 1, 1];
   } else if (k.w === 1.5 && k.w2 === 2.25) {
     return [1, 1, 1];
-  } else if ( k.h > 1 ) {
+  } else if (k.h > 1) {
     return scale;
   }
 
-  if ( k.h == 1 ) {
+  if (k.h == 1) {
     switch (k.w) {
       case 1.25:
       case 1.5:

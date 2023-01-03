@@ -40,9 +40,12 @@ export const UpdateUVMaps = () => {
       const newUv = new Float32Array(uv100u.count * 2);
       for (let i = 0; i < u100.geometry.attributes.uv.count; i++) {
         // update uvs
-        newUv[2 * i] = (size1u * (pos100u.array[i * 3] - min.x + offsetToCorner)) / unitScale;
+        newUv[2 * i] =
+          (size1u * (pos100u.array[i * 3] - min.x + offsetToCorner)) /
+          unitScale;
         newUv[2 * i + 1] =
-          (size1u * (pos100u.array[i * 3 + 1] - min.y + offsetToCorner)) / unitScale;
+          (size1u * (pos100u.array[i * 3 + 1] - min.y + offsetToCorner)) /
+          unitScale;
       }
       uv100u.copyArray(newUv);
       geometry100u.center();
