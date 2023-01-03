@@ -414,6 +414,32 @@ export const getScale = (k: VIAKey, scale: number[]) => {
   return scale;
 };
 
+const getLabelOffsets = (
+  topLabel: string,
+  bottomLabel: string,
+): [number, number] => {
+  let topLabelOffset = 0;
+  let bottomLabelOffset = 0;
+
+  if (topLabel.length == 1) {
+    if ('^*"'.split('').includes(topLabel[0])) {
+      topLabelOffset = 0.2;
+    }
+  }
+
+  if (bottomLabel.length == 1) {
+    if (',.'.split('').includes(bottomLabel[0])) {
+      bottomLabelOffset = 0.4;
+    } else if ("/\\;'[]".split('').includes(bottomLabel[0])) {
+      bottomLabelOffset = 0.2;
+    } else if ('-'.split('').includes(bottomLabel[0])) {
+      bottomLabelOffset = 0.1;
+    }
+  }
+
+  return [topLabelOffset, bottomLabelOffset];
+};
+
 export const getLabel = (
   keycodeByte: number,
   width: number,
@@ -424,6 +450,8 @@ export const getLabel = (
 ) => {
   let label: string = '';
   let size: number = 1.0;
+  let offset: [number, number] = [0, 0];
+
   // Full name
   let tooltipLabel: string = '';
   if (
@@ -458,6 +486,7 @@ export const getLabel = (
         macroExpression,
         key: (label || '') + (macroExpression || ''),
         size: size,
+        offset: offset,
       }
     );
   } else if (isMultiLegend(label)) {
@@ -470,6 +499,7 @@ export const getLabel = (
         macroExpression,
         key: (label || '') + (macroExpression || ''),
         size: size,
+        offset: getLabelOffsets(topLabel, bottomLabel),
       }
     );
   } else {
@@ -483,6 +513,7 @@ export const getLabel = (
       macroExpression,
       key: (label || '') + (macroExpression || ''),
       size: size,
+      offset: offset,
     };
   }
 };
