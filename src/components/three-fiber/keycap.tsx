@@ -164,21 +164,18 @@ const paintKeycapLabel = (
   } else if (label.topLabel && label.bottomLabel) {
     let fontSize = 54;
     let fontHeightTU = (0.75 * fontSize) / canvas.height;
+    let topLabelOffset = label.offset[0] * fontHeightTU;
+    let bottomLabelOffset = label.offset[1] * fontHeightTU;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.topLabel,
       (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.tr.y - fontHeightTU - margin.y)) * canvas.height,
+      (1 - (rect.tr.y - fontHeightTU - margin.y - topLabelOffset)) * canvas.height,
     );
-    const extraMarginY =
-      label.bottomLabel.length == 1 &&
-      ",.;'".split('').includes(label.bottomLabel[0])
-        ? 0.04
-        : 0;
     context.fillText(
       label.bottomLabel,
       (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.bl.y + margin.y + extraMarginY)) * canvas.height,
+      (1 - (rect.bl.y + margin.y + bottomLabelOffset)) * canvas.height,
     );
   } else if (label.centerLabel) {
     let fontSize = 37.5 * label.size;
