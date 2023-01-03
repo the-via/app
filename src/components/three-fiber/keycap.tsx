@@ -78,31 +78,88 @@ const drawDebugLines = (
   context: CanvasRenderingContext2D,
   canvasWidth: number,
   canvasHeight: number,
-  bottomLeft: Coordinate,
-  topRight: Coordinate,
+  keycapBottomLeft: Coordinate,
+  keycapTopRight: Coordinate,
+  faceBottomLeft: Coordinate,
+  faceTopRight: Coordinate,
+) => {
+  context.strokeStyle = 'magenta';
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(
+    keycapBottomLeft.x * canvasWidth,
+    (1 - keycapBottomLeft.y) * canvasHeight,
+  );
+  context.lineTo(
+    keycapBottomLeft.x * canvasWidth,
+    (1 - keycapTopRight.y) * canvasHeight,
+  );
+  context.lineTo(
+    keycapTopRight.x * canvasWidth,
+    (1 - keycapTopRight.y) * canvasHeight,
+  );
+  context.lineTo(
+    keycapTopRight.x * canvasWidth,
+    (1 - keycapBottomLeft.y) * canvasHeight,
+  );
+  context.lineTo(
+    keycapBottomLeft.x * canvasWidth,
+    (1 - keycapBottomLeft.y) * canvasHeight,
+  );
+  context.stroke();
+  context.beginPath();
+  context.moveTo(
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
+  );
+  context.lineTo(
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceTopRight.y) * canvasHeight,
+  );
+  context.lineTo(
+    faceTopRight.x * canvasWidth,
+    (1 - faceTopRight.y) * canvasHeight,
+  );
+  context.lineTo(
+    faceTopRight.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
+  );
+  context.lineTo(
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
+  );
+  context.stroke();
+};
+
+const setClippingPath = (
+  context: CanvasRenderingContext2D,
+  canvasWidth: number,
+  canvasHeight: number,
+  faceBottomLeft: Coordinate,
+  faceTopRight: Coordinate,
 ) => {
   context.beginPath();
   context.moveTo(
-    bottomLeft.x * canvasWidth,
-    canvasHeight - bottomLeft.y * canvasHeight,
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
   );
   context.lineTo(
-    bottomLeft.x * canvasWidth,
-    canvasHeight - topRight.y * canvasHeight,
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceTopRight.y) * canvasHeight,
   );
   context.lineTo(
-    topRight.x * canvasWidth,
-    canvasHeight - topRight.y * canvasHeight,
+    faceTopRight.x * canvasWidth,
+    (1 - faceTopRight.y) * canvasHeight,
   );
   context.lineTo(
-    topRight.x * canvasWidth,
-    canvasHeight - bottomLeft.y * canvasHeight,
+    faceTopRight.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
   );
   context.lineTo(
-    bottomLeft.x * canvasWidth,
-    canvasHeight - bottomLeft.y * canvasHeight,
+    faceBottomLeft.x * canvasWidth,
+    (1 - faceBottomLeft.y) * canvasHeight,
   );
-  context.stroke();
+  context.clip();
 };
 
 const paintKeycap = (
@@ -204,49 +261,25 @@ const paintKeycap = (
     // *or* a clipped area within it when keycaps are large, vertical or odd shapes.
     const debug = false;
     if (debug) {
-      context.strokeStyle = 'cyan';
-      context.lineWidth = 2;
-      drawDebugLines(
-        context,
-        canvasWidth,
-        canvasHeight,
-        faceBottomLeft,
-        faceTopRight,
-      );
-      context.strokeStyle = 'magenta';
-      context.lineWidth = 2;
       drawDebugLines(
         context,
         canvasWidth,
         canvasHeight,
         keycapBottomLeft,
         keycapTopRight,
+        faceBottomLeft,
+        faceTopRight,
       );
     }
 
     // Define a clipping path for the top face, so text is not drawn on the side.
-    context.beginPath();
-    context.moveTo(
-      faceBottomLeft.x * canvasWidth,
-      canvasHeight - faceBottomLeft.y * canvasHeight,
+    setClippingPath(
+      context,
+      canvasWidth,
+      canvasHeight,
+      faceBottomLeft,
+      faceTopRight,
     );
-    context.lineTo(
-      faceTopLeft.x * canvasWidth,
-      canvasHeight - faceTopLeft.y * canvasHeight,
-    );
-    context.lineTo(
-      faceTopRight.x * canvasWidth,
-      canvasHeight - faceTopRight.y * canvasHeight,
-    );
-    context.lineTo(
-      faceBottomRight.x * canvasWidth,
-      canvasHeight - faceBottomRight.y * canvasHeight,
-    );
-    context.lineTo(
-      faceBottomLeft.x * canvasWidth,
-      canvasHeight - faceBottomLeft.y * canvasHeight,
-    );
-    context.clip();
 
     if (label === undefined) {
     } else if (label.topLabel && label.bottomLabel) {
@@ -256,12 +289,12 @@ const paintKeycap = (
       context.fillText(
         label.topLabel,
         (faceTopLeft.x + margin.x) * canvasWidth,
-        canvasHeight - (faceTopLeft.y - fontHeightTU - margin.y) * canvasHeight,
+        (1 - (faceTopLeft.y - fontHeightTU - margin.y)) * canvasHeight,
       );
       context.fillText(
         label.bottomLabel,
         (faceBottomLeft.x + margin.x) * canvasWidth,
-        canvasHeight - (faceBottomLeft.y + margin.y) * canvasHeight,
+        (1 - (faceBottomLeft.y + margin.y)) * canvasHeight,
       );
     } else if (label.centerLabel) {
       let fontSize = 37.5 * label.size;
@@ -270,7 +303,7 @@ const paintKeycap = (
       context.fillText(
         label.label,
         (faceMidLeft.x + margin.x) * canvasWidth,
-        canvasHeight - (faceMidLeft.y - 0.5 * fontHeightTU) * canvasHeight,
+        (1 - (faceMidLeft.y - 0.5 * fontHeightTU)) * canvasHeight,
       );
       // return if label would have overflowed so that we know to show tooltip
       return (
@@ -284,7 +317,7 @@ const paintKeycap = (
       context.fillText(
         label.label,
         (faceTopLeft.x + margin.x) * canvasWidth,
-        canvasHeight - (faceTopLeft.y - fontHeightTU - margin.y) * canvasHeight,
+        (1 - (faceTopLeft.y - fontHeightTU - margin.y)) * canvasHeight,
       );
     }
   }
