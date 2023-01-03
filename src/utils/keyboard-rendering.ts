@@ -8,7 +8,6 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
-import {Label} from 'src/components/panes/grid';
 import {RootState} from 'src/store';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
