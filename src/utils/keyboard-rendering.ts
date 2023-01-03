@@ -8,6 +8,7 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
+import { Label } from 'src/components/panes/grid';
 import {RootState} from 'src/store';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
@@ -17,6 +18,9 @@ import {
   getUserKeycodeIndex,
   IKeycode,
   isAlpha,
+  isNumpadNumber,
+  isNumpadSymbol,
+  isMultiLegend,
   isMacro,
   isNumericOrShiftedSymbol,
   isNumericSymbol,
@@ -297,9 +301,11 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
   } else if (k.h === 2 && k.w === 1) {
     return `K-R${profile}V-200`;
   } else if (k.w === 1.25 && k.w2 === 1.5) {
-    return `K-R${profile}-ISO`;
+    return `K-R2-ISO`;
   } else if (k.w === 1.5 && k.w2 === 2.25) {
-    return `K-R${profile}-BAE`;
+    return `K-R2-BAE`;
+  } else if ( k.h > 1 ) {
+    return isLastRow ? 'K-R4C-100' : 'K-R4-100';
   }
 
   if (!isLastRow) {
@@ -371,29 +377,41 @@ export const getGeometry = (k: VIAKey) => {
 export const getScale = (k: VIAKey, scale: number[]) => {
   if (k['ei'] !== undefined) {
     return scale;
+  } else if (k.h === 2 && k.w === 1) {
+    return [1, 1, 1];
+  } else if (k.w === 1.25 && k.w2 === 1.5) {
+    return [1, 1, 1];
+  } else if (k.w === 1.5 && k.w2 === 2.25) {
+    return [1, 1, 1];
+  } else if ( k.h > 1 ) {
+    return scale;
   }
-  switch (k.w) {
-    case 1.25:
-    case 1.5:
-    case 1.75:
-    case 2:
-    case 2.25:
-    case 2.75:
 
-    case 3:
-    case 6:
-    case 6.25:
-    case 6.5:
-    case 7: {
-      return [1, 1, 1];
-    }
-    case 1: {
-      return [1, 1, 1];
-    }
-    default: {
-      return scale;
+  if ( k.h == 1 ) {
+    switch (k.w) {
+      case 1.25:
+      case 1.5:
+      case 1.75:
+      case 2:
+      case 2.25:
+      case 2.75:
+
+      case 3:
+      case 6:
+      case 6.25:
+      case 6.5:
+      case 7: {
+        return [1, 1, 1];
+      }
+      case 1: {
+        return [1, 1, 1];
+      }
+      default: {
+        return scale;
+      }
     }
   }
+  return scale;
 };
 
 export const getLabel = (
@@ -405,6 +423,7 @@ export const getLabel = (
   byteToKey: Record<number, string>,
 ) => {
   let label: string = '';
+  let size: number = 1.0;
   // Full name
   let tooltipLabel: string = '';
   if (
@@ -432,15 +451,16 @@ export const getLabel = (
     tooltipLabel = macroExpression || '';
   }
 
-  if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {
+  if (isAlpha(label) || isNumpadNumber(label)) {
     return (
       label && {
         label: label.toUpperCase(),
         macroExpression,
         key: (label || '') + (macroExpression || ''),
+        size: size,
       }
     );
-  } else if (isNumericSymbol(label)) {
+  } else if (isMultiLegend(label)) {
     const topLabel = label[0];
     const bottomLabel = label[label.length - 1];
     return (
@@ -449,15 +469,20 @@ export const getLabel = (
         bottomLabel,
         macroExpression,
         key: (label || '') + (macroExpression || ''),
+        size: size,
       }
     );
   } else {
+    if (isNumpadSymbol(label)) {
+      size = 2.0;
+    }
     return {
       label,
       centerLabel: label,
       tooltipLabel,
       macroExpression,
       key: (label || '') + (macroExpression || ''),
+      size: size,
     };
   }
 };
