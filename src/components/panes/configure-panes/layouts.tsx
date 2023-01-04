@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {title, component} from '../../icons/layouts';
-import {ControlRow, OverflowCell, Label, Detail} from '../grid';
+import {ControlRow, SpanOverflowCell, Label, Detail} from '../grid';
 import {AccentSlider} from '../../inputs/accent-slider';
 import {AccentSelect} from '../../inputs/accent-select';
 import {CenterPane} from '../pane';
@@ -84,7 +84,7 @@ export const Pane: FC = () => {
 
   const labels = layouts.labels || [];
   return (
-    <OverflowCell>
+    <SpanOverflowCell>
       <ContainerPane>
         <Container>
           {labels.map((label: LayoutLabel, idx: number) => (
@@ -99,7 +99,7 @@ export const Pane: FC = () => {
           ))}
         </Container>
       </ContainerPane>
-    </OverflowCell>
+    </SpanOverflowCell>
   );
 };
 export const Title = title;
