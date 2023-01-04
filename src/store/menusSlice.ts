@@ -173,7 +173,7 @@ const extractCommands = (menuOrControls: any) => {
   }
   return 'type' in menuOrControls
     ? [menuOrControls.content]
-    : 'content' in menuOrControls
+    : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
     ? menuOrControls.content.flatMap(extractCommands)
     : [];
 };
@@ -259,14 +259,16 @@ const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
         _id: `${partial}_${idx}`,
         content:
           val.label !== undefined
-            ? val.content.map((contentVal: any, contentIdx: number) =>
-                compileMenu(
-                  `${partial}_${contentIdx}`,
-                  depth - 1,
-                  contentVal,
-                  idx,
-                ),
-              )
+            ? typeof val.content === 'string'
+              ? val.content
+              : val.content.map((contentVal: any, contentIdx: number) =>
+                  compileMenu(
+                    `${partial}_${contentIdx}`,
+                    depth - 1,
+                    contentVal,
+                    idx,
+                  ),
+                )
             : val.content.map((contentVal: any, contentIdx: number) =>
                 compileMenu(`${partial}_${contentIdx}`, depth, contentVal, idx),
               ),
