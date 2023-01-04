@@ -206,36 +206,89 @@ const SimplePlate: React.FC<{width: number; height: number}> = ({
 };
 
 const Heart = React.memo(
-  (props: {
-    caseWidth: number;
-    caseHeight: number;
-    caseThickness: number;
-    color: string;
-  }) => {
-    const heartShape = new Shape();
+  (props: {caseWidth: number; caseHeight: number; color: string}) => {
+    const heartAngle = Math.atan(2 / props.caseWidth);
 
-    heartShape.moveTo(25, 25);
-    heartShape.bezierCurveTo(25, 25, 20, 0, 0, 0);
-    heartShape.bezierCurveTo(-30, 0, -30, 35, -30, 35);
-    heartShape.bezierCurveTo(-30, 55, -10, 77, 25, 95);
-    heartShape.bezierCurveTo(60, 77, 80, 55, 80, 35);
-    heartShape.bezierCurveTo(80, 35, 80, 0, 50, 0);
-    heartShape.bezierCurveTo(35, 0, 25, 25, 25, 25);
+    const midXOffset = (80 + -30) / 2;
+    const radius = 2;
+    const bezelSize = 1;
+    const caseYHeight = -(-props.caseWidth - bezelSize * 2 - radius * 2);
+    const backHeight = caseYHeight / Math.cos(heartAngle);
+    const scale = (0.1 * backHeight) / 22;
+    const midYOffset = 95;
+    const heartHeight = 95 * scale;
+    const midMidOffset = (backHeight - heartHeight) / 2;
+    const heartShape = useMemo(() => {
+      const shape = new Shape();
+      shape.moveTo(scale * (25 - midXOffset), scale * (25 - midYOffset));
+      shape.bezierCurveTo(
+        scale * (25 - midXOffset),
+        scale * (25 - midYOffset),
+        scale * (20 - midXOffset),
+        scale * (0 - midYOffset),
+        scale * (0 - midXOffset),
+        scale * (0 - midYOffset),
+      );
+      shape.bezierCurveTo(
+        scale * (-30 - midXOffset),
+        scale * (0 - midYOffset),
+        scale * (-30 - midXOffset),
+        scale * (35 - midYOffset),
+        scale * (-30 - midXOffset),
+        scale * (35 - midYOffset),
+      );
+      shape.bezierCurveTo(
+        scale * (-30 - midXOffset),
+        scale * (55 - midYOffset),
+        scale * (-10 - midXOffset),
+        scale * (77 - midYOffset),
+        scale * (25 - midXOffset),
+        scale * (95 - midYOffset),
+      );
+      shape.bezierCurveTo(
+        scale * (60 - midXOffset),
+        scale * (77 - midYOffset),
+        scale * (80 - midXOffset),
+        scale * (55 - midYOffset),
+        scale * (80 - midXOffset),
+        scale * (35 - midYOffset),
+      );
+      shape.bezierCurveTo(
+        scale * (80 - midXOffset),
+        scale * (35 - midYOffset),
+        scale * (80 - midXOffset),
+        scale * (0 - midYOffset),
+        scale * (50 - midXOffset),
+        scale * (0 - midYOffset),
+      );
+      shape.bezierCurveTo(
+        scale * (35 - midXOffset),
+        scale * (0 - midYOffset),
+        scale * (25 - midXOffset),
+        scale * (25 - midYOffset),
+        scale * (25 - midXOffset),
+        scale * (25 - midYOffset),
+      );
+      return shape;
+    }, [props.caseWidth, props.caseHeight, props.color]);
 
     const extrudeSettings = {
-      depth: 10,
+      depth: 4,
       bevelEnabled: true,
-      bevelSegments: 2,
-      steps: 2,
+      bevelSegments: 10,
       bevelSize: 1,
-      bevelThickness: 15,
+      bevelThickness: 1,
     };
 
     return (
       <mesh
-        position={[-6, props.caseHeight / 2 + 5, -12.5 / 3]}
-        scale={0.15}
-        rotation={[Math.PI / 2, 0, Math.PI / 2]}
+        position={[
+          -backHeight + midMidOffset,
+          radius * 2 + bezelSize * 2 + props.caseHeight / 2,
+          0,
+        ]}
+        scale={1}
+        rotation={[Math.PI / 2, heartAngle, Math.PI / 2]}
       >
         <extrudeGeometry
           attach="geometry"
@@ -294,11 +347,6 @@ const makeShape2 = (layoutHeight: number) => {
     true,
   );
 
-  //path.moveTo(-topWidth, halfY);
-  //path.lineTo(0, halfY);
-  //path.lineTo(0, -halfY);
-  //path.lineTo(-bottomWidth, -halfY);
-
   return path;
 };
 
@@ -314,17 +362,23 @@ export const Case = React.memo((props: {width: number; height: number}) => {
   const insideBorder = 4;
   const insideCaseThickness = properWidth + insideBorder * 1;
   const outsideCaseThickness = properWidth + insideBorder * 2.5;
-  const shape = makeShape2(properHeight + insideBorder);
-  const outsideShape = makeShape2(properHeight + insideBorder * 2);
+  const [insideShape, outsideShape] = useMemo(() => {
+    return [properHeight + insideBorder, properHeight + insideBorder * 2].map(
+      makeShape2,
+    );
+  }, [properHeight]);
   const bezelSize = 1;
   const bevelSegments = 10;
-  // TODO: Figure out heart positioning
+  // TODO: Heart positioning
+  const offsetXMultiplier = Math.tan((Math.PI * 7.5) / 180);
+  const bottomWidth = 10;
+  const heartCaseWidth =
+    bottomWidth + offsetXMultiplier * (properHeight + insideBorder * 2);
   return (
     <group scale={1} position-z={-bezelSize * 2} rotation-y={-Math.PI / 2}>
       <Heart
-        caseWidth={properWidth}
+        caseWidth={heartCaseWidth}
         caseHeight={properHeight}
-        caseThickness={0}
         color={heartColor}
       />
       <mesh
@@ -355,11 +409,11 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         <extrudeGeometry
           attach="geometry"
           args={[
-            shape,
+            insideShape,
             {
               depth: insideCaseThickness,
               bevelEnabled: true,
-              bevelSize: bezelSize,
+              bevelSize: bezelSize / 2,
               bevelThickness: bezelSize,
               bevelSegments,
             },
@@ -413,7 +467,6 @@ export const OldCase = React.memo((props: {width: number; height: number}) => {
         <Heart
           caseWidth={props.width}
           caseHeight={props.height + heightOffset / 2}
-          caseThickness={2 * widthOffset}
           color={heartColor}
         />
         <mesh position={[0, 0, 0]} castShadow={true}>
