@@ -21,9 +21,8 @@ import {
   isNumpadSymbol,
   isMultiLegend,
   isMacro,
-  isNumericOrShiftedSymbol,
-  isNumericSymbol,
   isUserKeycodeByte,
+  isArrowKey,
 } from './key';
 
 export type KeyColorPair = {
@@ -502,7 +501,7 @@ export const getLabel = (
       }
     );
   } else {
-    if (isNumpadSymbol(label)) {
+    if (isNumpadSymbol(label) || isArrowKey(label)) {
       size = 2.0;
     }
     return {
