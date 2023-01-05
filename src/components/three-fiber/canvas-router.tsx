@@ -1,5 +1,5 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -15,8 +15,12 @@ import {
 } from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
+  Backdrop,
   Decal,
+  Environment,
   Float,
+  MeshReflectorMaterial,
+  OrbitControls,
   SpotLight,
   useGLTF,
   useProgress,
@@ -146,6 +150,7 @@ export const CanvasRouter = () => {
             <planeGeometry args={[100, 100]} />
             <meshStandardMaterial color={accentColor} />
           </mesh>
+          <OrbitControls enabled={false} />
           <Camera />
           <Float
             speed={1} // Animation speed, defaults to 1
@@ -171,10 +176,16 @@ const Lights = React.memo(() => {
   const z = -15;
   const spotlightY = 12;
   const spotlightZ = -19;
-  const debug = true;
+  const ref = useRef<THREE.SpotLight>(null);
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.shadow.mapSize.width = 2048;
+      ref.current.shadow.mapSize.height = 2048;
+    }
+  }, [ref.current]);
   const targetObj = React.useMemo(() => {
     const obj = new Object3D();
-    obj.position.set(0, 3, spotlightZ);
+    obj.position.set(0, 0, spotlightZ);
     obj.updateMatrixWorld();
     return obj;
   }, []);
@@ -182,8 +193,9 @@ const Lights = React.memo(() => {
     <>
       <ambientLight intensity={0.0} />
       <SpotLight
-        distance={spotlightY + 2}
-        position={[0, spotlightY, spotlightZ + 2.5]}
+        ref={ref}
+        distance={spotlightY + 3}
+        position={[0, spotlightY, spotlightZ + 2]}
         angle={Math.PI / 5}
         attenuation={5}
         target={targetObj}
