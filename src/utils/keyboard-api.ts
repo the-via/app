@@ -365,10 +365,11 @@ export class KeyboardAPI {
         this.hidCommand(CUSTOM_MENU_GET_VALUE, [
           ...PER_KEY_RGB_CHANNEL_COMMAND,
           ledIndex,
+          1, // count
         ]),
       ),
     );
-    return res.map((r) => [...r.slice(4, 6)]);
+    return res.map((r) => [...r.slice(5, 7)]);
   }
 
   async setPerKeyRGBMatrix(
@@ -379,6 +380,7 @@ export class KeyboardAPI {
     await this.hidCommand(CUSTOM_MENU_SET_VALUE, [
       ...PER_KEY_RGB_CHANNEL_COMMAND,
       index,
+      1, // count
       hue,
       sat,
     ]);

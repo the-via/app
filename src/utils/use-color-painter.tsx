@@ -38,6 +38,7 @@ export const useColorPainter = (
         const ledIndex = keys[idx].li;
         if (ledIndex !== undefined) {
           device.api.setPerKeyRGBMatrix(ledIndex, hue, sat);
+          device.api.commitCustomMenu(0);
           setKeyColors((colors) => {
             colors[idx] = selectedPaletteColor;
             return [...colors];
