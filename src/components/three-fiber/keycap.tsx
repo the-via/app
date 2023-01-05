@@ -148,7 +148,9 @@ const paintKeycapLabel = (
   }
   const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold';
   // Margins from face edge to where text is drawn
-  const margin = {x: 0.02, y: 0.02};
+  const margin = {x: 0.015, y: 0.02};
+  const centerLabelMargin = {x: 0.01, y: -0.01};
+  const singleLabelMargin = {x: 0.01, y: 0.02};
 
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
@@ -162,7 +164,7 @@ const paintKeycapLabel = (
   context.fillStyle = legendColor;
   if (label === undefined) {
   } else if (label.topLabel && label.bottomLabel) {
-    let fontSize = 54;
+    let fontSize = 52;
     let fontHeightTU = (0.75 * fontSize) / canvas.height;
     let topLabelOffset = label.offset[0] * fontHeightTU;
     let bottomLabelOffset = label.offset[1] * fontHeightTU;
@@ -170,7 +172,8 @@ const paintKeycapLabel = (
     context.fillText(
       label.topLabel,
       (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.tr.y - fontHeightTU - margin.y - topLabelOffset)) * canvas.height,
+      (1 - (rect.tr.y - fontHeightTU - margin.y - topLabelOffset)) *
+        canvas.height,
     );
     context.fillText(
       label.bottomLabel,
@@ -184,13 +187,14 @@ const paintKeycapLabel = (
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + margin.x) * canvas.width,
-      (1 - (faceMidLeftY - 0.5 * fontHeightTU)) * canvas.height,
+      (rect.bl.x + centerLabelMargin.x) * canvas.width,
+      (1 - (faceMidLeftY - 0.5 * fontHeightTU - centerLabelMargin.y)) *
+        canvas.height,
     );
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      (rect.tr.x - (rect.bl.x + margin.x)) * canvas.width
+      (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvas.width
     );
   } else if (typeof label.label === 'string') {
     let fontSize = 75;
@@ -198,8 +202,8 @@ const paintKeycapLabel = (
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.tr.y - fontHeightTU - margin.y)) * canvas.height,
+      (rect.bl.x + singleLabelMargin.x) * canvas.width,
+      (1 - (rect.tr.y - fontHeightTU - singleLabelMargin.y)) * canvas.height,
     );
   }
 };
