@@ -33,6 +33,22 @@ export function isAlpha(label: string) {
   return /[A-Za-z]/.test(label) && label.length === 1;
 }
 
+// Test if label is a numpad number
+export function isNumpadNumber(label: string) {
+  return /['0-9]/.test(label) && label.length === 1;
+}
+
+export function isNumpadSymbol(label: string) {
+  const centeredSymbol = '-+.÷×'.split('');
+  return label.length === 1 && centeredSymbol.includes(label[0]);
+}
+
+// Test if label is a multi-legend, e.g. "!\n1"
+export function isMultiLegend(label: string) {
+  const topLegend = '~!@#$%^&*()_+|{}:"<>?'.split('');
+  return label.length !== 1 && topLegend.includes(label[0]);
+}
+
 // Tests if label is a number
 export function isNumericOrShiftedSymbol(label: string) {
   const numbersTop = '!@#$%^&*()_+|~{}:"<>?1234567890'.split('');
@@ -905,8 +921,8 @@ export function getKeycodes(): IKeycodeMenu[] {
           keys: 'num_0',
           title: 'Numpad 0',
         },
-        {name: '/', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad /'},
-        {name: '*', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad *'},
+        {name: '÷', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad ÷'},
+        {name: '×', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad ×'},
         {name: '-', code: 'KC_PMNS', keys: 'num_subtract', title: 'Numpad -'},
         {name: '+', code: 'KC_PPLS', keys: 'num_add', title: 'Numpad +'},
         {name: '.', code: 'KC_PDOT', keys: 'num_decimal', title: 'Numpad .'},

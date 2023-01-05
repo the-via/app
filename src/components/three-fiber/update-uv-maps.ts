@@ -13,13 +13,21 @@ export const UpdateUVMaps = () => {
         return;
       }
       const u100 = mesh as THREE.Mesh;
+      // 1U scale to texture unit
       const size1u = 1 / 2.6;
       const geometry100u = u100.geometry as BufferGeometry;
       const {min, max} = geometry100u!.boundingBox as Box3;
       const maxRangeY = max.y - min.y;
-      const unitScale = 18.15;
-      // This is pretty hacky, we should actually be figuring out the positioning in paintKeycap
-      const yOffset = maxRangeY / unitScale - 1;
+      // 1U in mm (which is also mesh units)
+      const unitScale = 19.05;
+      // This is the offset between the cherry grid corner and a keycap corner in mm
+      // (which is also mesh units).
+      // A 1U keycap is actually 18.16mm, 1U is 19.05mm
+      // thus the offset is ( 19.05 - 18.16 ) / 2 = 0.445
+      // This gap is constant for all keycap sizes.
+      // Aligning the UV coordinates relative to the cherry grid corner makes
+      // the math easier later on when using dimensions in cherry units i.e. U
+      const offsetToCorner = 0.445;
       const pos100u = u100.geometry.attributes.position as BufferAttribute;
       if (!u100.geometry.attributes.uv) {
         u100.geometry.setAttribute(
@@ -32,10 +40,12 @@ export const UpdateUVMaps = () => {
       const newUv = new Float32Array(uv100u.count * 2);
       for (let i = 0; i < u100.geometry.attributes.uv.count; i++) {
         // update uvs
-        newUv[2 * i] = (size1u * (pos100u.array[i * 3] - min.x)) / unitScale;
+        newUv[2 * i] =
+          (size1u * (pos100u.array[i * 3] - min.x + offsetToCorner)) /
+          unitScale;
         newUv[2 * i + 1] =
-          (size1u * (pos100u.array[i * 3 + 1] - min.y)) / unitScale -
-          yOffset / 6;
+          (size1u * (pos100u.array[i * 3 + 1] - min.y + offsetToCorner)) /
+          unitScale;
       }
       uv100u.copyArray(newUv);
       geometry100u.center();
