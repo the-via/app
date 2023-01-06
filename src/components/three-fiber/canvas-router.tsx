@@ -7,19 +7,11 @@ import {
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {Camera} from './camera';
-import {
-  ConfigureKeyboard,
-  ConfigureRGBKeyboard,
-  Design,
-  Test,
-} from './keyboard';
+import {ConfigureKeyboard, Design, Test} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
-  Backdrop,
   Decal,
-  Environment,
   Float,
-  MeshReflectorMaterial,
   OrbitControls,
   SpotLight,
   useGLTF,
