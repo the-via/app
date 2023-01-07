@@ -160,6 +160,7 @@ export const Row = styled.div<{selected: boolean}>`
 export const SubmenuRow = styled(Row)`
   background: ${(props) => (props.selected ? 'var(--bg_icon)' : 'inherit')};
   padding: 4px 8px;
+  font-weight: 400;
   min-width: min-content;
   border-color: transparent;
   margin-bottom: 11px;

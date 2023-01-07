@@ -5,7 +5,6 @@ import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
 import {CenterPane, ConfigureBasePane} from './pane';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import ReactTooltip from 'react-tooltip';
 import {
   CustomFeaturesV2,
   getLightingDefinition,
@@ -242,7 +241,6 @@ const ConfigureGrid = () => {
         }}
       >
         <div style={{pointerEvents: 'all'}}>
-          <ReactTooltip />
           <LayerControl />
           <Badge />
         </div>

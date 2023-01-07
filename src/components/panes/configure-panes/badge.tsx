@@ -23,6 +23,7 @@ const Container = styled.div`
   top: 0px;
   font-size: 18px;
   pointer-events: none;
+  font-weight: 400;
 `;
 
 const KeyboardTitle = styled.label`

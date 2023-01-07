@@ -107,6 +107,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
             lineHeight: '18px',
             width: '100%',
             height: '140px',
+            fontFamily: 'monospace',
             resize: 'none',
             borderColor: hasError
               ? 'var(--color_error)'

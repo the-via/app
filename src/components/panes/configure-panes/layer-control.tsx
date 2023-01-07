@@ -11,13 +11,14 @@ import styled from 'styled-components';
 const Container = styled.div`
   position: absolute;
   left: 15px;
+  font-weight: 400;
   top: 10px;
 `;
 const Label = styled.label`
   font-size: 20px;
   text-transform: uppercase;
   color: var(--color_label-highlighted);
-  margin-right: 8px;
+  margin-right: 6px;
 `;
 const LayerButton = styled.button<{selected?: boolean}>`
   outline: none;
@@ -31,6 +32,7 @@ const LayerButton = styled.button<{selected?: boolean}>`
       : 'var(--color_label-highlighted)'};
   cursor: pointer;
   font-size: 20px;
+  font-weight: 400;
   &:hover {
     border: none;
     background: ${(props) => (props.selected ? 'auto' : 'var(--bg_menu)')};

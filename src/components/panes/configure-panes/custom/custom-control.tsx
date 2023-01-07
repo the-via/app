@@ -37,7 +37,10 @@ export const VIACustomItem = React.memo(
       <Label>{props.label}</Label>
       <Detail>
         {'type' in props ? (
-          <VIACustomControl {...props} value={Array.from(props.value)} />
+          <VIACustomControl
+            {...props}
+            value={props.value && Array.from(props.value)}
+          />
         ) : (
           props.content
         )}
