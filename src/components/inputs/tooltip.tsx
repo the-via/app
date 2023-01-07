@@ -87,7 +87,7 @@ export const CategoryMenuTooltip: React.FC<any> = (props) => {
         borderBottom: `6px solid var(--color_accent)`,
         position: 'absolute',
         marginLeft: 15,
-        marginTop: -42,
+        marginTop: -41,
         width: 0,
       },
     }),
