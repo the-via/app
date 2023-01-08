@@ -18,6 +18,7 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
   padding: 12px;
+  padding-top: 0;
 `;
 
 const MenuContainer = styled.div`

@@ -1,8 +1,7 @@
 import React, {createRef, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {mapEvtToKeycode, getByteForCode} from '../utils/key';
+import {getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
-import {Title} from './title-bar';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
@@ -33,6 +32,7 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import {mapEvtToKeycode} from 'src/utils/key-event';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);

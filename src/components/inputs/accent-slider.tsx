@@ -57,8 +57,9 @@ export function AccentSlider(props: Props) {
   }, [isChecked]);
 
   const hiddenOnChange = () => {
-    setIsHiddenChecked(!isChecked);
-    onChange(!isChecked);
+    const newIsChecked = !isChecked;
+    setIsHiddenChecked(newIsChecked);
+    onChange(newIsChecked);
   };
 
   return (

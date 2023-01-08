@@ -11,6 +11,7 @@ import {
   findKeycodes,
 } from '../../../../../components/inputs/autocomplete-keycode';
 import {getMacroValidator} from 'src/utils/macro-api';
+import {MacroRecorder} from './macro-recorder';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -77,6 +78,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
     .trimRight()
     .replace(new RegExp(`${enterToken}$`), '');
   const [currentValue, setCurrentValue] = React.useState(textareaInitialValue);
+  const [showAdvancedView, setShowAdvancedView] = React.useState(false);
   const [appendEnter, setAppendEnter] = React.useState(
     currentMacro.trimRight().endsWith(enterToken),
   );
@@ -97,112 +99,130 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   const hasError = errorMessage !== undefined;
   return (
     <>
-      <AutoHeightRow>
-        <ReactTextareaAutocomplete
-          value={currentValue}
-          onChange={(e) => setCurrentValue(e.target.value)}
-          loadingComponent={AutocompleteLoading}
-          style={{
-            fontSize: '16px',
-            lineHeight: '18px',
-            width: '100%',
-            height: '140px',
-            fontFamily: 'monospace',
-            resize: 'none',
-            borderColor: hasError
-              ? 'var(--color_error)'
-              : 'var(--border_color_icon)',
-          }}
-          containerStyle={{
-            border: 'none',
-            lineHeight: '20px',
-          }}
-          itemStyle={{
-            borderColor: 'var(--border_color_cell)',
-            backgroundColor: 'var(--bg_menu)',
-          }}
-          dropdownStyle={{
-            zIndex: 999,
-            backgroundColor: 'var(--bg_menu)',
-          }}
-          listStyle={{
-            position: 'fixed',
-            backgroundColor: 'var(--bg_menu)',
-            maxHeight: '210px',
-            overflow: 'auto',
-            border: '1px solid var(--border_color_cell)',
-          }}
-          minChar={0}
-          textAreaComponent={TextArea as any}
-          movePopupAsYouType={true}
-          placeholder={`Enter the macro you want M${props.selectedMacro} to execute...`}
-          trigger={{
-            '?': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => ({
-                text: item.code,
-                caretPosition: 'end',
-              }),
-            },
-            '{': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => ({
-                text: `{${item.code},`,
-                caretPosition: 'end',
-              }),
-            },
-            ',': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => {
-                return {
-                  text: `,${item.code},`,
-                  caretPosition: 'end',
-                };
-              },
-            },
-          }}
-        />
-      </AutoHeightRow>
-      <AutoHeightRow>
-        <DescriptionLabel>
-          <ToastErrorMessage>{errorMessage}</ToastErrorMessage>
-          <Message>
-            Enter text directly, or wrap{' '}
-            <Link href="https://docs.qmk.fm/#/keycodes_basic" target="_blank">
-              Basic Keycodes
-            </Link>{' '}
-            in {'{}'}
-          </Message>
-          <Message>Single tap: {'{KC_XXX}'}</Message>
-          <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
-          {props.protocol >= 11 ? (
-            <Message>Delay (ms): {'{NNNN}'} </Message>
-          ) : (
-            ''
-          )}
-          <Message>Type ? to search for keycodes</Message>
-        </DescriptionLabel>
-        <Detail>
-          <AccentButton
-            disabled={
-              currentMacro ===
-              (appendEnter ? currentValue + enterToken : currentValue)
-            }
-            onClick={saveMacro}
-          >
-            Save
-          </AccentButton>
-        </Detail>
-      </AutoHeightRow>
       <ControlRow>
-        <Label>Tap 'Enter' at end of macro</Label>
+        <Label>Show Advanced View</Label>
         <Detail>
-          <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
+          <AccentSlider
+            isChecked={showAdvancedView}
+            onChange={setShowAdvancedView}
+          />
         </Detail>
       </ControlRow>
+      {!showAdvancedView ? (
+        <MacroRecorder />
+      ) : (
+        <>
+          <AutoHeightRow>
+            <ReactTextareaAutocomplete
+              value={currentValue}
+              onChange={(e) => setCurrentValue(e.target.value)}
+              loadingComponent={AutocompleteLoading}
+              style={{
+                fontSize: '16px',
+                lineHeight: '18px',
+                width: '100%',
+                height: '140px',
+                fontFamily: 'monospace',
+                resize: 'none',
+                borderColor: hasError
+                  ? 'var(--color_error)'
+                  : 'var(--border_color_icon)',
+              }}
+              containerStyle={{
+                border: 'none',
+                lineHeight: '20px',
+              }}
+              itemStyle={{
+                borderColor: 'var(--border_color_cell)',
+                backgroundColor: 'var(--bg_menu)',
+              }}
+              dropdownStyle={{
+                zIndex: 999,
+                backgroundColor: 'var(--bg_menu)',
+              }}
+              listStyle={{
+                position: 'fixed',
+                backgroundColor: 'var(--bg_menu)',
+                maxHeight: '210px',
+                overflow: 'auto',
+                border: '1px solid var(--border_color_cell)',
+              }}
+              minChar={0}
+              textAreaComponent={TextArea as any}
+              movePopupAsYouType={true}
+              placeholder={`Enter the macro you want M${props.selectedMacro} to execute...`}
+              trigger={{
+                '?': {
+                  dataProvider: findKeycodes,
+                  component: AutocompleteItem,
+                  output: (item: any) => ({
+                    text: item.code,
+                    caretPosition: 'end',
+                  }),
+                },
+                '{': {
+                  dataProvider: findKeycodes,
+                  component: AutocompleteItem,
+                  output: (item: any) => ({
+                    text: `{${item.code},`,
+                    caretPosition: 'end',
+                  }),
+                },
+                ',': {
+                  dataProvider: findKeycodes,
+                  component: AutocompleteItem,
+                  output: (item: any) => {
+                    return {
+                      text: `,${item.code},`,
+                      caretPosition: 'end',
+                    };
+                  },
+                },
+              }}
+            />
+          </AutoHeightRow>
+          <AutoHeightRow>
+            <DescriptionLabel>
+              <ToastErrorMessage>{errorMessage}</ToastErrorMessage>
+              <Message>
+                Enter text directly, or wrap{' '}
+                <Link
+                  href="https://docs.qmk.fm/#/keycodes_basic"
+                  target="_blank"
+                >
+                  Basic Keycodes
+                </Link>{' '}
+                in {'{}'}
+              </Message>
+              <Message>Single tap: {'{KC_XXX}'}</Message>
+              <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
+              {props.protocol >= 11 ? (
+                <Message>Delay (ms): {'{NNNN}'} </Message>
+              ) : (
+                ''
+              )}
+              <Message>Type ? to search for keycodes</Message>
+            </DescriptionLabel>
+            <Detail>
+              <AccentButton
+                disabled={
+                  currentMacro ===
+                  (appendEnter ? currentValue + enterToken : currentValue)
+                }
+                onClick={saveMacro}
+              >
+                Save
+              </AccentButton>
+            </Detail>
+          </AutoHeightRow>
+          <ControlRow>
+            <Label>Tap 'Enter' at end of macro</Label>
+            <Detail>
+              <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
+            </Detail>
+          </ControlRow>
+        </>
+      )}
     </>
   );
 };
