@@ -128,6 +128,24 @@ declare global {
   }
 }
 
+// Merge successive character streams
+const flattenCharacterStream = (
+  [acc, prev]: [KeycodeSequence, KeycodeSequenceItem],
+  curr: KeycodeSequenceItem,
+) => {
+  const [action, actionArg] = curr;
+  if (
+    action === KeyAction.CharacterStream &&
+    prev[0] === KeyAction.CharacterStream
+  ) {
+    acc.pop();
+    acc.push([KeyAction.CharacterStream, `${prev[1]}${actionArg}`]);
+  } else {
+    acc.push(curr);
+  }
+  return [acc, acc[acc.length - 1]] as [KeycodeSequence, KeycodeSequenceItem];
+};
+
 const transformToCompressed = (
   [acc, prev, currHeld]: [KeycodeSequence, KeycodeSequenceItem, number],
   curr: KeycodeSequenceItem,
@@ -154,6 +172,8 @@ const transformToCompressed = (
     currHeld = currHeld + 1;
   } else if (action === KeyAction.Up) {
     currHeld = currHeld - 1;
+  } else if (action === KeyAction.CharacterStream) {
+    acc.push(curr);
   }
   return [acc, curr, currHeld] as [
     KeycodeSequence,
@@ -186,10 +206,11 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
     },
     [setIsRecording],
   );
-  const currSequence = keycodeSequence.length
-    ? keycodeSequence
-    : ast[selectedMacro];
+  const [currSequence] = (
+    keycodeSequence.length ? keycodeSequence : ast[selectedMacro]
+  ).reduce(flattenCharacterStream, [[], [KeyAction.Delay, 0]]);
 
+  console.log(currSequence);
   const sequence = useMemo(() => {
     const [acc] = showVerboseKeyState
       ? [currSequence]
