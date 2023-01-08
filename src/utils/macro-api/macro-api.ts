@@ -25,7 +25,12 @@ export function validateMacroExpression(expression: string): ValidationResult {
     keycodeBlockRegex = eval('/(?<!\\\\){(.*?)}/g');
   } catch (e) {
     // TODO: Display a message to the user
-    console.error('Lookbehind support is not supported in this browser.');
+    console.error('Lookbehind is not supported in this browser.');
+    return {
+      isValid: false,
+      errorMessage:
+        "Lookbehind is not supported in this browser.",
+    };
   }
 
   // Check for unclosed action blocks
@@ -208,7 +213,7 @@ export class MacroAPI implements IMacroAPI {
             throw new Error("Syntax error: KeyAction block must end with '}'");
           }
           const keycodes = expression
-            .substr(i + 1, keyActionEnd - i - 1)
+            .substring(i + 1, keyActionEnd)
             .split(',')
             .map((keycode) => keycode.trim())
             .filter((keycode) => keycode.length);
