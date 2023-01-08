@@ -78,7 +78,7 @@ export class MacroAPI implements IMacroAPI {
     private byteToKey: Record<number, string>,
   ) {}
 
-  async readMacroExpressionsAst(): Promise<KeycodeSequence[]> {
+  async readMacroASTS(): Promise<KeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
     const macroCount = await this.keyboardApi.getMacroCount();
 
@@ -124,7 +124,7 @@ export class MacroAPI implements IMacroAPI {
         default: {
           const char = String.fromCharCode(byte);
           // Escape { with \
-          currentExpression.push([KeyAction.Tap, char]);
+          currentExpression.push([KeyAction.CharacterStream, char]);
           break;
         }
       }

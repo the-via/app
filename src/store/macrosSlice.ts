@@ -55,7 +55,7 @@ export const loadMacros =
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const macros = await macroApi.readMacroExpressions();
-          const macrosAst = await macroApi.readMacroExpressionsAst();
+          const macrosAst = await macroApi.readMacroASTS();
           dispatch(loadMacrosSuccess({expressions: macros, ast: macrosAst}));
         }
       } catch (err) {

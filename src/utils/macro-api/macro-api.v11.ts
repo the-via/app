@@ -92,7 +92,7 @@ export class MacroAPIV11 implements IMacroAPI {
     private byteToKey: Record<number, string>,
   ) {}
 
-  async readMacroExpressionsAst(): Promise<KeycodeSequence[]> {
+  async readMacroASTS(): Promise<KeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
     const macroCount = await this.keyboardApi.getMacroCount();
 
@@ -149,7 +149,7 @@ export class MacroAPIV11 implements IMacroAPI {
                 acc += String.fromCharCode(byte);
                 return acc;
               }, '');
-              currentExpression.push([KeyAction.Delay, `{${delayValue}}`]);
+              currentExpression.push([KeyAction.Delay, parseInt(delayValue)]);
               break;
             default:
               throw `Expected a KeyAction to follow the KeyActionPrefix. Received ${byte} instead.`;
@@ -158,7 +158,7 @@ export class MacroAPIV11 implements IMacroAPI {
         default: {
           const char = String.fromCharCode(byte);
           // Escape { with \
-          currentExpression.push([KeyAction.Tap, char]);
+          currentExpression.push([KeyAction.CharacterStream, char]);
           break;
         }
       }

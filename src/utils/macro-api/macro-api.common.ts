@@ -1,9 +1,12 @@
+import {KeycodeSequence} from '../use-keycode-recorder';
+
 export type ValidationResult = {
   isValid: boolean;
   errorMessage?: string;
 };
 
 export interface IMacroAPI {
+  readMacroASTS(): Promise<KeycodeSequence[]>;
   readMacroExpressions(): Promise<string[]>;
   writeMacroExpressions(expressions: string[]): void;
 }
@@ -14,6 +17,7 @@ export enum KeyAction {
   Down = 2, // \x02
   Up = 3, // \x03
   Delay = 4, // \x04
+  CharacterStream = 42, // This is not a real QMK tag, it is implied from the absence of a tag
 }
 
 export const KeyActionPrefix = 1; // \x01
