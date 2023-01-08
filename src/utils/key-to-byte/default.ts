@@ -1,4 +1,4 @@
-{
+export default {
   QK_MODS: 0x0100,
   QK_MODS_MAX: 0x1fff,
   QK_MOD_TAP: 0x6000,
@@ -7,7 +7,7 @@
   QK_LAYER_TAP_MAX: 0x4fff,
   QK_LAYER_MOD: 0x5900,
   QK_LAYER_MOD_MAX: 0x59ff,
-  QK_TO: 0x5000,
+  QK_TO: 0x5010,
   QK_TO_MAX: 0x501f,
   QK_MOMENTARY: 0x5100,
   QK_MOMENTARY_MAX: 0x511f,

@@ -1,4 +1,4 @@
-{
+export default {
   QK_MODS: 0x0100,
   QK_MODS_MAX: 0x1fff,
   QK_MOD_TAP: 0x2000,
