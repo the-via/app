@@ -1,5 +1,6 @@
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
+import {KeycodeSequence} from '../use-keycode-recorder';
 import {
   getByte,
   IMacroAPI,
@@ -76,6 +77,62 @@ export class MacroAPI implements IMacroAPI {
     private basicKeyToByte: Record<string, number>,
     private byteToKey: Record<number, string>,
   ) {}
+
+  async readMacroExpressionsAst(): Promise<KeycodeSequence[]> {
+    const bytes = await this.keyboardApi.getMacroBytes();
+    const macroCount = await this.keyboardApi.getMacroCount();
+
+    let macroId = 0;
+    let i = 0;
+    const expressions: KeycodeSequence[] = [];
+    let currentExpression = [];
+
+    // If macroCount is 0, macros are disabled
+    if (macroCount === 0) {
+      throw Error('Macros are disabled');
+    }
+
+    while (i < bytes.length && macroId < macroCount) {
+      let byte = bytes[i];
+      switch (byte) {
+        case MacroTerminator:
+          expressions[macroId] = [...currentExpression] as KeycodeSequence;
+          macroId++;
+          currentExpression = [];
+          break;
+        case KeyAction.Tap: // Encode as {KEYCODE}
+          byte = bytes[++i]; // Skip the key action
+          currentExpression.push([
+            KeyAction.Tap,
+            `${(this.byteToKey as any)[byte]}`,
+          ]);
+          break;
+        case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
+          byte = bytes[++i]; // Skip the key action
+          currentExpression.push([
+            KeyAction.Down,
+            `${(this.byteToKey as any)[byte]}`,
+          ]);
+          break;
+        case KeyAction.Up: // Seek to the last keyup and write the keydown stack
+          byte = bytes[++i]; // Skip the key action
+          currentExpression.push([
+            KeyAction.Up,
+            `${(this.byteToKey as any)[byte]}`,
+          ]);
+          break;
+        default: {
+          const char = String.fromCharCode(byte);
+          // Escape { with \
+          currentExpression.push([KeyAction.Tap, char]);
+          break;
+        }
+      }
+      i++;
+    }
+
+    return expressions;
+  }
 
   async readMacroExpressions(): Promise<string[]> {
     const bytes = await this.keyboardApi.getMacroBytes();

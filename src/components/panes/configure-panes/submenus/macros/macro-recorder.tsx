@@ -4,8 +4,8 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AccentButton} from 'src/components/inputs/accent-button';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
-import {TestKeyState} from 'src/types/types';
-import {getKeycodes} from 'src/utils/key';
+import {useAppSelector} from 'src/store/hooks';
+import {KeyAction} from 'src/utils/macro-api/macro-api.common';
 import {
   KeycodeSequence,
   KeycodeSequenceItem,
@@ -128,7 +128,43 @@ declare global {
   }
 }
 
-export const MacroRecorder: React.FC<{}> = () => {
+const transformToCompressed = (
+  [acc, prev, currHeld]: [KeycodeSequence, KeycodeSequenceItem, number],
+  curr: KeycodeSequenceItem,
+) => {
+  const [action, actionArg] = curr;
+  if (action === KeyAction.Delay && currHeld === 0) {
+    acc.push(curr);
+  } else if (
+    (action === KeyAction.Down || action === KeyAction.Tap) &&
+    currHeld === 0
+  ) {
+    acc.push([KeyAction.Tap, capitalize(actionArg as string)]);
+    currHeld = currHeld + 1;
+  } else if (action === KeyAction.Tap && String(actionArg).length === 1) {
+    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]}${actionArg}`;
+  } else if (action === KeyAction.Tap) {
+    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
+      actionArg as string,
+    )}`;
+  } else if (action === KeyAction.Down) {
+    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
+      actionArg as string,
+    )}`;
+    currHeld = currHeld + 1;
+  } else if (action === KeyAction.Up) {
+    currHeld = currHeld - 1;
+  }
+  return [acc, curr, currHeld] as [
+    KeycodeSequence,
+    KeycodeSequenceItem,
+    number,
+  ];
+};
+
+export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
+  selectedMacro,
+}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(true);
   const [showWaitTimes, setShowWaitTimes] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
@@ -136,6 +172,7 @@ export const MacroRecorder: React.FC<{}> = () => {
     !!document.fullscreenElement,
   );
   const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(isRecording);
+  const ast = useAppSelector((state) => state.macros.ast);
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
     async (isRecording: boolean) => {
@@ -149,65 +186,44 @@ export const MacroRecorder: React.FC<{}> = () => {
     },
     [setIsRecording],
   );
+  const currSequence = keycodeSequence.length
+    ? keycodeSequence
+    : ast[selectedMacro];
+
   const sequence = useMemo(() => {
     const [acc] = showVerboseKeyState
-      ? [keycodeSequence]
-      : keycodeSequence.reduce(
-          ([acc, prev, currHeld], curr) => {
-            if (curr[1] === TestKeyState.KeyDown && currHeld === 0) {
-              //Open new
-              acc.push([capitalize(curr[0]), null, curr[2]]);
-              currHeld = currHeld + 1;
-            } else if (curr[1] === TestKeyState.KeyDown) {
-              acc[acc.length - 1][0] = `${
-                acc[acc.length - 1][0]
-              } + ${capitalize(curr[0])}`;
-              currHeld = currHeld + 1;
-            } else if (curr[1] === TestKeyState.KeyUp) {
-              currHeld = currHeld - 1;
-            }
-
-            return [acc, curr, currHeld] as [
-              KeycodeSequence,
-              KeycodeSequenceItem,
-              number,
-            ];
-          },
-          [[], ['', null, 0], 0] as [
-            KeycodeSequence,
-            KeycodeSequenceItem,
-            number,
-          ],
-        );
+      ? [currSequence]
+      : currSequence.reduce(transformToCompressed, [
+          [],
+          [KeyAction.Delay, 0],
+          0,
+        ] as [KeycodeSequence, KeycodeSequenceItem, number]);
 
     return acc.map((sequenceItem, idx) => {
-      console.log(sequenceItem);
       const Label =
-        sequenceItem[1] === TestKeyState.KeyDown
+        sequenceItem[0] === KeyAction.Down
           ? KeycodeDownLabel
-          : sequenceItem[1] === TestKeyState.KeyUp
+          : sequenceItem[0] === KeyAction.Up
           ? KeycodeUpLabel
           : KeycodePressLabel;
       const prefix = idx ? (
+        <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
+      ) : null;
+      return !showWaitTimes && sequenceItem[0] === KeyAction.Delay ? null : (
         <>
-          <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
-          {showWaitTimes ? (
+          {prefix}
+          {KeyAction.Delay !== sequenceItem[0] ? (
+            <Label>{sequenceItem[1]}</Label>
+          ) : showWaitTimes ? (
             <>
               <KeycodeSequenceWait>
                 <KeycodeSequenceWaitNumber>
-                  {sequenceItem[2]}
+                  {sequenceItem[1]}
                 </KeycodeSequenceWaitNumber>
-                ms{' '}
+                ms
               </KeycodeSequenceWait>
-              <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
             </>
           ) : null}
-        </>
-      ) : null;
-      return (
-        <>
-          {prefix}
-          <Label>{sequenceItem[0]}</Label>
         </>
       );
     });
@@ -277,12 +293,12 @@ export const MacroRecorder: React.FC<{}> = () => {
         </Detail>
       </ControlRow>
       <ControlRow>
-        <Label>Show wait times (ms)</Label>
+        <Label>Include delays (ms)</Label>
         <Detail>
           <AccentSlider isChecked={showWaitTimes} onChange={setShowWaitTimes} />
         </Detail>
       </ControlRow>
-      {keycodeSequence.length ? (
+      {ast.length ? (
         <MacroSequenceContainer ref={macroSequenceRef}>
           {sequence}
         </MacroSequenceContainer>

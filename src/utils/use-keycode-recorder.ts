@@ -1,11 +1,11 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
-import {TestKeyState} from 'src/types/types';
 import {getKeycodes} from './key';
 import {mapEvtToKeycode} from './key-event';
+import {KeyAction} from './macro-api/macro-api.common';
 
 let heldKeys = {} as any;
 let lastEvtTime = 0;
-export type KeycodeSequenceItem = [string, TestKeyState | null, number];
+export type KeycodeSequenceItem = [KeyAction, string | number];
 export type KeycodeSequence = KeycodeSequenceItem[];
 export const useKeycodeRecorder = (enableRecording: boolean) => {
   const keycodeSequenceState = useState<KeycodeSequence>([]);
@@ -16,7 +16,7 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
   );
   // If pressed key is our target key then set to true
   const addToSequence = useCallback(
-    (evt: KeyboardEvent, keyState: TestKeyState) => {
+    (evt: KeyboardEvent, keyState: KeyAction) => {
       evt.preventDefault();
       if (enableRecording && !evt.repeat) {
         setKeycodeSequence((keycodeSequence) => {
@@ -24,14 +24,11 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
           const currTime = Date.now();
           const keycodeLabel =
             keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? evt.code;
-          const sequenceItem = [
-            keycodeLabel,
-            keyState,
-            currTime - lastEvtTime,
-          ] as KeycodeSequenceItem;
+          if (keycodeSequence.length) {
+            keycodeSequence.push([KeyAction.Delay, currTime - lastEvtTime]);
+          }
+          keycodeSequence.push([keyState, keycodeLabel]);
           lastEvtTime = currTime;
-          keycodeSequence.push(sequenceItem);
-
           return [...keycodeSequence];
         });
       }
@@ -42,7 +39,7 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
     (evt: KeyboardEvent) => {
       if (!heldKeys[evt.code]) {
         heldKeys[evt.code] = true;
-        addToSequence(evt, TestKeyState.KeyDown);
+        addToSequence(evt, KeyAction.Down);
       }
     },
     [enableRecording],
@@ -52,7 +49,7 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
   const upHandler = useCallback(
     (evt: KeyboardEvent) => {
       heldKeys[evt.code] = false;
-      addToSequence(evt, TestKeyState.KeyUp);
+      addToSequence(evt, KeyAction.Up);
     },
     [enableRecording],
   );

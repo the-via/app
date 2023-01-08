@@ -1,5 +1,7 @@
+import {TestKeyState} from 'src/types/types';
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
+import {KeycodeSequence, KeycodeSequenceItem} from '../use-keycode-recorder';
 import {
   DelayTerminator,
   KeyActionPrefix,
@@ -89,6 +91,82 @@ export class MacroAPIV11 implements IMacroAPI {
     private basicKeyToByte: Record<string, number>,
     private byteToKey: Record<number, string>,
   ) {}
+
+  async readMacroExpressionsAst(): Promise<KeycodeSequence[]> {
+    const bytes = await this.keyboardApi.getMacroBytes();
+    const macroCount = await this.keyboardApi.getMacroCount();
+
+    let macroId = 0;
+    let i = 0;
+    const expressions: KeycodeSequence[] = [];
+    let currentExpression = [];
+
+    // If macroCount is 0, macros are disabled
+    if (macroCount === 0) {
+      throw Error('Macros are disabled');
+    }
+
+    while (i < bytes.length && macroId < macroCount) {
+      let byte = bytes[i];
+      switch (byte) {
+        case MacroTerminator:
+          expressions[macroId] = [...currentExpression] as KeycodeSequence;
+          macroId++;
+          currentExpression = [];
+          break;
+        case KeyActionPrefix:
+          byte = bytes[++i]; // select keyaction from next byte
+          switch (byte) {
+            case KeyAction.Tap: // Encode as {KEYCODE}
+              byte = bytes[++i]; // Skip the key action
+              currentExpression.push([
+                KeyAction.Tap,
+                `${(this.byteToKey as any)[byte]}`,
+              ]);
+              break;
+            case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
+              byte = bytes[++i]; // Skip the key action
+              currentExpression.push([
+                KeyAction.Down,
+                `${(this.byteToKey as any)[byte]}`,
+              ]);
+              break;
+            case KeyAction.Up: // Seek to the last keyup and write the keydown stack
+              byte = bytes[++i]; // Skip the key action
+              currentExpression.push([
+                KeyAction.Up,
+                `${(this.byteToKey as any)[byte]}`,
+              ]);
+              break;
+            case KeyAction.Delay:
+              let delayBytes = [];
+              byte = bytes[++i];
+              while (byte !== DelayTerminator && i < bytes.length) {
+                delayBytes.push(byte);
+                byte = bytes[++i];
+              }
+              const delayValue = delayBytes.reduce((acc, byte) => {
+                acc += String.fromCharCode(byte);
+                return acc;
+              }, '');
+              currentExpression.push([KeyAction.Delay, `{${delayValue}}`]);
+              break;
+            default:
+              throw `Expected a KeyAction to follow the KeyActionPrefix. Received ${byte} instead.`;
+          }
+          break;
+        default: {
+          const char = String.fromCharCode(byte);
+          // Escape { with \
+          currentExpression.push([KeyAction.Tap, char]);
+          break;
+        }
+      }
+      i++;
+    }
+
+    return expressions;
+  }
 
   async readMacroExpressions(): Promise<string[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
@@ -208,16 +286,34 @@ export class MacroAPIV11 implements IMacroAPI {
                   'Syntax error: Keycodes expected within block. Use \\{} to define literal {}',
                 );
               case 1:
-                bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Tap, keycodes[0]));
+                bytes.push(
+                  ...buildKeyActionBytes(
+                    this.basicKeyToByte,
+                    KeyAction.Tap,
+                    keycodes[0],
+                  ),
+                );
                 break;
               default:
                 // Keydowns
                 keycodes.forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Down, keycode));
+                  bytes.push(
+                    ...buildKeyActionBytes(
+                      this.basicKeyToByte,
+                      KeyAction.Down,
+                      keycode,
+                    ),
+                  );
                 });
                 // Symmetrical Keyups
                 keycodes.reverse().forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Up, keycode));
+                  bytes.push(
+                    ...buildKeyActionBytes(
+                      this.basicKeyToByte,
+                      KeyAction.Up,
+                      keycode,
+                    ),
+                  );
                 });
                 break;
             }

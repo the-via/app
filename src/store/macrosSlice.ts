@@ -1,14 +1,17 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {getMacroAPI} from 'src/utils/macro-api';
+import {KeycodeSequence} from 'src/utils/use-keycode-recorder';
 import type {ConnectedDevice} from '../types/types';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
+  ast: KeycodeSequence[];
   expressions: string[];
   isFeatureSupported: boolean;
 };
 
 export const macrosInitialState: MacrosState = {
+  ast: [],
   expressions: [],
   isFeatureSupported: true,
 };
@@ -17,8 +20,12 @@ export const macrosSlice = createSlice({
   name: 'macros',
   initialState: macrosInitialState,
   reducers: {
-    loadMacrosSuccess: (state, action: PayloadAction<string[]>) => {
-      state.expressions = action.payload;
+    loadMacrosSuccess: (
+      state,
+      action: PayloadAction<{expressions: string[]; ast: KeycodeSequence[]}>,
+    ) => {
+      state.expressions = action.payload.expressions;
+      state.ast = action.payload.ast;
     },
     saveMacrosSuccess: (state, action: PayloadAction<string[]>) => {
       state.expressions = action.payload;
@@ -48,7 +55,8 @@ export const loadMacros =
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const macros = await macroApi.readMacroExpressions();
-          dispatch(loadMacrosSuccess(macros));
+          const macrosAst = await macroApi.readMacroExpressionsAst();
+          dispatch(loadMacrosSuccess({expressions: macros, ast: macrosAst}));
         }
       } catch (err) {
         dispatch(setMacrosNotSupported());

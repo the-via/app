@@ -109,7 +109,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
         </Detail>
       </ControlRow>
       {!showAdvancedView ? (
-        <MacroRecorder />
+        <MacroRecorder selectedMacro={props.selectedMacro} />
       ) : (
         <>
           <AutoHeightRow>
