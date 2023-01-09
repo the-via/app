@@ -1,4 +1,5 @@
 import {KeycodeSequence} from '../use-keycode-recorder';
+import {RawKeycodeSequence} from './types';
 
 export type ValidationResult = {
   isValid: boolean;
@@ -6,7 +7,7 @@ export type ValidationResult = {
 };
 
 export interface IMacroAPI {
-  readMacroASTS(): Promise<KeycodeSequence[]>;
+  readMacroASTS(): Promise<RawKeycodeSequence[]>;
   readMacroExpressions(): Promise<string[]>;
   writeMacroExpressions(expressions: string[]): void;
 }

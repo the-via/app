@@ -16,13 +16,15 @@ export type RawKeycodeSequenceItem = [
   string | number,
 ];
 
+export type RawKeycodeSequence = RawKeycodeSequenceItem[];
+
 export type GroupedKeycodeSequenceItem = [
   GroupedKeycodeSequenceAction,
   string[],
 ];
 
-export type RawKeycodeSequence = RawKeycodeSequenceItem[];
-export type OptimizedKeycodeSequence = (
+export type OptimizedKeycodeSequenceItem =
   | RawKeycodeSequenceItem
-  | GroupedKeycodeSequenceItem
-)[];
+  | GroupedKeycodeSequenceItem;
+
+export type OptimizedKeycodeSequence = OptimizedKeycodeSequenceItem[];

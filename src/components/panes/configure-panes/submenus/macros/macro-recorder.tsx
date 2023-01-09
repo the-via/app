@@ -5,12 +5,15 @@ import {AccentButton} from 'src/components/inputs/accent-button';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
 import {useAppSelector} from 'src/store/hooks';
-import {KeyAction} from 'src/utils/macro-api/macro-api.common';
 import {
-  KeycodeSequence,
-  KeycodeSequenceItem,
-  useKeycodeRecorder,
-} from 'src/utils/use-keycode-recorder';
+  GroupedKeycodeSequenceAction,
+  GroupedKeycodeSequenceItem,
+  OptimizedKeycodeSequence,
+  OptimizedKeycodeSequenceItem,
+  RawKeycodeSequenceAction,
+  RawKeycodeSequenceItem,
+} from 'src/utils/macro-api/types';
+import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 
 function capitalize(string: string) {
@@ -130,54 +133,76 @@ declare global {
 
 // Merge successive character streams
 const flattenCharacterStream = (
-  [acc, prev]: [KeycodeSequence, KeycodeSequenceItem],
-  curr: KeycodeSequenceItem,
-) => {
+  [acc, prev]: [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem],
+  curr: OptimizedKeycodeSequenceItem,
+): [
+  OptimizedKeycodeSequence,
+  GroupedKeycodeSequenceItem | RawKeycodeSequenceItem,
+] => {
   const [action, actionArg] = curr;
   if (
-    action === KeyAction.CharacterStream &&
-    prev[0] === KeyAction.CharacterStream
+    action === RawKeycodeSequenceAction.Character &&
+    prev[0] === RawKeycodeSequenceAction.Character
   ) {
     acc.pop();
-    acc.push([KeyAction.CharacterStream, `${prev[1]}${actionArg}`]);
+    acc.push([
+      GroupedKeycodeSequenceAction.CharacterStream,
+      [prev[1], actionArg] as [string, string],
+    ]);
+  } else if (
+    action === RawKeycodeSequenceAction.Character &&
+    prev[0] === GroupedKeycodeSequenceAction.CharacterStream
+  ) {
+    prev[1].push(actionArg as string);
   } else {
     acc.push(curr);
   }
-  return [acc, acc[acc.length - 1]] as [KeycodeSequence, KeycodeSequenceItem];
+  return [acc, acc[acc.length - 1]] as [
+    OptimizedKeycodeSequence,
+    OptimizedKeycodeSequenceItem,
+  ];
 };
 
 const transformToCompressed = (
-  [acc, prev, currHeld]: [KeycodeSequence, KeycodeSequenceItem, number],
-  curr: KeycodeSequenceItem,
+  [acc, prev, currHeld]: [
+    OptimizedKeycodeSequence,
+    OptimizedKeycodeSequenceItem,
+    number,
+  ],
+  curr: OptimizedKeycodeSequenceItem,
 ) => {
   const [action, actionArg] = curr;
-  if (action === KeyAction.Delay && currHeld === 0) {
+  if (action === RawKeycodeSequenceAction.Delay && currHeld === 0) {
     acc.push(curr);
   } else if (
-    (action === KeyAction.Down || action === KeyAction.Tap) &&
+    (action === RawKeycodeSequenceAction.Down ||
+      action === RawKeycodeSequenceAction.Tap) &&
     currHeld === 0
   ) {
-    acc.push([KeyAction.Tap, capitalize(actionArg as string)]);
+    acc.push([RawKeycodeSequenceAction.Tap, capitalize(actionArg as string)]);
     currHeld = currHeld + 1;
-  } else if (action === KeyAction.Tap && String(actionArg).length === 1) {
+  } else if (
+    action === RawKeycodeSequenceAction.Tap &&
+    String(actionArg).length === 1
+  ) {
     acc[acc.length - 1][1] = `${acc[acc.length - 1][1]}${actionArg}`;
-  } else if (action === KeyAction.Tap) {
+  } else if (action === RawKeycodeSequenceAction.Tap) {
     acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
       actionArg as string,
     )}`;
-  } else if (action === KeyAction.Down) {
+  } else if (action === RawKeycodeSequenceAction.Down) {
     acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
       actionArg as string,
     )}`;
     currHeld = currHeld + 1;
-  } else if (action === KeyAction.Up) {
+  } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
-  } else if (action === KeyAction.CharacterStream) {
+  } else if (action === GroupedKeycodeSequenceAction.CharacterStream) {
     acc.push(curr);
   }
   return [acc, curr, currHeld] as [
-    KeycodeSequence,
-    KeycodeSequenceItem,
+    OptimizedKeycodeSequence,
+    OptimizedKeycodeSequenceItem,
     number,
   ];
 };
@@ -208,7 +233,10 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
   );
   const [currSequence] = (
     keycodeSequence.length ? keycodeSequence : ast[selectedMacro]
-  ).reduce(flattenCharacterStream, [[], [KeyAction.Delay, 0]]);
+  ).reduce(flattenCharacterStream, [
+    [],
+    [RawKeycodeSequenceAction.Delay, 0],
+  ]) as ReturnType<typeof flattenCharacterStream>;
 
   console.log(currSequence);
   const sequence = useMemo(() => {
@@ -216,24 +244,25 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
       ? [currSequence]
       : currSequence.reduce(transformToCompressed, [
           [],
-          [KeyAction.Delay, 0],
+          [RawKeycodeSequenceAction.Delay, 0],
           0,
-        ] as [KeycodeSequence, KeycodeSequenceItem, number]);
+        ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
 
     return acc.map((sequenceItem, idx) => {
       const Label =
-        sequenceItem[0] === KeyAction.Down
+        sequenceItem[0] === RawKeycodeSequenceAction.Down
           ? KeycodeDownLabel
-          : sequenceItem[0] === KeyAction.Up
+          : sequenceItem[0] === RawKeycodeSequenceAction.Up
           ? KeycodeUpLabel
           : KeycodePressLabel;
       const prefix = idx ? (
         <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
       ) : null;
-      return !showWaitTimes && sequenceItem[0] === KeyAction.Delay ? null : (
+      return !showWaitTimes &&
+        sequenceItem[0] === RawKeycodeSequenceAction.Delay ? null : (
         <>
           {prefix}
-          {KeyAction.Delay !== sequenceItem[0] ? (
+          {RawKeycodeSequenceAction.Delay !== sequenceItem[0] ? (
             <Label>{sequenceItem[1]}</Label>
           ) : showWaitTimes ? (
             <>

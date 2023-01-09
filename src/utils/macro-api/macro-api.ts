@@ -1,6 +1,5 @@
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
-import {KeycodeSequence} from '../use-keycode-recorder';
 import {
   getByte,
   IMacroAPI,
@@ -8,6 +7,7 @@ import {
   KeyAction,
   MacroTerminator,
 } from './macro-api.common';
+import {RawKeycodeSequence, RawKeycodeSequenceAction} from './types';
 
 // Corresponds to 'magic codes' in qmk sendstring
 export type MacroValidator = typeof validateMacroExpression;
@@ -78,13 +78,13 @@ export class MacroAPI implements IMacroAPI {
     private byteToKey: Record<number, string>,
   ) {}
 
-  async readMacroASTS(): Promise<KeycodeSequence[]> {
+  async readMacroASTS(): Promise<RawKeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
     const macroCount = await this.keyboardApi.getMacroCount();
 
     let macroId = 0;
     let i = 0;
-    const expressions: KeycodeSequence[] = [];
+    const expressions: RawKeycodeSequence[] = [];
     let currentExpression = [];
 
     // If macroCount is 0, macros are disabled
@@ -96,35 +96,35 @@ export class MacroAPI implements IMacroAPI {
       let byte = bytes[i];
       switch (byte) {
         case MacroTerminator:
-          expressions[macroId] = [...currentExpression] as KeycodeSequence;
+          expressions[macroId] = [...currentExpression] as RawKeycodeSequence;
           macroId++;
           currentExpression = [];
           break;
         case KeyAction.Tap: // Encode as {KEYCODE}
           byte = bytes[++i]; // Skip the key action
           currentExpression.push([
-            KeyAction.Tap,
+            RawKeycodeSequenceAction.Tap,
             `${(this.byteToKey as any)[byte]}`,
           ]);
           break;
         case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
           byte = bytes[++i]; // Skip the key action
           currentExpression.push([
-            KeyAction.Down,
+            RawKeycodeSequenceAction.Down,
             `${(this.byteToKey as any)[byte]}`,
           ]);
           break;
         case KeyAction.Up: // Seek to the last keyup and write the keydown stack
           byte = bytes[++i]; // Skip the key action
           currentExpression.push([
-            KeyAction.Up,
+            RawKeycodeSequenceAction.Up,
             `${(this.byteToKey as any)[byte]}`,
           ]);
           break;
         default: {
           const char = String.fromCharCode(byte);
           // Escape { with \
-          currentExpression.push([KeyAction.CharacterStream, char]);
+          currentExpression.push([RawKeycodeSequenceAction.Character, char]);
           break;
         }
       }

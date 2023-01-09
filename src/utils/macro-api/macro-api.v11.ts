@@ -1,7 +1,5 @@
-import {TestKeyState} from 'src/types/types';
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
-import {KeycodeSequence, KeycodeSequenceItem} from '../use-keycode-recorder';
 import {
   DelayTerminator,
   KeyActionPrefix,
@@ -11,6 +9,7 @@ import {
   buildKeyActionBytes,
   IMacroAPI,
 } from './macro-api.common';
+import {RawKeycodeSequence, RawKeycodeSequenceAction} from './types';
 
 // Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
 // Empty action blocks can't be persisted, so should fail: {}
@@ -92,13 +91,13 @@ export class MacroAPIV11 implements IMacroAPI {
     private byteToKey: Record<number, string>,
   ) {}
 
-  async readMacroASTS(): Promise<KeycodeSequence[]> {
+  async readMacroASTS(): Promise<RawKeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
     const macroCount = await this.keyboardApi.getMacroCount();
 
     let macroId = 0;
     let i = 0;
-    const expressions: KeycodeSequence[] = [];
+    const expressions: RawKeycodeSequence[] = [];
     let currentExpression = [];
 
     // If macroCount is 0, macros are disabled
@@ -110,7 +109,7 @@ export class MacroAPIV11 implements IMacroAPI {
       let byte = bytes[i];
       switch (byte) {
         case MacroTerminator:
-          expressions[macroId] = [...currentExpression] as KeycodeSequence;
+          expressions[macroId] = [...currentExpression] as RawKeycodeSequence;
           macroId++;
           currentExpression = [];
           break;
@@ -120,21 +119,21 @@ export class MacroAPIV11 implements IMacroAPI {
             case KeyAction.Tap: // Encode as {KEYCODE}
               byte = bytes[++i]; // Skip the key action
               currentExpression.push([
-                KeyAction.Tap,
+                RawKeycodeSequenceAction.Tap,
                 `${(this.byteToKey as any)[byte]}`,
               ]);
               break;
             case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
               byte = bytes[++i]; // Skip the key action
               currentExpression.push([
-                KeyAction.Down,
+                RawKeycodeSequenceAction.Down,
                 `${(this.byteToKey as any)[byte]}`,
               ]);
               break;
             case KeyAction.Up: // Seek to the last keyup and write the keydown stack
               byte = bytes[++i]; // Skip the key action
               currentExpression.push([
-                KeyAction.Up,
+                RawKeycodeSequenceAction.Up,
                 `${(this.byteToKey as any)[byte]}`,
               ]);
               break;
@@ -149,7 +148,10 @@ export class MacroAPIV11 implements IMacroAPI {
                 acc += String.fromCharCode(byte);
                 return acc;
               }, '');
-              currentExpression.push([KeyAction.Delay, parseInt(delayValue)]);
+              currentExpression.push([
+                RawKeycodeSequenceAction.Delay,
+                parseInt(delayValue),
+              ]);
               break;
             default:
               throw `Expected a KeyAction to follow the KeyActionPrefix. Received ${byte} instead.`;
@@ -158,7 +160,7 @@ export class MacroAPIV11 implements IMacroAPI {
         default: {
           const char = String.fromCharCode(byte);
           // Escape { with \
-          currentExpression.push([KeyAction.CharacterStream, char]);
+          currentExpression.push([RawKeycodeSequenceAction.Character, char]);
           break;
         }
       }

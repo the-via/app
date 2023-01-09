@@ -1,11 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {getMacroAPI} from 'src/utils/macro-api';
-import {KeycodeSequence} from 'src/utils/use-keycode-recorder';
+import {RawKeycodeSequence} from 'src/utils/macro-api/types';
 import type {ConnectedDevice} from '../types/types';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
-  ast: KeycodeSequence[];
+  ast: RawKeycodeSequence[];
   expressions: string[];
   isFeatureSupported: boolean;
 };
@@ -22,7 +22,7 @@ export const macrosSlice = createSlice({
   reducers: {
     loadMacrosSuccess: (
       state,
-      action: PayloadAction<{expressions: string[]; ast: KeycodeSequence[]}>,
+      action: PayloadAction<{expressions: string[]; ast: RawKeycodeSequence[]}>,
     ) => {
       state.expressions = action.payload.expressions;
       state.ast = action.payload.ast;
