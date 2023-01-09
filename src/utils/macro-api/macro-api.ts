@@ -23,8 +23,7 @@ export function validateMacroExpression(expression: string): ValidationResult {
     console.error('Lookbehind is not supported in this browser.');
     return {
       isValid: false,
-      errorMessage:
-        "Lookbehind is not supported in this browser.",
+      errorMessage: 'Lookbehind is not supported in this browser.',
     };
   }
 
@@ -153,28 +152,23 @@ export class MacroAPI implements IMacroAPI {
       sequence.forEach((element) => {
         switch (element[0]) {
           case RawKeycodeSequenceAction.Tap:
-            bytes.push(
-              KeyAction.Tap,
-              this.basicKeyToByte[element[1]],
-            );
+            bytes.push(KeyAction.Tap, this.basicKeyToByte[element[1]]);
             break;
           case RawKeycodeSequenceAction.Up:
-            bytes.push(
-              KeyAction.Up,
-              this.basicKeyToByte[element[1]],
-            );
+            bytes.push(KeyAction.Up, this.basicKeyToByte[element[1]]);
             break;
           case RawKeycodeSequenceAction.Down:
-            bytes.push(
-              KeyAction.Down,
-              this.basicKeyToByte[element[1]],
-            );
+            bytes.push(KeyAction.Down, this.basicKeyToByte[element[1]]);
             break;
           case RawKeycodeSequenceAction.Delay:
             // Unsupported
             break;
           case RawKeycodeSequenceAction.CharacterStream:
-            bytes.push(...(element[1] as string).split('').map((char) => char.charCodeAt(0)));
+            bytes.push(
+              ...(element[1] as string)
+                .split('')
+                .map((char) => char.charCodeAt(0)),
+            );
             break;
         }
       });
@@ -185,5 +179,4 @@ export class MacroAPI implements IMacroAPI {
 
     await this.keyboardApi.setMacroBytes(macroBytes);
   }
-
 }

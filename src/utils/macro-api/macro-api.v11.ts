@@ -8,10 +8,7 @@ import {
   ValidationResult,
   IMacroAPI,
 } from './macro-api.common';
-import {
-  RawKeycodeSequence,
-  RawKeycodeSequenceAction,
-} from './types';
+import {RawKeycodeSequence, RawKeycodeSequenceAction} from './types';
 
 // TODO: Move to IMacroAPI
 export function validateMacroExpressionV11(
@@ -224,7 +221,11 @@ export class MacroAPIV11 implements IMacroAPI {
             );
             break;
           case RawKeycodeSequenceAction.CharacterStream:
-            bytes.push(...(element[1] as string).split('').map((char) => char.charCodeAt(0)));
+            bytes.push(
+              ...(element[1] as string)
+                .split('')
+                .map((char) => char.charCodeAt(0)),
+            );
             break;
         }
       });

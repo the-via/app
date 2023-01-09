@@ -178,10 +178,11 @@ export function expressionToSequence(str: string): OptimizedKeycodeSequence {
               result.push([GroupedKeycodeSequenceAction.Chord, keycodes]);
             }
           } else {
-            const action: RawKeycodeSequenceAction = downOrUpAction == '+'
-              ? RawKeycodeSequenceAction.Down
-              : RawKeycodeSequenceAction.Up;
-              result.push([action, keycodes[0]]);
+            const action: RawKeycodeSequenceAction =
+              downOrUpAction == '+'
+                ? RawKeycodeSequenceAction.Down
+                : RawKeycodeSequenceAction.Up;
+            result.push([action, keycodes[0]]);
           }
         }
       }
@@ -195,4 +196,3 @@ export function expressionToSequence(str: string): OptimizedKeycodeSequence {
 
   return result;
 }
-
