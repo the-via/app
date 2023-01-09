@@ -24,5 +24,5 @@ export type GroupedKeycodeSequenceItem = [
 export type RawKeycodeSequence = RawKeycodeSequenceItem[];
 export type OptimizedKeycodeSequence = (
   | RawKeycodeSequenceItem
-  | RawKeycodeSequence
+  | GroupedKeycodeSequenceItem
 )[];
