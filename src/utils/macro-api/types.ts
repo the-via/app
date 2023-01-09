@@ -18,7 +18,7 @@ export type RawKeycodeSequenceItem = [
 
 export type GroupedKeycodeSequenceItem = [
   GroupedKeycodeSequenceAction,
-  string | number,
+  string[],
 ];
 
 export type RawKeycodeSequence = RawKeycodeSequenceItem[];
