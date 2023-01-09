@@ -1,14 +1,13 @@
 export enum RawKeycodeSequenceAction {
-  Tap = 1, // \x01
-  Down = 2, // \x02
-  Up = 3, // \x03
-  Delay = 4, // \x04
-  Character = 42, // This is not a real QMK tag, it is implied from the absence of a tag
+  Tap = 1,
+  Down = 2,
+  Up = 3,
+  Delay = 4,
+  CharacterStream = 5,
 }
 
 export enum GroupedKeycodeSequenceAction {
-  Chord = 5,
-  CharacterStream = 6,
+  Chord = 6,
 }
 
 export type RawKeycodeSequenceItem = [
