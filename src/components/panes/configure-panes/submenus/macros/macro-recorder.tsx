@@ -1,4 +1,10 @@
-import {faCircle, faPlus, faSquare} from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircle,
+  faPenToSquare,
+  faPlus,
+  faSquare,
+} from '@fortawesome/free-solid-svg-icons';
+import TextareaAutosize from 'react-textarea-autosize';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AccentButton} from 'src/components/inputs/accent-button';
@@ -50,13 +56,57 @@ const KeycodeSequenceWait = styled.div`
   white-space: pre-wrap;
   font-size: 16px;
   color: var(--color_label-highlighted);
-  margin: 0;
   box-shadow: none;
   position: relative;
   white-space: nowrap;
   position: relative;
   margin: 15px 10px;
 `;
+const AddNextContainer = styled.div`
+  border-radius: 4px;
+  margin: 15px 10px;
+  border: 1px solid var(--border_color_icon);
+  display: inline-flex;
+  > div:last-child {
+    border: none;
+  }
+`;
+
+const AddNextItem = styled.div`
+  padding: 10px 10px;
+  cursor: pointer;
+  background: var(--bg_control);
+  border-right: 1px solid var(--border_color_icon);
+  &:hover {
+    background: var(--bg_icon-highlighted);
+    color: var(--color_icon-highlighted);
+  }
+  &:hover svg {
+    color: var(--color_accent);
+  }
+`;
+
+const AddNextItemDisabled = styled.div`
+  padding: 10px 10px;
+  cursor: initial;
+  background: var(--bg_control-disabled);
+  color: var(--color_control-disabled);
+  border-right: 1px solid var(--border_color_icon);
+  cursor: not-allowed;
+`;
+
+const CharacterStreamContainer = styled.div`
+  border: 2px solid var(--bg_control);
+  transition: border-color 0.2s ease-in-out;
+  margin: 15px 10px;
+  display: inline-block;
+  &:focus-within {
+    border-color: var(--color_accent);
+  }
+  border-radius: 4px;
+  font-size: 16px;
+`;
+
 const KeycodeSequenceLabel = styled.div`
   display: inline-flex;
   user-select: none;
@@ -207,9 +257,9 @@ const transformToCompressed = (
   ];
 };
 
-export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
-  selectedMacro,
-}) => {
+export const MacroRecorder: React.FC<{
+  selectedMacro?: OptimizedKeycodeSequence;
+}> = ({selectedMacro}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(true);
   const [showWaitTimes, setShowWaitTimes] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
@@ -232,11 +282,8 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
     [setIsRecording],
   );
   const [currSequence] = (
-    keycodeSequence.length ? keycodeSequence : ast[selectedMacro]
-  ).reduce(flattenCharacterStream, [
-    [],
-    [RawKeycodeSequenceAction.Delay, 0],
-  ]) as ReturnType<typeof flattenCharacterStream>;
+    keycodeSequence.length ? keycodeSequence : selectedMacro ?? []
+  ).reduce(flattenCharacterStream, [[], [RawKeycodeSequenceAction.Delay, 0]]);
 
   console.log(currSequence);
   const sequence = useMemo(() => {
@@ -314,8 +361,24 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
         </Detail>
       </ControlRow>
       <ControlRow>
-        <Label>Record Macro</Label>
+        <Label>Always show separate keyup/keydown</Label>
         <Detail>
+          <AccentSlider
+            isChecked={showVerboseKeyState}
+            onChange={setShowVerboseKeyState}
+          />
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>Include delays (ms)</Label>
+        <Detail>
+          <AccentSlider isChecked={showWaitTimes} onChange={setShowWaitTimes} />
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>Rerecord Macro</Label>
+        <Detail>
+          <AddNext isFullscreen={isFullscreen} />
           {isFullscreen ? (
             <IconButton
               onClick={() => {
@@ -333,26 +396,73 @@ export const MacroRecorder: React.FC<{selectedMacro: number}> = ({
           )}
         </Detail>
       </ControlRow>
-      <ControlRow>
-        <Label>Always show separate keyup/keydown</Label>
-        <Detail>
-          <AccentSlider
-            isChecked={showVerboseKeyState}
-            onChange={setShowVerboseKeyState}
-          />
-        </Detail>
-      </ControlRow>
-      <ControlRow>
-        <Label>Include delays (ms)</Label>
-        <Detail>
-          <AccentSlider isChecked={showWaitTimes} onChange={setShowWaitTimes} />
-        </Detail>
-      </ControlRow>
-      {ast.length ? (
+      {sequence.length ? (
         <MacroSequenceContainer ref={macroSequenceRef}>
           {sequence}
+          <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
+          <CharacterStreamInput />
+          <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
+          <AddNext isFullscreen={isFullscreen} />
         </MacroSequenceContainer>
       ) : null}
+    </>
+  );
+};
+
+const AddNext: React.FC<{isFullscreen: boolean}> = ({isFullscreen}) => {
+  const recordComponent = isFullscreen ? (
+    <AddNextItem>
+      <FontAwesomeIcon
+        size={'sm'}
+        color={'var(--color_label)'}
+        icon={faCircle}
+      />{' '}
+      Record Keystrokes
+    </AddNextItem>
+  ) : (
+    <AddNextItemDisabled>
+      <FontAwesomeIcon
+        size={'sm'}
+        color={'var(--color_label)'}
+        icon={faCircle}
+      />{' '}
+      Can only record when fullscreen
+    </AddNextItemDisabled>
+  );
+  return (
+    <AddNextContainer>
+      {recordComponent}
+      <AddNextItem>
+        <FontAwesomeIcon
+          size={'sm'}
+          color="var(--color_label)"
+          icon={faPenToSquare}
+        />{' '}
+        Add Text
+      </AddNextItem>
+    </AddNextContainer>
+  );
+};
+const CharacterStreamInput = () => {
+  return (
+    <>
+      <CharacterStreamContainer>
+        <TextareaAutosize
+          style={{
+            background: 'transparent',
+            color: 'var(--color_label-highlighted)',
+            padding: '8px',
+            borderRadius: 4,
+            border: 'none',
+            fontFamily: '"Fira Sans"',
+            verticalAlign: 'middle',
+            resize: 'none',
+            fontSize: 16,
+          }}
+          minRows={1}
+          maxRows={3}
+        />
+      </CharacterStreamContainer>
     </>
   );
 };

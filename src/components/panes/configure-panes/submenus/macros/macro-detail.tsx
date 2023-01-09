@@ -12,6 +12,7 @@ import {
 } from '../../../../../components/inputs/autocomplete-keycode';
 import {getMacroValidator} from 'src/utils/macro-api';
 import {MacroRecorder} from './macro-recorder';
+import {useAppSelector} from 'src/store/hooks';
 
 const ToastErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -85,6 +86,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
     undefined,
   );
+  const ast = useAppSelector((state) => state.macros.ast);
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;
     const validate = getMacroValidator(props.protocol);
@@ -109,7 +111,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
         </Detail>
       </ControlRow>
       {!showAdvancedView ? (
-        <MacroRecorder selectedMacro={props.selectedMacro} />
+        <MacroRecorder selectedMacro={ast[props.selectedMacro]} />
       ) : (
         <>
           <AutoHeightRow>

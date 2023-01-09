@@ -43,6 +43,7 @@ import {
   getSelectedPaletteColor,
   setSelectedPaletteColor,
 } from 'src/store/keymapSlice';
+import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -206,6 +207,7 @@ const TestControls = () => {
           />
         </Detail>
       </ControlRow>
+      <MacroRecorder />
     </ControlGroup>
   );
 };
