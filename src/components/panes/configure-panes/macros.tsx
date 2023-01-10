@@ -6,7 +6,7 @@ import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
-import {saveMacros} from '../../../store/macrosSlice';
+import {getExpressions, saveMacros} from '../../../store/macrosSlice';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -28,7 +28,7 @@ const MenuContainer = styled.div`
 export const Pane: FC = () => {
   const dispatch = useAppDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const macroExpressions = useAppSelector((state) => state.macros.expressions);
+  const macroExpressions = useAppSelector(getExpressions);
 
   const [selectedMacro, setSelectedMacro] = useState(0);
 

@@ -18,7 +18,7 @@ import {
 } from 'src/store/keymapSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {saveMacros} from 'src/store/macrosSlice';
+import {getExpressions, saveMacros} from 'src/store/macrosSlice';
 
 type ViaSaveFile = {
   name: string;
@@ -49,6 +49,7 @@ export const Pane: FC = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
+  const expressions = useAppSelector(getExpressions);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
 
   // TODO: improve typing so we can remove this
@@ -114,7 +115,7 @@ export const Pane: FC = () => {
       const saveFile: ViaSaveFile = {
         name,
         vendorProductId,
-        macros: [...macros.expressions],
+        macros: [...expressions],
         layers: rawLayers.map(
           (layer: {keymap: number[]}) =>
             layer.keymap.map(
@@ -180,7 +181,7 @@ export const Pane: FC = () => {
       }
 
       if (macros.isFeatureSupported && saveFile.macros) {
-        if (saveFile.macros.length !== macros.expressions.length) {
+        if (saveFile.macros.length !== expressions.length) {
           setErrorMessage(
             'Could not import layout: incorrect number of macros.',
           );

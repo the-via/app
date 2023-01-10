@@ -441,7 +441,7 @@ const getLabelOffsets = (
 export const getLabel = (
   keycodeByte: number,
   width: number,
-  macros: RootState['macros'],
+  macroExpressions: string[],
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
@@ -473,7 +473,7 @@ export const getLabel = (
   }
   let macroExpression: string | undefined;
   if (isMacro(label)) {
-    macroExpression = macros.expressions[label.substring(1) as any];
+    macroExpression = macroExpressions[label.substring(1) as any];
     tooltipLabel = macroExpression || '';
   }
 

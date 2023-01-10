@@ -22,6 +22,7 @@ import {ThreeEvent} from '@react-three/fiber';
 import {getRGB} from 'src/utils/color-math';
 import {Color} from 'three';
 import glbSrc from 'assets/models/keyboard_components.glb';
+import {getExpressions} from 'src/store/macrosSlice';
 
 const getSRGBArray = (keyColors: number[][]) => {
   return keyColors.map(([hue, sat]) => {
@@ -53,6 +54,7 @@ export const KeyGroup: React.VFC<{
   const keycapNodes = useGLTF(glbSrc, true).nodes;
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
+  const macroExpressions = useAppSelector(getExpressions);
   const keyColorPalette = props.keyColors
     ? getSRGBArray(props.keyColors)
     : selectedSRGBTheme;
@@ -119,7 +121,7 @@ export const KeyGroup: React.VFC<{
           getLabel(
             props.matrixKeycodes[i],
             k.w,
-            macros,
+            macroExpressions,
             props.definition,
             basicKeyToByte,
             byteToKey,

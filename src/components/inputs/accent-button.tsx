@@ -28,8 +28,7 @@ export const AccentButton = styled.button<AccentButtonProps>`
     props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 
-  &:hover,
-  &:focus {
+  &:hover {
     border: 1px solid var(--color_accent);
     color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};

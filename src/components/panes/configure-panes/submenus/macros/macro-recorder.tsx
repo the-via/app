@@ -31,10 +31,27 @@ const IconButton = styled.button`
   background: transparent;
   border: none;
   cursor: pointer;
+  color: ${(props) =>
+    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+  border-color: ${(props) =>
+    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   &:hover {
-    filter:brightness(0.8);
+    color: ${(props) =>
+      props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
+    border-color: ${(props) =>
+      props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+    background-color: ${(props) =>
+      props.disabled ? 'transparent' : 'var(--color_accent)'};
   }
-}
+
+  svg {
+    color: ${(props) =>
+      props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+  }
+  &:hover svg {
+    color: ${(props) =>
+      props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
+  }
 `;
 
 const KeycodeSequenceWaitNumber = styled.span`
@@ -66,7 +83,7 @@ const AddNextContainer = styled.div`
   border-radius: 4px;
   border: 1px solid var(--border_color_icon);
   display: inline-flex;
-  > div:last-child {
+  > button:last-child {
     border: none;
   }
 `;
@@ -76,21 +93,14 @@ const AddNextItem = styled(IconButton)`
   cursor: pointer;
   line-height: initial;
   background: var(--bg_control);
+  font-size: initial;
   border-right: 1px solid var(--border_color_icon);
-  &:hover {
-    background: var(--bg_icon-highlighted);
-    color: var(--color_icon-highlighted);
-  }
-  &:hover svg {
-    color: var(--color_accent);
-  }
 `;
 
 const AddNextItemDisabled = styled(IconButton)`
   padding: 10px 10px;
   cursor: initial;
-  background: var(--bg_control-disabled);
-  color: var(--color_control-disabled);
+  font-size: initial;
   line-height: initial;
   border-right: 1px solid var(--border_color_icon);
   cursor: not-allowed;
@@ -229,8 +239,8 @@ const transformToCompressed = (
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
 }> = ({selectedMacro}) => {
-  const [showVerboseKeyState, setShowVerboseKeyState] = useState(true);
-  const [showWaitTimes, setShowWaitTimes] = useState(true);
+  const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
+  const [showWaitTimes, setShowWaitTimes] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
@@ -396,7 +406,7 @@ const AddNext: React.FC<{
       {isRecording ? 'Stop Recording' : 'Record Keystrokes'}
     </AddNextItem>
   ) : (
-    <AddNextItemDisabled>
+    <AddNextItemDisabled disabled={true}>
       <FontAwesomeIcon
         size={'sm'}
         color={'var(--color_label)'}
