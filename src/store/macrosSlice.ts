@@ -1,5 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {getMacroAPI} from 'src/utils/macro-api';
+import {
+  expressionToSequence,
+  optimizedSequenceToRawSequence,
+  rawSequenceToOptimizedSequence,
+  sequenceToExpression,
+} from 'src/utils/macro-api/macro-api.common';
 import {RawKeycodeSequence} from 'src/utils/macro-api/types';
 import type {ConnectedDevice} from '../types/types';
 import type {AppThunk, RootState} from './index';
@@ -27,8 +33,12 @@ export const macrosSlice = createSlice({
       state.expressions = action.payload.expressions;
       state.ast = action.payload.ast;
     },
-    saveMacrosSuccess: (state, action: PayloadAction<string[]>) => {
-      state.expressions = action.payload;
+    saveMacrosSuccess: (
+      state,
+      action: PayloadAction<{expressions: string[]; ast: RawKeycodeSequence[]}>,
+    ) => {
+      state.expressions = action.payload.expressions;
+      state.ast = action.payload.ast;
     },
     setMacrosNotSupported: (state) => {
       state.isFeatureSupported = false;
@@ -54,9 +64,15 @@ export const loadMacros =
       try {
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
-          const macros = await macroApi.readMacroExpressions();
-          const macrosAst = await macroApi.readMacroASTS();
-          dispatch(loadMacrosSuccess({expressions: macros, ast: macrosAst}));
+          const sequences = await macroApi.readRawKeycodeSequences();
+          const expressions = sequences.map((sequence) => {
+            const optimizedSequence = rawSequenceToOptimizedSequence(sequence);
+            const expression = sequenceToExpression(optimizedSequence);
+            return expression;
+          });
+          dispatch(
+            loadMacrosSuccess({expressions: expressions, ast: sequences}),
+          );
         }
       } catch (err) {
         dispatch(setMacrosNotSupported());
@@ -70,8 +86,13 @@ export const saveMacros =
     const {api, protocol} = connectedDevice;
     const macroApi = getMacroAPI(protocol, api);
     if (macroApi) {
-      await macroApi.writeMacroExpressions(macros);
-      dispatch(saveMacrosSuccess(macros));
+      const sequences = macros.map((expression) => {
+        const optimizedSequence = expressionToSequence(expression);
+        const rawSequence = optimizedSequenceToRawSequence(optimizedSequence);
+        return rawSequence;
+      });
+      await macroApi.writeRawKeycodeSequences(sequences);
+      dispatch(saveMacrosSuccess({expressions: macros, ast: sequences}));
     }
   };
 
