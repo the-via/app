@@ -1,3 +1,6 @@
+// Keycodes starting with _ are not real keycodes.
+// They are used to version constants used in
+// advanced keycodes.
 export default {
   _QK_MODS: 0x0100,
   _QK_MODS_MAX: 0x1fff,
