@@ -60,11 +60,10 @@ const KeycodeSequenceWait = styled.div`
   position: relative;
   white-space: nowrap;
   position: relative;
-  margin: 15px 10px;
+  margin: 15px 0px;
 `;
 const AddNextContainer = styled.div`
   border-radius: 4px;
-  margin: 15px 10px;
   border: 1px solid var(--border_color_icon);
   display: inline-flex;
   > div:last-child {
@@ -72,9 +71,10 @@ const AddNextContainer = styled.div`
   }
 `;
 
-const AddNextItem = styled.div`
+const AddNextItem = styled(IconButton)`
   padding: 10px 10px;
   cursor: pointer;
+  line-height: initial;
   background: var(--bg_control);
   border-right: 1px solid var(--border_color_icon);
   &:hover {
@@ -86,11 +86,12 @@ const AddNextItem = styled.div`
   }
 `;
 
-const AddNextItemDisabled = styled.div`
+const AddNextItemDisabled = styled(IconButton)`
   padding: 10px 10px;
   cursor: initial;
   background: var(--bg_control-disabled);
   color: var(--color_control-disabled);
+  line-height: initial;
   border-right: 1px solid var(--border_color_icon);
   cursor: not-allowed;
 `;
@@ -98,7 +99,7 @@ const AddNextItemDisabled = styled.div`
 const CharacterStreamContainer = styled.div`
   border: 2px solid var(--bg_control);
   transition: border-color 0.2s ease-in-out;
-  margin: 15px 10px;
+  margin: 15px 0px;
   display: inline-block;
   &:focus-within {
     border-color: var(--color_accent);
@@ -133,7 +134,7 @@ const KeycodeSequenceLabel = styled.div`
   white-space: nowrap;
   position: relative;
   text-transform: capitalize;
-  margin: 15px 10px;
+  margin: 15px 0px;
 `;
 const KeycodeDownLabel = styled(KeycodeSequenceLabel)`
   &::after {
@@ -181,38 +182,6 @@ declare global {
   }
 }
 
-// Merge successive character streams
-const flattenCharacterStream = (
-  [acc, prev]: [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem],
-  curr: OptimizedKeycodeSequenceItem,
-): [
-  OptimizedKeycodeSequence,
-  GroupedKeycodeSequenceItem | RawKeycodeSequenceItem,
-] => {
-  const [action, actionArg] = curr;
-  if (
-    action === RawKeycodeSequenceAction.Character &&
-    prev[0] === RawKeycodeSequenceAction.Character
-  ) {
-    acc.pop();
-    acc.push([
-      GroupedKeycodeSequenceAction.CharacterStream,
-      [prev[1], actionArg] as [string, string],
-    ]);
-  } else if (
-    action === RawKeycodeSequenceAction.Character &&
-    prev[0] === GroupedKeycodeSequenceAction.CharacterStream
-  ) {
-    prev[1].push(actionArg as string);
-  } else {
-    acc.push(curr);
-  }
-  return [acc, acc[acc.length - 1]] as [
-    OptimizedKeycodeSequence,
-    OptimizedKeycodeSequenceItem,
-  ];
-};
-
 const transformToCompressed = (
   [acc, prev, currHeld]: [
     OptimizedKeycodeSequence,
@@ -247,7 +216,7 @@ const transformToCompressed = (
     currHeld = currHeld + 1;
   } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
-  } else if (action === GroupedKeycodeSequenceAction.CharacterStream) {
+  } else if (action === RawKeycodeSequenceAction.CharacterStream) {
     acc.push(curr);
   }
   return [acc, curr, currHeld] as [
@@ -281,9 +250,17 @@ export const MacroRecorder: React.FC<{
     },
     [setIsRecording],
   );
-  const [currSequence] = (
-    keycodeSequence.length ? keycodeSequence : selectedMacro ?? []
-  ).reduce(flattenCharacterStream, [[], [RawKeycodeSequenceAction.Delay, 0]]);
+  const currSequence = keycodeSequence.length
+    ? keycodeSequence
+    : selectedMacro ?? [];
+
+  const plusIcon = (
+    <FontAwesomeIcon
+      style={{marginLeft: 10, marginRight: 10}}
+      icon={faPlus}
+      color={'var(--color_accent)'}
+    />
+  );
 
   console.log(currSequence);
   const sequence = useMemo(() => {
@@ -295,27 +272,27 @@ export const MacroRecorder: React.FC<{
           0,
         ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
 
-    return acc.map((sequenceItem, idx) => {
+    return acc.map(([action, actionArg], idx) => {
       const Label =
-        sequenceItem[0] === RawKeycodeSequenceAction.Down
+        action === RawKeycodeSequenceAction.Down
           ? KeycodeDownLabel
-          : sequenceItem[0] === RawKeycodeSequenceAction.Up
+          : action === RawKeycodeSequenceAction.Up
           ? KeycodeUpLabel
+          : action === RawKeycodeSequenceAction.CharacterStream
+          ? CharacterStreamInput
           : KeycodePressLabel;
-      const prefix = idx ? (
-        <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
-      ) : null;
+      const prefix = idx ? plusIcon : null;
       return !showWaitTimes &&
-        sequenceItem[0] === RawKeycodeSequenceAction.Delay ? null : (
+        action === RawKeycodeSequenceAction.Delay ? null : (
         <>
           {prefix}
-          {RawKeycodeSequenceAction.Delay !== sequenceItem[0] ? (
-            <Label>{sequenceItem[1]}</Label>
+          {RawKeycodeSequenceAction.Delay !== action ? (
+            <Label>{actionArg}</Label>
           ) : showWaitTimes ? (
             <>
               <KeycodeSequenceWait>
                 <KeycodeSequenceWaitNumber>
-                  {sequenceItem[1]}
+                  {actionArg}
                 </KeycodeSequenceWaitNumber>
                 ms
               </KeycodeSequenceWait>
@@ -378,46 +355,45 @@ export const MacroRecorder: React.FC<{
       <ControlRow>
         <Label>Rerecord Macro</Label>
         <Detail>
-          <AddNext isFullscreen={isFullscreen} />
-          {isFullscreen ? (
-            <IconButton
-              onClick={() => {
-                recordingToggleChange(!isRecording);
-              }}
-            >
-              <FontAwesomeIcon
-                size={'xl'}
-                color={isRecording ? 'var(--color_label-highlighted)' : 'red'}
-                icon={isRecording ? faSquare : faCircle}
-              />
-            </IconButton>
-          ) : (
-            'Can only record while fullscreen'
-          )}
+          <AddNext
+            isFullscreen={isFullscreen}
+            isRecording={isRecording}
+            recordingToggleChange={recordingToggleChange}
+          />
         </Detail>
       </ControlRow>
       {sequence.length ? (
         <MacroSequenceContainer ref={macroSequenceRef}>
           {sequence}
-          <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
-          <CharacterStreamInput />
-          <FontAwesomeIcon icon={faPlus} color={'var(--color_accent)'} />
-          <AddNext isFullscreen={isFullscreen} />
+          {plusIcon}
+          <AddNext
+            isFullscreen={isFullscreen}
+            isRecording={isRecording}
+            recordingToggleChange={recordingToggleChange}
+          />
         </MacroSequenceContainer>
       ) : null}
     </>
   );
 };
 
-const AddNext: React.FC<{isFullscreen: boolean}> = ({isFullscreen}) => {
+const AddNext: React.FC<{
+  isFullscreen: boolean;
+  isRecording: boolean;
+  recordingToggleChange: (a: boolean) => void;
+}> = ({isFullscreen, isRecording, recordingToggleChange}) => {
   const recordComponent = isFullscreen ? (
-    <AddNextItem>
+    <AddNextItem
+      onClick={() => {
+        recordingToggleChange(!isRecording);
+      }}
+    >
       <FontAwesomeIcon
         size={'sm'}
         color={'var(--color_label)'}
-        icon={faCircle}
+        icon={isRecording ? faSquare : faCircle}
       />{' '}
-      Record Keystrokes
+      {isRecording ? 'Stop Recording' : 'Record Keystrokes'}
     </AddNextItem>
   ) : (
     <AddNextItemDisabled>
@@ -443,7 +419,9 @@ const AddNext: React.FC<{isFullscreen: boolean}> = ({isFullscreen}) => {
     </AddNextContainer>
   );
 };
-const CharacterStreamInput = () => {
+const CharacterStreamInput: React.FC<{
+  children?: React.ReactNode | undefined;
+}> = (props) => {
   return (
     <>
       <CharacterStreamContainer>
@@ -461,7 +439,9 @@ const CharacterStreamInput = () => {
           }}
           minRows={1}
           maxRows={3}
-        />
+        >
+          {props.children}
+        </TextareaAutosize>
       </CharacterStreamContainer>
     </>
   );
