@@ -428,7 +428,6 @@ export default {
   RGB_M_K: 0x7830,
   RGB_M_X: 0x7831,
   RGB_M_G: 0x7832,
-  RGB_M_G: 0x7832,
   RGB_MODE_RGBTEST: 0x7833,
   VLK_TOG: 0x7c17,
   KC_LSPO: 0x7c1a,
