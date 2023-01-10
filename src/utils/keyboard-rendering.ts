@@ -501,8 +501,11 @@ export const getLabel = (
       }
     );
   } else {
-    if (isNumpadSymbol(label) || isArrowKey(label)) {
+    if (isNumpadSymbol(label)) {
       size = 2.0;
+    }
+    if (isArrowKey(label)) {
+      size = 1.5;
     }
     return {
       label,

@@ -39,7 +39,7 @@ export function isNumpadNumber(label: string) {
 }
 
 export function isArrowKey(label: string) {
-  return /[🠗🠕🠖🠔]$/.test(label);
+  return /[🠗🠕🠖🠔←↑→↓]$/.test(label);
 }
 
 export function isNumpadSymbol(label: string) {
@@ -585,10 +585,10 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Right Alt', code: 'KC_RALT', width: 1250, shortName: 'RAlt'},
         {name: 'Space', code: 'KC_SPC', keys: 'space', width: 6250},
         {name: 'Menu', code: 'KC_APP', width: 1250, shortName: 'RApp'},
-        {name: 'Left', code: 'KC_LEFT', keys: 'left', shortName: '🠔'},
-        {name: 'Down', code: 'KC_DOWN', keys: 'down', shortName: '🠗'},
-        {name: 'Up', code: 'KC_UP', keys: 'up', shortName: '🠕'},
-        {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '🠖'},
+        {name: 'Left', code: 'KC_LEFT', keys: 'left', shortName: '←'},
+        {name: 'Down', code: 'KC_DOWN', keys: 'down', shortName: '↓'},
+        {name: 'Up', code: 'KC_UP', keys: 'up', shortName: '↑'},
+        {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '→'},
       ],
     },
     {
