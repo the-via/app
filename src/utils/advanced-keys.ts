@@ -1,26 +1,26 @@
 const quantumRangesKeys = [
-  'QK_MODS',
-  'QK_MODS_MAX',
-  'QK_MOD_TAP',
-  'QK_MOD_TAP_MAX',
-  'QK_LAYER_TAP',
-  'QK_LAYER_TAP_MAX',
-  'QK_LAYER_MOD',
-  'QK_LAYER_MOD_MAX',
-  'QK_TO',
-  'QK_TO_MAX',
-  'QK_MOMENTARY',
-  'QK_MOMENTARY_MAX',
-  'QK_DEF_LAYER',
-  'QK_DEF_LAYER_MAX',
-  'QK_TOGGLE_LAYER',
-  'QK_TOGGLE_LAYER_MAX',
-  'QK_ONE_SHOT_LAYER',
-  'QK_ONE_SHOT_LAYER_MAX',
-  'QK_ONE_SHOT_MOD',
-  'QK_ONE_SHOT_MOD_MAX',
-  'QK_LAYER_TAP_TOGGLE',
-  'QK_LAYER_TAP_TOGGLE_MAX',
+  '_QK_MODS',
+  '_QK_MODS_MAX',
+  '_QK_MOD_TAP',
+  '_QK_MOD_TAP_MAX',
+  '_QK_LAYER_TAP',
+  '_QK_LAYER_TAP_MAX',
+  '_QK_LAYER_MOD',
+  '_QK_LAYER_MOD_MAX',
+  '_QK_TO',
+  '_QK_TO_MAX',
+  '_QK_MOMENTARY',
+  '_QK_MOMENTARY_MAX',
+  '_QK_DEF_LAYER',
+  '_QK_DEF_LAYER_MAX',
+  '_QK_TOGGLE_LAYER',
+  '_QK_TOGGLE_LAYER_MAX',
+  '_QK_ONE_SHOT_LAYER',
+  '_QK_ONE_SHOT_LAYER_MAX',
+  '_QK_ONE_SHOT_MOD',
+  '_QK_ONE_SHOT_MOD_MAX',
+  '_QK_LAYER_TAP_TOGGLE',
+  '_QK_LAYER_TAP_TOGGLE_MAX',
 ];
 
 const quantumRanges = (
@@ -57,16 +57,16 @@ const modMasks = {
 };
 
 const topLevelMacroToValue = {
-  MT: 'QK_MOD_TAP', // MT(mod, kc)
-  LT: 'QK_LAYER_TAP', // LT(layer, kc)
-  LM: 'QK_LAYER_MOD', // LM(layer, mod)
-  TO: 'QK_TO', // TO(layer)
-  MO: 'QK_MOMENTARY', // MO(layer)
-  DF: 'QK_DEF_LAYER', //DF(layer)
-  TG: 'QK_TOGGLE_LAYER', //  TG(layer)
-  OSL: 'QK_ONE_SHOT_LAYER', // OSL(layer)
-  OSM: 'QK_ONE_SHOT_MOD', //OSM(mod)
-  TT: 'QK_LAYER_TAP_TOGGLE', // TT(layer)
+  MT: '_QK_MOD_TAP', // MT(mod, kc)
+  LT: '_QK_LAYER_TAP', // LT(layer, kc)
+  LM: '_QK_LAYER_MOD', // LM(layer, mod)
+  TO: '_QK_TO', // TO(layer)
+  MO: '_QK_MOMENTARY', // MO(layer)
+  DF: '_QK_DEF_LAYER', //DF(layer)
+  TG: '_QK_TOGGLE_LAYER', //  TG(layer)
+  OSL: '_QK_ONE_SHOT_LAYER', // OSL(layer)
+  OSM: '_QK_ONE_SHOT_MOD', //OSM(mod)
+  TT: '_QK_LAYER_TAP_TOGGLE', // TT(layer)
 };
 
 const modifierKeyToValue = {
@@ -97,7 +97,7 @@ const modifierKeyToValue = {
     modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT | modCodes.QK_LGUI,
 };
 
-const modifierValuetoKey = Object.entries(modifierKeyToValue).reduce(
+const modifierValuetoKey: Record<number, string> = Object.entries(modifierKeyToValue).reduce(
   (acc, [key, value]) => ({...acc, [value]: key}),
   {},
 );
@@ -148,7 +148,7 @@ export const advancedKeycodeToString = (
     lastRange = rangeName;
     lastValue = +value;
   }
-  const topLevelModKeys = ['QK_MODS'];
+  const topLevelModKeys = ['_QK_MODS'];
   if (topLevelModKeys.includes(lastRange as string)) {
     return topLevelModToString(inputKeycode, basicKeyToByte, byteToKey);
   }
@@ -159,30 +159,30 @@ export const advancedKeycodeToString = (
   let keycode = '';
   let modValue = 0;
   switch (lastRange) {
-    case 'QK_MOMENTARY':
-    case 'QK_DEF_LAYER':
-    case 'QK_TOGGLE_LAYER':
-    case 'QK_ONE_SHOT_LAYER':
-    case 'QK_LAYER_TAP_TOGGLE':
-    case 'QK_TO':
+    case '_QK_MOMENTARY':
+    case '_QK_DEF_LAYER':
+    case '_QK_TOGGLE_LAYER':
+    case '_QK_ONE_SHOT_LAYER':
+    case '_QK_LAYER_TAP_TOGGLE':
+    case '_QK_TO':
       humanReadable += remainder + ')';
       break;
-    case 'QK_LAYER_TAP':
+    case '_QK_LAYER_TAP':
       layer = remainder >> 8;
       keycode = btk[remainder & 0xff];
       humanReadable += layer + ',' + keycode + ')';
       break;
-    case 'QK_ONE_SHOT_MOD':
+    case '_QK_ONE_SHOT_MOD':
       humanReadable += modValueToString(remainder) + ')';
       break;
-    case 'QK_LAYER_MOD':
-      let mask = basicKeyToByte.QK_LAYER_MOD_MASK;
+    case '_QK_LAYER_MOD':
+      let mask = basicKeyToByte._QK_LAYER_MOD_MASK;
       let shift = Math.log2(mask+1);
       layer = remainder >> shift;
       modValue = remainder & mask;
       humanReadable += layer + ',' + modValueToString(modValue) + ')';
       break;
-    case 'QK_MOD_TAP':
+    case '_QK_MOD_TAP':
       modValue = (remainder >> 8) & 0x1f;
       keycode = byteToKey[remainder & 0xff];
       humanReadable += modValueToString(modValue) + ',' + keycode + ')';
@@ -208,7 +208,14 @@ const topLevelModToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string => {
+  debugger;
   const keycode = byteToKey[modNumber & 0x00ff];
+  const modMask = modNumber & 0x1F00;
+  // if we find an exact match (like HYPR or MEH), use that
+  let key = modifierValuetoKey[modMask];
+  if ( key != undefined ) {
+    return key + '(' + keycode + ')';
+  }
   const enabledMods = Object.entries(modifierValuetoKey)
     .filter((part) => {
       const current = Number.parseInt(part[0]);
@@ -320,7 +327,7 @@ export const anyKeycodeToString = (
     basicKeyToByte,
     byteToKey,
   );
-  if (byteToKey[input]) {
+  if (byteToKey[input] && !byteToKey[input].startsWith('_QK')) {
     currentValue = byteToKey[input];
   } else if (advancedParsed !== null) {
     currentValue = advancedParsed;
