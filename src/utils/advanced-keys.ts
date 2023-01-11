@@ -122,7 +122,6 @@ export const advancedStringToKeycode = (
   inputString: string,
   basicKeyToByte: Record<string, number>,
 ): number => {
-  debugger;
   const upperString = inputString.toUpperCase();
   const parts = upperString.split(/\(|\)/).map((part) => part.trim());
   if (Object.keys(topLevelMacroToValue).includes(parts[0])) {
@@ -138,7 +137,6 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
-  debugger;
   let valueToRange = Object.entries(quantumRanges(basicKeyToByte))
     .map(([key, value]) => [value, key])
     .sort((a, b) => (a[0] as number) - (b[0] as number));
