@@ -24,12 +24,16 @@ const quantumRangesKeys = [
 ];
 
 const quantumRanges = (
-  basicKeyToByte: Record<string, number>
-) : Record<string, number> => {
-  return Object.keys(basicKeyToByte).reduce((acc, key) =>
-    ( quantumRangesKeys.includes(key) ? {...acc, [key]:basicKeyToByte[key]} : acc)
-  , {})
-}
+  basicKeyToByte: Record<string, number>,
+): Record<string, number> => {
+  return Object.keys(basicKeyToByte).reduce(
+    (acc, key) =>
+      quantumRangesKeys.includes(key)
+        ? {...acc, [key]: basicKeyToByte[key]}
+        : acc,
+    {},
+  );
+};
 
 const modCodes = {
   QK_LCTL: 0x0100,
@@ -97,18 +101,18 @@ const modifierKeyToValue = {
     modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT | modCodes.QK_LGUI,
 };
 
-const modifierValuetoKey: Record<number, string> = Object.entries(modifierKeyToValue).reduce(
-  (acc, [key, value]) => ({...acc, [value]: key}),
-  {},
-);
+const modifierValuetoKey: Record<number, string> = Object.entries(
+  modifierKeyToValue,
+).reduce((acc, [key, value]) => ({...acc, [value]: key}), {});
 
 const topLevelValueToMacro = (
-  basicKeyToByte: Record<string, number>
-) : Record<number, string> => {
+  basicKeyToByte: Record<string, number>,
+): Record<number, string> => {
   return Object.entries(topLevelMacroToValue).reduce(
     (acc, [key, value]) => ({...acc, [basicKeyToByte[value]]: key}),
-    {});
-}
+    {},
+  );
+};
 
 // MT, OSM, LM only take MOD
 // Everything else can use the KC mods
@@ -118,6 +122,7 @@ export const advancedStringToKeycode = (
   inputString: string,
   basicKeyToByte: Record<string, number>,
 ): number => {
+  debugger;
   const upperString = inputString.toUpperCase();
   const parts = upperString.split(/\(|\)/).map((part) => part.trim());
   if (Object.keys(topLevelMacroToValue).includes(parts[0])) {
@@ -133,6 +138,7 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
+  debugger;
   let valueToRange = Object.entries(quantumRanges(basicKeyToByte))
     .map(([key, value]) => [value, key])
     .sort((a, b) => (a[0] as number) - (b[0] as number));
@@ -177,7 +183,7 @@ export const advancedKeycodeToString = (
       break;
     case '_QK_LAYER_MOD':
       let mask = basicKeyToByte._QK_LAYER_MOD_MASK;
-      let shift = Math.log2(mask+1);
+      let shift = Math.log2(mask + 1);
       layer = remainder >> shift;
       modValue = remainder & mask;
       humanReadable += layer + ',' + modValueToString(modValue) + ')';
@@ -210,10 +216,10 @@ const topLevelModToString = (
 ): string => {
   debugger;
   const keycode = byteToKey[modNumber & 0x00ff];
-  const modMask = modNumber & 0x1F00;
+  const modMask = modNumber & 0x1f00;
   // if we find an exact match (like HYPR or MEH), use that
   let key = modifierValuetoKey[modMask];
-  if ( key != undefined ) {
+  if (key != undefined) {
     return key + '(' + keycode + ')';
   }
   const enabledMods = Object.entries(modifierValuetoKey)
@@ -254,28 +260,40 @@ const parseTopLevelMacro = (
       return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | (mods & 0xff);
     case 'LM': //#define LM(layer, mod) (QK_LAYER_MOD | (((layer)&0xF) << 4) | ((mod)&0xF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
-      let mask = basicKeyToByte.QK_LAYER_MOD_MASK;
-      let shift = Math.log2(mask+1);
+      let mask = basicKeyToByte._QK_LAYER_MOD_MASK;
+      let shift = Math.log2(mask + 1);
       layer = Number.parseInt(param1);
       mods = parseMods(param2);
       if (layer < 0 || mods === 0) {
         return 0;
       }
-      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << shift) | (mods & mask);
+      return (
+        basicKeyToByte[topLevelMacroToValue[topLevelKey]] |
+        ((layer & 0xf) << shift) |
+        (mods & mask)
+      );
     case 'LT': //#define LT(layer, kc) (QK_LAYER_TAP | (((layer)&0xF) << 8) | ((kc)&0xFF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       layer = Number.parseInt(param1);
       if (layer < 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
       }
-      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((layer & 0xf) << 8) | basicKeyToByte[param2];
+      return (
+        basicKeyToByte[topLevelMacroToValue[topLevelKey]] |
+        ((layer & 0xf) << 8) |
+        basicKeyToByte[param2]
+      );
     case 'MT': // #define MT(mod, kc) (QK_MOD_TAP | (((mod)&0x1F) << 8) | ((kc)&0xFF))
       [param1, param2] = parameter.split(',').map((s) => s.trim());
       mods = parseMods(param1);
       if (mods === 0 || !basicKeyToByte.hasOwnProperty(param2)) {
         return 0;
       }
-      return basicKeyToByte[topLevelMacroToValue[topLevelKey]] | ((mods & 0x1f) << 8) | (basicKeyToByte[param2] & 0xff);
+      return (
+        basicKeyToByte[topLevelMacroToValue[topLevelKey]] |
+        ((mods & 0x1f) << 8) |
+        (basicKeyToByte[param2] & 0xff)
+      );
     default:
       return 0;
   }
