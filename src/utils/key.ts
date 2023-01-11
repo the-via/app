@@ -80,22 +80,40 @@ function getByteForLayerCode(
     const numLayer = parseInt(layer);
     switch (code) {
       case 'TO': {
-        return Math.min(basicKeyToByte.QK_TO + numLayer, basicKeyToByte.QK_TO_MAX);
+        return Math.min(
+          basicKeyToByte._QK_TO + numLayer,
+          basicKeyToByte._QK_TO_MAX,
+        );
       }
       case 'MO': {
-        return Math.min(basicKeyToByte.QK_MOMENTARY + numLayer, basicKeyToByte.QK_MOMENTARY_MAX);
+        return Math.min(
+          basicKeyToByte._QK_MOMENTARY + numLayer,
+          basicKeyToByte._QK_MOMENTARY_MAX,
+        );
       }
       case 'DF': {
-        return Math.min(basicKeyToByte.QK_DEF_LAYER + numLayer, basicKeyToByte.QK_DEF_LAYER_MAX);
+        return Math.min(
+          basicKeyToByte._QK_DEF_LAYER + numLayer,
+          basicKeyToByte._QK_DEF_LAYER_MAX,
+        );
       }
       case 'TG': {
-        return Math.min(basicKeyToByte.QK_TOGGLE_LAYER + numLayer, basicKeyToByte.QK_TOGGLE_LAYER_MAX);
+        return Math.min(
+          basicKeyToByte._QK_TOGGLE_LAYER + numLayer,
+          basicKeyToByte._QK_TOGGLE_LAYER_MAX,
+        );
       }
       case 'OSL': {
-        return Math.min(basicKeyToByte.QK_ONE_SHOT_LAYER + numLayer, basicKeyToByte.QK_ONE_SHOT_LAYER_MAX);
+        return Math.min(
+          basicKeyToByte._QK_ONE_SHOT_LAYER + numLayer,
+          basicKeyToByte._QK_ONE_SHOT_LAYER_MAX,
+        );
       }
       case 'TT': {
-        return Math.min(basicKeyToByte.QK_LAYER_TAP_TOGGLE + numLayer, basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX);
+        return Math.min(
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE + numLayer,
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+        );
       }
       default: {
         throw new Error('Incorrect code');
@@ -109,23 +127,38 @@ function getCodeForLayerByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  if (basicKeyToByte.QK_TO <= byte && basicKeyToByte.QK_TO_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_TO;
+  if (basicKeyToByte._QK_TO <= byte && basicKeyToByte._QK_TO_MAX >= byte) {
+    const layer = byte - basicKeyToByte._QK_TO;
     return `TO(${layer})`;
-  } else if (basicKeyToByte.QK_MOMENTARY <= byte && basicKeyToByte.QK_MOMENTARY_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_MOMENTARY;
+  } else if (
+    basicKeyToByte._QK_MOMENTARY <= byte &&
+    basicKeyToByte._QK_MOMENTARY_MAX >= byte
+  ) {
+    const layer = byte - basicKeyToByte._QK_MOMENTARY;
     return `MO(${layer})`;
-  } else if (basicKeyToByte.QK_DEF_LAYER <= byte && basicKeyToByte.QK_DEF_LAYER_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_DEF_LAYER;
+  } else if (
+    basicKeyToByte._QK_DEF_LAYER <= byte &&
+    basicKeyToByte._QK_DEF_LAYER_MAX >= byte
+  ) {
+    const layer = byte - basicKeyToByte._QK_DEF_LAYER;
     return `DF(${layer})`;
-  } else if (basicKeyToByte.QK_TOGGLE_LAYER <= byte && basicKeyToByte.QK_TOGGLE_LAYER_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_TOGGLE_LAYER;
+  } else if (
+    basicKeyToByte._QK_TOGGLE_LAYER <= byte &&
+    basicKeyToByte._QK_TOGGLE_LAYER_MAX >= byte
+  ) {
+    const layer = byte - basicKeyToByte._QK_TOGGLE_LAYER;
     return `TG(${layer})`;
-  } else if (basicKeyToByte.QK_ONE_SHOT_LAYER <= byte && basicKeyToByte.QK_ONE_SHOT_LAYER_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_ONE_SHOT_LAYER;
+  } else if (
+    basicKeyToByte._QK_ONE_SHOT_LAYER <= byte &&
+    basicKeyToByte._QK_ONE_SHOT_LAYER_MAX >= byte
+  ) {
+    const layer = byte - basicKeyToByte._QK_ONE_SHOT_LAYER;
     return `OSL(${layer})`;
-  } else if (basicKeyToByte.QK_LAYER_TAP_TOGGLE <= byte && basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_LAYER_TAP_TOGGLE;
+  } else if (
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE <= byte &&
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX >= byte
+  ) {
+    const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
   }
 }
@@ -148,16 +181,17 @@ export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
     return {...p, [key]: n};
   }, {} as {[key: number]: string});
 
-function isLayerKey(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return [[basicKeyToByte.QK_TO, basicKeyToByte.QK_TO_MAX],
-  [basicKeyToByte.QK_MOMENTARY, basicKeyToByte.QK_MOMENTARY_MAX],
-  [basicKeyToByte.QK_DEF_LAYER, basicKeyToByte.QK_DEF_LAYER_MAX],
-  [basicKeyToByte.QK_TOGGLE_LAYER, basicKeyToByte.QK_TOGGLE_LAYER_MAX],
-  [basicKeyToByte.QK_ONE_SHOT_LAYER, basicKeyToByte.QK_ONE_SHOT_LAYER_MAX],
-  [basicKeyToByte.QK_LAYER_TAP_TOGGLE, basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX]
+function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
+  return [
+    [basicKeyToByte._QK_TO, basicKeyToByte._QK_TO_MAX],
+    [basicKeyToByte._QK_MOMENTARY, basicKeyToByte._QK_MOMENTARY_MAX],
+    [basicKeyToByte._QK_DEF_LAYER, basicKeyToByte._QK_DEF_LAYER_MAX],
+    [basicKeyToByte._QK_TOGGLE_LAYER, basicKeyToByte._QK_TOGGLE_LAYER_MAX],
+    [basicKeyToByte._QK_ONE_SHOT_LAYER, basicKeyToByte._QK_ONE_SHOT_LAYER_MAX],
+    [
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE,
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+    ],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -730,8 +764,8 @@ export function buildLayerMenu(): IKeycodeMenu {
         code: 'DF(layer)',
         type: 'layer',
         layer: 0,
-        title: 'Sets the default layer'
-      }
+        title: 'Sets the default layer',
+      },
     ],
   };
 
