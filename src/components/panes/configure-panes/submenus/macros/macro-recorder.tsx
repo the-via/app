@@ -21,6 +21,11 @@ import {
 } from 'src/utils/macro-api/types';
 import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
+import {
+  optimizedSequenceToRawSequence,
+  rawSequenceToOptimizedSequence,
+  sequenceToExpression,
+} from 'src/utils/macro-api/macro-api.common';
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -104,6 +109,15 @@ const AddNextItemDisabled = styled(IconButton)`
   line-height: initial;
   border-right: 1px solid var(--border_color_icon);
   cursor: not-allowed;
+`;
+
+const AddToSequenceContainer = styled.button`
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 4px solid var(--border_color_icon);
+  display: inline-flex;
 `;
 
 const CharacterStreamContainer = styled.div`
@@ -236,6 +250,25 @@ const transformToCompressed = (
   ];
 };
 
+const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
+  return arr.reduce((acc, next, idx) => {
+    if (idx) {
+      acc.push(separator);
+    }
+    acc.push(next);
+    return acc;
+  }, [] as (JSX.Element | null)[]);
+};
+
+const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
+  action === RawKeycodeSequenceAction.Down
+    ? KeycodeDownLabel
+    : action === RawKeycodeSequenceAction.Up
+    ? KeycodeUpLabel
+    : action === RawKeycodeSequenceAction.CharacterStream
+    ? CharacterStreamInput
+    : KeycodePressLabel;
+
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
 }> = ({selectedMacro}) => {
@@ -246,7 +279,6 @@ export const MacroRecorder: React.FC<{
     !!document.fullscreenElement,
   );
   const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(isRecording);
-  const ast = useAppSelector((state) => state.macros.ast);
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
     async (isRecording: boolean) => {
@@ -272,7 +304,6 @@ export const MacroRecorder: React.FC<{
     />
   );
 
-  console.log(currSequence);
   const sequence = useMemo(() => {
     const [acc] = showVerboseKeyState
       ? [currSequence]
@@ -282,35 +313,34 @@ export const MacroRecorder: React.FC<{
           0,
         ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
 
-    return acc.map(([action, actionArg], idx) => {
-      const Label =
-        action === RawKeycodeSequenceAction.Down
-          ? KeycodeDownLabel
-          : action === RawKeycodeSequenceAction.Up
-          ? KeycodeUpLabel
-          : action === RawKeycodeSequenceAction.CharacterStream
-          ? CharacterStreamInput
-          : KeycodePressLabel;
-      const prefix = idx ? plusIcon : null;
-      return !showWaitTimes &&
-        action === RawKeycodeSequenceAction.Delay ? null : (
-        <>
-          {prefix}
-          {RawKeycodeSequenceAction.Delay !== action ? (
-            <Label>{actionArg}</Label>
-          ) : showWaitTimes ? (
+    return componentJoin(
+      acc
+        .filter(
+          ([action]) =>
+            showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
+        )
+        .map(([action, actionArg]) => {
+          const Label = getSequenceItemComponent(action);
+          return !showWaitTimes &&
+            action === RawKeycodeSequenceAction.Delay ? null : (
             <>
-              <KeycodeSequenceWait>
-                <KeycodeSequenceWaitNumber>
-                  {actionArg}
-                </KeycodeSequenceWaitNumber>
-                ms
-              </KeycodeSequenceWait>
+              {RawKeycodeSequenceAction.Delay !== action ? (
+                <Label>{actionArg}</Label>
+              ) : showWaitTimes ? (
+                <>
+                  <KeycodeSequenceWait>
+                    <KeycodeSequenceWaitNumber>
+                      {actionArg}
+                    </KeycodeSequenceWaitNumber>
+                    ms
+                  </KeycodeSequenceWait>
+                </>
+              ) : null}
             </>
-          ) : null}
-        </>
-      );
-    });
+          );
+        }),
+      plusIcon,
+    );
   }, [keycodeSequence, showVerboseKeyState, showWaitTimes]);
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {
@@ -348,7 +378,30 @@ export const MacroRecorder: React.FC<{
         </Detail>
       </ControlRow>
       <ControlRow>
-        <Label>Always show separate keyup/keydown</Label>
+        <Label>Rerecord Macro</Label>
+        <Detail>
+          <AddNext
+            isFullscreen={isFullscreen}
+            isRecording={isRecording}
+            addText={() => {}}
+            recordingToggleChange={recordingToggleChange}
+          />
+        </Detail>
+      </ControlRow>
+      {sequence.length ? (
+        <MacroSequenceContainer ref={macroSequenceRef}>
+          {sequence}
+          {plusIcon}
+          <AddNext
+            isFullscreen={isFullscreen}
+            addText={() => {}}
+            isRecording={isRecording}
+            recordingToggleChange={recordingToggleChange}
+          />
+        </MacroSequenceContainer>
+      ) : null}
+      <ControlRow>
+        <Label>Include separate keyup/keydown actions</Label>
         <Detail>
           <AccentSlider
             isChecked={showVerboseKeyState}
@@ -362,27 +415,6 @@ export const MacroRecorder: React.FC<{
           <AccentSlider isChecked={showWaitTimes} onChange={setShowWaitTimes} />
         </Detail>
       </ControlRow>
-      <ControlRow>
-        <Label>Rerecord Macro</Label>
-        <Detail>
-          <AddNext
-            isFullscreen={isFullscreen}
-            isRecording={isRecording}
-            recordingToggleChange={recordingToggleChange}
-          />
-        </Detail>
-      </ControlRow>
-      {sequence.length ? (
-        <MacroSequenceContainer ref={macroSequenceRef}>
-          {sequence}
-          {plusIcon}
-          <AddNext
-            isFullscreen={isFullscreen}
-            isRecording={isRecording}
-            recordingToggleChange={recordingToggleChange}
-          />
-        </MacroSequenceContainer>
-      ) : null}
     </>
   );
 };
@@ -391,6 +423,7 @@ const AddNext: React.FC<{
   isFullscreen: boolean;
   isRecording: boolean;
   recordingToggleChange: (a: boolean) => void;
+  addText: () => void;
 }> = ({isFullscreen, isRecording, recordingToggleChange}) => {
   const recordComponent = isFullscreen ? (
     <AddNextItem
