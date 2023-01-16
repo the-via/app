@@ -407,7 +407,9 @@ export const getLabel = (
   let label: string = '';
   if (
     isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
-    selectedDefinition?.customKeycodes
+    selectedDefinition?.customKeycodes?.at(
+      getUserKeycodeIndex(keycodeByte, basicKeyToByte),
+    ) !== undefined
   ) {
     const userKeycodeIdx = getUserKeycodeIndex(keycodeByte, basicKeyToByte);
     label = getShortNameForKeycode(

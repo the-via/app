@@ -241,7 +241,9 @@ export const KeycodePane: FC = () => {
 
     return (
       <KeycodeModal
-        defaultValue={selectedKey !== null ? matrixKeycodes[selectedKey] : undefined}
+        defaultValue={
+          selectedKey !== null ? matrixKeycodes[selectedKey] : undefined
+        }
         onExit={() => {
           dispatch(enableGlobalHotKeys());
           setShowKeyTextInputModal(false);
@@ -342,10 +344,7 @@ export const KeycodePane: FC = () => {
               return renderKeycode(
                 {
                   ...keycode,
-                  code: `USER${idx.toLocaleString('en-US', {
-                    minimumIntegerDigits: 2,
-                    useGrouping: false,
-                  })}`,
+                  code: `USER(${idx})`,
                 },
                 idx,
               );
