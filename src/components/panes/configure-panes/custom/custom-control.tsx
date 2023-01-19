@@ -13,6 +13,13 @@ import type {
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 
+const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
+
+const shiftFrom16Bit = (value: number): [number, number] => [
+  value >> 8,
+  value & 255,
+];
+
 type Props = {
   lightingData: LightingData;
   definition: VIADefinitionV2 | VIADefinitionV3;
@@ -75,9 +82,9 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
     case 'keycode': {
       return (
         <PelpiKeycodeInput
-          value={props.value[0]}
+          value={shiftTo16Bit([props.value[0], props.value[1]])}
           meta={{}}
-          setValue={(val: number) => props.updateValue(name, ...command, val)}
+          setValue={(val: number) => props.updateValue(name, ...command, ...shiftFrom16Bit(val))}
         />
       );
     }
