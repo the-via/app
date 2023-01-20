@@ -12,13 +12,7 @@ import type {
 } from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
-
-const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
-
-const shiftFrom16Bit = (value: number): [number, number] => [
-  value >> 8,
-  value & 255,
-];
+import { shiftFrom16Bit, shiftTo16Bit } from 'src/utils/keyboard-api';
 
 type Props = {
   lightingData: LightingData;
