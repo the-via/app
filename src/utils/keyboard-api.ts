@@ -3,7 +3,7 @@ import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 
-const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11];
+const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11, 12];
 
 export const isValidProtocolVersion = (version: number) =>
   VALID_PROTOCOL_VERSIONS.includes(version);
@@ -314,11 +314,12 @@ export class KeyboardAPI {
 
   async getKeyboardValue(
     command: KeyboardValue,
+    parameters: number[],
     resultLength = 1,
   ): Promise<number[]> {
-    const bytes = [command];
+    const bytes = [command, ...parameters];
     const res = await this.hidCommand(GET_KEYBOARD_VALUE, bytes);
-    return res.slice(2, 2 + resultLength);
+    return res.slice(1 + bytes.length, 1 + bytes.length + resultLength);
   }
 
   async setKeyboardValue(command: KeyboardValue, ...rest: number[]) {

@@ -45,11 +45,6 @@ export function isNumericSymbol(label: string) {
   return label.length !== 1 && numbersTop.includes(label[0]);
 }
 
-// Tests if label is a macro
-export function isMacro(label: string) {
-  return /^M\d+$/.test(label);
-}
-
 // Maps the byte value to the keycode
 export function getByteForCode(
   code: string,
@@ -121,6 +116,12 @@ function getByteForLayerCode(
           basicKeyToByte._QK_USER_MAX,
         );
       }
+      case 'MACRO': {
+        return Math.min(
+          basicKeyToByte._QK_MACRO + numLayer,
+          basicKeyToByte._QK_MACRO_MAX,
+        );
+      }
       default: {
         throw new Error('Incorrect code');
       }
@@ -170,8 +171,14 @@ function getCodeForLayerByte(
     basicKeyToByte._QK_USER <= byte &&
     basicKeyToByte._QK_USER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_USER;
-    return `USER(${layer})`;
+    const n = byte - basicKeyToByte._QK_USER;
+    return `USER(${n})`;
+  } else if (
+    basicKeyToByte._QK_MACRO <= byte &&
+    basicKeyToByte._QK_MACRO_MAX >= byte
+  ) {
+    const n = byte - basicKeyToByte._QK_MACRO;
+    return `MACRO(${n})`;
   }
 }
 
@@ -205,6 +212,7 @@ function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
       basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
     ],
     [basicKeyToByte._QK_USER, basicKeyToByte._QK_USER_MAX],
+    [basicKeyToByte._QK_MACRO, basicKeyToByte._QK_MACRO_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -214,7 +222,7 @@ export function getCodeForByte(
   byteToKey: Record<number, string>,
 ) {
   const keycode = byteToKey[byte];
-  if (keycode) {
+  if (keycode && !keycode.startsWith('_QK')) {
     return keycode;
   } else if (isLayerKey(byte, basicKeyToByte)) {
     return getCodeForLayerByte(byte, basicKeyToByte);
@@ -253,6 +261,22 @@ export function getUserKeycodeIndex(
   basicKeyToByte: Record<string, number>,
 ) {
   return byte - basicKeyToByte._QK_USER;
+}
+
+export function isMacroKeycodeByte(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
+  return (
+    byte >= basicKeyToByte._QK_MACRO && byte <= basicKeyToByte._QK_MACRO_MAX
+  );
+}
+
+export function getMacroKeycodeIndex(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
+  return byte - basicKeyToByte._QK_MACRO;
 }
 
 export function getLabelForByte(
@@ -1004,22 +1028,22 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Macro',
       width: 'label',
       keycodes: [
-        {name: 'M0', code: 'MACRO00', title: 'Macro 0'},
-        {name: 'M1', code: 'MACRO01', title: 'Macro 1'},
-        {name: 'M2', code: 'MACRO02', title: 'Macro 2'},
-        {name: 'M3', code: 'MACRO03', title: 'Macro 3'},
-        {name: 'M4', code: 'MACRO04', title: 'Macro 4'},
-        {name: 'M5', code: 'MACRO05', title: 'Macro 5'},
-        {name: 'M6', code: 'MACRO06', title: 'Macro 6'},
-        {name: 'M7', code: 'MACRO07', title: 'Macro 7'},
-        {name: 'M8', code: 'MACRO08', title: 'Macro 8'},
-        {name: 'M9', code: 'MACRO09', title: 'Macro 9'},
-        {name: 'M10', code: 'MACRO10', title: 'Macro 10'},
-        {name: 'M11', code: 'MACRO11', title: 'Macro 11'},
-        {name: 'M12', code: 'MACRO12', title: 'Macro 12'},
-        {name: 'M13', code: 'MACRO13', title: 'Macro 13'},
-        {name: 'M14', code: 'MACRO14', title: 'Macro 14'},
-        {name: 'M15', code: 'MACRO15', title: 'Macro 15'},
+        {name: 'M0', code: 'MACRO(0)', title: 'Macro 0'},
+        {name: 'M1', code: 'MACRO(1)', title: 'Macro 1'},
+        {name: 'M2', code: 'MACRO(2)', title: 'Macro 2'},
+        {name: 'M3', code: 'MACRO(3)', title: 'Macro 3'},
+        {name: 'M4', code: 'MACRO(4)', title: 'Macro 4'},
+        {name: 'M5', code: 'MACRO(5)', title: 'Macro 5'},
+        {name: 'M6', code: 'MACRO(6)', title: 'Macro 6'},
+        {name: 'M7', code: 'MACRO(7)', title: 'Macro 7'},
+        {name: 'M8', code: 'MACRO(8)', title: 'Macro 8'},
+        {name: 'M9', code: 'MACRO(9)', title: 'Macro 9'},
+        {name: 'M10', code: 'MACRO(10)', title: 'Macro 10'},
+        {name: 'M11', code: 'MACRO(11)', title: 'Macro 11'},
+        {name: 'M12', code: 'MACRO(12)', title: 'Macro 12'},
+        {name: 'M13', code: 'MACRO(13)', title: 'Macro 13'},
+        {name: 'M14', code: 'MACRO(14)', title: 'Macro 14'},
+        {name: 'M15', code: 'MACRO(15)', title: 'Macro 15'},
       ],
     },
     buildLayerMenu(),

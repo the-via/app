@@ -198,7 +198,7 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
 
   const {api, device} = connectedDevice;
   try {
-    const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
+    const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, [], 4);
     const options = unpackBits(
       bytesIntoNum(res),
       selectedDefinition.layouts.labels.map((layoutLabel: string[] | string) =>
