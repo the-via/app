@@ -685,7 +685,7 @@ export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
   const keycodes = Object.keys(basicKeyToByte)
-    .filter((key) => !key.startsWith('QK_'))
+    .filter((key) => !key.startsWith('_QK'))
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
