@@ -60,7 +60,6 @@ const valueIsChecked = (option: number | number[], value: number[]) =>
   boxOrArr(option).every((o, i) => o == value[i]);
 
 const getRangeValue = (value: number[], max: number) => {
-  debugger;
   if (max > 255) {
     return shiftTo16Bit([value[0], value[1]]);
   } else {
@@ -69,7 +68,6 @@ const getRangeValue = (value: number[], max: number) => {
 };
 
 const getRangeBytes = (value: number, max: number) => {
-  debugger;
   if (max > 255) {
     return shiftFrom16Bit(value);
   } else {
