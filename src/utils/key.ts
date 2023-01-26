@@ -239,7 +239,11 @@ export function keycodeInMaster(
   keycode: string,
   basicKeyToByte: Record<string, number>,
 ) {
-  return keycode in basicKeyToByte || isLayerCode(keycode);
+  return (
+    keycode in basicKeyToByte ||
+    isLayerCode(keycode) ||
+    advancedStringToKeycode(keycode, basicKeyToByte) !== null
+  );
 }
 
 function shorten(str: string) {
@@ -738,19 +742,19 @@ export function buildLayerMenu(): IKeycodeMenu {
     },
     {
       name: 'Space Fn1',
-      code: 'SPC_FN1',
+      code: 'LT(1,KC_SPC)',
       title: 'Hold = Layer 1, Tap = Space',
       shortName: 'Spc Fn1',
     },
     {
       name: 'Space Fn2',
-      code: 'SPC_FN2',
+      code: 'LT(2,KC_SPC)',
       title: 'Hold = Layer 2, Tap = Space',
       shortName: 'Spc Fn2',
     },
     {
       name: 'Space Fn3',
-      code: 'SPC_FN3',
+      code: 'LT(3,KC_SPC)',
       title: 'Hold = Layer 3, Tap = Space',
       shortName: 'Spc Fn3',
     },
@@ -1187,27 +1191,27 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Special',
       width: 'label',
       keycodes: [
-        {name: '~', code: 'KC_TILD', keys: '`'},
-        {name: '!', code: 'KC_EXLM', keys: '!'},
-        {name: '@', code: 'KC_AT', keys: '@'},
-        {name: '#', code: 'KC_HASH', keys: '#'},
-        {name: '$', code: 'KC_DLR', keys: '$'},
-        {name: '%', code: 'KC_PERC', keys: '%'},
-        {name: '^', code: 'KC_CIRC', keys: '^'},
-        {name: '&', code: 'KC_AMPR', keys: '&'},
-        {name: '*', code: 'KC_ASTR', keys: '*'},
-        {name: '(', code: 'KC_LPRN', keys: '('},
-        {name: ')', code: 'KC_RPRN', keys: ')'},
-        {name: '_', code: 'KC_UNDS', keys: '_'},
-        {name: '+', code: 'KC_PLUS', keys: '+'},
-        {name: '{', code: 'KC_LCBR', keys: '{'},
-        {name: '}', code: 'KC_RCBR', keys: '}'},
-        {name: '<', code: 'KC_LT', keys: '<'},
-        {name: '>', code: 'KC_GT', keys: '>'},
-        {name: ':', code: 'KC_COLN', keys: ':'},
-        {name: '|', code: 'KC_PIPE', keys: '|'},
-        {name: '?', code: 'KC_QUES', keys: '?'},
-        {name: '"', code: 'KC_DQUO', keys: '"'},
+        {name: '~', code: 'S(KC_GRV)', keys: '`', title: 'Shift + `'},
+        {name: '!', code: 'S(KC_1)', keys: '!', title: 'Shift + 1'},
+        {name: '@', code: 'S(KC_2)', keys: '@', title: 'Shift + 2'},
+        {name: '#', code: 'S(KC_3)', keys: '#', title: 'Shift + 3'},
+        {name: '$', code: 'S(KC_4)', keys: '$', title: 'Shift + 4'},
+        {name: '%', code: 'S(KC_5)', keys: '%', title: 'Shift + 5'},
+        {name: '^', code: 'S(KC_6)', keys: '^', title: 'Shift + 6'},
+        {name: '&', code: 'S(KC_7)', keys: '&', title: 'Shift + 7'},
+        {name: '*', code: 'S(KC_8)', keys: '*', title: 'Shift + 8'},
+        {name: '(', code: 'S(KC_9)', keys: '(', title: 'Shift + 9'},
+        {name: ')', code: 'S(KC_0)', keys: ')', title: 'Shift + 0'},
+        {name: '_', code: 'S(KC_MINS)', keys: '_', title: 'Shift + -'},
+        {name: '+', code: 'S(KC_EQL)', keys: '+', title: 'Shift + ='},
+        {name: '{', code: 'S(KC_LBRC)', keys: '{', title: 'Shift + ['},
+        {name: '}', code: 'S(KC_RBRC)', keys: '}', title: 'Shift + ]'},
+        {name: '|', code: 'S(KC_BSLS)', keys: '|', title: 'Shift + \\'},
+        {name: ':', code: 'S(KC_SCLN)', keys: ':', title: 'Shift + /'},
+        {name: '"', code: 'S(KC_QUOT)', keys: '"', title: "Shift + '"},
+        {name: '<', code: 'S(KC_COMM)', keys: '<', title: 'Shift + ,'},
+        {name: '>', code: 'S(KC_DOT)', keys: '>', title: 'Shift + .'},
+        {name: '?', code: 'S(KC_SLSH)', keys: '?', title: 'Shift + /'},
         {name: 'NUHS', code: 'KC_NUHS', title: 'Non-US # and ~'},
         {name: 'NUBS', code: 'KC_NUBS', title: 'Non-US \\ and |'},
         {name: 'Ro', code: 'KC_RO', title: 'JIS \\ and |'},
