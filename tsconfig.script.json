@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "target": "es2017",
+      "baseUrl": "./",
+      "rootDir": "./",
+      "esModuleInterop": true,
+      "jsx": "react",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "noUnusedLocals": false,
+      "noImplicitAny": true,
+      "strictNullChecks": true,
+      "pretty": true,
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "lib": ["es2015", "dom", "es2017", "es2019"]
+    },
+    "exclude": ["node_modules", "**/node_modules/*"]
+  }
+  

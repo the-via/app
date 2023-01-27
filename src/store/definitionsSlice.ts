@@ -20,6 +20,7 @@ import {
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
+import {getKeycodeDict, KeycodeDict} from 'src/utils/keycode-dict';
 import {getByteToKey} from 'src/utils/key';
 
 type LayoutOption = number;
@@ -106,6 +107,16 @@ export const getBasicKeyToByte = createSelector(
       connectedDevice ? connectedDevice.protocol : 0,
     );
     return {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)};
+  },
+);
+
+export const getTheKeycodeDict = createSelector(
+  getSelectedConnectedDevice,
+  (connectedDevice) => {
+    const keycodeDict: KeycodeDict = getKeycodeDict(
+      connectedDevice ? connectedDevice.protocol : 0,
+    );
+    return keycodeDict;
   },
 );
 
