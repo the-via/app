@@ -180,10 +180,7 @@ export const Pane: FC = () => {
 
       const keymap: number[][] = saveFile.layers.map((layer) =>
         layer.map((key) =>
-          getByteForCode(
-            `${(deprecatedKeycodes as Record<string, string>)[key] ?? key}`,
-            basicKeyToByte,
-          ),
+          getByteForCode(`${deprecatedKeycodes[key] ?? key}`, basicKeyToByte),
         ),
       );
 
@@ -198,13 +195,19 @@ export const Pane: FC = () => {
                     layerId,
                     id,
                     false,
-                    getByteForCode(`${layer[0]}`, basicKeyToByte),
+                    getByteForCode(
+                      `${deprecatedKeycodes[layer[0]] ?? layer[0]}`,
+                      basicKeyToByte,
+                    ),
                   ),
                   selectedDevice.api.setEncoderValue(
                     layerId,
                     id,
                     true,
-                    getByteForCode(`${layer[1]}`, basicKeyToByte),
+                    getByteForCode(
+                      `${deprecatedKeycodes[layer[1]] ?? layer[1]}`,
+                      basicKeyToByte,
+                    ),
                   ),
                 ]),
               ),

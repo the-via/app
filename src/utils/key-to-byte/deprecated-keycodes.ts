@@ -55,4 +55,4 @@ export default {
   USER13: 'USER(13)',
   USER14: 'USER(14)',
   USER15: 'USER(15)',
-};
+} as Record<string, string>;
