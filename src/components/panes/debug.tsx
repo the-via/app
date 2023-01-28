@@ -32,7 +32,7 @@ import {
   getBaseDefinitions,
   getDefinitions,
   getCustomDefinitions,
-  getBasicKeyToByte,
+  getKeycodeDict,
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
 import {useSize} from 'src/utils/use-size';
@@ -141,7 +141,7 @@ const TestControls = () => {
   const [colorVal, setColorVal] = useState<[number, number]>([0, 0]);
   const [selectionVal, setSelectionVal] = useState(0);
   const [keycode, setKeycode] = useState(0);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   const selectOptions = [
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
@@ -158,7 +158,7 @@ const TestControls = () => {
       </ControlRow>
       <ControlRow>
         <Label>
-          {keycode} / {anyKeycodeToString(keycode, basicKeyToByte, byteToKey)}
+          {keycode} / {anyKeycodeToString(keycode, keycodeDict)}
         </Label>
         <Detail>
           <PelpiKeycodeInput value={keycode} setValue={setKeycode} meta={{}} />

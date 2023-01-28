@@ -26,7 +26,7 @@ import {getThemeFromStore} from '../utils/device-store';
 import type {RootState} from 'src/store';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getBasicKeyToByte,
+  getKeycodeDict,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -48,6 +48,7 @@ import {
 } from './positioned-keyboard/base';
 import {EncoderKeyComponent} from './positioned-keyboard/encoder-key';
 import {Matrix} from './positioned-keyboard/matrix';
+import type {KeycodeDict} from 'src/utils/keycode-dict';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -402,28 +403,25 @@ export const getLabel = (
   width: number,
   macros: RootState['macros'],
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
+  keycodeDict: KeycodeDict,
 ) => {
   let label: string = '';
   if (
-    isCustomKeycodeByte(keycodeByte, basicKeyToByte) &&
+    isCustomKeycodeByte(keycodeByte, keycodeDict) &&
     selectedDefinition?.customKeycodes?.at(
-      getCustomKeycodeIndex(keycodeByte, basicKeyToByte),
+      getCustomKeycodeIndex(keycodeByte, keycodeDict),
     ) !== undefined
   ) {
-    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, basicKeyToByte);
+    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, keycodeDict);
     label = getShortNameForKeycode(
       selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
     );
   } else if (keycodeByte) {
-    label =
-      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
-      '';
+    label = getLabelForByte(keycodeByte, width * 100, keycodeDict) ?? '';
   }
   let macroExpression: string | undefined;
-  if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
-    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, basicKeyToByte);
+  if (isMacroKeycodeByte(keycodeByte, keycodeDict)) {
+    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, keycodeDict);
     macroExpression = macros.expressions[macroKeycodeIdx];
   }
 
@@ -482,7 +480,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
   const dispatch = useDispatch();
 
   const selectedKey = useAppSelector(getSelectedKey);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -519,8 +517,7 @@ export const PositionedKeyboard = (props: PositionedKeyboardProps) => {
                     k.w,
                     macros,
                     selectedDefinition,
-                    basicKeyToByte,
-                    byteToKey,
+                    keycodeDict,
                   ),
                   ...getColors(k.color),
                   selected: selectedKey === index,
@@ -709,7 +706,7 @@ const BlankPositionedKeyboardComponent = (
     matrixKeycodes = [],
     macros,
   } = props;
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   if (!selectedDefinition) return null;
   const pressedKeys = {};
 
@@ -756,8 +753,7 @@ const BlankPositionedKeyboardComponent = (
                     k.w,
                     macros,
                     selectedDefinition,
-                    basicKeyToByte,
-                    byteToKey,
+                    keycodeDict,
                   ),
                   ...getColors(k.color),
                   selected: (pressedKeys as any)[index],

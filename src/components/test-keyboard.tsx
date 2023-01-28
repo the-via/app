@@ -27,7 +27,7 @@ import {
   OuterEncoderKey,
 } from './positioned-keyboard/encoder-key';
 import {useAppSelector} from 'src/store/hooks';
-import {getBasicKeyToByte} from 'src/store/definitionsSlice';
+import {getKeycodeDict} from 'src/store/definitionsSlice';
 
 export enum TestKeyState {
   Initial,
@@ -178,7 +178,7 @@ export const TestKeyboard = (props: any) => {
   const macros = {expressions: [], isFeatureSupported: false};
   const {pressedKeys, keys, containerDimensions, matrixKeycodes} = props;
   const {width, height} = calculateKeyboardFrameDimensions(keys);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   return (
     <div>
       <BlankKeyboardFrame
@@ -199,8 +199,7 @@ export const TestKeyboard = (props: any) => {
                   k.w,
                   macros,
                   null,
-                  basicKeyToByte,
-                  byteToKey,
+                  keycodeDict,
                 ),
                 ...testKeyColor,
                 keyState: pressedKeys[index],

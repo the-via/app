@@ -1,7 +1,9 @@
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
+import type {KeycodeDict} from '../keycode-dict';
 import {
   getByte,
+  getKeycode,
   IMacroAPI,
   ValidationResult,
   KeyAction,
@@ -73,8 +75,7 @@ export function validateMacroExpression(expression: string): ValidationResult {
 export class MacroAPI implements IMacroAPI {
   constructor(
     private keyboardApi: KeyboardAPI,
-    private basicKeyToByte: Record<string, number>,
-    private byteToKey: Record<number, string>,
+    private keycodeDict: KeycodeDict,
   ) {}
 
   async readMacroExpressions(): Promise<string[]> {
@@ -102,11 +103,11 @@ export class MacroAPI implements IMacroAPI {
           break;
         case KeyAction.Tap: // Encode as {KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentExpression.push(`{${(this.byteToKey as any)[byte]}}`);
+          currentExpression.push(`{${getKeycode(this.keycodeDict, byte)}}`);
           break;
         case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
           byte = bytes[++i]; // Skip the key action
-          currentChord.push((this.byteToKey as any)[byte]);
+          currentChord.push(getKeycode(this.keycodeDict, byte));
           break;
         case KeyAction.Up: // Seek to the last keyup and write the keydown stack
           while (bytes[i + 2] === KeyAction.Up && i < bytes.length) {
@@ -162,18 +163,18 @@ export class MacroAPI implements IMacroAPI {
               );
             case 1:
               bytes.push(KeyAction.Tap);
-              bytes.push(getByte(this.basicKeyToByte, keycodes[0]));
+              bytes.push(getByte(this.keycodeDict, keycodes[0]));
               break;
             default:
               // Keydowns
               keycodes.forEach((keycode) => {
                 bytes.push(KeyAction.Down);
-                bytes.push(getByte(this.basicKeyToByte, keycode));
+                bytes.push(getByte(this.keycodeDict, keycode));
               });
               // Symmetrical Keyups
               keycodes.reverse().forEach((keycode) => {
                 bytes.push(KeyAction.Up);
-                bytes.push(getByte(this.basicKeyToByte, keycode));
+                bytes.push(getByte(this.keycodeDict, keycode));
               });
               break;
           }

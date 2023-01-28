@@ -11,9 +11,10 @@ import TextInput from './text-input';
 import {getKeycodesForKeyboard, IKeycode} from '../../utils/key';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getBasicKeyToByte,
+  getKeycodeDict,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
+import type {KeycodeDict} from 'src/utils/keycode-dict';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -86,36 +87,30 @@ function isHex(input: string): boolean {
 }
 
 // This is hella basic 💁‍♀️💁‍♂️
-function inputIsBasicByte(
-  input: string,
-  basicKeyToByte: Record<string, number>,
-): boolean {
+function inputIsBasicByte(input: string, keycodeDict: KeycodeDict): boolean {
   const keyCode = input.trim().toUpperCase();
   return keyCode in basicKeyToByte;
 }
 
-function basicByteFromInput(
-  input: string,
-  basicKeyToByte: Record<string, number>,
-): number {
+function basicByteFromInput(input: string, keycodeDict: KeycodeDict): number {
   const keyCode = input.trim().toUpperCase();
   return basicKeyToByte[keyCode];
 }
 
 function inputIsAdvancedKeyCode(
   input: string,
-  basicKeyToByte: Record<string, number>,
+  keycodeDict: KeycodeDict,
 ): boolean {
   const keyCode = input.trim().toUpperCase();
-  return advancedStringToKeycode(keyCode, basicKeyToByte) !== 0;
+  return advancedStringToKeycode(keyCode, keycodeDict) !== 0;
 }
 
 function advancedKeyCodeFromInput(
   input: string,
-  basicKeyToByte: Record<string, number>,
+  keycodeDict: KeycodeDict,
 ): number {
   const keyCode = input.trim().toUpperCase();
-  return advancedStringToKeycode(keyCode, basicKeyToByte);
+  return advancedStringToKeycode(keyCode, keycodeDict);
 }
 
 function inputIsHex(input: string): boolean {
@@ -127,27 +122,24 @@ function hexFromInput(input: string): number {
   return parseInt(lowercased, 16);
 }
 
-function inputIsValid(
-  input: string,
-  basicKeyToByte: Record<string, number>,
-): boolean {
+function inputIsValid(input: string, keycodeDict: KeycodeDict): boolean {
   return (
-    inputIsBasicByte(input, basicKeyToByte) ||
-    inputIsAdvancedKeyCode(input, basicKeyToByte) ||
+    inputIsBasicByte(input, keycodeDict) ||
+    inputIsAdvancedKeyCode(input, keycodeDict) ||
     inputIsHex(input)
   );
 }
 
 function keycodeFromInput(
   input: string,
-  basicKeyToByte: Record<string, number>,
+  keycodeDict: KeycodeDict,
 ): number | null {
-  if (inputIsBasicByte(input, basicKeyToByte)) {
-    return basicByteFromInput(input, basicKeyToByte);
+  if (inputIsBasicByte(input, keycodeDict)) {
+    return basicByteFromInput(input, keycodeDict);
   }
 
-  if (inputIsAdvancedKeyCode(input, basicKeyToByte)) {
-    return advancedKeyCodeFromInput(input, basicKeyToByte);
+  if (inputIsAdvancedKeyCode(input, keycodeDict)) {
+    return advancedKeyCodeFromInput(input, keycodeDict);
   }
 
   if (inputIsHex(input)) {
@@ -166,7 +158,7 @@ const getInputItems = (arr: IKeycode[]) =>
 // Connect component with redux here:
 export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   if (!selectedDefinition) {
     return null;
   }
@@ -176,8 +168,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
   const [inputItems, setInputItems] = useState(supportedInputItems);
   const defaultInput = anyKeycodeToString(
     props.defaultValue as number,
-    basicKeyToByte,
-    byteToKey,
+    keycodeDict,
   );
 
   const {
@@ -205,7 +196,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
     },
   });
 
-  const isValid = inputIsValid(inputValue, basicKeyToByte);
+  const isValid = inputIsValid(inputValue, keycodeDict);
   return (
     <ModalBackground>
       <ModalContainer>
@@ -243,7 +234,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
             disabled={!isValid}
             onClick={() => {
               props.onConfirm(
-                keycodeFromInput(inputValue as any, basicKeyToByte) as any,
+                keycodeFromInput(inputValue as any, keycodeDict) as any,
               );
             }}
           >

@@ -1,3 +1,5 @@
+import type {KeycodeDict} from '../keycode-dict';
+
 export type ValidationResult = {
   isValid: boolean;
   errorMessage?: string;
@@ -20,10 +22,18 @@ export const KeyActionPrefix = 1; // \x01
 export const DelayTerminator = 124; // '|';
 export const MacroTerminator = 0;
 
-export function getByte(basicKeyToByte: Record<string, number>, keycode: string): number {
-  return basicKeyToByte[keycode.toUpperCase()];
+export function getByte(keycodeDict: KeycodeDict, keycode: string): number {
+  return keycodeDict.keycodes[keycode.toUpperCase()].byte;
 }
 
-export function buildKeyActionBytes(basicKeyToByte: Record<string, number>, keyaction: KeyAction, keycode: string) {
-  return [KeyActionPrefix, keyaction, getByte(basicKeyToByte, keycode)];
+export function getKeycode(keycodeDict: KeycodeDict, byte: number): string {
+  return keycodeDict.byteToKeycode[byte];
+}
+
+export function buildKeyActionBytes(
+  keycodeDict: KeycodeDict,
+  keyaction: KeyAction,
+  keycode: string,
+) {
+  return [KeyActionPrefix, keyaction, getByte(keycodeDict, keycode)];
 }
