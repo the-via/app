@@ -37,6 +37,7 @@ import {AccentButtonLarge} from '../inputs/accent-button';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
+import {LoaderCubey} from './loader-cubey';
 useGLTF.preload(cubeySrc);
 useGLTF.preload(glbSrc);
 
@@ -59,54 +60,6 @@ const KeyboardBG: React.FC<{
     </mesh>
   );
 }, shallowEqual);
-
-const LoaderCubey: React.FC<{color: string; visible: boolean}> = React.memo(
-  ({visible, color}) => {
-    const cubeyGLTF = useGLTF(cubeySrc);
-    const spinnerRef = useRef<any>();
-    const yInit = !visible ? 10 : -1.05;
-
-    cubeyGLTF.scene.children.forEach((child) => {
-      if (child.name === 'body') {
-        //        child.material.color = new Color(color);
-        console.log(child);
-      }
-    });
-
-    useFrame(({clock}) => {
-      if (visible) {
-        spinnerRef.current.rotation.z =
-          Math.sin(clock.elapsedTime) * (Math.PI / 40);
-        spinnerRef.current.rotation.y =
-          Math.PI + Math.sin(0.6 * clock.elapsedTime) * (Math.PI / 16);
-        console.log(spinnerRef.current);
-        spinnerRef.current.position.y =
-          yInit + 0.2 * Math.sin(clock.elapsedTime);
-      }
-    });
-
-    return (
-      <>
-        <group ref={spinnerRef} scale={0.8} position={[0, yInit, -19]}>
-          <PresentationControls
-            enabled={true} // the controls can be disabled by setting this to false
-            global={true} // Spin globally or by dragging the model
-            snap={true} // Snap-back to center (can also be a spring config)
-            speed={1} // Speed factor
-            zoom={1} // Zoom factor when half the polar-max is reached
-            rotation={[0, 0, 0]} // Default rotation
-            polar={[-Math.PI / 4, Math.PI / 4]} // Vertical limits
-            azimuth={[-Math.PI / 4, Math.PI / 4]} // Horizontal limits
-            config={{mass: 1, tension: 170, friction: 26}} // Spring config
-          >
-            <primitive object={cubeyGLTF.scene} />
-          </PresentationControls>
-        </group>
-      </>
-    );
-  },
-  shallowEqual,
-);
 
 export const CanvasRouter = () => {
   const [path] = useLocation();
@@ -192,7 +145,7 @@ export const CanvasRouter = () => {
             center
             position={[
               0,
-              hideTerrainBG ? (!selectedDefinition ? -1.75 : 0) : 10,
+              hideTerrainBG ? (!selectedDefinition ? -1 : 0) : 10,
               -19,
             ]}
           >
@@ -221,7 +174,7 @@ export const CanvasRouter = () => {
           <Float
             speed={1} // Animation speed, defaults to 1
             rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
-            floatIntensity={1} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
+            floatIntensity={0.8} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
             floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
           >
             <KeyboardGroup
