@@ -71,7 +71,7 @@ type Props = {
   protocol: number;
 };
 export const MacroDetailPane: React.VFC<Props> = (props) => {
-  const enterToken = '{KC_ENT}';
+  const enterToken = '{KC_ENTER}';
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const textareaInitialValue = currentMacro
     .trimRight()
