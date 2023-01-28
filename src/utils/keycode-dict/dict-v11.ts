@@ -3343,133 +3343,136 @@ export default {
         'FN_MO23'
       ]
     },
-    QK_USER_0: {
+    QK_KB_0: {
       byte: 0x7f00,
-      group: 'user'
+      group: 'kb',
+      aliases: [
+        'SAFE_RANGE'
+      ]
     },
-    QK_USER_1: {
+    QK_KB_1: {
       byte: 0x7f01,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_2: {
+    QK_KB_2: {
       byte: 0x7f02,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_3: {
+    QK_KB_3: {
       byte: 0x7f03,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_4: {
+    QK_KB_4: {
       byte: 0x7f04,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_5: {
+    QK_KB_5: {
       byte: 0x7f05,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_6: {
+    QK_KB_6: {
       byte: 0x7f06,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_7: {
+    QK_KB_7: {
       byte: 0x7f07,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_8: {
+    QK_KB_8: {
       byte: 0x7f08,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_9: {
+    QK_KB_9: {
       byte: 0x7f09,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_10: {
+    QK_KB_10: {
       byte: 0x7f0a,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_11: {
+    QK_KB_11: {
       byte: 0x7f0b,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_12: {
+    QK_KB_12: {
       byte: 0x7f0c,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_13: {
+    QK_KB_13: {
       byte: 0x7f0d,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_14: {
+    QK_KB_14: {
       byte: 0x7f0e,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_15: {
+    QK_KB_15: {
       byte: 0x7f0f,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_16: {
+    QK_KB_16: {
       byte: 0x7f10,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_17: {
+    QK_KB_17: {
       byte: 0x7f11,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_18: {
+    QK_KB_18: {
       byte: 0x7f12,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_19: {
+    QK_KB_19: {
       byte: 0x7f13,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_20: {
+    QK_KB_20: {
       byte: 0x7f14,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_21: {
+    QK_KB_21: {
       byte: 0x7f15,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_22: {
+    QK_KB_22: {
       byte: 0x7f16,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_23: {
+    QK_KB_23: {
       byte: 0x7f17,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_24: {
+    QK_KB_24: {
       byte: 0x7f18,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_25: {
+    QK_KB_25: {
       byte: 0x7f19,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_26: {
+    QK_KB_26: {
       byte: 0x7f1a,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_27: {
+    QK_KB_27: {
       byte: 0x7f1b,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_28: {
+    QK_KB_28: {
       byte: 0x7f1c,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_29: {
+    QK_KB_29: {
       byte: 0x7f1d,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_30: {
+    QK_KB_30: {
       byte: 0x7f1e,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_31: {
+    QK_KB_31: {
       byte: 0x7f1f,
-      group: 'user'
+      group: 'kb'
     },
     BR_INC: {
       byte: 0x5f00,
@@ -3553,8 +3556,8 @@ export default {
     QK_LAYER_TAP_TOGGLE_MAX: 0x52df,
     QK_MACRO: 0x7702,
     QK_MACRO_MAX: 0x7711,
-    QK_USER: 0x7f00,
-    QK_USER_MAX: 0x7fff,
+    QK_KB: 0x7f00,
+    QK_KB_MAX: 0x7fff,
     QK_LAYER_MOD_MASK: 0x001f
   }
 }

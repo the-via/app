@@ -38,11 +38,13 @@ function generateKeycodeDict(
 ) {
   console.log(`generating to ${outputPath} ...`);
   const hjsonPaths = glob.sync(
-    `../../qmk_firmware/data/constants/keycodes/*${qmkKeycodeVersion}*.hjson`,
+    `../../qmk_firmware/data/constants/keycodes/*.hjson`,
     {
       absolute: true,
     },
   );
+
+  // TODO: actually filter on version arg
 
   const allObjs = hjsonPaths.map((f) => {
     try {
@@ -102,7 +104,7 @@ function generateKeycodeDict(
     QK_ONE_SHOT_LAYER: true,
     QK_ONE_SHOT_MOD: true,
     QK_LAYER_TAP_TOGGLE: true,
-    QK_USER: true,
+    QK_KB: true,
     QK_MACRO: true,
   };
 

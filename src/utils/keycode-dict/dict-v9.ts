@@ -1532,224 +1532,224 @@ export default {
       ]
     },
     QK_MACRO_0: {
-      byte: 0x7702,
+      byte: 0x5f12,
       group: 'macro',
       aliases: [
         'MC_0'
       ]
     },
     QK_MACRO_1: {
-      byte: 0x7703,
+      byte: 0x5f13,
       group: 'macro',
       aliases: [
         'MC_1'
       ]
     },
     QK_MACRO_2: {
-      byte: 0x7704,
+      byte: 0x5f14,
       group: 'macro',
       aliases: [
         'MC_2'
       ]
     },
     QK_MACRO_3: {
-      byte: 0x7705,
+      byte: 0x5f15,
       group: 'macro',
       aliases: [
         'MC_3'
       ]
     },
     QK_MACRO_4: {
-      byte: 0x7706,
+      byte: 0x5f16,
       group: 'macro',
       aliases: [
         'MC_4'
       ]
     },
     QK_MACRO_5: {
-      byte: 0x7707,
+      byte: 0x5f17,
       group: 'macro',
       aliases: [
         'MC_5'
       ]
     },
     QK_MACRO_6: {
-      byte: 0x7708,
+      byte: 0x5f18,
       group: 'macro',
       aliases: [
         'MC_6'
       ]
     },
     QK_MACRO_7: {
-      byte: 0x7709,
+      byte: 0x5f19,
       group: 'macro',
       aliases: [
         'MC_7'
       ]
     },
     QK_MACRO_8: {
-      byte: 0x770a,
+      byte: 0x5f1a,
       group: 'macro',
       aliases: [
         'MC_8'
       ]
     },
     QK_MACRO_9: {
-      byte: 0x770b,
+      byte: 0x5f1b,
       group: 'macro',
       aliases: [
         'MC_9'
       ]
     },
     QK_MACRO_10: {
-      byte: 0x770c,
+      byte: 0x5f1c,
       group: 'macro',
       aliases: [
         'MC_10'
       ]
     },
     QK_MACRO_11: {
-      byte: 0x770d,
+      byte: 0x5f1d,
       group: 'macro',
       aliases: [
         'MC_11'
       ]
     },
     QK_MACRO_12: {
-      byte: 0x770e,
+      byte: 0x5f1e,
       group: 'macro',
       aliases: [
         'MC_12'
       ]
     },
     QK_MACRO_13: {
-      byte: 0x770f,
+      byte: 0x5f1f,
       group: 'macro',
       aliases: [
         'MC_13'
       ]
     },
     QK_MACRO_14: {
-      byte: 0x7710,
+      byte: 0x5f20,
       group: 'macro',
       aliases: [
         'MC_14'
       ]
     },
     QK_MACRO_15: {
-      byte: 0x7711,
+      byte: 0x5f21,
       group: 'macro',
       aliases: [
         'MC_15'
       ]
     },
     QK_MACRO_16: {
-      byte: 0x7712,
+      byte: 0x5f22,
       group: 'macro',
       aliases: [
         'MC_16'
       ]
     },
     QK_MACRO_17: {
-      byte: 0x7713,
+      byte: 0x5f23,
       group: 'macro',
       aliases: [
         'MC_17'
       ]
     },
     QK_MACRO_18: {
-      byte: 0x7714,
+      byte: 0x5f24,
       group: 'macro',
       aliases: [
         'MC_18'
       ]
     },
     QK_MACRO_19: {
-      byte: 0x7715,
+      byte: 0x5f25,
       group: 'macro',
       aliases: [
         'MC_19'
       ]
     },
     QK_MACRO_20: {
-      byte: 0x7716,
+      byte: 0x5f26,
       group: 'macro',
       aliases: [
         'MC_20'
       ]
     },
     QK_MACRO_21: {
-      byte: 0x7717,
+      byte: 0x5f27,
       group: 'macro',
       aliases: [
         'MC_21'
       ]
     },
     QK_MACRO_22: {
-      byte: 0x7718,
+      byte: 0x5f28,
       group: 'macro',
       aliases: [
         'MC_22'
       ]
     },
     QK_MACRO_23: {
-      byte: 0x7719,
+      byte: 0x5f29,
       group: 'macro',
       aliases: [
         'MC_23'
       ]
     },
     QK_MACRO_24: {
-      byte: 0x771a,
+      byte: 0x5f2a,
       group: 'macro',
       aliases: [
         'MC_24'
       ]
     },
     QK_MACRO_25: {
-      byte: 0x771b,
+      byte: 0x5f2b,
       group: 'macro',
       aliases: [
         'MC_25'
       ]
     },
     QK_MACRO_26: {
-      byte: 0x771c,
+      byte: 0x5f2c,
       group: 'macro',
       aliases: [
         'MC_26'
       ]
     },
     QK_MACRO_27: {
-      byte: 0x771d,
+      byte: 0x5f2d,
       group: 'macro',
       aliases: [
         'MC_27'
       ]
     },
     QK_MACRO_28: {
-      byte: 0x771e,
+      byte: 0x5f2e,
       group: 'macro',
       aliases: [
         'MC_28'
       ]
     },
     QK_MACRO_29: {
-      byte: 0x771f,
+      byte: 0x5f2f,
       group: 'macro',
       aliases: [
         'MC_29'
       ]
     },
     QK_MACRO_30: {
-      byte: 0x7720,
+      byte: 0x5f30,
       group: 'macro',
       aliases: [
         'MC_30'
       ]
     },
     QK_MACRO_31: {
-      byte: 0x7721,
+      byte: 0x5f31,
       group: 'macro',
       aliases: [
         'MC_31'
@@ -1994,133 +1994,136 @@ export default {
         'FN_MO23'
       ]
     },
-    QK_USER_0: {
+    QK_KB_0: {
       byte: 0x5f80,
-      group: 'user'
+      group: 'kb',
+      aliases: [
+        'SAFE_RANGE'
+      ]
     },
-    QK_USER_1: {
+    QK_KB_1: {
       byte: 0x5f81,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_2: {
+    QK_KB_2: {
       byte: 0x5f82,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_3: {
+    QK_KB_3: {
       byte: 0x5f83,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_4: {
+    QK_KB_4: {
       byte: 0x5f84,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_5: {
+    QK_KB_5: {
       byte: 0x5f85,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_6: {
+    QK_KB_6: {
       byte: 0x5f86,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_7: {
+    QK_KB_7: {
       byte: 0x5f87,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_8: {
+    QK_KB_8: {
       byte: 0x5f88,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_9: {
+    QK_KB_9: {
       byte: 0x5f89,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_10: {
+    QK_KB_10: {
       byte: 0x5f8a,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_11: {
+    QK_KB_11: {
       byte: 0x5f8b,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_12: {
+    QK_KB_12: {
       byte: 0x5f8c,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_13: {
+    QK_KB_13: {
       byte: 0x5f8d,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_14: {
+    QK_KB_14: {
       byte: 0x5f8e,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_15: {
+    QK_KB_15: {
       byte: 0x5f8f,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_16: {
+    QK_KB_16: {
       byte: 0x5f90,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_17: {
+    QK_KB_17: {
       byte: 0x5f91,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_18: {
+    QK_KB_18: {
       byte: 0x5f92,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_19: {
+    QK_KB_19: {
       byte: 0x5f93,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_20: {
+    QK_KB_20: {
       byte: 0x5f94,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_21: {
+    QK_KB_21: {
       byte: 0x5f95,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_22: {
+    QK_KB_22: {
       byte: 0x5f96,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_23: {
+    QK_KB_23: {
       byte: 0x5f97,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_24: {
+    QK_KB_24: {
       byte: 0x5f98,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_25: {
+    QK_KB_25: {
       byte: 0x5f99,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_26: {
+    QK_KB_26: {
       byte: 0x5f9a,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_27: {
+    QK_KB_27: {
       byte: 0x5f9b,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_28: {
+    QK_KB_28: {
       byte: 0x5f9c,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_29: {
+    QK_KB_29: {
       byte: 0x5f9d,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_30: {
+    QK_KB_30: {
       byte: 0x5f9e,
-      group: 'user'
+      group: 'kb'
     },
-    QK_USER_31: {
+    QK_KB_31: {
       byte: 0x5f9f,
-      group: 'user'
+      group: 'kb'
     },
     BR_INC: {
       byte: 0x5f00,
@@ -2202,10 +2205,10 @@ export default {
     QK_ONE_SHOT_MOD_MAX: 0x55ff,
     QK_LAYER_TAP_TOGGLE: 0x5800,
     QK_LAYER_TAP_TOGGLE_MAX: 0x581f,
-    QK_MACRO: 0x7702,
-    QK_MACRO_MAX: 0x7711,
-    QK_USER: 0x5f80,
-    QK_USER_MAX: 0x5f8f,
+    QK_MACRO: 0x5f12,
+    QK_MACRO_MAX: 0x5f21,
+    QK_KB: 0x5f80,
+    QK_KB_MAX: 0x5f8f,
     QK_LAYER_MOD_MASK: 0x000f
   }
 }

@@ -141,9 +141,9 @@ function legacyKeycodeToByte(
         return keyToByte[deprecatedKeycode];
       }
     }
-    if (/^QK_USER_/.test(keycode)) {
-      const n = Number.parseInt(keycode.slice('QK_USER_'.length));
-      return keyToByte['_QK_USER'] + n;
+    if (/^QK_KB_/.test(keycode)) {
+      const n = Number.parseInt(keycode.slice('QK_KB_'.length));
+      return keyToByte['_QK_KB'] + n;
     }
     if (/^QK_MACRO_/.test(keycode)) {
       const n = Number.parseInt(keycode.slice('QK_MACRO_'.length));
