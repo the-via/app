@@ -23,6 +23,8 @@ const quantumRangesKeys = [
   '_QK_LAYER_TAP_TOGGLE_MAX',
   '_QK_KB',
   '_QK_KB_MAX',
+  '_QK_MACRO',
+  '_QK_MACRO_MAX',
 ];
 
 const quantumRanges = (
