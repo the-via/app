@@ -198,6 +198,8 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
               </Message>
               <Message>Single tap: {'{KC_XXX}'}</Message>
               <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
+              <Message>Keydown: {`{+KC_XXX}`}</Message>
+              <Message>Keyup: {`{-KC_XXX}`}</Message>
               {props.protocol >= 11 ? (
                 <Message>Delay (ms): {'{NNNN}'} </Message>
               ) : (
