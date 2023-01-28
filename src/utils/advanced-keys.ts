@@ -21,8 +21,8 @@ const quantumRangesKeys = [
   '_QK_ONE_SHOT_MOD_MAX',
   '_QK_LAYER_TAP_TOGGLE',
   '_QK_LAYER_TAP_TOGGLE_MAX',
-  '_QK_USER',
-  '_QK_USER_MAX',
+  '_QK_KB',
+  '_QK_KB_MAX',
 ];
 
 const quantumRanges = (
@@ -73,7 +73,7 @@ const topLevelMacroToValue = {
   OSL: '_QK_ONE_SHOT_LAYER', // OSL(layer)
   OSM: '_QK_ONE_SHOT_MOD', //OSM(mod)
   TT: '_QK_LAYER_TAP_TOGGLE', // TT(layer)
-  USER: '_QK_USER', // USER(n)
+  CUSTOM: '_QK_KB', // CUSTOM(n)
   MACRO: '_QK_MACRO', // MACRO(n)
 };
 
@@ -173,7 +173,7 @@ export const advancedKeycodeToString = (
     case '_QK_ONE_SHOT_LAYER':
     case '_QK_LAYER_TAP_TOGGLE':
     case '_QK_TO':
-    case '_QK_USER':
+    case '_QK_KB':
     case '_QK_MACRO':
       humanReadable += remainder + ')';
       break;
@@ -298,9 +298,9 @@ const parseTopLevelMacro = (
         ((mods & 0x1f) << 8) |
         (basicKeyToByte[param2] & 0xff)
       );
-    case 'USER': {
+    case 'CUSTOM': {
       const n = Number.parseInt(parameter);
-      const nMax = basicKeyToByte._QK_USER_MAX - basicKeyToByte._QK_USER;
+      const nMax = basicKeyToByte._QK_KB_MAX - basicKeyToByte._QK_KB;
       if (n >= 0 && n <= nMax) {
         return basicKeyToByte[topLevelMacroToValue[topLevelKey]] + n;
       }
