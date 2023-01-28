@@ -344,7 +344,7 @@ export const KeycodePane: FC = () => {
               return renderKeycode(
                 {
                   ...keycode,
-                  code: `USER(${idx})`,
+                  code: `CUSTOM(${idx})`,
                 },
                 idx,
               );

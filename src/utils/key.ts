@@ -115,10 +115,10 @@ function getByteForLayerCode(
           basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
         );
       }
-      case 'USER': {
+      case 'CUSTOM': {
         return Math.min(
-          basicKeyToByte._QK_USER + numLayer,
-          basicKeyToByte._QK_USER_MAX,
+          basicKeyToByte._QK_KB + numLayer,
+          basicKeyToByte._QK_KB_MAX,
         );
       }
       default: {
@@ -167,11 +167,11 @@ function getCodeForLayerByte(
     const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
   } else if (
-    basicKeyToByte._QK_USER <= byte &&
-    basicKeyToByte._QK_USER_MAX >= byte
+    basicKeyToByte._QK_KB <= byte &&
+    basicKeyToByte._QK_KB_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_USER;
-    return `USER(${layer})`;
+    const n = byte - basicKeyToByte._QK_KB;
+    return `CUSTOM(${n})`;
   }
 }
 
@@ -204,7 +204,7 @@ function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
       basicKeyToByte._QK_LAYER_TAP_TOGGLE,
       basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
     ],
-    [basicKeyToByte._QK_USER, basicKeyToByte._QK_USER_MAX],
+    [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -241,18 +241,18 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isUserKeycodeByte(
+export function isCustomKeycodeByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte >= basicKeyToByte._QK_USER && byte <= basicKeyToByte._QK_USER_MAX;
+  return byte >= basicKeyToByte._QK_KB && byte <= basicKeyToByte._QK_KB_MAX;
 }
 
-export function getUserKeycodeIndex(
+export function getCustomKeycodeIndex(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte - basicKeyToByte._QK_USER;
+  return byte - basicKeyToByte._QK_KB;
 }
 
 export function getLabelForByte(
@@ -1374,22 +1374,22 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Custom',
       width: 'label',
       keycodes: [
-        {name: 'User00', code: 'USER(0)', title: 'Custom Keycode 00'},
-        {name: 'User01', code: 'USER(1)', title: 'Custom Keycode 01'},
-        {name: 'User02', code: 'USER(2)', title: 'Custom Keycode 02'},
-        {name: 'User03', code: 'USER(3)', title: 'Custom Keycode 03'},
-        {name: 'User04', code: 'USER(4)', title: 'Custom Keycode 04'},
-        {name: 'User05', code: 'USER(5)', title: 'Custom Keycode 05'},
-        {name: 'User06', code: 'USER(6)', title: 'Custom Keycode 06'},
-        {name: 'User07', code: 'USER(7)', title: 'Custom Keycode 07'},
-        {name: 'User08', code: 'USER(8)', title: 'Custom Keycode 08'},
-        {name: 'User09', code: 'USER(9)', title: 'Custom Keycode 09'},
-        {name: 'User10', code: 'USER(10)', title: 'Custom Keycode 10'},
-        {name: 'User11', code: 'USER(11)', title: 'Custom Keycode 11'},
-        {name: 'User12', code: 'USER(12)', title: 'Custom Keycode 12'},
-        {name: 'User13', code: 'USER(13)', title: 'Custom Keycode 13'},
-        {name: 'User14', code: 'USER(14)', title: 'Custom Keycode 14'},
-        {name: 'User15', code: 'USER(15)', title: 'Custom Keycode 15'},
+        {name: 'CUSTOM(0)', code: 'CUSTOM(0)', title: 'Custom Keycode 0'},
+        {name: 'CUSTOM(1)', code: 'CUSTOM(1)', title: 'Custom Keycode 1'},
+        {name: 'CUSTOM(2)', code: 'CUSTOM(2)', title: 'Custom Keycode 2'},
+        {name: 'CUSTOM(3)', code: 'CUSTOM(3)', title: 'Custom Keycode 3'},
+        {name: 'CUSTOM(4)', code: 'CUSTOM(4)', title: 'Custom Keycode 4'},
+        {name: 'CUSTOM(5)', code: 'CUSTOM(5)', title: 'Custom Keycode 5'},
+        {name: 'CUSTOM(6)', code: 'CUSTOM(6)', title: 'Custom Keycode 6'},
+        {name: 'CUSTOM(7)', code: 'CUSTOM(7)', title: 'Custom Keycode 7'},
+        {name: 'CUSTOM(8)', code: 'CUSTOM(8)', title: 'Custom Keycode 8'},
+        {name: 'CUSTOM(9)', code: 'CUSTOM(9)', title: 'Custom Keycode 9'},
+        {name: 'CUSTOM(10)', code: 'CUSTOM(10)', title: 'Custom Keycode 10'},
+        {name: 'CUSTOM(11)', code: 'CUSTOM(11)', title: 'Custom Keycode 11'},
+        {name: 'CUSTOM(12)', code: 'CUSTOM(12)', title: 'Custom Keycode 12'},
+        {name: 'CUSTOM(13)', code: 'CUSTOM(13)', title: 'Custom Keycode 13'},
+        {name: 'CUSTOM(14)', code: 'CUSTOM(14)', title: 'Custom Keycode 14'},
+        {name: 'CUSTOM(15)', code: 'CUSTOM(15)', title: 'Custom Keycode 15'},
       ],
     },
   ];
