@@ -13,9 +13,6 @@ import {
   reloadConnectedDevices,
 } from 'src/store/devicesThunks';
 import {
-  disableGlobalHotKeys,
-  enableGlobalHotKeys,
-  getAllowGlobalHotKeys,
   getAllowKeyboardKeyRemapping,
   getDisableFastRemap,
 } from '../store/settingsSlice';
@@ -90,7 +87,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
   );
-  const globalHotKeysAllowed = useAppSelector(getAllowGlobalHotKeys);
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -126,11 +122,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
   };
 
   const handleKeys = (evt: KeyboardEvent): void => {
-    if (
-      allowKeyRemappingViaKeyboard &&
-      globalHotKeysAllowed &&
-      selectedKey !== null
-    ) {
+    if (allowKeyRemappingViaKeyboard && selectedKey !== null) {
       const keycode = mapEvtToKeycode(evt);
       if (keycode) {
         updateSelectedKey(getByteForCode(keycode, basicKeyToByte));
@@ -198,7 +190,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
     }
 
     startMonitoring();
-    dispatch(enableGlobalHotKeys());
     usbDetect.on('change', updateDevicesRepeat);
     dispatch(loadSupportedIds());
     enableKeyPressListener();
@@ -206,7 +197,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
     return () => {
       // Cleanup function equiv to componentWillUnmount
       usbDetect.off('change', updateDevicesRepeat);
-      dispatch(disableGlobalHotKeys());
       disableKeyPressListener();
     };
   }, []); // Passing an empty array as the second arg makes the body of the function equiv to componentDidMount (not including the cleanup func)

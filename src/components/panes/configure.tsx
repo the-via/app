@@ -193,16 +193,7 @@ export const ConfigurePane = () => {
   const loadProgress = useAppSelector(getLoadProgress);
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
-  return showLoader ? (
-    <LoaderPane>
-      <Loader
-        {...{
-          loadProgress,
-          selectedDefinition: selectedDefinition ? selectedDefinition : null,
-        }}
-      />
-    </LoaderPane>
-  ) : (
+  return showLoader ? null : (
     <ConfigureBasePane>
       <ConfigureGrid />
     </ConfigureBasePane>

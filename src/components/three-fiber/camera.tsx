@@ -9,7 +9,8 @@ const ZOOM = DEBUG ? 1 : 5.5 * 0.8;
 export const Camera = () => {
   const {progress} = useProgress();
   const camera = useThree((state) => state.camera);
-  const [startX, endX] = [10, 7];
+  //const [startX, endX] = [10, 7];
+  const [startX, endX] = [7, 7];
   const glow = useSpring({
     config: {duration: 800},
     from: {x: startX},
@@ -39,5 +40,5 @@ export const Camera = () => {
       camera.updateProjectionMatrix();
     }
   });
-  return <PerspectiveCamera makeDefault fov={25}></PerspectiveCamera>;
+  return <PerspectiveCamera position-z={startX} makeDefault fov={25} />;
 };

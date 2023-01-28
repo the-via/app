@@ -22,7 +22,7 @@ const Container = styled.div`
 `;
 
 const MenuContainer = styled.div`
-  padding: 15px 20px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 export const Pane: FC = () => {
@@ -54,8 +54,9 @@ export const Pane: FC = () => {
             selected={selectedMacro === idx}
             onClick={() => setSelectedMacro(idx)}
             key={idx}
+            style={{borderWidth: 0, textAlign: 'center'}}
           >
-            {`Macro ${idx}`}
+            {`M${idx}`}
           </SubmenuRow>
         )),
     [selectedMacro],

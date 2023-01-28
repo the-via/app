@@ -1,5 +1,5 @@
 import {Canvas, useFrame} from '@react-three/fiber';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {Suspense, useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -10,13 +10,12 @@ import {Camera} from './camera';
 import {ConfigureKeyboard, Design, Test} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
-  Decal,
   Float,
+  Html,
   OrbitControls,
   SpotLight,
   useGLTF,
   useProgress,
-  useTexture,
 } from '@react-three/drei';
 import {
   getLoadProgress,
@@ -26,73 +25,100 @@ import {
 import {a, config, useSpring} from '@react-spring/three';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
-import {Object3D} from 'three';
+import {Color, Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
 import {getSelectedTheme} from 'src/store/settingsSlice';
 import glbSrc from 'assets/models/keyboard_components.glb';
-console.log('hiii', glbSrc);
+import cubeySrc from 'assets/models/cubey.glb';
+import {AccentButtonLarge} from '../inputs/accent-button';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
+import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
+useGLTF.preload(cubeySrc);
 useGLTF.preload(glbSrc);
-//useTexture.preload('/images/chippy.png');
 
-const LoaderSpinner = () => {
-  const [chippyMap] = useTexture(['/images/chippy_600.png']);
-  const spinnerRef = useRef<any>();
-
-  const [{background}] = useSpring(() => ({
-    from: {background: 'white'},
-    to: {background: 'var(--color_accent)'},
-  }));
-  const bg = background.to([0, 100], ['white', 'var(--color_accent)']);
-
-  useFrame(({clock}) => {
-    spinnerRef.current.rotateZ(Math.PI / 360);
-    spinnerRef.current.position.y = 0.25 * Math.sin(clock.elapsedTime);
-  });
-
+const KeyboardBG: React.FC<{
+  color: string;
+  onClick: () => void;
+  visible: boolean;
+}> = React.memo((props) => {
+  const {onClick, visible, color} = props;
   return (
-    chippyMap && (
-      <group
-        ref={spinnerRef}
-        scale={0.5}
-        position={[0, -0.05, -19]}
-        rotation={[Math.PI / 2, Math.PI, 0]}
-      >
-        <mesh>
-          <cylinderGeometry args={[1.5, 1.5, 0.5, 50]} />
-          <Decal
-            position={[0, -0.1, 0]} // Position of the decal
-            rotation={[Math.PI / 2, Math.PI, 0]} // Rotation of the decal (can be a vector or a degree in radians)
-            scale={2} // Scale of the decal
-            transparent={true}
-          >
-            <meshPhongMaterial
-              transparent
-              depthTest={false}
-              alphaTest={0}
-              map={chippyMap}
-              polygonOffset={true}
-              polygonOffsetFactor={-10}
-            />
-          </Decal>
-        </mesh>
-      </group>
-    )
+    <mesh
+      receiveShadow
+      position={[0, -5.75, 0]}
+      rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
+      onClick={onClick}
+      visible={visible}
+    >
+      <planeGeometry args={[100, 100]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
-};
+}, shallowEqual);
+
+const LoaderCubey: React.FC<{color: string; visible: boolean}> = React.memo(
+  ({visible, color}) => {
+    const cubeyGLTF = useGLTF(cubeySrc);
+    const spinnerRef = useRef<any>();
+    const yInit = !visible ? 10 : -1.05;
+
+    cubeyGLTF.scene.children.forEach((child) => {
+      if (child.name === 'body') {
+        //        child.material.color = new Color(color);
+        console.log(child);
+      }
+    });
+
+    useFrame(({clock}) => {
+      if (visible) {
+        spinnerRef.current.rotation.z =
+          Math.sin(clock.elapsedTime) * (Math.PI / 40);
+        spinnerRef.current.rotation.y =
+          Math.PI + Math.sin(0.6 * clock.elapsedTime) * (Math.PI / 16);
+        console.log(spinnerRef.current);
+        spinnerRef.current.position.y =
+          yInit + 0.2 * Math.sin(clock.elapsedTime);
+      }
+    });
+
+    return (
+      <>
+        <group
+          ref={spinnerRef}
+          rotation-y={Math.PI}
+          scale={0.8}
+          position={[0, yInit, -19]}
+        >
+          <primitive object={cubeyGLTF.scene} />
+        </group>
+      </>
+    );
+  },
+  shallowEqual,
+);
 
 export const CanvasRouter = () => {
   const [path] = useLocation();
+  const body = useRef(document.body);
   const containerRef = useRef(null);
+  const container2Ref = useRef(null);
   const loadProgress = useAppSelector(getLoadProgress);
+  const rootContainer3Ref = useRef(null);
   const {progress} = useProgress();
   const dispatch = useAppDispatch();
+  const dimensions = useSize(body);
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
   const theme = useAppSelector(getSelectedTheme);
+  const cubey = useGLTF(cubeySrc);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
+  const showLoader =
+    path === '/' && (!selectedDefinition || loadProgress !== 1);
+  console.log(cubey, 'cubey');
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
@@ -118,7 +144,8 @@ export const CanvasRouter = () => {
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
-  const a = '#aa9a9a';
+
+  const hideTerrainBG = showLoader;
   return (
     <>
       <UpdateUVMaps />
@@ -126,24 +153,63 @@ export const CanvasRouter = () => {
         style={{
           height: 500,
           width: '100%',
-          position: hideCanvasScene ? 'absolute' : 'relative',
-          visibility: hideCanvasScene ? 'hidden' : 'visible',
+          top: 0,
+          transform: hideCanvasScene
+            ? !hideTerrainBG
+              ? 'translateY(-500px)'
+              : !dimensions
+              ? ''
+              : `translateY(${-300 + dimensions!.height / 2}px)`
+            : '',
+          position: hideCanvasScene && !hideTerrainBG ? 'absolute' : 'relative',
+          overflow: 'visible',
+          visibility: hideCanvasScene && !hideTerrainBG ? 'hidden' : 'visible',
         }}
         ref={containerRef}
       >
-        <Canvas flat={true} shadows>
+        <Canvas flat={true} shadows style={{overflow: 'visible'}}>
           <Lights />
-          <mesh
-            receiveShadow
-            position={[0, -5.75, 0]}
-            rotation={[-Math.PI / 2 + Math.PI / 14, 0, 0]}
+          <KeyboardBG
             onClick={terrainOnClick}
-          >
-            <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial color={accentColor} />
-          </mesh>
+            color={accentColor}
+            visible={!hideTerrainBG}
+          />
           <OrbitControls enabled={false} />
           <Camera />
+          <LoaderCubey
+            color={accentColor}
+            visible={hideTerrainBG && !selectedDefinition}
+          />
+          <Html
+            center
+            position={[
+              0,
+              hideTerrainBG ? (!selectedDefinition ? -1.75 : 0) : 10,
+              -19,
+            ]}
+          >
+            {!selectedDefinition ? (
+              <AccentButtonLarge
+                onClick={() => dispatch(reloadConnectedDevices())}
+                style={{width: 'max-content'}}
+              >
+                Authorize device
+                <FontAwesomeIcon style={{marginLeft: '10px'}} icon={faUnlock} />
+              </AccentButtonLarge>
+            ) : (
+              <>
+                <div
+                  style={{
+                    textAlign: 'center',
+                    color: 'var(--color_accent)',
+                    fontSize: 60,
+                  }}
+                >
+                  <FontAwesomeIcon spinPulse icon={faSpinner} />
+                </div>
+              </>
+            )}
+          </Html>
           <Float
             speed={1} // Animation speed, defaults to 1
             rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1

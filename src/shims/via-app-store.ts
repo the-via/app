@@ -33,6 +33,10 @@ export class Store {
       ...this.store,
       [key]: value,
     };
-    localStorage.setItem('via-app-store', JSON.stringify(this.store));
+    // This ends up triggering an error about .get proxy failing for JSON.stringify
+    // because it's inside an async function, so we delay it out of that event loop
+    setTimeout(() => {
+      localStorage.setItem('via-app-store', JSON.stringify(this.store));
+    }, 0);
   }
 }
