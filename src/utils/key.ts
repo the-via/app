@@ -214,7 +214,7 @@ export function getCodeForByte(
   byteToKey: Record<number, string>,
 ) {
   const keycode = byteToKey[byte];
-  if (keycode) {
+  if (keycode && !keycode.startsWith('_QK')) {
     return keycode;
   } else if (isLayerKey(byte, basicKeyToByte)) {
     return getCodeForLayerByte(byte, basicKeyToByte);
