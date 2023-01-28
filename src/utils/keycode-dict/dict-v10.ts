@@ -639,6 +639,11 @@ export default {
         'KC_APP'
       ]
     },
+    KC_KB_POWER: {
+      byte: 0x0066,
+      group: 'basic',
+      label: 'Application'
+    },
     KC_KP_EQUAL: {
       byte: 0x0067,
       group: 'basic',
