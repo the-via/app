@@ -1,7 +1,7 @@
-import dictV12 from './dict-v12';
-import dictV11 from './dict-v11';
-import dictV10 from './dict-v10';
 import dictV9 from './dict-v9';
+import dictV10 from './dict-v10';
+import dictV11 from './dict-v11';
+import dictV12 from './dict-v12';
 import deprecatedKeycodes from './deprecated-keycodes';
 
 export type KeycodeRecord = {
@@ -44,20 +44,20 @@ export class KeycodeDict {
   }
 }
 
-export function getKeycodeDict(version: number) {
-  switch (version) {
-    case 12: {
-      return new KeycodeDict(dictV12);
+export function getVersionedKeycodeDict(version: number) {
+  switch (true) {
+    case version <= 9: {
+      return new KeycodeDict(dictV9);
     }
-    case 11: {
-      return new KeycodeDict(dictV11);
-    }
-    case 10: {
+    case version == 10: {
       return new KeycodeDict(dictV10);
     }
-    case 9:
+    case version == 11: {
+      return new KeycodeDict(dictV11);
+    }
+    case version >= 12:
     default: {
-      return new KeycodeDict(dictV9);
+      return new KeycodeDict(dictV12);
     }
   }
 }

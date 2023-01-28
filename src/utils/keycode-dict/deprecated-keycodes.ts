@@ -228,4 +228,4 @@ export default {
   DYN_REC_STOP: 'QK_DYNAMIC_MACRO_RECORD_STOP',
   DYN_MACRO_PLAY1: 'QK_DYNAMIC_MACRO_PLAY_1',
   DYN_MACRO_PLAY2: 'QK_DYNAMIC_MACRO_PLAY_2',
-};
+} as Record<string, string>;

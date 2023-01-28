@@ -9,6 +9,7 @@ import {
   getLightingDefinition,
   KeycodeType,
 } from '@the-via/reader';
+import type {KeycodeDict} from './keycode-dict';
 
 export interface IKeycode {
   name: string;
@@ -46,17 +47,14 @@ export function isNumericSymbol(label: string) {
 }
 
 // Maps the byte value to the keycode
-export function getByteForCode(
-  code: string,
-  basicKeyToByte: Record<string, number>,
-) {
-  const byte: number | undefined = basicKeyToByte[code];
+export function getByteForCode(code: string, keycodeDict: KeycodeDict) {
+  const byte: number | undefined = keycodeDict.keycodes[code]?.byte;
   if (byte !== undefined) {
     return byte;
   } else if (isLayerCode(code)) {
-    return getByteForLayerCode(code, basicKeyToByte);
-  } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
-    return advancedStringToKeycode(code, basicKeyToByte);
+    return getByteForLayerCode(code, keycodeDict);
+  } else if (advancedStringToKeycode(code, keycodeDict) !== null) {
+    return advancedStringToKeycode(code, keycodeDict);
   }
   throw `Could not find byte for ${code}`;
 }
@@ -65,9 +63,11 @@ function isLayerCode(code: string) {
   return /([A-Za-z]+)\((\d+)\)/.test(code);
 }
 
+// TODO: this is redundant with advanced keycode parsing
+// should refactor both together
 function getByteForLayerCode(
   keycode: string,
-  basicKeyToByte: Record<string, number>,
+  keycodeDict: KeycodeDict,
 ): number {
   const keycodeMatch = keycode.match(/([A-Za-z]+)\((\d+)\)/);
   if (keycodeMatch) {
@@ -76,50 +76,50 @@ function getByteForLayerCode(
     switch (code) {
       case 'TO': {
         return Math.min(
-          basicKeyToByte._QK_TO + numLayer,
-          basicKeyToByte._QK_TO_MAX,
+          keycodeDict.ranges.QK_TO + numLayer,
+          keycodeDict.ranges.QK_TO_MAX,
         );
       }
       case 'MO': {
         return Math.min(
-          basicKeyToByte._QK_MOMENTARY + numLayer,
-          basicKeyToByte._QK_MOMENTARY_MAX,
+          keycodeDict.ranges.QK_MOMENTARY + numLayer,
+          keycodeDict.ranges.QK_MOMENTARY_MAX,
         );
       }
       case 'DF': {
         return Math.min(
-          basicKeyToByte._QK_DEF_LAYER + numLayer,
-          basicKeyToByte._QK_DEF_LAYER_MAX,
+          keycodeDict.ranges.QK_DEF_LAYER + numLayer,
+          keycodeDict.ranges.QK_DEF_LAYER_MAX,
         );
       }
       case 'TG': {
         return Math.min(
-          basicKeyToByte._QK_TOGGLE_LAYER + numLayer,
-          basicKeyToByte._QK_TOGGLE_LAYER_MAX,
+          keycodeDict.ranges.QK_TOGGLE_LAYER + numLayer,
+          keycodeDict.ranges.QK_TOGGLE_LAYER_MAX,
         );
       }
       case 'OSL': {
         return Math.min(
-          basicKeyToByte._QK_ONE_SHOT_LAYER + numLayer,
-          basicKeyToByte._QK_ONE_SHOT_LAYER_MAX,
+          keycodeDict.ranges.QK_ONE_SHOT_LAYER + numLayer,
+          keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX,
         );
       }
       case 'TT': {
         return Math.min(
-          basicKeyToByte._QK_LAYER_TAP_TOGGLE + numLayer,
-          basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+          keycodeDict.ranges.QK_LAYER_TAP_TOGGLE + numLayer,
+          keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX,
         );
       }
       case 'CUSTOM': {
         return Math.min(
-          basicKeyToByte._QK_KB + numLayer,
-          basicKeyToByte._QK_KB_MAX,
+          keycodeDict.ranges.QK_KB + numLayer,
+          keycodeDict.ranges.QK_KB_MAX,
         );
       }
       case 'MACRO': {
         return Math.min(
-          basicKeyToByte._QK_MACRO + numLayer,
-          basicKeyToByte._QK_MACRO_MAX,
+          keycodeDict.ranges.QK_MACRO + numLayer,
+          keycodeDict.ranges.QK_MACRO_MAX,
         );
       }
       default: {
@@ -130,54 +130,56 @@ function getByteForLayerCode(
   throw new Error('No match found');
 }
 
-function getCodeForLayerByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  if (basicKeyToByte._QK_TO <= byte && basicKeyToByte._QK_TO_MAX >= byte) {
-    const layer = byte - basicKeyToByte._QK_TO;
+// TODO: this is redundant with advanced keycode parsing
+// should refactor both together
+function getCodeForLayerByte(byte: number, keycodeDict: KeycodeDict) {
+  if (
+    keycodeDict.ranges.QK_TO <= byte &&
+    keycodeDict.ranges.QK_TO_MAX >= byte
+  ) {
+    const layer = byte - keycodeDict.ranges.QK_TO;
     return `TO(${layer})`;
   } else if (
-    basicKeyToByte._QK_MOMENTARY <= byte &&
-    basicKeyToByte._QK_MOMENTARY_MAX >= byte
+    keycodeDict.ranges.QK_MOMENTARY <= byte &&
+    keycodeDict.ranges.QK_MOMENTARY_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_MOMENTARY;
+    const layer = byte - keycodeDict.ranges.QK_MOMENTARY;
     return `MO(${layer})`;
   } else if (
-    basicKeyToByte._QK_DEF_LAYER <= byte &&
-    basicKeyToByte._QK_DEF_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_DEF_LAYER <= byte &&
+    keycodeDict.ranges.QK_DEF_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_DEF_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_DEF_LAYER;
     return `DF(${layer})`;
   } else if (
-    basicKeyToByte._QK_TOGGLE_LAYER <= byte &&
-    basicKeyToByte._QK_TOGGLE_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_TOGGLE_LAYER <= byte &&
+    keycodeDict.ranges.QK_TOGGLE_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_TOGGLE_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_TOGGLE_LAYER;
     return `TG(${layer})`;
   } else if (
-    basicKeyToByte._QK_ONE_SHOT_LAYER <= byte &&
-    basicKeyToByte._QK_ONE_SHOT_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_ONE_SHOT_LAYER <= byte &&
+    keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_ONE_SHOT_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_ONE_SHOT_LAYER;
     return `OSL(${layer})`;
   } else if (
-    basicKeyToByte._QK_LAYER_TAP_TOGGLE <= byte &&
-    basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX >= byte
+    keycodeDict.ranges.QK_LAYER_TAP_TOGGLE <= byte &&
+    keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
+    const layer = byte - keycodeDict.ranges.QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
   } else if (
-    basicKeyToByte._QK_KB <= byte &&
-    basicKeyToByte._QK_KB_MAX >= byte
+    keycodeDict.ranges.QK_KB <= byte &&
+    keycodeDict.ranges.QK_KB_MAX >= byte
   ) {
-    const n = byte - basicKeyToByte._QK_KB;
-    return `CUSTOM(${n})`;
+    const n = byte - keycodeDict.ranges.QK_KB;
+    return `USER(${n})`;
   } else if (
-    basicKeyToByte._QK_MACRO <= byte &&
-    basicKeyToByte._QK_MACRO_MAX >= byte
+    keycodeDict.ranges.QK_MACRO <= byte &&
+    keycodeDict.ranges.QK_MACRO_MAX >= byte
   ) {
-    const n = byte - basicKeyToByte._QK_MACRO;
+    const n = byte - keycodeDict.ranges.QK_MACRO;
     return `MACRO(${n})`;
   }
 }
@@ -187,6 +189,7 @@ export const keycodesList = getKeycodes().reduce<IKeycode[]>(
   [],
 );
 
+/* SCREAM TEST
 export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
   Object.keys(basicKeyToByte).reduce((p, n) => {
     const key = basicKeyToByte[n];
@@ -199,50 +202,48 @@ export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
     }
     return {...p, [key]: n};
   }, {} as {[key: number]: string});
+*/
 
-function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
+function isLayerKey(byte: number, keycodeDict: KeycodeDict) {
   return [
-    [basicKeyToByte._QK_TO, basicKeyToByte._QK_TO_MAX],
-    [basicKeyToByte._QK_MOMENTARY, basicKeyToByte._QK_MOMENTARY_MAX],
-    [basicKeyToByte._QK_DEF_LAYER, basicKeyToByte._QK_DEF_LAYER_MAX],
-    [basicKeyToByte._QK_TOGGLE_LAYER, basicKeyToByte._QK_TOGGLE_LAYER_MAX],
-    [basicKeyToByte._QK_ONE_SHOT_LAYER, basicKeyToByte._QK_ONE_SHOT_LAYER_MAX],
+    [keycodeDict.ranges.QK_TO, keycodeDict.ranges.QK_TO_MAX],
+    [keycodeDict.ranges.QK_MOMENTARY, keycodeDict.ranges.QK_MOMENTARY_MAX],
+    [keycodeDict.ranges.QK_DEF_LAYER, keycodeDict.ranges.QK_DEF_LAYER_MAX],
     [
-      basicKeyToByte._QK_LAYER_TAP_TOGGLE,
-      basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+      keycodeDict.ranges.QK_TOGGLE_LAYER,
+      keycodeDict.ranges.QK_TOGGLE_LAYER_MAX,
     ],
-    [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
-    [basicKeyToByte._QK_MACRO, basicKeyToByte._QK_MACRO_MAX],
+    [
+      keycodeDict.ranges.QK_ONE_SHOT_LAYER,
+      keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX,
+    ],
+    [
+      keycodeDict.ranges.QK_LAYER_TAP_TOGGLE,
+      keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX,
+    ],
+    [keycodeDict.ranges.QK_KB, keycodeDict.ranges.QK_KB_MAX],
+    [keycodeDict.ranges.QK_MACRO, keycodeDict.ranges.QK_MACRO_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
-export function getCodeForByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
-) {
-  const keycode = byteToKey[byte];
-  if (keycode && !keycode.startsWith('_QK')) {
+export function getCodeForByte(byte: number, keycodeDict: KeycodeDict) {
+  const keycode = keycodeDict.byteToKeycode[byte];
+  if (keycode) {
     return keycode;
-  } else if (isLayerKey(byte, basicKeyToByte)) {
-    return getCodeForLayerByte(byte, basicKeyToByte);
-  } else if (
-    advancedKeycodeToString(byte, basicKeyToByte, byteToKey) !== null
-  ) {
-    return advancedKeycodeToString(byte, basicKeyToByte, byteToKey);
+  } else if (isLayerKey(byte, keycodeDict)) {
+    return getCodeForLayerByte(byte, keycodeDict);
+  } else if (advancedKeycodeToString(byte, keycodeDict) !== null) {
+    return advancedKeycodeToString(byte, keycodeDict);
   } else {
     return '0x' + Number(byte).toString(16);
   }
 }
 
-export function keycodeInMaster(
-  keycode: string,
-  basicKeyToByte: Record<string, number>,
-) {
+export function keycodeInMaster(keycode: string, keycodeDict: KeycodeDict) {
   return (
-    keycode in basicKeyToByte ||
+    keycode in keycodeDict.keycodes ||
     isLayerCode(keycode) ||
-    advancedStringToKeycode(keycode, basicKeyToByte) !== null
+    advancedStringToKeycode(keycode, keycodeDict) !== null
   );
 }
 
@@ -253,43 +254,33 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isCustomKeycodeByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte >= basicKeyToByte._QK_KB && byte <= basicKeyToByte._QK_KB_MAX;
-}
-
-export function getCustomKeycodeIndex(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte - basicKeyToByte._QK_KB;
-}
-
-export function isMacroKeycodeByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
+export function isCustomKeycodeByte(byte: number, keycodeDict: KeycodeDict) {
   return (
-    byte >= basicKeyToByte._QK_MACRO && byte <= basicKeyToByte._QK_MACRO_MAX
+    byte >= keycodeDict.ranges.QK_KB && byte <= keycodeDict.ranges.QK_KB_MAX
   );
 }
 
-export function getMacroKeycodeIndex(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte - basicKeyToByte._QK_MACRO;
+export function getCustomKeycodeIndex(byte: number, keycodeDict: KeycodeDict) {
+  return byte - keycodeDict.ranges.QK_KB;
+}
+
+export function isMacroKeycodeByte(byte: number, keycodeDict: KeycodeDict) {
+  return (
+    byte >= keycodeDict.ranges.QK_MACRO &&
+    byte <= keycodeDict.ranges.QK_MACRO_MAX
+  );
+}
+
+export function getMacroKeycodeIndex(byte: number, keycodeDict: KeycodeDict) {
+  return byte - keycodeDict.ranges.QK_MACRO;
 }
 
 export function getLabelForByte(
   byte: number,
   size = 100,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
+  keycodeDict: KeycodeDict,
 ) {
-  const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
+  const keycode = getCodeForByte(byte, keycodeDict);
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
     return keycode;
@@ -315,397 +306,143 @@ export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   return name;
 }
 
-export function mapEvtToKeycode(evt: KeyboardEvent) {
-  switch (evt.code) {
-    case 'Digit1': {
-      return 'KC_1';
-    }
-    case 'Digit2': {
-      return 'KC_2';
-    }
-    case 'Digit3': {
-      return 'KC_3';
-    }
-    case 'Digit4': {
-      return 'KC_4';
-    }
-    case 'Digit5': {
-      return 'KC_5';
-    }
-    case 'Digit6': {
-      return 'KC_6';
-    }
-    case 'Digit7': {
-      return 'KC_7';
-    }
-    case 'Digit8': {
-      return 'KC_8';
-    }
-    case 'Digit9': {
-      return 'KC_9';
-    }
-    case 'Digit0': {
-      return 'KC_0';
-    }
-    case 'KeyA': {
-      return 'KC_A';
-    }
-    case 'KeyB': {
-      return 'KC_B';
-    }
-    case 'KeyC': {
-      return 'KC_C';
-    }
-    case 'KeyD': {
-      return 'KC_D';
-    }
-    case 'KeyE': {
-      return 'KC_E';
-    }
-    case 'KeyF': {
-      return 'KC_F';
-    }
-    case 'KeyG': {
-      return 'KC_G';
-    }
-    case 'KeyH': {
-      return 'KC_H';
-    }
-    case 'KeyI': {
-      return 'KC_I';
-    }
-    case 'KeyJ': {
-      return 'KC_J';
-    }
-    case 'KeyK': {
-      return 'KC_K';
-    }
-    case 'KeyL': {
-      return 'KC_L';
-    }
-    case 'KeyM': {
-      return 'KC_M';
-    }
-    case 'KeyN': {
-      return 'KC_N';
-    }
-    case 'KeyO': {
-      return 'KC_O';
-    }
-    case 'KeyP': {
-      return 'KC_P';
-    }
-    case 'KeyQ': {
-      return 'KC_Q';
-    }
-    case 'KeyR': {
-      return 'KC_R';
-    }
-    case 'KeyS': {
-      return 'KC_S';
-    }
-    case 'KeyT': {
-      return 'KC_T';
-    }
-    case 'KeyU': {
-      return 'KC_U';
-    }
-    case 'KeyV': {
-      return 'KC_V';
-    }
-    case 'KeyW': {
-      return 'KC_W';
-    }
-    case 'KeyX': {
-      return 'KC_X';
-    }
-    case 'KeyY': {
-      return 'KC_Y';
-    }
-    case 'KeyZ': {
-      return 'KC_Z';
-    }
-    case 'Comma': {
-      return 'KC_COMM';
-    }
-    case 'Period': {
-      return 'KC_DOT';
-    }
-    case 'Semicolon': {
-      return 'KC_SCLN';
-    }
-    case 'Quote': {
-      return 'KC_QUOT';
-    }
-    case 'BracketLeft': {
-      return 'KC_LBRC';
-    }
-    case 'BracketRight': {
-      return 'KC_RBRC';
-    }
-    case 'Backquote': {
-      return 'KC_GRV';
-    }
-    case 'Slash': {
-      return 'KC_SLSH';
-    }
-    case 'Backspace': {
-      return 'KC_BSPC';
-    }
-    case 'Backslash': {
-      return 'KC_BSLS';
-    }
-    case 'Minus': {
-      return 'KC_MINS';
-    }
-    case 'Equal': {
-      return 'KC_EQL';
-    }
-    case 'IntlRo': {
-      return 'KC_RO';
-    }
-    case 'IntlYen': {
-      return 'KC_JYEN';
-    }
-    case 'AltLeft': {
-      return 'KC_LALT';
-    }
-    case 'AltRight': {
-      return 'KC_RALT';
-    }
-    case 'CapsLock': {
-      return 'KC_CAPS';
-    }
-    case 'ControlLeft': {
-      return 'KC_LCTL';
-    }
-    case 'ControlRight': {
-      return 'KC_RCTL';
-    }
-    case 'MetaLeft': {
-      return 'KC_LGUI';
-    }
-    case 'MetaRight': {
-      return 'KC_RGUI';
-    }
-    case 'OSLeft': {
-      return 'KC_LGUI';
-    }
-    case 'OSRight': {
-      return 'KC_RGUI';
-    }
-    case 'ShiftLeft': {
-      return 'KC_LSFT';
-    }
-    case 'ShiftRight': {
-      return 'KC_RSFT';
-    }
-    case 'ContextMenu': {
-      return 'KC_APP';
-    }
-    case 'Apps': {
-      return 'KC_APP';
-    }
-    case 'Enter': {
-      return 'KC_ENT';
-    }
-    case 'Space': {
-      return 'KC_SPC';
-    }
-    case 'Tab': {
-      return 'KC_TAB';
-    }
-    case 'Delete': {
-      return 'KC_DEL';
-    }
-    case 'End': {
-      return 'KC_END';
-    }
-    case 'Help': {
-      return 'KC_HELP';
-    }
-    case 'Home': {
-      return 'KC_HOME';
-    }
-    case 'Insert': {
-      return 'KC_INS';
-    }
-    case 'PageDown': {
-      return 'KC_PGDN';
-    }
-    case 'PageUp': {
-      return 'KC_PGUP';
-    }
-    case 'ArrowDown': {
-      return 'KC_DOWN';
-    }
-    case 'ArrowLeft': {
-      return 'KC_LEFT';
-    }
-    case 'ArrowRight': {
-      return 'KC_RGHT';
-    }
-    case 'ArrowUp': {
-      return 'KC_UP';
-    }
-    case 'Escape': {
-      return 'KC_ESC';
-    }
-    case 'PrintScreen': {
-      return 'KC_PSCR';
-    }
-    case 'ScrollLock': {
-      return 'KC_SLCK';
-    }
-    case 'Pause': {
-      return 'KC_PAUS';
-    }
-    case 'F1': {
-      return 'KC_F1';
-    }
-    case 'F2': {
-      return 'KC_F2';
-    }
-    case 'F3': {
-      return 'KC_F3';
-    }
-    case 'F4': {
-      return 'KC_F4';
-    }
-    case 'F5': {
-      return 'KC_F5';
-    }
-    case 'F6': {
-      return 'KC_F6';
-    }
-    case 'F7': {
-      return 'KC_F7';
-    }
-    case 'F8': {
-      return 'KC_F8';
-    }
-    case 'F9': {
-      return 'KC_F9';
-    }
-    case 'F10': {
-      return 'KC_F10';
-    }
-    case 'F11': {
-      return 'KC_F11';
-    }
-    case 'F12': {
-      return 'KC_F12';
-    }
-    case 'F13': {
-      return 'KC_F13';
-    }
-    case 'F14': {
-      return 'KC_F14';
-    }
-    case 'F15': {
-      return 'KC_F15';
-    }
-    case 'F16': {
-      return 'KC_F16';
-    }
-    case 'F17': {
-      return 'KC_F17';
-    }
-    case 'F18': {
-      return 'KC_F18';
-    }
-    case 'F19': {
-      return 'KC_F19';
-    }
-    case 'F20': {
-      return 'KC_F20';
-    }
-    case 'F21': {
-      return 'KC_F21';
-    }
-    case 'F22': {
-      return 'KC_F22';
-    }
-    case 'F23': {
-      return 'KC_F23';
-    }
-    case 'F24': {
-      return 'KC_F24';
-    }
-    case 'NumLock': {
-      return 'KC_NLCK';
-    }
-    case 'Numpad0': {
-      return 'KC_P0';
-    }
-    case 'Numpad1': {
-      return 'KC_P1';
-    }
-    case 'Numpad2': {
-      return 'KC_P2';
-    }
-    case 'Numpad3': {
-      return 'KC_P3';
-    }
-    case 'Numpad4': {
-      return 'KC_P4';
-    }
-    case 'Numpad5': {
-      return 'KC_P5';
-    }
-    case 'Numpad6': {
-      return 'KC_P6';
-    }
-    case 'Numpad7': {
-      return 'KC_P7';
-    }
-    case 'Numpad8': {
-      return 'KC_P8';
-    }
-    case 'Numpad9': {
-      return 'KC_P9';
-    }
-    case 'NumpadAdd': {
-      return 'KC_PPLS';
-    }
-    case 'NumpadComma': {
-      return 'KC_COMM';
-    }
-    case 'NumpadDecimal': {
-      return 'KC_PDOT';
-    }
-    case 'NumpadDivide': {
-      return 'KC_PSLS';
-    }
-    case 'NumpadEnter': {
-      return 'KC_PENT';
-    }
-    case 'NumpadEqual': {
-      return 'KC_PEQL';
-    }
-    case 'NumpadMultiply': {
-      return 'KC_PAST';
-    }
-    case 'NumpadSubtract': {
-      return 'KC_PMNS';
-    }
-    default:
-      console.error('Unreacheable keydown code', evt);
-  }
+export function mapEvtToKeycode(evt: KeyboardEvent): string | undefined {
+  const map: Record<string, string> = {
+    Digit1: 'KC_1',
+    Digit2: 'KC_2',
+    Digit3: 'KC_3',
+    Digit4: 'KC_4',
+    Digit5: 'KC_5',
+    Digit6: 'KC_6',
+    Digit7: 'KC_7',
+    Digit8: 'KC_8',
+    Digit9: 'KC_9',
+    Digit0: 'KC_0',
+    KeyA: 'KC_A',
+    KeyB: 'KC_B',
+    KeyC: 'KC_C',
+    KeyD: 'KC_D',
+    KeyE: 'KC_E',
+    KeyF: 'KC_F',
+    KeyG: 'KC_G',
+    KeyH: 'KC_H',
+    KeyI: 'KC_I',
+    KeyJ: 'KC_J',
+    KeyK: 'KC_K',
+    KeyL: 'KC_L',
+    KeyM: 'KC_M',
+    KeyN: 'KC_N',
+    KeyO: 'KC_O',
+    KeyP: 'KC_P',
+    KeyQ: 'KC_Q',
+    KeyR: 'KC_R',
+    KeyS: 'KC_S',
+    KeyT: 'KC_T',
+    KeyU: 'KC_U',
+    KeyV: 'KC_V',
+    KeyW: 'KC_W',
+    KeyX: 'KC_X',
+    KeyY: 'KC_Y',
+    KeyZ: 'KC_Z',
+    Comma: 'KC_COMMA',
+    Period: 'KC_DOT',
+    Semicolon: 'KC_SEMICOLON',
+    Quote: 'KC_QUOTE',
+    BracketLeft: 'KC_LEFT_BRACKET',
+    BracketRight: 'KC_RIGHT_BRACKET',
+    Backquote: 'KC_GRAVE',
+    Slash: 'KC_SLASH',
+    Backspace: 'KC_BACKSPACE',
+    Backslash: 'KC_BACKSLASH',
+    Minus: 'KC_MINUS',
+    Equal: 'KC_EQUAL',
+    IntlRo: 'KC_INTERNATIONAL_1',
+    IntlYen: 'KC_INTERNATIONAL_3',
+    AltLeft: 'KC_LEFT_ALT',
+    AltRight: 'KC_RIGHT_ALT',
+    CapsLock: 'KC_CAPS_LOCK',
+    ControlLeft: 'KC_LEFT_CTRL',
+    ControlRight: 'KC_RIGHT_CTRL',
+    MetaLeft: 'KC_LEFT_GUI',
+    MetaRight: 'KC_RIGHT_GUI',
+    OSLeft: 'KC_LEFT_GUI',
+    OSRight: 'KC_RIGHT_GUI',
+    ShiftLeft: 'KC_LEFT_SHIFT',
+    ShiftRight: 'KC_RIGHT_SHIFT',
+    ContextMenu: 'KC_APPLICATION',
+    Apps: 'KC_APPLICATION',
+    Enter: 'KC_ENTER',
+    Space: 'KC_SPACE',
+    Tab: 'KC_TAB',
+    Delete: 'KC_DELETE',
+    End: 'KC_END',
+    Help: 'KC_HELP',
+    Home: 'KC_HOME',
+    Insert: 'KC_INSERT',
+    PageDown: 'KC_PAGE_UP',
+    PageUp: 'KC_PAGE_DOWN',
+    ArrowDown: 'KC_DOWN',
+    ArrowLeft: 'KC_LEFT',
+    ArrowRight: 'KC_RIGHT',
+    ArrowUp: 'KC_UP',
+    Escape: 'KC_ESCAPE',
+    PrintScreen: 'KC_PRINT_SCREEN',
+    ScrollLock: 'KC_SCROLL_LOCK',
+    Pause: 'KC_PAUSE',
+    F1: 'KC_F1',
+    F2: 'KC_F2',
+    F3: 'KC_F3',
+    F4: 'KC_F4',
+    F5: 'KC_F5',
+    F6: 'KC_F6',
+    F7: 'KC_F7',
+    F8: 'KC_F8',
+    F9: 'KC_F9',
+    F10: 'KC_F10',
+    F11: 'KC_F11',
+    F12: 'KC_F12',
+    F13: 'KC_F13',
+    F14: 'KC_F14',
+    F15: 'KC_F15',
+    F16: 'KC_F16',
+    F17: 'KC_F17',
+    F18: 'KC_F18',
+    F19: 'KC_F19',
+    F20: 'KC_F20',
+    F21: 'KC_F21',
+    F22: 'KC_F22',
+    F23: 'KC_F23',
+    F24: 'KC_F24',
+    NumLock: 'KC_NUM_LOCK',
+    Numpad0: 'KC_KP_0',
+    Numpad1: 'KC_KP_1',
+    Numpad2: 'KC_KP_2',
+    Numpad3: 'KC_KP_3',
+    Numpad4: 'KC_KP_4',
+    Numpad5: 'KC_KP_5',
+    Numpad6: 'KC_KP_6',
+    Numpad7: 'KC_KP_7',
+    Numpad8: 'KC_KP_8',
+    Numpad9: 'KC_KP_9',
+    NumpadAdd: 'KC_KP_PLUS',
+    NumpadComma: 'KC_KP_COMMA',
+    NumpadDecimal: 'KC_KP_DOT',
+    NumpadDivide: 'KC_KP_SLASH',
+    NumpadEnter: 'KC_KP_ENTER',
+    NumpadEqual: 'KC_PEQL',
+    NumpadMultiply: 'KC_KP_ASTERISK',
+    NumpadSubtract: 'KC_KP_MINUS',
+  };
+
+  return map[evt.code];
 }
 
-export function getKeycodeForByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
-) {
-  const keycode = byteToKey[byte];
+export function getKeycodeForByte(byte: number, keycodeDict: KeycodeDict) {
+  const keycode = keycodeDict.byteToKeycode[byte];
+  // TODO: why are we checking keycodesList as well?
+  // Is this how we choose a preferred keycode string if multiple?
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
-  const advancedString = advancedKeycodeToString(
-    byte,
-    basicKeyToByte,
-    byteToKey,
-  );
+  const advancedString = advancedKeycodeToString(byte, keycodeDict);
   return (basicKeycode && basicKeycode.code) || advancedString || keycode;
 }
 

@@ -19,9 +19,7 @@ import {
   getSelectedConnectedDevice,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
-import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
-import {getKeycodeDict, KeycodeDict} from 'src/utils/keycode-dict';
-import {getByteToKey} from 'src/utils/key';
+import {getVersionedKeycodeDict, KeycodeDict} from 'src/utils/keycode-dict';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -100,20 +98,10 @@ export const getSelectedDefinition = createSelector(
     ],
 );
 
-export const getBasicKeyToByte = createSelector(
+export const getKeycodeDict = createSelector(
   getSelectedConnectedDevice,
   (connectedDevice) => {
-    const basicKeyToByte = getBasicKeyDict(
-      connectedDevice ? connectedDevice.protocol : 0,
-    );
-    return {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)};
-  },
-);
-
-export const getTheKeycodeDict = createSelector(
-  getSelectedConnectedDevice,
-  (connectedDevice) => {
-    const keycodeDict: KeycodeDict = getKeycodeDict(
+    const keycodeDict: KeycodeDict = getVersionedKeycodeDict(
       connectedDevice ? connectedDevice.protocol : 0,
     );
     return keycodeDict;

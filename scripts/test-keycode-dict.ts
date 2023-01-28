@@ -3,7 +3,7 @@ import glob from 'glob';
 import path from 'path';
 
 import {
-  getKeycodeDict,
+  getVersionedKeycodeDict,
   KeycodeDict,
   KeycodeDictSource,
   KeycodeRecord,
@@ -47,7 +47,7 @@ function toTypescript(obj: Object): string {
 }
 
 function testKeycodeDict() {
-  const keycodeDict = getKeycodeDict(12);
+  const keycodeDict = getVersionedKeycodeDict(12);
 
   const keycode = 'KC_A';
   console.log(
@@ -66,7 +66,7 @@ function testKeycodeDict() {
 }
 
 function checkExistingKeycodes() {
-  const keycodeDict = getKeycodeDict(12);
+  const keycodeDict = getVersionedKeycodeDict(12);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(9);
 
   const missingKeys = Object.keys(keycodeToByte)
@@ -81,7 +81,7 @@ function checkExistingKeycodes() {
 }
 
 function validateKeycodes(version: number) {
-  const keycodeDict = getKeycodeDict(version);
+  const keycodeDict = getVersionedKeycodeDict(version);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(version);
 
   const missingKeys = Object.keys(keycodeToByte)
@@ -100,7 +100,7 @@ function validateKeycodes(version: number) {
 }
 
 function createDeprecatedKeycodeMap() {
-  const keycodeDict = getKeycodeDict(12);
+  const keycodeDict = getVersionedKeycodeDict(12);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(12);
 
   const missingKeys = Object.entries(keycodeToByte)
@@ -158,7 +158,7 @@ function legacyKeycodeToByte(
 }
 
 function generateKeycodeDict(version: number) {
-  const keycodeDict: KeycodeDict = getKeycodeDict(12);
+  const keycodeDict: KeycodeDict = getVersionedKeycodeDict(12);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(version);
 
   const keycodes = Object.entries(keycodeDict.keycodes).reduce(

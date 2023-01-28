@@ -30,7 +30,7 @@ import {
   updateSelectedKey as updateSelectedKeyAction,
 } from 'src/store/keymapSlice';
 import {
-  getBasicKeyToByte,
+  getKeycodeDict,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -96,7 +96,7 @@ export const Home = (props: HomeProps) => {
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
-  const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
@@ -131,8 +131,8 @@ export const Home = (props: HomeProps) => {
       selectedKey !== null
     ) {
       const keycode = mapEvtToKeycode(evt);
-      if (keycode) {
-        updateSelectedKey(getByteForCode(keycode, basicKeyToByte));
+      if (keycode !== undefined) {
+        updateSelectedKey(getByteForCode(keycode, keycodeDict));
       }
     }
   };
