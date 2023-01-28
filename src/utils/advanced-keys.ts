@@ -303,6 +303,7 @@ const parseTopLevelMacro = (
         return basicKeyToByte[topLevelMacroToValue[topLevelKey]] + n;
       }
       return 0;
+    }
     default:
       return 0;
   }
