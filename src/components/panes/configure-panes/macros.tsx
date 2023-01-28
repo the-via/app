@@ -1,4 +1,4 @@
-import React, {useState, useMemo, FC} from 'react';
+import React, {useState, useMemo, FC, useCallback} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
@@ -32,17 +32,20 @@ export const Pane: FC = () => {
 
   const [selectedMacro, setSelectedMacro] = useState(0);
 
-  const saveMacro = async (macro: string) => {
-    if (!selectedDevice) {
-      return;
-    }
+  const saveMacro = useCallback(
+    async (macro: string) => {
+      if (!selectedDevice) {
+        return;
+      }
 
-    const newMacros = macroExpressions.map((oldMacro, i) =>
-      i === selectedMacro ? macro : oldMacro,
-    );
+      const newMacros = macroExpressions.map((oldMacro, i) =>
+        i === selectedMacro ? macro : oldMacro,
+      );
 
-    dispatch(saveMacros(selectedDevice, newMacros));
-  };
+      dispatch(saveMacros(selectedDevice, newMacros));
+    },
+    [macroExpressions, saveMacros, dispatch, selectedDevice, selectedMacro],
+  );
 
   const macroMenus = useMemo(
     () =>
@@ -78,7 +81,6 @@ export const Pane: FC = () => {
               selectedMacro={selectedMacro}
               saveMacros={saveMacro}
               protocol={selectedDevice ? selectedDevice.protocol : -1}
-              key={selectedMacro}
             />
           </Container>
         </MacroPane>

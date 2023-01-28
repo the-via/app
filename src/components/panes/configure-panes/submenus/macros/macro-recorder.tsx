@@ -271,7 +271,8 @@ const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
 
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
-}> = ({selectedMacro}) => {
+  showSettings: boolean;
+}> = ({selectedMacro, showSettings}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
   const [showWaitTimes, setShowWaitTimes] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -341,7 +342,7 @@ export const MacroRecorder: React.FC<{
         }),
       plusIcon,
     );
-  }, [keycodeSequence, showVerboseKeyState, showWaitTimes]);
+  }, [currSequence, showVerboseKeyState, showWaitTimes]);
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -358,7 +359,7 @@ export const MacroRecorder: React.FC<{
       );
     };
   }, [setIsFullscreen]);
-  return (
+  return !showSettings ? (
     <>
       <ControlRow>
         <Label>Fullscreen Mode</Label>
@@ -399,7 +400,10 @@ export const MacroRecorder: React.FC<{
             recordingToggleChange={recordingToggleChange}
           />
         </MacroSequenceContainer>
-      ) : null}
+      ) : null}{' '}
+    </>
+  ) : (
+    <>
       <ControlRow>
         <Label>Include separate keyup/keydown actions</Label>
         <Detail>
