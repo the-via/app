@@ -446,14 +446,11 @@ export function getKeycodeForByte(byte: number, keycodeDict: KeycodeDict) {
   return (basicKeycode && basicKeycode.code) || advancedString || keycode;
 }
 
-export function getOtherMenu(
-  basicKeyToByte: Record<string, number>,
-): IKeycodeMenu {
-  const keycodes = Object.keys(basicKeyToByte)
-    .filter((key) => !key.startsWith('_QK'))
+export function getOtherMenu(keycodeDict: KeycodeDict): IKeycodeMenu {
+  const keycodes = Object.keys(keycodeDict.keycodes)
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
-      name: code.replace('KC_', '').replace(/_/g, ' '),
+      name: code.replace(/_/g, ' '),
       code: code,
     }));
 
@@ -467,13 +464,13 @@ export function buildLayerMenu(): IKeycodeMenu {
   const hardCodedKeycodes: IKeycode[] = [
     {
       name: 'Fn1\n(Fn3)',
-      code: 'FN_MO13',
+      code: 'QK_TRI_LAYER_1_3',
       title: 'Hold = Layer 1, Hold with Fn2 = Layer 3',
       shortName: 'Fn1(3)',
     },
     {
       name: 'Fn2\n(Fn3)',
-      code: 'FN_MO23',
+      code: 'QK_TRI_LAYER_2_3',
       title: 'Hold = Layer 2, Hold with Fn1 = Layer 3',
       shortName: 'Fn2(3)',
     },
@@ -580,7 +577,7 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: '', code: 'KC_NO', title: 'Nothing'},
         {name: '▽', code: 'KC_TRANSPARENT', title: 'Pass-through'},
         // TODO: remove "shortName" when multiline keycap labels are working
-        {name: 'Esc', code: 'KC_ESC', keys: 'esc'},
+        {name: 'Esc', code: 'KC_ESCAPE', keys: 'esc'},
         {name: 'A', code: 'KC_A', keys: 'a'},
         {name: 'B', code: 'KC_B', keys: 'b'},
         {name: 'C', code: 'KC_C', keys: 'c'},

@@ -89,12 +89,12 @@ function isHex(input: string): boolean {
 // This is hella basic 💁‍♀️💁‍♂️
 function inputIsBasicByte(input: string, keycodeDict: KeycodeDict): boolean {
   const keyCode = input.trim().toUpperCase();
-  return keyCode in basicKeyToByte;
+  return keycodeDict.keycodes[keyCode] !== undefined;
 }
 
 function basicByteFromInput(input: string, keycodeDict: KeycodeDict): number {
   const keyCode = input.trim().toUpperCase();
-  return basicKeyToByte[keyCode];
+  return keycodeDict.keycodes[keyCode].byte;
 }
 
 function inputIsAdvancedKeyCode(

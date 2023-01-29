@@ -35,10 +35,7 @@ export const {loadMacrosSuccess, saveMacrosSuccess, setMacrosNotSupported} =
 export default macrosSlice.reducer;
 
 export const loadMacros =
-  (
-    connectedDevice: ConnectedDevice,
-    basicKeyToByte: Record<string, number>,
-  ): AppThunk =>
+  (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
     const {api, protocol} = connectedDevice;
     if (protocol < 8) {
