@@ -3,10 +3,18 @@ import {
   faPenToSquare,
   faPlus,
   faSquare,
+  faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import TextareaAutosize from 'react-textarea-autosize';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {AccentButton} from 'src/components/inputs/accent-button';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
@@ -136,9 +144,8 @@ const KeycodeSequenceLabel = styled.div`
   display: inline-flex;
   user-select: none;
   color: #717070;
-  padding: 5px;
+  padding: 2px 4px;
   text-overflow: ellipsis;
-  cursor: pointer;
   min-width: 30px;
   font-size: 12px;
   text-align: center;
@@ -196,6 +203,50 @@ const MacroSequenceContainer = styled.div`
   display: block;
   padding: 10px 0;
 `;
+
+const SequenceLabelSeparator = styled.div`
+  width: 20px;
+  display: inline-flex;
+  vertical-align: middle;
+  border: 1px solid var(--color_accent);
+`;
+
+const DeletableContainer = styled.div`
+  display: inline-flex;
+  vertical-align: middle;
+  position: relative;
+  svg {
+    color: var(--bg_icon-highlighted);
+    position: absolute;
+    right: -5px;
+    top: 6px;
+    opacity: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    background: var(--bg_icon);
+    border-radius: 50%;
+    transform: scale(0.8);
+  }
+  &:hover svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const Deletable: React.FC<
+  PropsWithChildren<{index: number; deleteItem: (index: number) => void}>
+> = (props) => {
+  return (
+    <DeletableContainer>
+      {props.children}
+      <FontAwesomeIcon
+        icon={faXmarkCircle}
+        size={'lg'}
+        onClick={() => props.deleteItem(props.index)}
+      />
+    </DeletableContainer>
+  );
+};
 
 declare global {
   interface Navigator {
@@ -266,7 +317,7 @@ const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
     : action === RawKeycodeSequenceAction.Up
     ? KeycodeUpLabel
     : action === RawKeycodeSequenceAction.CharacterStream
-    ? CharacterStreamInput
+    ? KeycodePressLabel
     : KeycodePressLabel;
 
 export const MacroRecorder: React.FC<{
@@ -306,13 +357,18 @@ export const MacroRecorder: React.FC<{
   );
 
   const sequence = useMemo(() => {
-    const [acc] = showVerboseKeyState
-      ? [currSequence]
-      : currSequence.reduce(transformToCompressed, [
-          [],
-          [RawKeycodeSequenceAction.Delay, 0],
-          0,
-        ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
+    const [acc] =
+      showVerboseKeyState || !keycodeSequence.length
+        ? [currSequence]
+        : currSequence.reduce(transformToCompressed, [
+            [],
+            [RawKeycodeSequenceAction.Delay, 0],
+            0,
+          ] as [
+            OptimizedKeycodeSequence,
+            OptimizedKeycodeSequenceItem,
+            number,
+          ]);
 
     return componentJoin(
       acc
@@ -320,13 +376,18 @@ export const MacroRecorder: React.FC<{
           ([action]) =>
             showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
         )
-        .map(([action, actionArg]) => {
+        .map(([action, actionArg], index) => {
           const Label = getSequenceItemComponent(action);
           return !showWaitTimes &&
             action === RawKeycodeSequenceAction.Delay ? null : (
             <>
               {RawKeycodeSequenceAction.Delay !== action ? (
-                <Label>{actionArg}</Label>
+                <Deletable
+                  index={index}
+                  deleteItem={(idx) => console.log('trying to delete:', idx)}
+                >
+                  <Label>{actionArg}</Label>
+                </Deletable>
               ) : showWaitTimes ? (
                 <>
                   <KeycodeSequenceWait>
@@ -340,7 +401,7 @@ export const MacroRecorder: React.FC<{
             </>
           );
         }),
-      plusIcon,
+      <SequenceLabelSeparator />,
     );
   }, [currSequence, showVerboseKeyState, showWaitTimes]);
   useEffect(() => {
@@ -392,13 +453,6 @@ export const MacroRecorder: React.FC<{
       {sequence.length ? (
         <MacroSequenceContainer ref={macroSequenceRef}>
           {sequence}
-          {plusIcon}
-          <AddNext
-            isFullscreen={isFullscreen}
-            addText={() => {}}
-            isRecording={isRecording}
-            recordingToggleChange={recordingToggleChange}
-          />
         </MacroSequenceContainer>
       ) : null}{' '}
     </>
