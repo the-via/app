@@ -39,9 +39,8 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
             speed={1} // Speed factor
             zoom={1} // Zoom factor when half the polar-max is reached
             rotation={[0, 0, 0]} // Default rotation
-            polar={[-Math.PI / 4, Math.PI / 4]} // Vertical limits
-            azimuth={[-Math.PI / 4, Math.PI / 4]} // Horizontal limits
-            config={{mass: 1, tension: 170, friction: 26}} // Spring config
+            polar={[-Math.PI / 8, Math.PI / 8]} // Vertical limits
+            config={{mass: 1, tension: 200, friction: 5}} // Spring config
           >
             <primitive object={cubeyGLTF.scene} />
           </PresentationControls>

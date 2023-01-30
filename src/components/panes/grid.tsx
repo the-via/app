@@ -42,6 +42,7 @@ export const SubmenuCell = styled(Cell)`
 `;
 
 export const SubmenuOverflowCell = styled(SubmenuCell)`
+  min-width: 80px;
   overflow: auto;
 `;
 
