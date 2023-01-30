@@ -10,10 +10,11 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
     const spinnerRef = useRef<any>();
     const yInit = !visible ? 10 : -0.6;
 
+    // TODO: theme cubey
     cubeyGLTF.scene.children.forEach((child) => {
       if (child.name === 'body') {
-        //        child.material.color = new Color(color);
-        console.log(child);
+        // child.material.color = new Color(color);
+        // console.log(child);
       }
     });
 
@@ -23,7 +24,6 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
           Math.sin(clock.elapsedTime) * (Math.PI / 40);
         spinnerRef.current.rotation.y =
           Math.PI + Math.sin(0.6 * clock.elapsedTime) * (Math.PI / 16);
-        console.log(spinnerRef.current);
         spinnerRef.current.position.y =
           yInit + 0.2 * Math.sin(clock.elapsedTime);
       }
