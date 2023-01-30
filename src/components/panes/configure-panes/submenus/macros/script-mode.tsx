@@ -71,8 +71,16 @@ export const ScriptMode: React.FC<{
   protocol: number;
   macroIndex: number;
   showSettings: boolean;
+  setUnsavedMacro: (macro: string) => void;
   saveMacros: (val: string) => void;
-}> = ({macro, protocol, showSettings, saveMacros, macroIndex}) => {
+}> = ({
+  macro,
+  protocol,
+  showSettings,
+  setUnsavedMacro,
+  saveMacros,
+  macroIndex,
+}) => {
   const enterToken = '{KC_ENT}';
   const trimmedMacro = macro.trimRight();
   const textareaInitialValue = trimmedMacro.replace(
@@ -86,6 +94,10 @@ export const ScriptMode: React.FC<{
   const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
     undefined,
   );
+
+  useEffect(() => {
+    setUnsavedMacro(currentValue);
+  }, [currentValue]);
 
   const saveMacro = () => {
     const value = appendEnter ? currentValue + enterToken : currentValue;

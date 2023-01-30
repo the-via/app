@@ -7,7 +7,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import TextareaAutosize from 'react-textarea-autosize';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
+import React, {
+  ChangeEvent,
   PropsWithChildren,
   useCallback,
   useEffect,
@@ -34,6 +35,7 @@ import {
   rawSequenceToOptimizedSequence,
   sequenceToExpression,
 } from 'src/utils/macro-api/macro-api.common';
+import {Message} from 'src/components/styled';
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -54,7 +56,7 @@ const IconButton = styled.button`
     border-color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
     background-color: ${(props) =>
-      props.disabled ? 'transparent' : 'var(--color_accent)'};
+      props.disabled ? 'var(--bg_menu)' : 'var(--color_accent)'};
   }
 
   svg {
@@ -67,11 +69,17 @@ const IconButton = styled.button`
   }
 `;
 
+const NoMacroRecorded = styled.div`
+  margin: 10px 0px;
+  font-style: italic;
+  color: var(--color_label-highlighted);
+`;
 const KeycodeSequenceWaitNumber = styled.span`
   display: inline-flex;
   border: 2px solid transparent;
   padding: 5px 2px;
   font-weight: initial;
+  border-bottom: 1px solid;
 `;
 const KeycodeSequenceWait = styled.div`
   display: inline-flex;
@@ -91,6 +99,11 @@ const KeycodeSequenceWait = styled.div`
   white-space: nowrap;
   position: relative;
   margin: 15px 0px;
+  box-sizing: border-box;
+  border: 4px solid;
+  padding: 4px 4px;
+  border-color: var(--color_accent);
+  border-radius: 8px;
 `;
 const AddNextContainer = styled.div`
   border-radius: 4px;
@@ -117,6 +130,7 @@ const AddNextItemDisabled = styled(IconButton)`
   line-height: initial;
   border-right: 1px solid var(--border_color_icon);
   cursor: not-allowed;
+  background: var(--bg_menu);
 `;
 
 const AddToSequenceContainer = styled.button`
@@ -144,7 +158,7 @@ const KeycodeSequenceLabel = styled.div`
   display: inline-flex;
   user-select: none;
   color: #717070;
-  padding: 2px 4px;
+  padding: 6px 4px;
   text-overflow: ellipsis;
   min-width: 30px;
   font-size: 12px;
@@ -201,7 +215,12 @@ const MacroSequenceContainer = styled.div`
   max-width: 960px;
   width: 100%;
   display: block;
-  padding: 10px 0;
+  border: 1px solid var(--border_color_cell);
+  padding: 10px 20px;
+  border-radius: 15px;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
 `;
 
 const SequenceLabelSeparator = styled.div`
@@ -230,6 +249,33 @@ const DeletableContainer = styled.div`
   &:hover svg {
     opacity: 1;
     transform: scale(1);
+  }
+`;
+
+const NumberInput = styled.input.attrs({type: 'number', placeholder: 'XXXXX'})`
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 1px solid;
+  color: var(--color_label);
+  width: 45px;
+  text-align: center;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--color_label-highlighted);
+  margin: 0 5px 0 0;
+  &:focus {
+    color: var(--color_accent);
+  }
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    display: none;
+  }
+  &:invalid {
+    color: red;
+  }
+  &:placeholder-shown {
+    color: red;
   }
 `;
 
@@ -311,6 +357,14 @@ const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
   }, [] as (JSX.Element | null)[]);
 };
 
+const PlusIcon = () => (
+  <FontAwesomeIcon
+    style={{marginLeft: 10, marginRight: 10}}
+    icon={faPlus}
+    color={'var(--color_accent)'}
+  />
+);
+
 const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
   action === RawKeycodeSequenceAction.Down
     ? KeycodeDownLabel
@@ -320,12 +374,47 @@ const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
     ? KeycodePressLabel
     : KeycodePressLabel;
 
+const WaitInput: React.FC<{
+  value: number | string;
+  setInput: (wait: number) => void;
+}> = (props) => {
+  const [waitNumber, setWaitNumber] = useState(props.value);
+  const inputRef = useRef(null);
+  const onBeforeInput = (evt: InputEvent) => {
+    if (!evt.data || !/^\d$/.test(evt.data)) {
+      evt.preventDefault();
+    }
+    console.log(evt.data);
+  };
+  const onChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    if (
+      evt.target.value === '' ||
+      (+evt.target.value > 0 && +evt.target.value < 100000)
+    ) {
+      setWaitNumber(evt.target.value);
+    }
+  };
+
+  return (
+    <KeycodeSequenceWait>
+      <NumberInput
+        ref={inputRef}
+        onBeforeInput={onBeforeInput as any}
+        value={waitNumber}
+        onChange={onChange}
+      />
+      ms
+    </KeycodeSequenceWait>
+  );
+};
+
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
   showSettings: boolean;
+  setUnsavedMacro: (a: any) => void;
 }> = ({selectedMacro, showSettings}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
-  const [showWaitTimes, setShowWaitTimes] = useState(false);
+  const [recordWaitTimes, setRecordWaitTimes] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
@@ -344,21 +433,17 @@ export const MacroRecorder: React.FC<{
     },
     [setIsRecording],
   );
-  const currSequence = keycodeSequence.length
+  const showOriginalSequence = !keycodeSequence.length;
+  console.log(showOriginalSequence);
+  const currSequence = !showOriginalSequence
     ? keycodeSequence
     : selectedMacro ?? [];
 
-  const plusIcon = (
-    <FontAwesomeIcon
-      style={{marginLeft: 10, marginRight: 10}}
-      icon={faPlus}
-      color={'var(--color_accent)'}
-    />
-  );
+  const showWaitTimes = recordWaitTimes || showOriginalSequence;
 
   const sequence = useMemo(() => {
     const [acc] =
-      showVerboseKeyState || !keycodeSequence.length
+      showVerboseKeyState || showOriginalSequence
         ? [currSequence]
         : currSequence.reduce(transformToCompressed, [
             [],
@@ -374,7 +459,9 @@ export const MacroRecorder: React.FC<{
       acc
         .filter(
           ([action]) =>
-            showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
+            showWaitTimes ||
+            currSequence === selectedMacro ||
+            action !== RawKeycodeSequenceAction.Delay,
         )
         .map(([action, actionArg], index) => {
           const Label = getSequenceItemComponent(action);
@@ -390,12 +477,15 @@ export const MacroRecorder: React.FC<{
                 </Deletable>
               ) : showWaitTimes ? (
                 <>
-                  <KeycodeSequenceWait>
-                    <KeycodeSequenceWaitNumber>
-                      {actionArg}
-                    </KeycodeSequenceWaitNumber>
-                    ms
-                  </KeycodeSequenceWait>
+                  <Deletable
+                    index={index}
+                    deleteItem={(idx) => console.log('trying to delete:', idx)}
+                  >
+                    <WaitInput
+                      value={Number(actionArg)}
+                      setInput={() => null}
+                    />
+                  </Deletable>
                 </>
               ) : null}
             </>
@@ -403,7 +493,9 @@ export const MacroRecorder: React.FC<{
         }),
       <SequenceLabelSeparator />,
     );
-  }, [currSequence, showVerboseKeyState, showWaitTimes]);
+  }, [currSequence, showOriginalSequence, showVerboseKeyState, showWaitTimes]);
+
+  console.log(currSequence);
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -422,7 +514,7 @@ export const MacroRecorder: React.FC<{
   }, [setIsFullscreen]);
   return !showSettings ? (
     <>
-      <ControlRow>
+      <ControlRow style={{border: 'none'}}>
         <Label>Fullscreen Mode</Label>
         <Detail>
           <AccentButton
@@ -439,8 +531,24 @@ export const MacroRecorder: React.FC<{
           </AccentButton>
         </Detail>
       </ControlRow>
-      <ControlRow>
-        <Label>Rerecord Macro</Label>
+      <MacroSequenceContainer ref={macroSequenceRef}>
+        {sequence.length ? (
+          sequence
+        ) : (
+          <NoMacroRecorded>No macro recorded yet...</NoMacroRecorded>
+        )}
+      </MacroSequenceContainer>
+      <div
+        style={{
+          border: 'none',
+          maxWidth: 960,
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          transform: 'translate(-20px, -10px)',
+        }}
+      >
+        <Label></Label>
         <Detail>
           <AddNext
             isFullscreen={isFullscreen}
@@ -449,12 +557,7 @@ export const MacroRecorder: React.FC<{
             recordingToggleChange={recordingToggleChange}
           />
         </Detail>
-      </ControlRow>
-      {sequence.length ? (
-        <MacroSequenceContainer ref={macroSequenceRef}>
-          {sequence}
-        </MacroSequenceContainer>
-      ) : null}{' '}
+      </div>
     </>
   ) : (
     <>
@@ -470,7 +573,10 @@ export const MacroRecorder: React.FC<{
       <ControlRow>
         <Label>Include delays (ms)</Label>
         <Detail>
-          <AccentSlider isChecked={showWaitTimes} onChange={setShowWaitTimes} />
+          <AccentSlider
+            isChecked={showWaitTimes}
+            onChange={setRecordWaitTimes}
+          />
         </Detail>
       </ControlRow>
     </>
