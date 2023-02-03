@@ -33,26 +33,6 @@ export function isAlpha(label: string) {
   return /[A-Za-z]/.test(label) && label.length === 1;
 }
 
-// Test if label is a numpad number
-export function isNumpadNumber(label: string) {
-  return /['0-9]/.test(label) && label.length === 1;
-}
-
-export function isArrowKey(label: string) {
-  return /[🠗🠕🠖🠔←↑→↓]$/.test(label);
-}
-
-export function isNumpadSymbol(label: string) {
-  const centeredSymbol = '-+.÷×'.split('');
-  return label.length === 1 && centeredSymbol.includes(label[0]);
-}
-
-// Test if label is a multi-legend, e.g. "!\n1"
-export function isMultiLegend(label: string) {
-  const topLegend = '~!@#$%^&*()_+|{}:"<>?'.split('');
-  return label.length !== 1 && topLegend.includes(label[0]);
-}
-
 // Tests if label is a number
 export function isNumericOrShiftedSymbol(label: string) {
   const numbersTop = '!@#$%^&*()_+|~{}:"<>?1234567890'.split('');
@@ -101,38 +81,44 @@ function getByteForLayerCode(
     switch (code) {
       case 'TO': {
         return Math.min(
-          basicKeyToByte.QK_TO + numLayer,
-          basicKeyToByte.QK_TO_MAX,
+          basicKeyToByte._QK_TO + numLayer,
+          basicKeyToByte._QK_TO_MAX,
         );
       }
       case 'MO': {
         return Math.min(
-          basicKeyToByte.QK_MOMENTARY + numLayer,
-          basicKeyToByte.QK_MOMENTARY_MAX,
+          basicKeyToByte._QK_MOMENTARY + numLayer,
+          basicKeyToByte._QK_MOMENTARY_MAX,
         );
       }
       case 'DF': {
         return Math.min(
-          basicKeyToByte.QK_DEF_LAYER + numLayer,
-          basicKeyToByte.QK_DEF_LAYER_MAX,
+          basicKeyToByte._QK_DEF_LAYER + numLayer,
+          basicKeyToByte._QK_DEF_LAYER_MAX,
         );
       }
       case 'TG': {
         return Math.min(
-          basicKeyToByte.QK_TOGGLE_LAYER + numLayer,
-          basicKeyToByte.QK_TOGGLE_LAYER_MAX,
+          basicKeyToByte._QK_TOGGLE_LAYER + numLayer,
+          basicKeyToByte._QK_TOGGLE_LAYER_MAX,
         );
       }
       case 'OSL': {
         return Math.min(
-          basicKeyToByte.QK_ONE_SHOT_LAYER + numLayer,
-          basicKeyToByte.QK_ONE_SHOT_LAYER_MAX,
+          basicKeyToByte._QK_ONE_SHOT_LAYER + numLayer,
+          basicKeyToByte._QK_ONE_SHOT_LAYER_MAX,
         );
       }
       case 'TT': {
         return Math.min(
-          basicKeyToByte.QK_LAYER_TAP_TOGGLE + numLayer,
-          basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX,
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE + numLayer,
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+        );
+      }
+      case 'CUSTOM': {
+        return Math.min(
+          basicKeyToByte._QK_KB + numLayer,
+          basicKeyToByte._QK_KB_MAX,
         );
       }
       default: {
@@ -147,39 +133,45 @@ function getCodeForLayerByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  if (basicKeyToByte.QK_TO <= byte && basicKeyToByte.QK_TO_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_TO;
+  if (basicKeyToByte._QK_TO <= byte && basicKeyToByte._QK_TO_MAX >= byte) {
+    const layer = byte - basicKeyToByte._QK_TO;
     return `TO(${layer})`;
   } else if (
-    basicKeyToByte.QK_MOMENTARY <= byte &&
-    basicKeyToByte.QK_MOMENTARY_MAX >= byte
+    basicKeyToByte._QK_MOMENTARY <= byte &&
+    basicKeyToByte._QK_MOMENTARY_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_MOMENTARY;
+    const layer = byte - basicKeyToByte._QK_MOMENTARY;
     return `MO(${layer})`;
   } else if (
-    basicKeyToByte.QK_DEF_LAYER <= byte &&
-    basicKeyToByte.QK_DEF_LAYER_MAX >= byte
+    basicKeyToByte._QK_DEF_LAYER <= byte &&
+    basicKeyToByte._QK_DEF_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_DEF_LAYER;
+    const layer = byte - basicKeyToByte._QK_DEF_LAYER;
     return `DF(${layer})`;
   } else if (
-    basicKeyToByte.QK_TOGGLE_LAYER <= byte &&
-    basicKeyToByte.QK_TOGGLE_LAYER_MAX >= byte
+    basicKeyToByte._QK_TOGGLE_LAYER <= byte &&
+    basicKeyToByte._QK_TOGGLE_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_TOGGLE_LAYER;
+    const layer = byte - basicKeyToByte._QK_TOGGLE_LAYER;
     return `TG(${layer})`;
   } else if (
-    basicKeyToByte.QK_ONE_SHOT_LAYER <= byte &&
-    basicKeyToByte.QK_ONE_SHOT_LAYER_MAX >= byte
+    basicKeyToByte._QK_ONE_SHOT_LAYER <= byte &&
+    basicKeyToByte._QK_ONE_SHOT_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_ONE_SHOT_LAYER;
+    const layer = byte - basicKeyToByte._QK_ONE_SHOT_LAYER;
     return `OSL(${layer})`;
   } else if (
-    basicKeyToByte.QK_LAYER_TAP_TOGGLE <= byte &&
-    basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX >= byte
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE <= byte &&
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_LAYER_TAP_TOGGLE;
+    const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
+  } else if (
+    basicKeyToByte._QK_KB <= byte &&
+    basicKeyToByte._QK_KB_MAX >= byte
+  ) {
+    const n = byte - basicKeyToByte._QK_KB;
+    return `CUSTOM(${n})`;
   }
 }
 
@@ -203,15 +195,16 @@ export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
 
 function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
   return [
-    [basicKeyToByte.QK_TO, basicKeyToByte.QK_TO_MAX],
-    [basicKeyToByte.QK_MOMENTARY, basicKeyToByte.QK_MOMENTARY_MAX],
-    [basicKeyToByte.QK_DEF_LAYER, basicKeyToByte.QK_DEF_LAYER_MAX],
-    [basicKeyToByte.QK_TOGGLE_LAYER, basicKeyToByte.QK_TOGGLE_LAYER_MAX],
-    [basicKeyToByte.QK_ONE_SHOT_LAYER, basicKeyToByte.QK_ONE_SHOT_LAYER_MAX],
+    [basicKeyToByte._QK_TO, basicKeyToByte._QK_TO_MAX],
+    [basicKeyToByte._QK_MOMENTARY, basicKeyToByte._QK_MOMENTARY_MAX],
+    [basicKeyToByte._QK_DEF_LAYER, basicKeyToByte._QK_DEF_LAYER_MAX],
+    [basicKeyToByte._QK_TOGGLE_LAYER, basicKeyToByte._QK_TOGGLE_LAYER_MAX],
+    [basicKeyToByte._QK_ONE_SHOT_LAYER, basicKeyToByte._QK_ONE_SHOT_LAYER_MAX],
     [
-      basicKeyToByte.QK_LAYER_TAP_TOGGLE,
-      basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX,
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE,
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
     ],
+    [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -221,7 +214,7 @@ export function getCodeForByte(
   byteToKey: Record<number, string>,
 ) {
   const keycode = byteToKey[byte];
-  if (keycode) {
+  if (keycode && !keycode.startsWith('_QK')) {
     return keycode;
   } else if (isLayerKey(byte, basicKeyToByte)) {
     return getCodeForLayerByte(byte, basicKeyToByte);
@@ -248,18 +241,18 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isUserKeycodeByte(
+export function isCustomKeycodeByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
+  return byte >= basicKeyToByte._QK_KB && byte <= basicKeyToByte._QK_KB_MAX;
 }
 
-export function getUserKeycodeIndex(
+export function getCustomKeycodeIndex(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte - basicKeyToByte.USER00;
+  return byte - basicKeyToByte._QK_KB;
 }
 
 export function getLabelForByte(
@@ -294,6 +287,385 @@ export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   return name;
 }
 
+export function mapEvtToKeycode(evt: KeyboardEvent) {
+  switch (evt.code) {
+    case 'Digit1': {
+      return 'KC_1';
+    }
+    case 'Digit2': {
+      return 'KC_2';
+    }
+    case 'Digit3': {
+      return 'KC_3';
+    }
+    case 'Digit4': {
+      return 'KC_4';
+    }
+    case 'Digit5': {
+      return 'KC_5';
+    }
+    case 'Digit6': {
+      return 'KC_6';
+    }
+    case 'Digit7': {
+      return 'KC_7';
+    }
+    case 'Digit8': {
+      return 'KC_8';
+    }
+    case 'Digit9': {
+      return 'KC_9';
+    }
+    case 'Digit0': {
+      return 'KC_0';
+    }
+    case 'KeyA': {
+      return 'KC_A';
+    }
+    case 'KeyB': {
+      return 'KC_B';
+    }
+    case 'KeyC': {
+      return 'KC_C';
+    }
+    case 'KeyD': {
+      return 'KC_D';
+    }
+    case 'KeyE': {
+      return 'KC_E';
+    }
+    case 'KeyF': {
+      return 'KC_F';
+    }
+    case 'KeyG': {
+      return 'KC_G';
+    }
+    case 'KeyH': {
+      return 'KC_H';
+    }
+    case 'KeyI': {
+      return 'KC_I';
+    }
+    case 'KeyJ': {
+      return 'KC_J';
+    }
+    case 'KeyK': {
+      return 'KC_K';
+    }
+    case 'KeyL': {
+      return 'KC_L';
+    }
+    case 'KeyM': {
+      return 'KC_M';
+    }
+    case 'KeyN': {
+      return 'KC_N';
+    }
+    case 'KeyO': {
+      return 'KC_O';
+    }
+    case 'KeyP': {
+      return 'KC_P';
+    }
+    case 'KeyQ': {
+      return 'KC_Q';
+    }
+    case 'KeyR': {
+      return 'KC_R';
+    }
+    case 'KeyS': {
+      return 'KC_S';
+    }
+    case 'KeyT': {
+      return 'KC_T';
+    }
+    case 'KeyU': {
+      return 'KC_U';
+    }
+    case 'KeyV': {
+      return 'KC_V';
+    }
+    case 'KeyW': {
+      return 'KC_W';
+    }
+    case 'KeyX': {
+      return 'KC_X';
+    }
+    case 'KeyY': {
+      return 'KC_Y';
+    }
+    case 'KeyZ': {
+      return 'KC_Z';
+    }
+    case 'Comma': {
+      return 'KC_COMM';
+    }
+    case 'Period': {
+      return 'KC_DOT';
+    }
+    case 'Semicolon': {
+      return 'KC_SCLN';
+    }
+    case 'Quote': {
+      return 'KC_QUOT';
+    }
+    case 'BracketLeft': {
+      return 'KC_LBRC';
+    }
+    case 'BracketRight': {
+      return 'KC_RBRC';
+    }
+    case 'Backquote': {
+      return 'KC_GRV';
+    }
+    case 'Slash': {
+      return 'KC_SLSH';
+    }
+    case 'Backspace': {
+      return 'KC_BSPC';
+    }
+    case 'Backslash': {
+      return 'KC_BSLS';
+    }
+    case 'Minus': {
+      return 'KC_MINS';
+    }
+    case 'Equal': {
+      return 'KC_EQL';
+    }
+    case 'IntlRo': {
+      return 'KC_RO';
+    }
+    case 'IntlYen': {
+      return 'KC_JYEN';
+    }
+    case 'AltLeft': {
+      return 'KC_LALT';
+    }
+    case 'AltRight': {
+      return 'KC_RALT';
+    }
+    case 'CapsLock': {
+      return 'KC_CAPS';
+    }
+    case 'ControlLeft': {
+      return 'KC_LCTL';
+    }
+    case 'ControlRight': {
+      return 'KC_RCTL';
+    }
+    case 'MetaLeft': {
+      return 'KC_LGUI';
+    }
+    case 'MetaRight': {
+      return 'KC_RGUI';
+    }
+    case 'OSLeft': {
+      return 'KC_LGUI';
+    }
+    case 'OSRight': {
+      return 'KC_RGUI';
+    }
+    case 'ShiftLeft': {
+      return 'KC_LSFT';
+    }
+    case 'ShiftRight': {
+      return 'KC_RSFT';
+    }
+    case 'ContextMenu': {
+      return 'KC_APP';
+    }
+    case 'Apps': {
+      return 'KC_APP';
+    }
+    case 'Enter': {
+      return 'KC_ENT';
+    }
+    case 'Space': {
+      return 'KC_SPC';
+    }
+    case 'Tab': {
+      return 'KC_TAB';
+    }
+    case 'Delete': {
+      return 'KC_DEL';
+    }
+    case 'End': {
+      return 'KC_END';
+    }
+    case 'Help': {
+      return 'KC_HELP';
+    }
+    case 'Home': {
+      return 'KC_HOME';
+    }
+    case 'Insert': {
+      return 'KC_INS';
+    }
+    case 'PageDown': {
+      return 'KC_PGDN';
+    }
+    case 'PageUp': {
+      return 'KC_PGUP';
+    }
+    case 'ArrowDown': {
+      return 'KC_DOWN';
+    }
+    case 'ArrowLeft': {
+      return 'KC_LEFT';
+    }
+    case 'ArrowRight': {
+      return 'KC_RGHT';
+    }
+    case 'ArrowUp': {
+      return 'KC_UP';
+    }
+    case 'Escape': {
+      return 'KC_ESC';
+    }
+    case 'PrintScreen': {
+      return 'KC_PSCR';
+    }
+    case 'ScrollLock': {
+      return 'KC_SLCK';
+    }
+    case 'Pause': {
+      return 'KC_PAUS';
+    }
+    case 'F1': {
+      return 'KC_F1';
+    }
+    case 'F2': {
+      return 'KC_F2';
+    }
+    case 'F3': {
+      return 'KC_F3';
+    }
+    case 'F4': {
+      return 'KC_F4';
+    }
+    case 'F5': {
+      return 'KC_F5';
+    }
+    case 'F6': {
+      return 'KC_F6';
+    }
+    case 'F7': {
+      return 'KC_F7';
+    }
+    case 'F8': {
+      return 'KC_F8';
+    }
+    case 'F9': {
+      return 'KC_F9';
+    }
+    case 'F10': {
+      return 'KC_F10';
+    }
+    case 'F11': {
+      return 'KC_F11';
+    }
+    case 'F12': {
+      return 'KC_F12';
+    }
+    case 'F13': {
+      return 'KC_F13';
+    }
+    case 'F14': {
+      return 'KC_F14';
+    }
+    case 'F15': {
+      return 'KC_F15';
+    }
+    case 'F16': {
+      return 'KC_F16';
+    }
+    case 'F17': {
+      return 'KC_F17';
+    }
+    case 'F18': {
+      return 'KC_F18';
+    }
+    case 'F19': {
+      return 'KC_F19';
+    }
+    case 'F20': {
+      return 'KC_F20';
+    }
+    case 'F21': {
+      return 'KC_F21';
+    }
+    case 'F22': {
+      return 'KC_F22';
+    }
+    case 'F23': {
+      return 'KC_F23';
+    }
+    case 'F24': {
+      return 'KC_F24';
+    }
+    case 'NumLock': {
+      return 'KC_NLCK';
+    }
+    case 'Numpad0': {
+      return 'KC_P0';
+    }
+    case 'Numpad1': {
+      return 'KC_P1';
+    }
+    case 'Numpad2': {
+      return 'KC_P2';
+    }
+    case 'Numpad3': {
+      return 'KC_P3';
+    }
+    case 'Numpad4': {
+      return 'KC_P4';
+    }
+    case 'Numpad5': {
+      return 'KC_P5';
+    }
+    case 'Numpad6': {
+      return 'KC_P6';
+    }
+    case 'Numpad7': {
+      return 'KC_P7';
+    }
+    case 'Numpad8': {
+      return 'KC_P8';
+    }
+    case 'Numpad9': {
+      return 'KC_P9';
+    }
+    case 'NumpadAdd': {
+      return 'KC_PPLS';
+    }
+    case 'NumpadComma': {
+      return 'KC_COMM';
+    }
+    case 'NumpadDecimal': {
+      return 'KC_PDOT';
+    }
+    case 'NumpadDivide': {
+      return 'KC_PSLS';
+    }
+    case 'NumpadEnter': {
+      return 'KC_PENT';
+    }
+    case 'NumpadEqual': {
+      return 'KC_PEQL';
+    }
+    case 'NumpadMultiply': {
+      return 'KC_PAST';
+    }
+    case 'NumpadSubtract': {
+      return 'KC_PMNS';
+    }
+    default:
+      console.error('Unreacheable keydown code', evt);
+  }
+}
+
 export function getKeycodeForByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
@@ -313,7 +685,7 @@ export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
   const keycodes = Object.keys(basicKeyToByte)
-    .filter((key) => !key.startsWith('QK_'))
+    .filter((key) => !key.startsWith('_QK'))
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
@@ -546,8 +918,8 @@ export function getKeycodes(): IKeycodeMenu[] {
           keys: 'num_0',
           title: 'Numpad 0',
         },
-        {name: '÷', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad ÷'},
-        {name: '×', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad ×'},
+        {name: '/', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad /'},
+        {name: '*', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad *'},
         {name: '-', code: 'KC_PMNS', keys: 'num_subtract', title: 'Numpad -'},
         {name: '+', code: 'KC_PPLS', keys: 'num_add', title: 'Numpad +'},
         {name: '.', code: 'KC_PDOT', keys: 'num_decimal', title: 'Numpad .'},
@@ -1002,22 +1374,22 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Custom',
       width: 'label',
       keycodes: [
-        {name: 'User00', code: 'USER00', title: 'Custom Keycode 00'},
-        {name: 'User01', code: 'USER01', title: 'Custom Keycode 01'},
-        {name: 'User02', code: 'USER02', title: 'Custom Keycode 02'},
-        {name: 'User03', code: 'USER03', title: 'Custom Keycode 03'},
-        {name: 'User04', code: 'USER04', title: 'Custom Keycode 04'},
-        {name: 'User05', code: 'USER05', title: 'Custom Keycode 05'},
-        {name: 'User06', code: 'USER06', title: 'Custom Keycode 06'},
-        {name: 'User07', code: 'USER07', title: 'Custom Keycode 07'},
-        {name: 'User08', code: 'USER08', title: 'Custom Keycode 08'},
-        {name: 'User09', code: 'USER09', title: 'Custom Keycode 09'},
-        {name: 'User10', code: 'USER10', title: 'Custom Keycode 10'},
-        {name: 'User11', code: 'USER11', title: 'Custom Keycode 11'},
-        {name: 'User12', code: 'USER12', title: 'Custom Keycode 12'},
-        {name: 'User13', code: 'USER13', title: 'Custom Keycode 13'},
-        {name: 'User14', code: 'USER14', title: 'Custom Keycode 14'},
-        {name: 'User15', code: 'USER15', title: 'Custom Keycode 15'},
+        {name: 'CUSTOM(0)', code: 'CUSTOM(0)', title: 'Custom Keycode 0'},
+        {name: 'CUSTOM(1)', code: 'CUSTOM(1)', title: 'Custom Keycode 1'},
+        {name: 'CUSTOM(2)', code: 'CUSTOM(2)', title: 'Custom Keycode 2'},
+        {name: 'CUSTOM(3)', code: 'CUSTOM(3)', title: 'Custom Keycode 3'},
+        {name: 'CUSTOM(4)', code: 'CUSTOM(4)', title: 'Custom Keycode 4'},
+        {name: 'CUSTOM(5)', code: 'CUSTOM(5)', title: 'Custom Keycode 5'},
+        {name: 'CUSTOM(6)', code: 'CUSTOM(6)', title: 'Custom Keycode 6'},
+        {name: 'CUSTOM(7)', code: 'CUSTOM(7)', title: 'Custom Keycode 7'},
+        {name: 'CUSTOM(8)', code: 'CUSTOM(8)', title: 'Custom Keycode 8'},
+        {name: 'CUSTOM(9)', code: 'CUSTOM(9)', title: 'Custom Keycode 9'},
+        {name: 'CUSTOM(10)', code: 'CUSTOM(10)', title: 'Custom Keycode 10'},
+        {name: 'CUSTOM(11)', code: 'CUSTOM(11)', title: 'Custom Keycode 11'},
+        {name: 'CUSTOM(12)', code: 'CUSTOM(12)', title: 'Custom Keycode 12'},
+        {name: 'CUSTOM(13)', code: 'CUSTOM(13)', title: 'Custom Keycode 13'},
+        {name: 'CUSTOM(14)', code: 'CUSTOM(14)', title: 'Custom Keycode 14'},
+        {name: 'CUSTOM(15)', code: 'CUSTOM(15)', title: 'Custom Keycode 15'},
       ],
     },
   ];
@@ -1048,9 +1420,7 @@ export const getKeycodesForKeyboard = (
     );
   } else {
     const {keycodes} = definition;
-    includeList = keycodes
-      .flatMap(categoriesForKeycodeModule)
-      .concat(categoriesForKeycodeModule('default'));
+    includeList = keycodes.flatMap(categoriesForKeycodeModule);
   }
   return getKeycodes()
     .flatMap((keycodeMenu) =>
