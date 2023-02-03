@@ -85,9 +85,9 @@ const eqArr = <T>(arr1: T[], arr2: T[]) => {
   return arr1.every((val, idx) => arr2[idx] === val);
 };
 
-const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
+export const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
 
-const shiftFrom16Bit = (value: number): [number, number] => [
+export const shiftFrom16Bit = (value: number): [number, number] => [
   value >> 8,
   value & 255,
 ];
