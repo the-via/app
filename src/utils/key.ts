@@ -33,6 +33,26 @@ export function isAlpha(label: string) {
   return /[A-Za-z]/.test(label) && label.length === 1;
 }
 
+// Test if label is a numpad number
+export function isNumpadNumber(label: string) {
+  return /['0-9]/.test(label) && label.length === 1;
+}
+
+export function isArrowKey(label: string) {
+  return /[🠗🠕🠖🠔←↑→↓]$/.test(label);
+}
+
+export function isNumpadSymbol(label: string) {
+  const centeredSymbol = '-+.÷×'.split('');
+  return label.length === 1 && centeredSymbol.includes(label[0]);
+}
+
+// Test if label is a multi-legend, e.g. "!\n1"
+export function isMultiLegend(label: string) {
+  const topLegend = '~!@#$%^&*()_+|{}:"<>?'.split('');
+  return label.length !== 1 && topLegend.includes(label[0]);
+}
+
 // Tests if label is a number
 export function isNumericOrShiftedSymbol(label: string) {
   const numbersTop = '!@#$%^&*()_+|~{}:"<>?1234567890'.split('');
