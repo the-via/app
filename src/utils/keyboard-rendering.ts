@@ -455,12 +455,12 @@ export const getLabel = (
     isCustomKeycodeByte(keycodeByte, basicKeyToByte) &&
     selectedDefinition?.customKeycodes
   ) {
-    const userKeycodeIdx = getCustomKeycodeIndex(keycodeByte, basicKeyToByte);
+    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, basicKeyToByte);
     label = getShortNameForKeycode(
-      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
     );
     tooltipLabel = getShortNameForKeycode(
-      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
       700,
     );
   } else if (keycodeByte) {
