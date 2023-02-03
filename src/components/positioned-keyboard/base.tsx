@@ -103,6 +103,11 @@ export const Legend = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  &:hover {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 `;
 
 export const getLegends = (
