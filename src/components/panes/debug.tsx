@@ -207,7 +207,12 @@ const TestControls = () => {
           />
         </Detail>
       </ControlRow>
-      <MacroRecorder showSettings={false} setUnsavedMacro={(_) => _}/>
+      <MacroRecorder
+        showSettings={false}
+        setUnsavedMacro={(_) => _}
+        undoMacro={() => null}
+        saveMacro={() => null}
+      />
     </ControlGroup>
   );
 };

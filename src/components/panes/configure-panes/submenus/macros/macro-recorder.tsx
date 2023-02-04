@@ -4,6 +4,7 @@ import {
   faPlus,
   faSave,
   faSquare,
+  faTrash,
   faUndo,
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
@@ -441,11 +442,12 @@ export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
   showSettings: boolean;
   undoMacro(): void;
-  saveMacro(): void;
+  saveMacro(macro?: string): void;
   setUnsavedMacro: (a: any) => void;
 }> = ({selectedMacro, showSettings, setUnsavedMacro, saveMacro, undoMacro}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
   const [recordWaitTimes, setRecordWaitTimes] = useState(false);
+  const [showOriginalMacro, setShowOriginalMacro] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
@@ -468,24 +470,29 @@ export const MacroRecorder: React.FC<{
       if (isRecording) {
         await navigator.keyboard.lock();
         setKeycodeSequence([]);
+        setShowOriginalMacro(false);
       } else {
         navigator.keyboard.unlock();
       }
     },
     [setIsRecording],
   );
-  const showOriginalSequence = !keycodeSequence.length;
-  const currSequence = !showOriginalSequence
+  const deleteMacro = useCallback(() => {
+    saveMacro('');
+    setShowOriginalMacro(true);
+  }, [setKeycodeSequence, saveMacro]);
+  const currSequence = !showOriginalMacro
     ? keycodeSequence
     : selectedMacro ?? [];
   useEffect(() => {
+    setShowOriginalMacro(true);
     setKeycodeSequence([]);
   }, [selectedMacro]);
 
-  const showWaitTimes = recordWaitTimes || showOriginalSequence;
+  const showWaitTimes = recordWaitTimes || showOriginalMacro;
   useEffect(() => {
     const seq = (
-      showOriginalSequence
+      showOriginalMacro
         ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
         : showVerboseKeyState
         ? [currSequence]
@@ -507,7 +514,7 @@ export const MacroRecorder: React.FC<{
   }, [keycodeSequence, showVerboseKeyState, showWaitTimes]);
 
   const sequence = useMemo(() => {
-    const [acc] = showOriginalSequence
+    const [acc] = showOriginalMacro
       ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
       : showVerboseKeyState
       ? [currSequence]
@@ -563,9 +570,8 @@ export const MacroRecorder: React.FC<{
         }),
       <SequenceLabelSeparator />,
     );
-  }, [currSequence, showOriginalSequence, showVerboseKeyState, showWaitTimes]);
+  }, [currSequence, showOriginalMacro, showVerboseKeyState, showWaitTimes]);
 
-  console.log(currSequence);
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -624,11 +630,12 @@ export const MacroRecorder: React.FC<{
             isFullscreen={isFullscreen}
             isRecording={isRecording}
             addText={() => {}}
+            deleteMacro={deleteMacro}
             revertChanges={() => {
               undoMacro();
               setKeycodeSequence([]);
             }}
-            saveChanges={saveMacro}
+            saveChanges={() => saveMacro()}
             hasUnsavedChanges={!!keycodeSequence.length}
             recordingToggleChange={recordingToggleChange}
           />
@@ -664,6 +671,7 @@ const MacroEditControls: React.FC<{
   isRecording: boolean;
   hasUnsavedChanges?: boolean;
   revertChanges(): void;
+  deleteMacro(): void;
   saveChanges(): void;
   recordingToggleChange: (a: boolean) => void;
   addText: () => void;
@@ -674,6 +682,7 @@ const MacroEditControls: React.FC<{
   hasUnsavedChanges,
   revertChanges,
   saveChanges,
+  deleteMacro,
 }) => {
   const recordComponent = (
     <IconButtonContainer
@@ -699,20 +708,44 @@ const MacroEditControls: React.FC<{
   return (
     <MacroEditControlsContainer>
       {recordComponent}
-      <IconButtonContainer
-        disabled={!hasUnsavedChanges || isRecording}
-        onClick={revertChanges}
-      >
-        <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faUndo} />
-        <IconButtonTooltip>Undo Changes</IconButtonTooltip>
-      </IconButtonContainer>
-      <IconButtonContainer
-        disabled={!hasUnsavedChanges || isRecording}
-        onClick={saveChanges}
-      >
-        <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faSave} />
-        <IconButtonTooltip>Save Changes</IconButtonTooltip>
-      </IconButtonContainer>
+      {hasUnsavedChanges ? (
+        <>
+          <IconButtonContainer
+            disabled={!hasUnsavedChanges || isRecording}
+            onClick={revertChanges}
+          >
+            <FontAwesomeIcon
+              size={'sm'}
+              color="var(--color_label)"
+              icon={faUndo}
+            />
+            <IconButtonTooltip>Undo Changes</IconButtonTooltip>
+          </IconButtonContainer>
+          <IconButtonContainer
+            disabled={!hasUnsavedChanges || isRecording}
+            onClick={() => saveChanges()}
+          >
+            <FontAwesomeIcon
+              size={'sm'}
+              color="var(--color_label)"
+              icon={faSave}
+            />
+            <IconButtonTooltip>Save Changes</IconButtonTooltip>
+          </IconButtonContainer>
+        </>
+      ) : (
+        <IconButtonContainer
+          disabled={hasUnsavedChanges || isRecording}
+          onClick={deleteMacro}
+        >
+          <FontAwesomeIcon
+            size={'sm'}
+            color="var(--color_label)"
+            icon={faTrash}
+          />
+          <IconButtonTooltip>Delete Macro</IconButtonTooltip>
+        </IconButtonContainer>
+      )}
     </MacroEditControlsContainer>
   );
 };
