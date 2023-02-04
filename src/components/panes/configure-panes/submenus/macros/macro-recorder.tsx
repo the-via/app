@@ -21,12 +21,12 @@ import React, {
 import {AccentButton} from 'src/components/inputs/accent-button';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
-import {useAppSelector} from 'src/store/hooks';
 import {
   GroupedKeycodeSequenceAction,
   GroupedKeycodeSequenceItem,
   OptimizedKeycodeSequence,
   OptimizedKeycodeSequenceItem,
+  RawKeycodeSequence,
   RawKeycodeSequenceAction,
   RawKeycodeSequenceItem,
 } from 'src/utils/macro-api/types';
@@ -43,6 +43,7 @@ import {
   IconButtonTooltip,
   MenuTooltip,
 } from 'src/components/inputs/tooltip';
+import {getKeycodes, IKeycode} from 'src/utils/key';
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -205,7 +206,6 @@ const KeycodeSequenceLabel = styled.div`
   border-radius: 2px;
   white-space: nowrap;
   position: relative;
-  text-transform: capitalize;
   margin: 15px 0px;
 `;
 const KeycodeDownLabel = styled(KeycodeSequenceLabel)`
@@ -330,7 +330,7 @@ declare global {
   }
 }
 
-const transformToCompressed = (
+const smartTransform = (
   [acc, prev, currHeld]: [
     OptimizedKeycodeSequence,
     OptimizedKeycodeSequenceItem,
@@ -346,7 +346,7 @@ const transformToCompressed = (
       action === RawKeycodeSequenceAction.Tap) &&
     currHeld === 0
   ) {
-    acc.push([RawKeycodeSequenceAction.Tap, capitalize(actionArg as string)]);
+    acc.push([RawKeycodeSequenceAction.Tap, actionArg as string]);
     currHeld = currHeld + 1;
   } else if (
     action === RawKeycodeSequenceAction.Tap &&
@@ -354,13 +354,13 @@ const transformToCompressed = (
   ) {
     acc[acc.length - 1][1] = `${acc[acc.length - 1][1]}${actionArg}`;
   } else if (action === RawKeycodeSequenceAction.Tap) {
-    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
-      actionArg as string,
-    )}`;
+    acc[acc.length - 1][1] = [acc[acc.length - 1][1] as string[]]
+      .flat()
+      .concat(actionArg as string);
   } else if (action === RawKeycodeSequenceAction.Down) {
-    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]} + ${capitalize(
-      actionArg as string,
-    )}`;
+    acc[acc.length - 1][1] = [acc[acc.length - 1][1] as string[]]
+      .flat()
+      .concat(actionArg as string);
     currHeld = currHeld + 1;
   } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
@@ -391,6 +391,8 @@ const PlusIcon = () => (
     color={'var(--color_accent)'}
   />
 );
+const getSequenceLabel = (keycode: IKeycode) =>
+  keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
 
 const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
   action === RawKeycodeSequenceAction.Down
@@ -438,13 +440,25 @@ const WaitInput: React.FC<{
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
   showSettings: boolean;
+  undoMacro(): void;
+  saveMacro(): void;
   setUnsavedMacro: (a: any) => void;
-}> = ({selectedMacro, showSettings}) => {
+}> = ({selectedMacro, showSettings, setUnsavedMacro, saveMacro, undoMacro}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
   const [recordWaitTimes, setRecordWaitTimes] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
+  );
+  const keycodeMap = useMemo(
+    () =>
+      getKeycodes()
+        .flatMap((menu) => menu.keycodes)
+        .reduce(
+          (p, n) => ({...p, [n.code]: n}),
+          {} as Record<string, IKeycode>,
+        ),
+    [],
   );
   const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(isRecording);
   const macroSequenceRef = useRef<HTMLDivElement>(null);
@@ -461,26 +475,47 @@ export const MacroRecorder: React.FC<{
     [setIsRecording],
   );
   const showOriginalSequence = !keycodeSequence.length;
-  console.log(showOriginalSequence);
   const currSequence = !showOriginalSequence
     ? keycodeSequence
     : selectedMacro ?? [];
+  useEffect(() => {
+    setKeycodeSequence([]);
+  }, [selectedMacro]);
 
   const showWaitTimes = recordWaitTimes || showOriginalSequence;
-
-  const sequence = useMemo(() => {
-    const [acc] =
-      showVerboseKeyState || showOriginalSequence
+  useEffect(() => {
+    const seq = (
+      showOriginalSequence
+        ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
+        : showVerboseKeyState
         ? [currSequence]
-        : currSequence.reduce(transformToCompressed, [
+        : currSequence.reduce(smartTransform, [
             [],
             [RawKeycodeSequenceAction.Delay, 0],
             0,
-          ] as [
-            OptimizedKeycodeSequence,
-            OptimizedKeycodeSequenceItem,
-            number,
-          ]);
+          ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number])
+    )[0].filter(
+      ([action]) =>
+        showWaitTimes ||
+        currSequence === selectedMacro ||
+        action !== RawKeycodeSequenceAction.Delay,
+    );
+
+    if (keycodeSequence) {
+      setUnsavedMacro(sequenceToExpression(seq));
+    }
+  }, [keycodeSequence, showVerboseKeyState, showWaitTimes]);
+
+  const sequence = useMemo(() => {
+    const [acc] = showOriginalSequence
+      ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
+      : showVerboseKeyState
+      ? [currSequence]
+      : currSequence.reduce(smartTransform, [
+          [],
+          [RawKeycodeSequenceAction.Delay, 0],
+          0,
+        ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
 
     return componentJoin(
       acc
@@ -500,7 +535,15 @@ export const MacroRecorder: React.FC<{
                   index={index}
                   deleteItem={(idx) => console.log('trying to delete:', idx)}
                 >
-                  <Label>{actionArg}</Label>
+                  <Label>
+                    {action === RawKeycodeSequenceAction.CharacterStream
+                      ? actionArg
+                      : Array.isArray(actionArg)
+                      ? actionArg
+                          .map((k) => getSequenceLabel(keycodeMap[k]) ?? k)
+                          .join(' + ')
+                      : getSequenceLabel(keycodeMap[actionArg])}
+                  </Label>
                 </Deletable>
               ) : showWaitTimes ? (
                 <>
@@ -581,9 +624,12 @@ export const MacroRecorder: React.FC<{
             isFullscreen={isFullscreen}
             isRecording={isRecording}
             addText={() => {}}
-            revertChanges={() => null}
-            saveChanges={() => null}
-            hasUnsavedChanges={false}
+            revertChanges={() => {
+              undoMacro();
+              setKeycodeSequence([]);
+            }}
+            saveChanges={saveMacro}
+            hasUnsavedChanges={!!keycodeSequence.length}
             recordingToggleChange={recordingToggleChange}
           />
         </Detail>
@@ -654,13 +700,16 @@ const MacroEditControls: React.FC<{
     <MacroEditControlsContainer>
       {recordComponent}
       <IconButtonContainer
-        disabled={!hasUnsavedChanges}
+        disabled={!hasUnsavedChanges || isRecording}
         onClick={revertChanges}
       >
         <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faUndo} />
         <IconButtonTooltip>Undo Changes</IconButtonTooltip>
       </IconButtonContainer>
-      <IconButtonContainer disabled={!hasUnsavedChanges} onClick={saveChanges}>
+      <IconButtonContainer
+        disabled={!hasUnsavedChanges || isRecording}
+        onClick={saveChanges}
+      >
         <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faSave} />
         <IconButtonTooltip>Save Changes</IconButtonTooltip>
       </IconButtonContainer>

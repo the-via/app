@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
@@ -70,6 +70,17 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
     setUnsavedMacro(currentMacro);
   }, [currentMacro]);
 
+  const undoChanges = useCallback(() => {
+    setUnsavedMacro(currentMacro);
+  }, [currentMacro]);
+
+  const saveMacro = useCallback(() => {
+    if (unsavedMacro !== currentMacro) {
+      props.saveMacros(unsavedMacro);
+    }
+    setUnsavedMacro(unsavedMacro);
+  }, [unsavedMacro]);
+
   return (
     <>
       <CenterTabContainer>
@@ -114,6 +125,8 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           selectedMacro={ast[props.selectedMacro]}
           showSettings={showSettings}
           setUnsavedMacro={setUnsavedMacro}
+          undoMacro={undoChanges}
+          saveMacro={saveMacro}
         />
       )}
       <EndTabContainer>

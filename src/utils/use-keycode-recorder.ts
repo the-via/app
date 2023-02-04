@@ -20,15 +20,16 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
         setKeycodeSequence((keycodeSequence) => {
           const keycode = keycodes.find((k) => k.code === mapEvtToKeycode(evt));
           const currTime = Date.now();
-          const keycodeLabel =
-            keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? evt.code;
+          const keycodeLabel = keycode?.code;
           if (keycodeSequence.length) {
             keycodeSequence.push([
               RawKeycodeSequenceAction.Delay,
               currTime - lastEvtTime,
             ]);
           }
-          keycodeSequence.push([keyState, keycodeLabel]);
+          if (keycodeLabel) {
+            keycodeSequence.push([keyState, keycodeLabel]);
+          }
           lastEvtTime = currTime;
           return [...keycodeSequence];
         });
