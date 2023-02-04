@@ -330,6 +330,7 @@ const smartTransform = (
     number,
   ],
   curr: OptimizedKeycodeSequenceItem,
+  index: number,
 ) => {
   const [action, actionArg] = curr;
   if (action === RawKeycodeSequenceAction.Delay && currHeld === 0) {
@@ -484,8 +485,8 @@ export const MacroRecorder: React.FC<{
   }, [selectedMacro]);
 
   const showWaitTimes = recordWaitTimes || showOriginalMacro;
-  useEffect(() => {
-    const seq = (
+  const displayedSequence = useMemo(() => {
+    return (
       showOriginalMacro
         ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
         : showVerboseKeyState
@@ -501,70 +502,57 @@ export const MacroRecorder: React.FC<{
         currSequence === selectedMacro ||
         action !== RawKeycodeSequenceAction.Delay,
     );
-
-    if (keycodeSequence) {
-      setUnsavedMacro(sequenceToExpression(seq));
+  }, [
+    showOriginalMacro,
+    currSequence,
+    showVerboseKeyState,
+    showWaitTimes,
+    selectedMacro,
+  ]);
+  useEffect(() => {
+    if (displayedSequence) {
+      setUnsavedMacro(sequenceToExpression(displayedSequence));
     }
-  }, [keycodeSequence, showVerboseKeyState, showWaitTimes]);
+  }, [displayedSequence]);
 
   const sequence = useMemo(() => {
-    const [acc] = showOriginalMacro
-      ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
-      : showVerboseKeyState
-      ? [currSequence]
-      : currSequence.reduce(smartTransform, [
-          [],
-          [RawKeycodeSequenceAction.Delay, 0],
-          0,
-        ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number]);
-
     return componentJoin(
-      acc
-        .filter(
-          ([action]) =>
-            showWaitTimes ||
-            currSequence === selectedMacro ||
-            action !== RawKeycodeSequenceAction.Delay,
-        )
-        .map(([action, actionArg], index) => {
-          const Label = getSequenceItemComponent(action);
-          return !showWaitTimes &&
-            action === RawKeycodeSequenceAction.Delay ? null : (
-            <>
-              {RawKeycodeSequenceAction.Delay !== action ? (
+      displayedSequence.map(([action, actionArg], index) => {
+        const Label = getSequenceItemComponent(action);
+        return !showWaitTimes &&
+          action === RawKeycodeSequenceAction.Delay ? null : (
+          <>
+            {RawKeycodeSequenceAction.Delay !== action ? (
+              <Deletable
+                index={index}
+                deleteItem={(idx) => console.log('trying to delete:', idx)}
+              >
+                <Label>
+                  {action === RawKeycodeSequenceAction.CharacterStream
+                    ? actionArg
+                    : Array.isArray(actionArg)
+                    ? actionArg
+                        .map((k) => getSequenceLabel(keycodeMap[k]) ?? k)
+                        .join(' + ')
+                    : getSequenceLabel(keycodeMap[actionArg])}
+                </Label>
+              </Deletable>
+            ) : showWaitTimes ? (
+              <>
                 <Deletable
                   index={index}
                   deleteItem={(idx) => console.log('trying to delete:', idx)}
                 >
-                  <Label>
-                    {action === RawKeycodeSequenceAction.CharacterStream
-                      ? actionArg
-                      : Array.isArray(actionArg)
-                      ? actionArg
-                          .map((k) => getSequenceLabel(keycodeMap[k]) ?? k)
-                          .join(' + ')
-                      : getSequenceLabel(keycodeMap[actionArg])}
-                  </Label>
+                  <WaitInput value={Number(actionArg)} setInput={() => null} />
                 </Deletable>
-              ) : showWaitTimes ? (
-                <>
-                  <Deletable
-                    index={index}
-                    deleteItem={(idx) => console.log('trying to delete:', idx)}
-                  >
-                    <WaitInput
-                      value={Number(actionArg)}
-                      setInput={() => null}
-                    />
-                  </Deletable>
-                </>
-              ) : null}
-            </>
-          );
-        }),
+              </>
+            ) : null}
+          </>
+        );
+      }),
       <SequenceLabelSeparator />,
     );
-  }, [currSequence, showOriginalMacro, showVerboseKeyState, showWaitTimes]);
+  }, [displayedSequence, showWaitTimes]);
 
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {
@@ -645,7 +633,7 @@ export const MacroRecorder: React.FC<{
         <Label>Include delays (ms)</Label>
         <Detail>
           <AccentSlider
-            isChecked={showWaitTimes}
+            isChecked={recordWaitTimes}
             onChange={setRecordWaitTimes}
           />
         </Detail>
