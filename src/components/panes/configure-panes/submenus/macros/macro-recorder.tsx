@@ -74,6 +74,7 @@ const IconButton = styled.button`
       props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
     border-color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+    border-right: 1px solid var(--border_color_icon);
     background-color: ${(props) =>
       props.disabled ? 'var(--bg_menu)' : 'var(--color_accent)'};
   }
@@ -571,7 +572,7 @@ export const MacroRecorder: React.FC<{
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
-          transform: 'translate(-0px, -10px)',
+          transform: 'translate(-0px, -5px)',
         }}
       >
         <Label></Label>
