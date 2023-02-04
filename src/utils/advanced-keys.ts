@@ -84,29 +84,58 @@ const modifierKeyToValue = {
   LALT: modCodes.QK_LALT,
   A: modCodes.QK_LALT,
   LGUI: modCodes.QK_LGUI,
-  G: modCodes.QK_LGUI,
   LCMD: modCodes.QK_LGUI,
   LWIN: modCodes.QK_LGUI,
+  G: modCodes.QK_LGUI,
   RCTL: modCodes.QK_RCTL,
   RSFT: modCodes.QK_RSFT,
-  RALT: modCodes.QK_RALT,
   ALGR: modCodes.QK_RALT,
-  RGUI: modCodes.QK_RGUI,
+  RALT: modCodes.QK_RALT,
   RCMD: modCodes.QK_RGUI,
   RWIN: modCodes.QK_RGUI,
-  SGUI: modCodes.QK_LGUI | modCodes.QK_LSFT,
-  SCMD: modCodes.QK_LGUI | modCodes.QK_LSFT,
-  SWIN: modCodes.QK_LGUI | modCodes.QK_LSFT,
+  RGUI: modCodes.QK_RGUI,
+  SCMD: modCodes.QK_LSFT | modCodes.QK_LGUI,
+  SWIN: modCodes.QK_LSFT | modCodes.QK_LGUI,
+  SGUI: modCodes.QK_LSFT | modCodes.QK_LGUI,
+  LSG: modCodes.QK_LSFT | modCodes.QK_LGUI,
+  LAG: modCodes.QK_LALT | modCodes.QK_LGUI,
+  RSG: modCodes.QK_RSFT | modCodes.QK_RGUI,
+  RAG: modCodes.QK_RALT | modCodes.QK_RGUI,
   LCA: modCodes.QK_LCTL | modCodes.QK_LALT,
+  LSA: modCodes.QK_LSFT | modCodes.QK_LALT,
+  SAGR: modCodes.QK_RSFT | modCodes.QK_RALT,
+  RSA: modCodes.QK_RSFT | modCodes.QK_RALT,
+  RCS: modCodes.QK_RCTL | modCodes.QK_RSFT,
   LCAG: modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LGUI,
   MEH: modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT,
   HYPR:
     modCodes.QK_LCTL | modCodes.QK_LALT | modCodes.QK_LSFT | modCodes.QK_LGUI,
 };
 
-const modifierValuetoKey: Record<number, string> = Object.entries(
+// All modifier combos
+const modifierValueToKey: Record<number, string> = Object.entries(
   modifierKeyToValue,
 ).reduce((acc, [key, value]) => ({...acc, [value]: key}), {});
+
+// Single left modifiers (as opposed to combos)
+const leftModifierValueToKey: Record<number, string> = Object.entries(
+  modifierKeyToValue,
+)
+  .filter(
+    ([_, value]) =>
+      Object.values(modCodes).includes(value) && value < modCodes.QK_RMODS_MIN,
+  )
+  .reduce((acc, [key, value]) => ({...acc, [value]: key}), {});
+
+// Single right modifiers (as opposed to combos)
+const rightModifierValueToKey: Record<number, string> = Object.entries(
+  modifierKeyToValue,
+)
+  .filter(
+    ([_, value]) =>
+      Object.values(modCodes).includes(value) && value >= modCodes.QK_RMODS_MIN,
+  )
+  .reduce((acc, [key, value]) => ({...acc, [value]: key}), {});
 
 const topLevelValueToMacro = (
   basicKeyToByte: Record<string, number>,
@@ -212,23 +241,36 @@ const modValueToString = (modMask: number): string => {
 };
 
 const topLevelModToString = (
-  modNumber: number,
+  keycode: number,
   byteToKey: Record<number, string>,
 ): string => {
-  const keycode = byteToKey[modNumber & 0x00ff];
-  const modMask = modNumber & 0x1f00;
-  // if we find an exact match (like HYPR or MEH), use that
-  let key = modifierValuetoKey[modMask];
-  if (key != undefined) {
-    return key + '(' + keycode + ')';
+  const containedKeycode = byteToKey[keycode & 0x00ff];
+  const modifierValue = keycode & 0x1f00;
+  // if we find an exact match (like HYPR or MEH or LAG), use that
+  const modifierKey = modifierValueToKey[modifierValue];
+  if (modifierKey != undefined) {
+    return modifierKey + '(' + containedKeycode + ')';
   }
-  const enabledMods = Object.entries(modifierValuetoKey)
+
+  // Left and right mods are mutually exclusive.
+  // Test the bit which is common to all right mods,
+  // and generate the string from one of two lookups.
+  const enabledMods = Object.entries(
+    modifierValue & modCodes.QK_RMODS_MIN
+      ? rightModifierValueToKey
+      : leftModifierValueToKey,
+  )
     .filter((part) => {
       const current = Number.parseInt(part[0]);
-      return (current & modNumber) === current;
+      return (current & modifierValue) === current;
     })
     .map((part) => part[1]);
-  return enabledMods.join('(') + '(' + keycode + ')'.repeat(enabledMods.length);
+  return (
+    enabledMods.join('(') +
+    '(' +
+    containedKeycode +
+    ')'.repeat(enabledMods.length)
+  );
 };
 
 const parseTopLevelMacro = (

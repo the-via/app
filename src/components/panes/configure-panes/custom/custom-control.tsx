@@ -7,9 +7,7 @@ import {ControlRow, Label, Detail} from '../../grid';
 import type {
   VIADefinitionV2,
   VIADefinitionV3,
-  VIAItem,
-  VIAControlItem,
-  VIAUniqueControlItem,
+  VIAItem
 } from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
@@ -33,7 +31,7 @@ export type ControlMeta = [
 type AdvancedControlProps = Props & {meta: ControlMeta};
 
 export const VIACustomItem = React.memo(
-  (props: VIAItem & {updateValue: any; value: number[]; _id: string}) => (
+  (props: VIACustomControlProps & { _id: string}) => (
     <ControlRow id={props._id}>
       <Label>{props.label}</Label>
       <Detail>
@@ -55,8 +53,7 @@ type ControlGetSet = {
   updateValue: (name: string, ...command: number[]) => void;
 };
 
-type VIACustomControlProps = (VIAUniqueControlItem | VIAControlItem) &
-  ControlGetSet;
+type VIACustomControlProps = VIAItem & ControlGetSet;
 
 const boxOrArr = <N extends any>(elem: N | N[]) =>
   Array.isArray(elem) ? elem : [elem];
