@@ -6,7 +6,6 @@ import {MacroRecorder} from './macro-recorder';
 import {useAppSelector} from 'src/store/hooks';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
-  faCancel,
   faCheck,
   faCode,
   faGear,
@@ -129,20 +128,6 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           saveMacro={saveMacro}
         />
       )}
-      <EndTabContainer>
-        <TabBar>
-          {unsavedMacro !== currentMacro ? (
-            <>
-              <MacroTab selected={false} onClick={() => setShowSettings(false)}>
-                <FontAwesomeIcon icon={faXmark} />
-              </MacroTab>
-              <MacroTab selected={false} onClick={() => setShowSettings(true)}>
-                <FontAwesomeIcon icon={faCheck} />
-              </MacroTab>
-            </>
-          ) : null}
-        </TabBar>
-      </EndTabContainer>
     </>
   );
 };
