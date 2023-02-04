@@ -102,6 +102,60 @@ export const CategoryMenuTooltip: React.FC<any> = (props) => {
     />
   );
 };
+export const IconButtonTooltip: React.FC<any> = (props) => {
+  const styles = useMemo(
+    () => ({
+      containerStyles: {
+        position: 'absolute',
+        top: 50,
+        left: 0,
+        transformOrigin: 'left',
+        transition: 'all 0.1s ease-in-out',
+        marginTop: 0,
+        zIndex: 4,
+        pointerEvents: 'none',
+      },
+      contentStyles: {
+        padding: '5px 10px',
+        borderRadius: 10,
+        background: 'var(--color_inside-accent)',
+        color: 'var(--color_accent)',
+        fontFamily:
+          "'Fira Sans Condensed', Helvetica, Helvetica Neue, Arial, serif",
+        fontSize: 18,
+        fontWeight: 500,
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        textTransform: 'uppercase',
+        zIndex: 5,
+        transform: 'translateX(-50%)',
+        marginLeft: 18,
+      },
+      pointerStyles: {
+        borderStyle: 'solid',
+        borderColor: 'transparent',
+        borderLeft: '6px solid transparent',
+        borderRight: '6px solid transparent',
+        borderBottom: `6px solid var(--color_inside-accent)`,
+        position: 'absolute',
+        marginLeft: 15,
+        marginTop: -41,
+        width: 0,
+      },
+    }),
+    [],
+  );
+  return (
+    <Tooltip
+      {...props}
+      containerStyles={styles.containerStyles}
+      contentStyles={styles.contentStyles}
+      pointerStyles={styles.pointerStyles}
+    />
+  );
+};
 
 export const MenuTooltip: React.FC<any> = (props) => {
   const styles = useMemo(

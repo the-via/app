@@ -2,7 +2,9 @@ import {
   faCircle,
   faPenToSquare,
   faPlus,
+  faSave,
   faSquare,
+  faUndo,
   faXmarkCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -36,6 +38,11 @@ import {
   sequenceToExpression,
 } from 'src/utils/macro-api/macro-api.common';
 import {Message} from 'src/components/styled';
+import {
+  CategoryMenuTooltip,
+  IconButtonTooltip,
+  MenuTooltip,
+} from 'src/components/inputs/tooltip';
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
@@ -43,13 +50,25 @@ function capitalize(string: string) {
 
 const IconButton = styled.button`
   appearance: none;
+  width: 40px;
+  position: relative;
+  display: inline-block;
   background: transparent;
   border: none;
   cursor: pointer;
+  padding: 10px 10px;
+  line-height: initial;
+  font-size: initial;
   color: ${(props) =>
     props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   border-color: ${(props) =>
     props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
+  &:disabled {
+    cursor: not-allowed;
+    border-right: 1px solid var(--border_color_icon);
+    cursor: not-allowed;
+    background: var(--bg_menu);
+  }
   &:hover {
     color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
@@ -63,9 +82,21 @@ const IconButton = styled.button`
     color: ${(props) =>
       props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
   }
-  &:hover svg {
-    color: ${(props) =>
-      props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
+  &:hover {
+    svg {
+      color: ${(props) =>
+        props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
+    }
+
+    color: var(--color_label-highlighted);
+    & .tooltip {
+      transform: scale(1) translateX(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: translateX(-5px) scale(0.6);
+    opacity: 0;
   }
 `;
 
@@ -100,13 +131,13 @@ const KeycodeSequenceWait = styled.div`
   position: relative;
   margin: 15px 0px;
   box-sizing: border-box;
-  border: 4px solid;
+  border: 2px solid;
   padding: 4px 4px;
   border-color: var(--color_accent);
-  border-radius: 8px;
+  border-radius: 2px;
 `;
-const AddNextContainer = styled.div`
-  border-radius: 4px;
+const MacroEditControlsContainer = styled.div`
+  border-radius: 2px;
   border: 1px solid var(--border_color_icon);
   display: inline-flex;
   > button:last-child {
@@ -114,17 +145,13 @@ const AddNextContainer = styled.div`
   }
 `;
 
-const AddNextItem = styled(IconButton)`
-  padding: 10px 10px;
+const IconButtonContainer = styled(IconButton)`
   cursor: pointer;
-  line-height: initial;
   background: var(--bg_control);
-  font-size: initial;
   border-right: 1px solid var(--border_color_icon);
 `;
 
 const AddNextItemDisabled = styled(IconButton)`
-  padding: 10px 10px;
   cursor: initial;
   font-size: initial;
   line-height: initial;
@@ -167,15 +194,14 @@ const KeycodeSequenceLabel = styled.div`
   justify-content: center;
   align-items: center;
   white-space: pre-wrap;
-  border-radius: 64px;
   font-size: 16px;
-  border: 4px solid var(--border_color_icon);
+  border: 2px solid var(--border_color_icon);
   background: var(--bg_control);
   color: var(--color_label-highlighted);
   margin: 0;
   box-shadow: none;
   position: relative;
-  border-radius: 10px;
+  border-radius: 2px;
   white-space: nowrap;
   position: relative;
   text-transform: capitalize;
@@ -544,16 +570,19 @@ export const MacroRecorder: React.FC<{
           maxWidth: 960,
           width: '100%',
           display: 'flex',
-          justifyContent: 'flex-end',
-          transform: 'translate(-20px, -10px)',
+          justifyContent: 'center',
+          transform: 'translate(-0px, -10px)',
         }}
       >
         <Label></Label>
         <Detail>
-          <AddNext
+          <MacroEditControls
             isFullscreen={isFullscreen}
             isRecording={isRecording}
             addText={() => {}}
+            revertChanges={() => null}
+            saveChanges={() => null}
+            hasUnsavedChanges={false}
             recordingToggleChange={recordingToggleChange}
           />
         </Detail>
@@ -583,47 +612,58 @@ export const MacroRecorder: React.FC<{
   );
 };
 
-const AddNext: React.FC<{
+const MacroEditControls: React.FC<{
   isFullscreen: boolean;
   isRecording: boolean;
+  hasUnsavedChanges?: boolean;
+  revertChanges(): void;
+  saveChanges(): void;
   recordingToggleChange: (a: boolean) => void;
   addText: () => void;
-}> = ({isFullscreen, isRecording, recordingToggleChange}) => {
-  const recordComponent = isFullscreen ? (
-    <AddNextItem
+}> = ({
+  isFullscreen,
+  isRecording,
+  recordingToggleChange,
+  hasUnsavedChanges,
+  revertChanges,
+  saveChanges,
+}) => {
+  const recordComponent = (
+    <IconButtonContainer
       onClick={() => {
         recordingToggleChange(!isRecording);
       }}
+      disabled={!isFullscreen}
     >
       <FontAwesomeIcon
         size={'sm'}
         color={'var(--color_label)'}
         icon={isRecording ? faSquare : faCircle}
-      />{' '}
-      {isRecording ? 'Stop Recording' : 'Record Keystrokes'}
-    </AddNextItem>
-  ) : (
-    <AddNextItemDisabled disabled={true}>
-      <FontAwesomeIcon
-        size={'sm'}
-        color={'var(--color_label)'}
-        icon={faCircle}
-      />{' '}
-      Can only record when fullscreen
-    </AddNextItemDisabled>
+      />
+      <IconButtonTooltip>
+        {isFullscreen
+          ? isRecording
+            ? 'Stop Recording'
+            : 'Record Keystrokes'
+          : 'Can only record when fullscreen'}
+      </IconButtonTooltip>
+    </IconButtonContainer>
   );
   return (
-    <AddNextContainer>
+    <MacroEditControlsContainer>
       {recordComponent}
-      <AddNextItem>
-        <FontAwesomeIcon
-          size={'sm'}
-          color="var(--color_label)"
-          icon={faPenToSquare}
-        />{' '}
-        Add Text
-      </AddNextItem>
-    </AddNextContainer>
+      <IconButtonContainer
+        disabled={!hasUnsavedChanges}
+        onClick={revertChanges}
+      >
+        <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faUndo} />
+        <IconButtonTooltip>Undo Changes</IconButtonTooltip>
+      </IconButtonContainer>
+      <IconButtonContainer disabled={!hasUnsavedChanges} onClick={saveChanges}>
+        <FontAwesomeIcon size={'sm'} color="var(--color_label)" icon={faSave} />
+        <IconButtonTooltip>Save Changes</IconButtonTooltip>
+      </IconButtonContainer>
+    </MacroEditControlsContainer>
   );
 };
 const CharacterStreamInput: React.FC<{
