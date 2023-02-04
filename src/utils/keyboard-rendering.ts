@@ -8,20 +8,19 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
-import {RootState} from 'src/store';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
 import {
   getLabelForByte,
   getShortNameForKeycode,
-  getUserKeycodeIndex,
+  getCustomKeycodeIndex,
   IKeycode,
   isAlpha,
   isNumpadNumber,
   isNumpadSymbol,
   isMultiLegend,
   isMacro,
-  isUserKeycodeByte,
+  isCustomKeycodeByte,
   isArrowKey,
 } from './key';
 
@@ -453,15 +452,15 @@ export const getLabel = (
   // Full name
   let tooltipLabel: string = '';
   if (
-    isUserKeycodeByte(keycodeByte, basicKeyToByte) &&
+    isCustomKeycodeByte(keycodeByte, basicKeyToByte) &&
     selectedDefinition?.customKeycodes
   ) {
-    const userKeycodeIdx = getUserKeycodeIndex(keycodeByte, basicKeyToByte);
+    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, basicKeyToByte);
     label = getShortNameForKeycode(
-      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
     );
     tooltipLabel = getShortNameForKeycode(
-      selectedDefinition.customKeycodes[userKeycodeIdx] as IKeycode,
+      selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
       700,
     );
   } else if (keycodeByte) {

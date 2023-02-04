@@ -14,6 +14,7 @@ import type {
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
+import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
 
 type Props = {
   lightingData: LightingData;
@@ -64,6 +65,22 @@ const boxOrArr = <N extends any>(elem: N | N[]) =>
 const valueIsChecked = (option: number | number[], value: number[]) =>
   boxOrArr(option).every((o, i) => o == value[i]);
 
+const getRangeValue = (value: number[], max: number) => {
+  if (max > 255) {
+    return shiftTo16Bit([value[0], value[1]]);
+  } else {
+    return value[0];
+  }
+};
+
+const getRangeBytes = (value: number, max: number) => {
+  if (max > 255) {
+    return shiftFrom16Bit(value);
+  } else {
+    return [value];
+  }
+};
+
 export const VIACustomControl = (props: VIACustomControlProps) => {
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
@@ -73,17 +90,25 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
         <AccentRange
           min={options[0]}
           max={options[1]}
-          defaultValue={props.value[0]}
-          onChange={(val: number) => props.updateValue(name, ...command, val)}
+          defaultValue={getRangeValue(props.value, options[1])}
+          onChange={(val: number) =>
+            props.updateValue(
+              name,
+              ...command,
+              ...getRangeBytes(val, options[1]),
+            )
+          }
         />
       );
     }
     case 'keycode': {
       return (
         <PelpiKeycodeInput
-          value={props.value[0]}
+          value={shiftTo16Bit([props.value[0], props.value[1]])}
           meta={{}}
-          setValue={(val: number) => props.updateValue(name, ...command, val)}
+          setValue={(val: number) =>
+            props.updateValue(name, ...command, ...shiftFrom16Bit(val))
+          }
         />
       );
     }

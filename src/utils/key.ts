@@ -101,38 +101,44 @@ function getByteForLayerCode(
     switch (code) {
       case 'TO': {
         return Math.min(
-          basicKeyToByte.QK_TO + numLayer,
-          basicKeyToByte.QK_TO_MAX,
+          basicKeyToByte._QK_TO + numLayer,
+          basicKeyToByte._QK_TO_MAX,
         );
       }
       case 'MO': {
         return Math.min(
-          basicKeyToByte.QK_MOMENTARY + numLayer,
-          basicKeyToByte.QK_MOMENTARY_MAX,
+          basicKeyToByte._QK_MOMENTARY + numLayer,
+          basicKeyToByte._QK_MOMENTARY_MAX,
         );
       }
       case 'DF': {
         return Math.min(
-          basicKeyToByte.QK_DEF_LAYER + numLayer,
-          basicKeyToByte.QK_DEF_LAYER_MAX,
+          basicKeyToByte._QK_DEF_LAYER + numLayer,
+          basicKeyToByte._QK_DEF_LAYER_MAX,
         );
       }
       case 'TG': {
         return Math.min(
-          basicKeyToByte.QK_TOGGLE_LAYER + numLayer,
-          basicKeyToByte.QK_TOGGLE_LAYER_MAX,
+          basicKeyToByte._QK_TOGGLE_LAYER + numLayer,
+          basicKeyToByte._QK_TOGGLE_LAYER_MAX,
         );
       }
       case 'OSL': {
         return Math.min(
-          basicKeyToByte.QK_ONE_SHOT_LAYER + numLayer,
-          basicKeyToByte.QK_ONE_SHOT_LAYER_MAX,
+          basicKeyToByte._QK_ONE_SHOT_LAYER + numLayer,
+          basicKeyToByte._QK_ONE_SHOT_LAYER_MAX,
         );
       }
       case 'TT': {
         return Math.min(
-          basicKeyToByte.QK_LAYER_TAP_TOGGLE + numLayer,
-          basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX,
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE + numLayer,
+          basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+        );
+      }
+      case 'CUSTOM': {
+        return Math.min(
+          basicKeyToByte._QK_KB + numLayer,
+          basicKeyToByte._QK_KB_MAX,
         );
       }
       default: {
@@ -147,39 +153,45 @@ function getCodeForLayerByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  if (basicKeyToByte.QK_TO <= byte && basicKeyToByte.QK_TO_MAX >= byte) {
-    const layer = byte - basicKeyToByte.QK_TO;
+  if (basicKeyToByte._QK_TO <= byte && basicKeyToByte._QK_TO_MAX >= byte) {
+    const layer = byte - basicKeyToByte._QK_TO;
     return `TO(${layer})`;
   } else if (
-    basicKeyToByte.QK_MOMENTARY <= byte &&
-    basicKeyToByte.QK_MOMENTARY_MAX >= byte
+    basicKeyToByte._QK_MOMENTARY <= byte &&
+    basicKeyToByte._QK_MOMENTARY_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_MOMENTARY;
+    const layer = byte - basicKeyToByte._QK_MOMENTARY;
     return `MO(${layer})`;
   } else if (
-    basicKeyToByte.QK_DEF_LAYER <= byte &&
-    basicKeyToByte.QK_DEF_LAYER_MAX >= byte
+    basicKeyToByte._QK_DEF_LAYER <= byte &&
+    basicKeyToByte._QK_DEF_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_DEF_LAYER;
+    const layer = byte - basicKeyToByte._QK_DEF_LAYER;
     return `DF(${layer})`;
   } else if (
-    basicKeyToByte.QK_TOGGLE_LAYER <= byte &&
-    basicKeyToByte.QK_TOGGLE_LAYER_MAX >= byte
+    basicKeyToByte._QK_TOGGLE_LAYER <= byte &&
+    basicKeyToByte._QK_TOGGLE_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_TOGGLE_LAYER;
+    const layer = byte - basicKeyToByte._QK_TOGGLE_LAYER;
     return `TG(${layer})`;
   } else if (
-    basicKeyToByte.QK_ONE_SHOT_LAYER <= byte &&
-    basicKeyToByte.QK_ONE_SHOT_LAYER_MAX >= byte
+    basicKeyToByte._QK_ONE_SHOT_LAYER <= byte &&
+    basicKeyToByte._QK_ONE_SHOT_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_ONE_SHOT_LAYER;
+    const layer = byte - basicKeyToByte._QK_ONE_SHOT_LAYER;
     return `OSL(${layer})`;
   } else if (
-    basicKeyToByte.QK_LAYER_TAP_TOGGLE <= byte &&
-    basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX >= byte
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE <= byte &&
+    basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte.QK_LAYER_TAP_TOGGLE;
+    const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
+  } else if (
+    basicKeyToByte._QK_KB <= byte &&
+    basicKeyToByte._QK_KB_MAX >= byte
+  ) {
+    const n = byte - basicKeyToByte._QK_KB;
+    return `CUSTOM(${n})`;
   }
 }
 
@@ -203,15 +215,16 @@ export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
 
 function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
   return [
-    [basicKeyToByte.QK_TO, basicKeyToByte.QK_TO_MAX],
-    [basicKeyToByte.QK_MOMENTARY, basicKeyToByte.QK_MOMENTARY_MAX],
-    [basicKeyToByte.QK_DEF_LAYER, basicKeyToByte.QK_DEF_LAYER_MAX],
-    [basicKeyToByte.QK_TOGGLE_LAYER, basicKeyToByte.QK_TOGGLE_LAYER_MAX],
-    [basicKeyToByte.QK_ONE_SHOT_LAYER, basicKeyToByte.QK_ONE_SHOT_LAYER_MAX],
+    [basicKeyToByte._QK_TO, basicKeyToByte._QK_TO_MAX],
+    [basicKeyToByte._QK_MOMENTARY, basicKeyToByte._QK_MOMENTARY_MAX],
+    [basicKeyToByte._QK_DEF_LAYER, basicKeyToByte._QK_DEF_LAYER_MAX],
+    [basicKeyToByte._QK_TOGGLE_LAYER, basicKeyToByte._QK_TOGGLE_LAYER_MAX],
+    [basicKeyToByte._QK_ONE_SHOT_LAYER, basicKeyToByte._QK_ONE_SHOT_LAYER_MAX],
     [
-      basicKeyToByte.QK_LAYER_TAP_TOGGLE,
-      basicKeyToByte.QK_LAYER_TAP_TOGGLE_MAX,
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE,
+      basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
     ],
+    [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -221,7 +234,7 @@ export function getCodeForByte(
   byteToKey: Record<number, string>,
 ) {
   const keycode = byteToKey[byte];
-  if (keycode) {
+  if (keycode && !keycode.startsWith('_QK')) {
     return keycode;
   } else if (isLayerKey(byte, basicKeyToByte)) {
     return getCodeForLayerByte(byte, basicKeyToByte);
@@ -248,18 +261,18 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isUserKeycodeByte(
+export function isCustomKeycodeByte(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte >= basicKeyToByte.USER00 && byte <= basicKeyToByte.USER15;
+  return byte >= basicKeyToByte._QK_KB && byte <= basicKeyToByte._QK_KB_MAX;
 }
 
-export function getUserKeycodeIndex(
+export function getCustomKeycodeIndex(
   byte: number,
   basicKeyToByte: Record<string, number>,
 ) {
-  return byte - basicKeyToByte.USER00;
+  return byte - basicKeyToByte._QK_KB;
 }
 
 export function getLabelForByte(
@@ -313,7 +326,7 @@ export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
   const keycodes = Object.keys(basicKeyToByte)
-    .filter((key) => !key.startsWith('QK_'))
+    .filter((key) => !key.startsWith('_QK'))
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
       name: code.replace('KC_', '').replace(/_/g, ' '),
@@ -1002,22 +1015,22 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Custom',
       width: 'label',
       keycodes: [
-        {name: 'User00', code: 'USER00', title: 'Custom Keycode 00'},
-        {name: 'User01', code: 'USER01', title: 'Custom Keycode 01'},
-        {name: 'User02', code: 'USER02', title: 'Custom Keycode 02'},
-        {name: 'User03', code: 'USER03', title: 'Custom Keycode 03'},
-        {name: 'User04', code: 'USER04', title: 'Custom Keycode 04'},
-        {name: 'User05', code: 'USER05', title: 'Custom Keycode 05'},
-        {name: 'User06', code: 'USER06', title: 'Custom Keycode 06'},
-        {name: 'User07', code: 'USER07', title: 'Custom Keycode 07'},
-        {name: 'User08', code: 'USER08', title: 'Custom Keycode 08'},
-        {name: 'User09', code: 'USER09', title: 'Custom Keycode 09'},
-        {name: 'User10', code: 'USER10', title: 'Custom Keycode 10'},
-        {name: 'User11', code: 'USER11', title: 'Custom Keycode 11'},
-        {name: 'User12', code: 'USER12', title: 'Custom Keycode 12'},
-        {name: 'User13', code: 'USER13', title: 'Custom Keycode 13'},
-        {name: 'User14', code: 'USER14', title: 'Custom Keycode 14'},
-        {name: 'User15', code: 'USER15', title: 'Custom Keycode 15'},
+        {name: 'CUSTOM(0)', code: 'CUSTOM(0)', title: 'Custom Keycode 0'},
+        {name: 'CUSTOM(1)', code: 'CUSTOM(1)', title: 'Custom Keycode 1'},
+        {name: 'CUSTOM(2)', code: 'CUSTOM(2)', title: 'Custom Keycode 2'},
+        {name: 'CUSTOM(3)', code: 'CUSTOM(3)', title: 'Custom Keycode 3'},
+        {name: 'CUSTOM(4)', code: 'CUSTOM(4)', title: 'Custom Keycode 4'},
+        {name: 'CUSTOM(5)', code: 'CUSTOM(5)', title: 'Custom Keycode 5'},
+        {name: 'CUSTOM(6)', code: 'CUSTOM(6)', title: 'Custom Keycode 6'},
+        {name: 'CUSTOM(7)', code: 'CUSTOM(7)', title: 'Custom Keycode 7'},
+        {name: 'CUSTOM(8)', code: 'CUSTOM(8)', title: 'Custom Keycode 8'},
+        {name: 'CUSTOM(9)', code: 'CUSTOM(9)', title: 'Custom Keycode 9'},
+        {name: 'CUSTOM(10)', code: 'CUSTOM(10)', title: 'Custom Keycode 10'},
+        {name: 'CUSTOM(11)', code: 'CUSTOM(11)', title: 'Custom Keycode 11'},
+        {name: 'CUSTOM(12)', code: 'CUSTOM(12)', title: 'Custom Keycode 12'},
+        {name: 'CUSTOM(13)', code: 'CUSTOM(13)', title: 'Custom Keycode 13'},
+        {name: 'CUSTOM(14)', code: 'CUSTOM(14)', title: 'Custom Keycode 14'},
+        {name: 'CUSTOM(15)', code: 'CUSTOM(15)', title: 'Custom Keycode 15'},
       ],
     },
   ];
@@ -1048,9 +1061,7 @@ export const getKeycodesForKeyboard = (
     );
   } else {
     const {keycodes} = definition;
-    includeList = keycodes
-      .flatMap(categoriesForKeycodeModule)
-      .concat(categoriesForKeycodeModule('default'));
+    includeList = keycodes.flatMap(categoriesForKeycodeModule);
   }
   return getKeycodes()
     .flatMap((keycodeMenu) =>

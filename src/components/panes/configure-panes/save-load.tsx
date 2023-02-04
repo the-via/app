@@ -5,6 +5,7 @@ import {ErrorMessage, SuccessMessage} from '../../styled';
 import {AccentUploadButton} from '../../inputs/accent-upload-button';
 import {AccentButton} from '../../inputs/accent-button';
 import {getByteForCode, getCodeForByte} from '../../../utils/key';
+import deprecatedKeycodes from '../../../utils/key-to-byte/deprecated-keycodes';
 import {title, component} from '../../icons/save';
 import {CenterPane} from '../pane';
 import {Detail, Label, ControlRow, SpanOverflowCell} from '../grid';
@@ -192,7 +193,9 @@ export const Pane: FC = () => {
       }
 
       const keymap: number[][] = saveFile.layers.map((layer) =>
-        layer.map((key) => getByteForCode(`${key}`, basicKeyToByte)),
+        layer.map((key) =>
+          getByteForCode(`${deprecatedKeycodes[key] ?? key}`, basicKeyToByte),
+        ),
       );
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
@@ -206,13 +209,19 @@ export const Pane: FC = () => {
                     layerId,
                     id,
                     false,
-                    getByteForCode(`${layer[0]}`, basicKeyToByte),
+                    getByteForCode(
+                      `${deprecatedKeycodes[layer[0]] ?? layer[0]}`,
+                      basicKeyToByte,
+                    ),
                   ),
                   selectedDevice.api.setEncoderValue(
                     layerId,
                     id,
                     true,
-                    getByteForCode(`${layer[1]}`, basicKeyToByte),
+                    getByteForCode(
+                      `${deprecatedKeycodes[layer[1]] ?? layer[1]}`,
+                      basicKeyToByte,
+                    ),
                   ),
                 ]),
               ),
