@@ -1,5 +1,7 @@
 import {
   faCircle,
+  faCompress,
+  faExpand,
   faPenToSquare,
   faPlus,
   faSave,
@@ -19,31 +21,21 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {AccentButton} from 'src/components/inputs/accent-button';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
 import {
-  GroupedKeycodeSequenceAction,
-  GroupedKeycodeSequenceItem,
   OptimizedKeycodeSequence,
   OptimizedKeycodeSequenceItem,
   RawKeycodeSequence,
   RawKeycodeSequenceAction,
-  RawKeycodeSequenceItem,
 } from 'src/utils/macro-api/types';
 import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
-  optimizedSequenceToRawSequence,
   rawSequenceToOptimizedSequence,
   sequenceToExpression,
 } from 'src/utils/macro-api/macro-api.common';
-import {Message} from 'src/components/styled';
-import {
-  CategoryMenuTooltip,
-  IconButtonTooltip,
-  MenuTooltip,
-} from 'src/components/inputs/tooltip';
+import {IconButtonTooltip} from 'src/components/inputs/tooltip';
 import {getKeycodes, IKeycode} from 'src/utils/key';
 
 function capitalize(string: string) {
@@ -392,8 +384,10 @@ const PlusIcon = () => (
     color={'var(--color_accent)'}
   />
 );
-const getSequenceLabel = (keycode: IKeycode) =>
-  keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
+const getSequenceLabel = (keycode: IKeycode) => {
+  const label = keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
+  return label.length > 1 ? capitalize(label) : label;
+};
 
 const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
   action === RawKeycodeSequenceAction.Down
@@ -588,25 +582,17 @@ export const MacroRecorder: React.FC<{
       );
     };
   }, [setIsFullscreen]);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else if (document.exitFullscreen) {
+      recordingToggleChange(false);
+      document.exitFullscreen();
+    }
+  }, [recordingToggleChange]);
   return !showSettings ? (
     <>
-      <ControlRow style={{border: 'none'}}>
-        <Label>Fullscreen Mode</Label>
-        <Detail>
-          <AccentButton
-            onClick={() => {
-              if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-              } else if (document.exitFullscreen) {
-                recordingToggleChange(false);
-                document.exitFullscreen();
-              }
-            }}
-          >
-            {isFullscreen ? 'Leave' : 'Enter'}
-          </AccentButton>
-        </Detail>
-      </ControlRow>
       <MacroSequenceContainer ref={macroSequenceRef}>
         {sequence.length ? (
           sequence
@@ -628,9 +614,11 @@ export const MacroRecorder: React.FC<{
         <Detail>
           <MacroEditControls
             isFullscreen={isFullscreen}
+            isEmpty={!selectedMacro || !selectedMacro.length}
             isRecording={isRecording}
             addText={() => {}}
             deleteMacro={deleteMacro}
+            toggleFullscreen={toggleFullscreen}
             revertChanges={() => {
               undoMacro();
               setKeycodeSequence([]);
@@ -673,6 +661,8 @@ const MacroEditControls: React.FC<{
   revertChanges(): void;
   deleteMacro(): void;
   saveChanges(): void;
+  toggleFullscreen(): void;
+  isEmpty?: boolean;
   recordingToggleChange: (a: boolean) => void;
   addText: () => void;
 }> = ({
@@ -682,7 +672,9 @@ const MacroEditControls: React.FC<{
   hasUnsavedChanges,
   revertChanges,
   saveChanges,
+  isEmpty,
   deleteMacro,
+  toggleFullscreen,
 }) => {
   const recordComponent = (
     <IconButtonContainer
@@ -707,7 +699,6 @@ const MacroEditControls: React.FC<{
   );
   return (
     <MacroEditControlsContainer>
-      {recordComponent}
       {hasUnsavedChanges ? (
         <>
           <IconButtonContainer
@@ -733,7 +724,7 @@ const MacroEditControls: React.FC<{
             <IconButtonTooltip>Save Changes</IconButtonTooltip>
           </IconButtonContainer>
         </>
-      ) : (
+      ) : !isEmpty ? (
         <IconButtonContainer
           disabled={hasUnsavedChanges || isRecording}
           onClick={deleteMacro}
@@ -745,7 +736,20 @@ const MacroEditControls: React.FC<{
           />
           <IconButtonTooltip>Delete Macro</IconButtonTooltip>
         </IconButtonContainer>
-      )}
+      ) : null}
+      {recordComponent}
+      {
+        <IconButtonContainer onClick={toggleFullscreen}>
+          <FontAwesomeIcon
+            size={'sm'}
+            color="var(--color_label)"
+            icon={isFullscreen ? faCompress : faExpand}
+          />
+          <IconButtonTooltip>
+            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          </IconButtonTooltip>
+        </IconButtonContainer>
+      }
     </MacroEditControlsContainer>
   );
 };
