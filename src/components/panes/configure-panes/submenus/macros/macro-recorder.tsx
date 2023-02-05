@@ -1,13 +1,6 @@
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';
 import {
@@ -19,25 +12,17 @@ import {
 import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
+  optimizedSequenceToRawSequence,
   rawSequenceToOptimizedSequence,
   sequenceToExpression,
 } from 'src/utils/macro-api/macro-api.common';
 import {getKeycodes, IKeycode} from 'src/utils/key';
 import {
   getSequenceItemComponent,
-  KeycodeDownLabel,
-  KeycodePressLabel,
-  KeycodeSequenceWait,
-  KeycodeUpLabel,
-  NumberInput,
   SequenceLabelSeparator,
   WaitInput,
 } from './keycode-sequence-components';
-import {
-  IconButtonContainer,
-  MacroEditControls,
-  MacroEditControlsContainer,
-} from './macro-controls';
+import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
 import {tagWithID, unwrapTagWithID} from './tagging';
 
@@ -73,49 +58,47 @@ declare global {
   }
 }
 
+type SmartTransformAcc = [
+  [OptimizedKeycodeSequenceItem, number][],
+  [OptimizedKeycodeSequenceItem, number],
+  number,
+];
+
 const smartTransform = (
-  [acc, prev, currHeld]: [
-    OptimizedKeycodeSequence,
-    OptimizedKeycodeSequenceItem,
-    number,
-  ],
-  curr: OptimizedKeycodeSequenceItem,
+  [acc, prev, currHeld]: SmartTransformAcc,
+  [curr, id]: [OptimizedKeycodeSequenceItem, number],
   index: number,
-) => {
+): SmartTransformAcc => {
   const [action, actionArg] = curr;
   if (action === RawKeycodeSequenceAction.Delay && currHeld === 0) {
-    acc.push(curr);
+    acc.push([curr, id]);
   } else if (
     (action === RawKeycodeSequenceAction.Down ||
       action === RawKeycodeSequenceAction.Tap) &&
     currHeld === 0
   ) {
-    acc.push([RawKeycodeSequenceAction.Tap, actionArg as string]);
+    acc.push([[RawKeycodeSequenceAction.Tap, actionArg as string], id]);
     currHeld = currHeld + 1;
   } else if (
     action === RawKeycodeSequenceAction.Tap &&
     String(actionArg).length === 1
   ) {
-    acc[acc.length - 1][1] = `${acc[acc.length - 1][1]}${actionArg}`;
+    acc[acc.length - 1][0][1] = `${acc[acc.length - 1][0][1]}${actionArg}`;
   } else if (action === RawKeycodeSequenceAction.Tap) {
-    acc[acc.length - 1][1] = [acc[acc.length - 1][1] as string[]]
+    acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
       .flat()
       .concat(actionArg as string);
   } else if (action === RawKeycodeSequenceAction.Down) {
-    acc[acc.length - 1][1] = [acc[acc.length - 1][1] as string[]]
+    acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
       .flat()
       .concat(actionArg as string);
     currHeld = currHeld + 1;
   } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
   } else if (action === RawKeycodeSequenceAction.CharacterStream) {
-    acc.push(curr);
+    acc.push([curr, id]);
   }
-  return [acc, curr, currHeld] as [
-    OptimizedKeycodeSequence,
-    OptimizedKeycodeSequenceItem,
-    number,
-  ];
+  return [acc, [curr, id], currHeld] as SmartTransformAcc;
 };
 
 const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
@@ -192,30 +175,30 @@ export const MacroRecorder: React.FC<{
 
   const showWaitTimes = recordWaitTimes || showOriginalMacro;
   const displayedSequence = useMemo(() => {
-    return (
-      showOriginalMacro
-        ? rawSequenceToOptimizedSequence(
-            (selectedMacro ?? []) as RawKeycodeSequence,
-          )
-        : showVerboseKeyState
-        ? keycodeSequence
-        : keycodeSequence.reduce(smartTransform, [
-            [],
-            [RawKeycodeSequenceAction.Delay, 0],
-            0,
-          ] as [
-            OptimizedKeycodeSequence,
-            OptimizedKeycodeSequenceItem,
-            number,
-          ])[0]
-    )
-      .map(tagWithID)
-      .filter(
-        ([[action]]) =>
-          showOriginalMacro ||
-          showWaitTimes ||
-          action !== RawKeycodeSequenceAction.Delay,
-      );
+    let partialSequence;
+    if (showOriginalMacro) {
+      partialSequence = rawSequenceToOptimizedSequence(
+        (selectedMacro ?? []) as RawKeycodeSequence,
+      ).map(tagWithID);
+    } else if (showVerboseKeyState) {
+      partialSequence = keycodeSequence.map(tagWithID);
+    } else {
+      const taggedSequence = keycodeSequence.map(tagWithID) as [
+        OptimizedKeycodeSequenceItem,
+        number,
+      ][];
+      partialSequence = taggedSequence.reduce(smartTransform, [
+        [],
+        [[RawKeycodeSequenceAction.Delay, 0], -1],
+        0,
+      ] as SmartTransformAcc)[0];
+    }
+    return partialSequence.filter(
+      ([[action]]) =>
+        showOriginalMacro ||
+        showWaitTimes ||
+        action !== RawKeycodeSequenceAction.Delay,
+    );
   }, [
     keycodeSequence,
     showOriginalMacro,
@@ -231,6 +214,62 @@ export const MacroRecorder: React.FC<{
     }
   }, [displayedSequence]);
 
+  const deleteSequenceItem = useCallback(
+    (id: number) => {
+      const sequenceItemIndex = displayedSequence.findIndex(
+        (item) => id === item[1],
+      );
+      const endIndex =
+        displayedSequence.length - 1 === sequenceItemIndex
+          ? id + 1
+          : displayedSequence[sequenceItemIndex + 1][1];
+      let sliceableSequence = showOriginalMacro
+        ? rawSequenceToOptimizedSequence(
+            (selectedMacro ?? []) as RawKeycodeSequence,
+          )
+        : keycodeSequence;
+      const newSequence = [...sliceableSequence];
+      newSequence.splice(id, endIndex - id);
+      setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
+      if (showOriginalMacro) {
+        setRecordWaitTimes(true);
+        setShowVerboseKeyState(true);
+        setShowOriginalMacro(false);
+      }
+    },
+    [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
+  );
+
+  const editSequenceItem = useCallback(
+    (id: number, val: number) => {
+      const sequenceItemIndex = displayedSequence.findIndex(
+        (item) => id === item[1],
+      );
+      const endIndex =
+        displayedSequence.length - 1 === sequenceItemIndex
+          ? id + 1
+          : displayedSequence[sequenceItemIndex + 1][1];
+      let sliceableSequence = showOriginalMacro
+        ? rawSequenceToOptimizedSequence(
+            (selectedMacro ?? []) as RawKeycodeSequence,
+          )
+        : keycodeSequence;
+      // Add new wait sequence
+      const newSequence = [...sliceableSequence];
+      newSequence.splice(id, endIndex - id, [
+        RawKeycodeSequenceAction.Delay,
+        val,
+      ]);
+      setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
+      if (showOriginalMacro) {
+        setRecordWaitTimes(true);
+        setShowVerboseKeyState(true);
+        setShowOriginalMacro(false);
+      }
+    },
+    [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
+  );
+
   const sequence = useMemo(() => {
     return componentJoin(
       displayedSequence.map(([[action, actionArg], id]) => {
@@ -239,10 +278,7 @@ export const MacroRecorder: React.FC<{
           action === RawKeycodeSequenceAction.Delay ? null : (
           <>
             {RawKeycodeSequenceAction.Delay !== action ? (
-              <Deletable
-                index={id}
-                deleteItem={(idx) => console.log('trying to delete:', idx)}
-              >
+              <Deletable index={id} deleteItem={deleteSequenceItem}>
                 <Label>
                   {action === RawKeycodeSequenceAction.CharacterStream
                     ? actionArg
@@ -255,11 +291,12 @@ export const MacroRecorder: React.FC<{
               </Deletable>
             ) : showWaitTimes ? (
               <>
-                <Deletable
-                  index={id}
-                  deleteItem={(idx) => console.log('trying to delete:', idx)}
-                >
-                  <WaitInput value={Number(actionArg)} setInput={() => null} />
+                <Deletable index={id} deleteItem={deleteSequenceItem}>
+                  <WaitInput
+                    index={id}
+                    value={Number(actionArg)}
+                    updateValue={editSequenceItem}
+                  />
                 </Deletable>
               </>
             ) : null}

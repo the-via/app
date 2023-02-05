@@ -166,7 +166,8 @@ export const CharacterStreamInput: React.FC<PropsWithChildren> = (props) => (
 
 export const WaitInput: React.FC<{
   value: number | string;
-  setInput: (wait: number) => void;
+  index: number;
+  updateValue: (id: number, wait: number) => void;
 }> = (props) => {
   const [waitNumber, setWaitNumber] = useState(props.value);
   const inputRef = useRef(null);
@@ -181,7 +182,12 @@ export const WaitInput: React.FC<{
       evt.target.value === '' ||
       (+evt.target.value > 0 && +evt.target.value < 100000)
     ) {
+      // Update internal value
       setWaitNumber(evt.target.value);
+    }
+    if (+evt.target.value > 0 && +evt.target.value < 100000) {
+      // Update external value
+      props.updateValue(props.index, +evt.target.value);
     }
   };
 
