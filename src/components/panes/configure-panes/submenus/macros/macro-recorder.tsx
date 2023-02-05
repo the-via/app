@@ -27,6 +27,15 @@ import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
 import {tagWithID, unwrapTagWithID} from './tagging';
 
+declare global {
+  interface Navigator {
+    keyboard: {
+      unlock(): Promise<void>;
+      lock(): Promise<void>;
+    };
+  }
+}
+
 const NoMacroRecorded = styled.div`
   margin: 10px 0px;
   font-style: italic;
@@ -46,15 +55,6 @@ const MacroSequenceContainer = styled.div<{isModified: boolean}>`
 }
 `;
 
-declare global {
-  interface Navigator {
-    keyboard: {
-      unlock(): Promise<void>;
-      lock(): Promise<void>;
-    };
-  }
-}
-
 type SmartTransformAcc = [
   [OptimizedKeycodeSequenceItem, number][],
   [OptimizedKeycodeSequenceItem, number],
@@ -62,9 +62,8 @@ type SmartTransformAcc = [
 ];
 
 const smartTransform = (
-  [acc, prev, currHeld]: SmartTransformAcc,
+  [acc, , currHeld]: SmartTransformAcc,
   [curr, id]: [OptimizedKeycodeSequenceItem, number],
-  index: number,
 ): SmartTransformAcc => {
   const [action, actionArg] = curr;
   if (action === RawKeycodeSequenceAction.Delay && currHeld === 0) {
@@ -199,58 +198,53 @@ export const MacroRecorder: React.FC<{
     }
   }, [displayedSequence]);
 
+  const getSliceableSequence = () => {
+    let sliceableSequence = showOriginalMacro
+      ? rawSequenceToOptimizedSequence(
+          (selectedMacro ?? []) as RawKeycodeSequence,
+        )
+      : keycodeSequence;
+    return [...sliceableSequence];
+  };
+
+  const getDeleteCount = (id: number) => {
+    const sequenceItemIndex = displayedSequence.findIndex(
+      (item) => id === item[1],
+    );
+    const endIndex =
+      displayedSequence.length - 1 === sequenceItemIndex
+        ? id + 1
+        : displayedSequence[sequenceItemIndex + 1][1];
+    return endIndex - id;
+  };
+
+  const switchToEditMode = useCallback(() => {
+    if (showOriginalMacro) {
+      setRecordWaitTimes(true);
+      setShowVerboseKeyState(true);
+      setShowOriginalMacro(false);
+    }
+  }, [showOriginalMacro]);
+
   const deleteSequenceItem = useCallback(
     (id: number) => {
-      const sequenceItemIndex = displayedSequence.findIndex(
-        (item) => id === item[1],
-      );
-      const endIndex =
-        displayedSequence.length - 1 === sequenceItemIndex
-          ? id + 1
-          : displayedSequence[sequenceItemIndex + 1][1];
-      let sliceableSequence = showOriginalMacro
-        ? rawSequenceToOptimizedSequence(
-            (selectedMacro ?? []) as RawKeycodeSequence,
-          )
-        : keycodeSequence;
-      const newSequence = [...sliceableSequence];
-      newSequence.splice(id, endIndex - id);
+      const newSequence = getSliceableSequence();
+      newSequence.splice(id, getDeleteCount(id));
       setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
-      if (showOriginalMacro) {
-        setRecordWaitTimes(true);
-        setShowVerboseKeyState(true);
-        setShowOriginalMacro(false);
-      }
+      switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
   );
 
   const editSequenceItem = useCallback(
     (id: number, val: number) => {
-      const sequenceItemIndex = displayedSequence.findIndex(
-        (item) => id === item[1],
-      );
-      const endIndex =
-        displayedSequence.length - 1 === sequenceItemIndex
-          ? id + 1
-          : displayedSequence[sequenceItemIndex + 1][1];
-      let sliceableSequence = showOriginalMacro
-        ? rawSequenceToOptimizedSequence(
-            (selectedMacro ?? []) as RawKeycodeSequence,
-          )
-        : keycodeSequence;
-      // Add new wait sequence
-      const newSequence = [...sliceableSequence];
-      newSequence.splice(id, endIndex - id, [
+      const newSequence = getSliceableSequence();
+      newSequence.splice(id, getDeleteCount(id), [
         RawKeycodeSequenceAction.Delay,
         val,
       ]);
       setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
-      if (showOriginalMacro) {
-        setRecordWaitTimes(true);
-        setShowVerboseKeyState(true);
-        setShowOriginalMacro(false);
-      }
+      switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
   );
