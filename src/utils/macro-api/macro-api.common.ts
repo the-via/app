@@ -69,7 +69,7 @@ export function rawSequenceToOptimizedSequence(
   let cat: OptimizedKeycodeSequence = [];
   let keyDownKeycodes: string[] = [];
   let unmatchedKeyDownCount: number = 0;
-  sequence.forEach((element) => {
+  sequence.forEach((element, index) => {
     // This gets set true while we are iterating over
     // a possible key chord (symmetric nested key downs/key ups)
     let keepGoing = false;
@@ -106,6 +106,10 @@ export function rawSequenceToOptimizedSequence(
           keepGoing = true;
         }
       }
+    }
+
+    if (index === sequence.length - 1) {
+      keepGoing = false;
     }
 
     if (!keepGoing) {
