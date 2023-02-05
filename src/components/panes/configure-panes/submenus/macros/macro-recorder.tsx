@@ -19,16 +19,13 @@ import {
 import {getKeycodes, IKeycode} from 'src/utils/key';
 import {
   getSequenceItemComponent,
+  getSequenceLabel,
   SequenceLabelSeparator,
   WaitInput,
 } from './keycode-sequence-components';
 import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
 import {tagWithID, unwrapTagWithID} from './tagging';
-
-function capitalize(string: string) {
-  return string[0].toUpperCase() + string.slice(1);
-}
 
 const NoMacroRecorded = styled.div`
   margin: 10px 0px;
@@ -109,18 +106,6 @@ const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
     acc.push(next);
     return acc;
   }, [] as (JSX.Element | null)[]);
-};
-
-const PlusIcon = () => (
-  <FontAwesomeIcon
-    style={{marginLeft: 10, marginRight: 10}}
-    icon={faPlus}
-    color={'var(--color_accent)'}
-  />
-);
-const getSequenceLabel = (keycode: IKeycode) => {
-  const label = keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
-  return label.length > 1 ? capitalize(label) : label;
 };
 
 const KeycodeMap = getKeycodes()
@@ -278,7 +263,7 @@ export const MacroRecorder: React.FC<{
           action === RawKeycodeSequenceAction.Delay ? null : (
           <>
             {RawKeycodeSequenceAction.Delay !== action ? (
-              <Deletable index={id} deleteItem={deleteSequenceItem}>
+              <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
                 <Label>
                   {action === RawKeycodeSequenceAction.CharacterStream
                     ? actionArg
@@ -291,7 +276,7 @@ export const MacroRecorder: React.FC<{
               </Deletable>
             ) : showWaitTimes ? (
               <>
-                <Deletable index={id} deleteItem={deleteSequenceItem}>
+                <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
                   <WaitInput
                     index={id}
                     value={Number(actionArg)}

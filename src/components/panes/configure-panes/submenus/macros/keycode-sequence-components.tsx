@@ -1,10 +1,14 @@
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import React, {ChangeEvent, PropsWithChildren, useRef, useState} from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
+import {IKeycode} from 'src/utils/key';
 import {
   OptimizedKeycodeSequenceItem,
   RawKeycodeSequenceAction,
 } from 'src/utils/macro-api/types';
 import styled from 'styled-components';
+
 const CharacterStreamContainer = styled.div`
   border: 2px solid var(--bg_control);
   transition: border-color 0.2s ease-in-out;
@@ -16,6 +20,7 @@ const CharacterStreamContainer = styled.div`
   border-radius: 4px;
   font-size: 16px;
 `;
+
 const KeycodeSequenceLabel = styled.div`
   display: inline-flex;
   user-select: none;
@@ -214,3 +219,20 @@ export const getSequenceItemComponent = (
     : action === RawKeycodeSequenceAction.CharacterStream
     ? KeycodePressLabel
     : KeycodePressLabel;
+
+function capitalize(string: string) {
+  return string[0].toUpperCase() + string.slice(1);
+}
+
+export const getSequenceLabel = (keycode: IKeycode) => {
+  const label = keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
+  return label.length > 1 ? capitalize(label) : label;
+};
+
+export const PlusIcon = () => (
+  <FontAwesomeIcon
+    style={{marginLeft: 10, marginRight: 10}}
+    icon={faPlus}
+    color={'var(--color_accent)'}
+  />
+);
