@@ -48,3 +48,12 @@ declare module '*.png' {
 }
 
 /* CUSTOM: ADD YOUR OWN HERE */
+
+declare global {
+  interface Navigator {
+    keyboard: {
+      unlock(): Promise<void>;
+      lock(): Promise<void>;
+    };
+  }
+}

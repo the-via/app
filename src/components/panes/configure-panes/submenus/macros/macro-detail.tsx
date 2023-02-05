@@ -75,12 +75,13 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
 
   const saveMacro = useCallback(
     (macro?: string) => {
-      if (unsavedMacro !== currentMacro) {
-        props.saveMacros(unsavedMacro);
-      } else if (macro !== undefined) {
+      if (macro !== undefined) {
         props.saveMacros('');
+        setUnsavedMacro('');
+      } else if (unsavedMacro !== currentMacro) {
+        props.saveMacros(unsavedMacro);
+        setUnsavedMacro(unsavedMacro);
       }
-      setUnsavedMacro(unsavedMacro);
     },
     [unsavedMacro],
   );

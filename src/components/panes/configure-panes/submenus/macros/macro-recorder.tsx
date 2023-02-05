@@ -1,20 +1,7 @@
-import {
-  faCircle,
-  faCompress,
-  faExpand,
-  faPenToSquare,
-  faPlus,
-  faSave,
-  faSquare,
-  faTrash,
-  faUndo,
-  faXmarkCircle,
-} from '@fortawesome/free-solid-svg-icons';
-import TextareaAutosize from 'react-textarea-autosize';
+import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import React, {
   ChangeEvent,
-  PropsWithChildren,
   useCallback,
   useEffect,
   useMemo,
@@ -35,202 +22,35 @@ import {
   rawSequenceToOptimizedSequence,
   sequenceToExpression,
 } from 'src/utils/macro-api/macro-api.common';
-import {IconButtonTooltip} from 'src/components/inputs/tooltip';
 import {getKeycodes, IKeycode} from 'src/utils/key';
+import {
+  getSequenceItemComponent,
+  KeycodeDownLabel,
+  KeycodePressLabel,
+  KeycodeSequenceWait,
+  KeycodeUpLabel,
+  NumberInput,
+  SequenceLabelSeparator,
+  WaitInput,
+} from './keycode-sequence-components';
+import {
+  IconButtonContainer,
+  MacroEditControls,
+  MacroEditControlsContainer,
+} from './macro-controls';
+import {Deletable} from './deletable';
+import {tagWithID, unwrapTagWithID} from './tagging';
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
 }
-
-const IconButton = styled.button`
-  appearance: none;
-  width: 40px;
-  position: relative;
-  display: inline-block;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 10px 10px;
-  line-height: initial;
-  font-size: initial;
-  color: ${(props) =>
-    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
-  border-color: ${(props) =>
-    props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
-  &:disabled {
-    cursor: not-allowed;
-    border-right: 1px solid var(--border_color_icon);
-    cursor: not-allowed;
-    background: var(--bg_menu);
-  }
-  &:hover {
-    color: ${(props) =>
-      props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
-    border-color: ${(props) =>
-      props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
-    border-right: 1px solid var(--border_color_icon);
-    background-color: ${(props) =>
-      props.disabled ? 'var(--bg_menu)' : 'var(--color_accent)'};
-  }
-
-  svg {
-    color: ${(props) =>
-      props.disabled ? 'var(--bg_control)' : 'var(--color_accent)'};
-  }
-  &:hover {
-    svg {
-      color: ${(props) =>
-        props.disabled ? 'var(--bg_control)' : 'var(--color_inside-accent)'};
-    }
-
-    color: var(--color_label-highlighted);
-    & .tooltip {
-      transform: scale(1) translateX(0px);
-      opacity: 1;
-    }
-  }
-  .tooltip {
-    transform: translateX(-5px) scale(0.6);
-    opacity: 0;
-  }
-`;
 
 const NoMacroRecorded = styled.div`
   margin: 10px 0px;
   font-style: italic;
   color: var(--color_label-highlighted);
 `;
-const KeycodeSequenceWaitNumber = styled.span`
-  display: inline-flex;
-  border: 2px solid transparent;
-  padding: 5px 2px;
-  font-weight: initial;
-  border-bottom: 1px solid;
-`;
-const KeycodeSequenceWait = styled.div`
-  display: inline-flex;
-  font-weight: bold;
-  user-select: none;
-  color: #717070;
-  text-overflow: ellipsis;
-  min-width: 30px;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  white-space: pre-wrap;
-  font-size: 16px;
-  color: var(--color_label-highlighted);
-  box-shadow: none;
-  position: relative;
-  white-space: nowrap;
-  position: relative;
-  margin: 15px 0px;
-  box-sizing: border-box;
-  border: 2px solid;
-  padding: 4px 4px;
-  border-color: var(--color_accent);
-  border-radius: 2px;
-`;
-const MacroEditControlsContainer = styled.div`
-  border-radius: 2px;
-  border: 1px solid var(--border_color_icon);
-  display: inline-flex;
-  > button:last-child {
-    border: none;
-  }
-`;
 
-const IconButtonContainer = styled(IconButton)`
-  cursor: pointer;
-  background: var(--bg_control);
-  border-right: 1px solid var(--border_color_icon);
-`;
-
-const AddNextItemDisabled = styled(IconButton)`
-  cursor: initial;
-  font-size: initial;
-  line-height: initial;
-  border-right: 1px solid var(--border_color_icon);
-  cursor: not-allowed;
-  background: var(--bg_menu);
-`;
-
-const AddToSequenceContainer = styled.button`
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-  border-radius: 4px;
-  border: 4px solid var(--border_color_icon);
-  display: inline-flex;
-`;
-
-const CharacterStreamContainer = styled.div`
-  border: 2px solid var(--bg_control);
-  transition: border-color 0.2s ease-in-out;
-  margin: 15px 0px;
-  display: inline-block;
-  &:focus-within {
-    border-color: var(--color_accent);
-  }
-  border-radius: 4px;
-  font-size: 16px;
-`;
-
-const KeycodeSequenceLabel = styled.div`
-  display: inline-flex;
-  user-select: none;
-  color: #717070;
-  padding: 6px 4px;
-  text-overflow: ellipsis;
-  min-width: 30px;
-  font-size: 12px;
-  text-align: center;
-  border-radius: 4px;
-  justify-content: center;
-  align-items: center;
-  white-space: pre-wrap;
-  font-size: 16px;
-  border: 2px solid var(--border_color_icon);
-  background: var(--bg_control);
-  color: var(--color_label-highlighted);
-  margin: 0;
-  box-shadow: none;
-  position: relative;
-  border-radius: 2px;
-  white-space: nowrap;
-  position: relative;
-  margin: 15px 0px;
-`;
-const KeycodeDownLabel = styled(KeycodeSequenceLabel)`
-  &::after {
-    border-style: solid;
-    border-color: transparent;
-    content: '';
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid var(--color_accent);
-    position: absolute;
-    margin-top: 55px;
-    width: 0;
-  }
-`;
-
-const KeycodePressLabel = styled(KeycodeSequenceLabel)`
-  border-color: var(--color_accent);
-`;
-const KeycodeUpLabel = styled(KeycodeSequenceLabel)`
-  &::after {
-    content: '';
-    border-style: solid;
-    margin-top: -55px;
-    border-color: transparent;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 6px solid var(--color_accent);
-    position: absolute;
-    width: 0;
-  }
-`;
 const MacroSequenceContainer = styled.div`
   max-width: 960px;
   width: 100%;
@@ -242,77 +62,6 @@ const MacroSequenceContainer = styled.div`
   box-sizing: border-box;
 }
 `;
-
-const SequenceLabelSeparator = styled.div`
-  width: 20px;
-  display: inline-flex;
-  vertical-align: middle;
-  border: 1px solid var(--color_accent);
-`;
-
-const DeletableContainer = styled.div`
-  display: inline-flex;
-  vertical-align: middle;
-  position: relative;
-  svg {
-    color: var(--bg_icon-highlighted);
-    position: absolute;
-    right: -5px;
-    top: 6px;
-    opacity: 0;
-    cursor: pointer;
-    transition: transform 0.2s ease-in-out;
-    background: var(--bg_icon);
-    border-radius: 50%;
-    transform: scale(0.8);
-  }
-  &:hover svg {
-    opacity: 1;
-    transform: scale(1);
-  }
-`;
-
-const NumberInput = styled.input.attrs({type: 'number', placeholder: 'XXXXX'})`
-  appearance: none;
-  background: none;
-  border: none;
-  border-bottom: 1px solid;
-  color: var(--color_label);
-  width: 45px;
-  text-align: center;
-  font-family: inherit;
-  font-size: inherit;
-  color: var(--color_label-highlighted);
-  margin: 0 5px 0 0;
-  &:focus {
-    color: var(--color_accent);
-  }
-  &::-webkit-inner-spin-button {
-    appearance: none;
-    display: none;
-  }
-  &:invalid {
-    color: red;
-  }
-  &:placeholder-shown {
-    color: red;
-  }
-`;
-
-const Deletable: React.FC<
-  PropsWithChildren<{index: number; deleteItem: (index: number) => void}>
-> = (props) => {
-  return (
-    <DeletableContainer>
-      {props.children}
-      <FontAwesomeIcon
-        icon={faXmarkCircle}
-        size={'lg'}
-        onClick={() => props.deleteItem(props.index)}
-      />
-    </DeletableContainer>
-  );
-};
 
 declare global {
   interface Navigator {
@@ -390,48 +139,9 @@ const getSequenceLabel = (keycode: IKeycode) => {
   return label.length > 1 ? capitalize(label) : label;
 };
 
-const getSequenceItemComponent = (action: OptimizedKeycodeSequenceItem[0]) =>
-  action === RawKeycodeSequenceAction.Down
-    ? KeycodeDownLabel
-    : action === RawKeycodeSequenceAction.Up
-    ? KeycodeUpLabel
-    : action === RawKeycodeSequenceAction.CharacterStream
-    ? KeycodePressLabel
-    : KeycodePressLabel;
-
-const WaitInput: React.FC<{
-  value: number | string;
-  setInput: (wait: number) => void;
-}> = (props) => {
-  const [waitNumber, setWaitNumber] = useState(props.value);
-  const inputRef = useRef(null);
-  const onBeforeInput = (evt: InputEvent) => {
-    if (!evt.data || !/^\d$/.test(evt.data)) {
-      evt.preventDefault();
-    }
-    console.log(evt.data);
-  };
-  const onChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    if (
-      evt.target.value === '' ||
-      (+evt.target.value > 0 && +evt.target.value < 100000)
-    ) {
-      setWaitNumber(evt.target.value);
-    }
-  };
-
-  return (
-    <KeycodeSequenceWait>
-      <NumberInput
-        ref={inputRef}
-        onBeforeInput={onBeforeInput as any}
-        value={waitNumber}
-        onChange={onChange}
-      />
-      ms
-    </KeycodeSequenceWait>
-  );
-};
+const KeycodeMap = getKeycodes()
+  .flatMap((menu) => menu.keycodes)
+  .reduce((p, n) => ({...p, [n.code]: n}), {} as Record<string, IKeycode>);
 
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
@@ -446,16 +156,6 @@ export const MacroRecorder: React.FC<{
   const [isRecording, setIsRecording] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
-  );
-  const keycodeMap = useMemo(
-    () =>
-      getKeycodes()
-        .flatMap((menu) => menu.keycodes)
-        .reduce(
-          (p, n) => ({...p, [n.code]: n}),
-          {} as Record<string, IKeycode>,
-        ),
-    [],
   );
   const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(isRecording);
   const macroSequenceRef = useRef<HTMLDivElement>(null);
@@ -476,9 +176,8 @@ export const MacroRecorder: React.FC<{
     saveMacro('');
     setShowOriginalMacro(true);
   }, [setKeycodeSequence, saveMacro]);
-  const currSequence = !showOriginalMacro
-    ? keycodeSequence
-    : selectedMacro ?? [];
+
+  // When we switch to another macro, reset
   useEffect(() => {
     setShowOriginalMacro(true);
     setKeycodeSequence([]);
@@ -486,6 +185,9 @@ export const MacroRecorder: React.FC<{
 
   const showWaitTimes = recordWaitTimes || showOriginalMacro;
   const displayedSequence = useMemo(() => {
+    const currSequence = !showOriginalMacro
+      ? keycodeSequence
+      : selectedMacro ?? [];
     return (
       showOriginalMacro
         ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
@@ -496,35 +198,39 @@ export const MacroRecorder: React.FC<{
             [RawKeycodeSequenceAction.Delay, 0],
             0,
           ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number])
-    )[0].filter(
-      ([action]) =>
-        showWaitTimes ||
-        currSequence === selectedMacro ||
-        action !== RawKeycodeSequenceAction.Delay,
-    );
+    )[0]
+      .map(tagWithID)
+      .filter(
+        ([[action]]) =>
+          showOriginalMacro ||
+          showWaitTimes ||
+          action !== RawKeycodeSequenceAction.Delay,
+      );
   }, [
+    keycodeSequence,
     showOriginalMacro,
-    currSequence,
     showVerboseKeyState,
     showWaitTimes,
     selectedMacro,
   ]);
   useEffect(() => {
     if (displayedSequence) {
-      setUnsavedMacro(sequenceToExpression(displayedSequence));
+      setUnsavedMacro(
+        sequenceToExpression(displayedSequence.map(unwrapTagWithID)),
+      );
     }
   }, [displayedSequence]);
 
   const sequence = useMemo(() => {
     return componentJoin(
-      displayedSequence.map(([action, actionArg], index) => {
+      displayedSequence.map(([[action, actionArg], id]) => {
         const Label = getSequenceItemComponent(action);
         return !showWaitTimes &&
           action === RawKeycodeSequenceAction.Delay ? null : (
           <>
             {RawKeycodeSequenceAction.Delay !== action ? (
               <Deletable
-                index={index}
+                index={id}
                 deleteItem={(idx) => console.log('trying to delete:', idx)}
               >
                 <Label>
@@ -532,15 +238,15 @@ export const MacroRecorder: React.FC<{
                     ? actionArg
                     : Array.isArray(actionArg)
                     ? actionArg
-                        .map((k) => getSequenceLabel(keycodeMap[k]) ?? k)
+                        .map((k) => getSequenceLabel(KeycodeMap[k]) ?? k)
                         .join(' + ')
-                    : getSequenceLabel(keycodeMap[actionArg])}
+                    : getSequenceLabel(KeycodeMap[actionArg])}
                 </Label>
               </Deletable>
             ) : showWaitTimes ? (
               <>
                 <Deletable
-                  index={index}
+                  index={id}
                   deleteItem={(idx) => console.log('trying to delete:', idx)}
                 >
                   <WaitInput value={Number(actionArg)} setInput={() => null} />
@@ -598,24 +304,21 @@ export const MacroRecorder: React.FC<{
           transform: 'translate(-0px, -5px)',
         }}
       >
-        <Label></Label>
-        <Detail>
-          <MacroEditControls
-            isFullscreen={isFullscreen}
-            isEmpty={!selectedMacro || !selectedMacro.length}
-            isRecording={isRecording}
-            addText={() => {}}
-            deleteMacro={deleteMacro}
-            toggleFullscreen={toggleFullscreen}
-            revertChanges={() => {
-              undoMacro();
-              setKeycodeSequence([]);
-            }}
-            saveChanges={() => saveMacro()}
-            hasUnsavedChanges={!!keycodeSequence.length}
-            recordingToggleChange={recordingToggleChange}
-          />
-        </Detail>
+        <MacroEditControls
+          isFullscreen={isFullscreen}
+          isEmpty={!selectedMacro || !selectedMacro.length}
+          isRecording={isRecording}
+          addText={() => {}}
+          deleteMacro={deleteMacro}
+          toggleFullscreen={toggleFullscreen}
+          revertChanges={() => {
+            undoMacro();
+            setKeycodeSequence([]);
+          }}
+          saveChanges={() => saveMacro()}
+          hasUnsavedChanges={!!keycodeSequence.length}
+          recordingToggleChange={recordingToggleChange}
+        />
       </div>
     </>
   ) : (
@@ -638,133 +341,6 @@ export const MacroRecorder: React.FC<{
           />
         </Detail>
       </ControlRow>
-    </>
-  );
-};
-
-const MacroEditControls: React.FC<{
-  isFullscreen: boolean;
-  isRecording: boolean;
-  hasUnsavedChanges?: boolean;
-  revertChanges(): void;
-  deleteMacro(): void;
-  saveChanges(): void;
-  toggleFullscreen(): void;
-  isEmpty?: boolean;
-  recordingToggleChange: (a: boolean) => void;
-  addText: () => void;
-}> = ({
-  isFullscreen,
-  isRecording,
-  recordingToggleChange,
-  hasUnsavedChanges,
-  revertChanges,
-  saveChanges,
-  isEmpty,
-  deleteMacro,
-  toggleFullscreen,
-}) => {
-  const recordComponent = (
-    <IconButtonContainer
-      onClick={() => {
-        recordingToggleChange(!isRecording);
-      }}
-      disabled={!isFullscreen}
-    >
-      <FontAwesomeIcon
-        size={'sm'}
-        color={'var(--color_label)'}
-        icon={isRecording ? faSquare : faCircle}
-      />
-      <IconButtonTooltip>
-        {isFullscreen
-          ? isRecording
-            ? 'Stop Recording'
-            : 'Record Keystrokes'
-          : 'Can only record when fullscreen'}
-      </IconButtonTooltip>
-    </IconButtonContainer>
-  );
-  return (
-    <MacroEditControlsContainer>
-      {hasUnsavedChanges ? (
-        <>
-          <IconButtonContainer
-            disabled={!hasUnsavedChanges || isRecording}
-            onClick={revertChanges}
-          >
-            <FontAwesomeIcon
-              size={'sm'}
-              color="var(--color_label)"
-              icon={faUndo}
-            />
-            <IconButtonTooltip>Undo Changes</IconButtonTooltip>
-          </IconButtonContainer>
-          <IconButtonContainer
-            disabled={!hasUnsavedChanges || isRecording}
-            onClick={() => saveChanges()}
-          >
-            <FontAwesomeIcon
-              size={'sm'}
-              color="var(--color_label)"
-              icon={faSave}
-            />
-            <IconButtonTooltip>Save Changes</IconButtonTooltip>
-          </IconButtonContainer>
-        </>
-      ) : !isEmpty ? (
-        <IconButtonContainer
-          disabled={hasUnsavedChanges || isRecording}
-          onClick={deleteMacro}
-        >
-          <FontAwesomeIcon
-            size={'sm'}
-            color="var(--color_label)"
-            icon={faTrash}
-          />
-          <IconButtonTooltip>Delete Macro</IconButtonTooltip>
-        </IconButtonContainer>
-      ) : null}
-      {recordComponent}
-      {
-        <IconButtonContainer onClick={toggleFullscreen}>
-          <FontAwesomeIcon
-            size={'sm'}
-            color="var(--color_label)"
-            icon={isFullscreen ? faCompress : faExpand}
-          />
-          <IconButtonTooltip>
-            {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-          </IconButtonTooltip>
-        </IconButtonContainer>
-      }
-    </MacroEditControlsContainer>
-  );
-};
-const CharacterStreamInput: React.FC<{
-  children?: React.ReactNode | undefined;
-}> = (props) => {
-  return (
-    <>
-      <CharacterStreamContainer>
-        <TextareaAutosize
-          style={{
-            background: 'transparent',
-            color: 'var(--color_label-highlighted)',
-            padding: '8px',
-            borderRadius: 4,
-            border: 'none',
-            fontFamily: '"Fira Sans"',
-            verticalAlign: 'middle',
-            resize: 'none',
-            fontSize: 16,
-          }}
-          minRows={1}
-          maxRows={3}
-        >
-          {props.children}
-        </TextareaAutosize>
-      </CharacterStreamContainer>
     </>
   );
 };
