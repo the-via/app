@@ -155,31 +155,33 @@ export const MacroRecorder: React.FC<{
     setKeycodeSequence([]);
   }, [selectedMacro]);
 
+  const getSliceableSequence = () => {
+    let sliceableSequence = showOriginalMacro
+      ? ((selectedMacro ?? []) as RawKeycodeSequence)
+      : keycodeSequence;
+    return rawSequenceToOptimizedSequence(sliceableSequence);
+  };
+
+  const initialReduceState = [
+    [],
+    [[RawKeycodeSequenceAction.Delay, 0], -1],
+    0,
+  ] as SmartTransformAcc;
   const showWaitTimes = recordWaitTimes || showOriginalMacro;
   const displayedSequence = useMemo(() => {
     let partialSequence;
-    if (showOriginalMacro) {
-      partialSequence = rawSequenceToOptimizedSequence(
-        (selectedMacro ?? []) as RawKeycodeSequence,
-      ).map(tagWithID);
-    } else if (showVerboseKeyState) {
-      partialSequence = keycodeSequence.map(tagWithID);
+    let taggedSliceSequence = getSliceableSequence().map(tagWithID);
+    if (!(showOriginalMacro || showVerboseKeyState)) {
+      partialSequence = taggedSliceSequence.reduce(
+        smartTransform,
+        initialReduceState,
+      )[0];
     } else {
-      const taggedSequence = keycodeSequence.map(tagWithID) as [
-        OptimizedKeycodeSequenceItem,
-        number,
-      ][];
-      partialSequence = taggedSequence.reduce(smartTransform, [
-        [],
-        [[RawKeycodeSequenceAction.Delay, 0], -1],
-        0,
-      ] as SmartTransformAcc)[0];
+      partialSequence = taggedSliceSequence;
     }
     return partialSequence.filter(
       ([[action]]) =>
-        showOriginalMacro ||
-        showWaitTimes ||
-        action !== RawKeycodeSequenceAction.Delay,
+        showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
     );
   }, [
     keycodeSequence,
@@ -195,15 +197,6 @@ export const MacroRecorder: React.FC<{
       );
     }
   }, [displayedSequence]);
-
-  const getSliceableSequence = () => {
-    let sliceableSequence = showOriginalMacro
-      ? rawSequenceToOptimizedSequence(
-          (selectedMacro ?? []) as RawKeycodeSequence,
-        )
-      : keycodeSequence;
-    return [...sliceableSequence];
-  };
 
   const getDeleteCount = (id: number) => {
     const sequenceItemIndex = displayedSequence.findIndex(
@@ -253,7 +246,11 @@ export const MacroRecorder: React.FC<{
         const Label = getSequenceItemComponent(action);
         return !showWaitTimes &&
           action === RawKeycodeSequenceAction.Delay ? null : (
-          <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
+          <Deletable
+            key={`${id}-${action}`}
+            index={id}
+            deleteItem={deleteSequenceItem}
+          >
             {RawKeycodeSequenceAction.Delay !== action ? (
               <Label>
                 {action === RawKeycodeSequenceAction.CharacterStream
@@ -335,7 +332,7 @@ export const MacroRecorder: React.FC<{
           toggleFullscreen={toggleFullscreen}
           undoChanges={undoChanges}
           saveChanges={() => saveMacro()}
-          hasUnsavedChanges={!!keycodeSequence.length}
+          hasUnsavedChanges={!showOriginalMacro}
           recordingToggleChange={recordingToggleChange}
         />
       </div>

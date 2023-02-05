@@ -201,7 +201,7 @@ export const WaitInput: React.FC<{
       <NumberInput
         ref={inputRef}
         onBeforeInput={onBeforeInput as any}
-        value={waitNumber}
+        value={props.value}
         onChange={onChange}
       />
       ms
