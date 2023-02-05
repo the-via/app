@@ -80,13 +80,15 @@ const smartTransform = (
     String(actionArg).length === 1
   ) {
     acc[acc.length - 1][0][1] = `${acc[acc.length - 1][0][1]}${actionArg}`;
-  } else if (
-    action === RawKeycodeSequenceAction.Tap ||
-    action === RawKeycodeSequenceAction.Down
-  ) {
+  } else if (action === RawKeycodeSequenceAction.Tap) {
     acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
       .flat()
       .concat(actionArg as string);
+  } else if (action === RawKeycodeSequenceAction.Down) {
+    acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
+      .flat()
+      .concat(actionArg as string);
+    currHeld = currHeld + 1;
   } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
   } else if (action === RawKeycodeSequenceAction.CharacterStream) {
