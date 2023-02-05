@@ -51,11 +51,12 @@ const NoMacroRecorded = styled.div`
   color: var(--color_label-highlighted);
 `;
 
-const MacroSequenceContainer = styled.div`
+const MacroSequenceContainer = styled.div<{isModified: boolean}>`
   max-width: 960px;
   width: 100%;
   display: block;
   border: 1px solid var(--border_color_cell);
+  border-style: ${(props) => (props.isModified ? 'dashed' : 'solid')};
   padding: 10px 20px;
   border-radius: 15px;
   margin-top: 10px;
@@ -191,20 +192,23 @@ export const MacroRecorder: React.FC<{
 
   const showWaitTimes = recordWaitTimes || showOriginalMacro;
   const displayedSequence = useMemo(() => {
-    const currSequence = !showOriginalMacro
-      ? keycodeSequence
-      : selectedMacro ?? [];
     return (
       showOriginalMacro
-        ? [rawSequenceToOptimizedSequence(currSequence as RawKeycodeSequence)]
+        ? rawSequenceToOptimizedSequence(
+            (selectedMacro ?? []) as RawKeycodeSequence,
+          )
         : showVerboseKeyState
-        ? [currSequence]
-        : currSequence.reduce(smartTransform, [
+        ? keycodeSequence
+        : keycodeSequence.reduce(smartTransform, [
             [],
             [RawKeycodeSequenceAction.Delay, 0],
             0,
-          ] as [OptimizedKeycodeSequence, OptimizedKeycodeSequenceItem, number])
-    )[0]
+          ] as [
+            OptimizedKeycodeSequence,
+            OptimizedKeycodeSequenceItem,
+            number,
+          ])[0]
+    )
       .map(tagWithID)
       .filter(
         ([[action]]) =>
@@ -291,9 +295,13 @@ export const MacroRecorder: React.FC<{
       document.exitFullscreen();
     }
   }, [recordingToggleChange]);
+
   return !showSettings ? (
     <>
-      <MacroSequenceContainer ref={macroSequenceRef}>
+      <MacroSequenceContainer
+        ref={macroSequenceRef}
+        isModified={!showOriginalMacro}
+      >
         {sequence.length ? (
           sequence
         ) : (
