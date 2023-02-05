@@ -8,7 +8,7 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
   React.memo(({visible, color}) => {
     const cubeyGLTF = useGLTF(cubeySrc);
     const spinnerRef = useRef<any>();
-    const yInit = !visible ? 10 : -0.6;
+    const yInit = !visible ? 10 : -0.3;
 
     // TODO: theme cubey
     cubeyGLTF.scene.children.forEach((child) => {
@@ -40,7 +40,7 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
             zoom={1} // Zoom factor when half the polar-max is reached
             rotation={[0, 0, 0]} // Default rotation
             polar={[-Math.PI / 3, Math.PI / 3]} // Vertical limits
-            config={{mass: 2, tension: 200, friction: 10}} // Spring config
+            config={{mass: 2, tension: 200, friction: 14}} // Spring config
           >
             <group ref={spinnerRef}>
               <primitive object={cubeyGLTF.scene} />
