@@ -314,6 +314,7 @@ export const MacroRecorder: React.FC<{
           revertChanges={() => {
             undoMacro();
             setKeycodeSequence([]);
+            setShowOriginalMacro(true);
           }}
           saveChanges={() => saveMacro()}
           hasUnsavedChanges={!!keycodeSequence.length}
