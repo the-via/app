@@ -120,6 +120,7 @@ export const MacroRecorder: React.FC<{
   const [recordWaitTimes, setRecordWaitTimes] = useState(false);
   const [showOriginalMacro, setShowOriginalMacro] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
+  const [useRecordingSettings, setUseRecordingSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
   );
@@ -132,6 +133,7 @@ export const MacroRecorder: React.FC<{
         await navigator.keyboard.lock();
         setKeycodeSequence([]);
         setShowOriginalMacro(false);
+        setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
       }
@@ -141,17 +143,20 @@ export const MacroRecorder: React.FC<{
   const deleteMacro = useCallback(() => {
     saveMacro('');
     setShowOriginalMacro(true);
+    setUseRecordingSettings(false);
   }, [setKeycodeSequence, saveMacro]);
 
   const undoChanges = useCallback(() => {
     undoMacro();
     setKeycodeSequence([]);
     setShowOriginalMacro(true);
+    setUseRecordingSettings(false);
   }, [undoMacro]);
 
   // When we switch to another macro, reset
   useEffect(() => {
     setShowOriginalMacro(true);
+    setUseRecordingSettings(false);
     setKeycodeSequence([]);
   }, [selectedMacro]);
 
@@ -167,11 +172,12 @@ export const MacroRecorder: React.FC<{
     [[RawKeycodeSequenceAction.Delay, 0], -1],
     0,
   ] as SmartTransformAcc;
-  const showWaitTimes = recordWaitTimes || showOriginalMacro;
+  const showWaitTimes =
+    recordWaitTimes || showOriginalMacro || !useRecordingSettings;
   const displayedSequence = useMemo(() => {
     let partialSequence;
     let taggedSliceSequence = getSliceableSequence().map(tagWithID);
-    if (!(showOriginalMacro || showVerboseKeyState)) {
+    if (!(showOriginalMacro || !useRecordingSettings || showVerboseKeyState)) {
       partialSequence = taggedSliceSequence.reduce(
         smartTransform,
         initialReduceState,
@@ -187,6 +193,7 @@ export const MacroRecorder: React.FC<{
     keycodeSequence,
     showOriginalMacro,
     showVerboseKeyState,
+    useRecordingSettings,
     showWaitTimes,
     selectedMacro,
   ]);
@@ -211,8 +218,6 @@ export const MacroRecorder: React.FC<{
 
   const switchToEditMode = useCallback(() => {
     if (showOriginalMacro) {
-      setRecordWaitTimes(true);
-      setShowVerboseKeyState(true);
       setShowOriginalMacro(false);
     }
   }, [showOriginalMacro]);
