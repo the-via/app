@@ -126,28 +126,32 @@ export const MacroEditControls: React.FC<{
     <MacroEditControlsContainer>
       {hasUnsavedChanges ? (
         <>
-          <IconButtonContainer
-            disabled={!hasUnsavedChanges || isRecording}
-            onClick={revertChanges}
-          >
-            <FontAwesomeIcon
-              size={'sm'}
-              color="var(--color_label)"
-              icon={faUndo}
-            />
-            <IconButtonTooltip>Undo Changes</IconButtonTooltip>
-          </IconButtonContainer>
-          <IconButtonContainer
-            disabled={!hasUnsavedChanges || isRecording}
-            onClick={() => saveChanges()}
-          >
-            <FontAwesomeIcon
-              size={'sm'}
-              color="var(--color_label)"
-              icon={faSave}
-            />
-            <IconButtonTooltip>Save Changes</IconButtonTooltip>
-          </IconButtonContainer>
+          {!isRecording ? (
+            <>
+              <IconButtonContainer
+                disabled={!hasUnsavedChanges || isRecording}
+                onClick={revertChanges}
+              >
+                <FontAwesomeIcon
+                  size={'sm'}
+                  color="var(--color_label)"
+                  icon={faUndo}
+                />
+                <IconButtonTooltip>Undo Changes</IconButtonTooltip>
+              </IconButtonContainer>
+              <IconButtonContainer
+                disabled={!hasUnsavedChanges || isRecording}
+                onClick={() => saveChanges()}
+              >
+                <FontAwesomeIcon
+                  size={'sm'}
+                  color="var(--color_label)"
+                  icon={faSave}
+                />
+                <IconButtonTooltip>Save Changes</IconButtonTooltip>
+              </IconButtonContainer>
+            </>
+          ) : null}
         </>
       ) : !isEmpty ? (
         <IconButtonContainer
