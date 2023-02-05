@@ -80,15 +80,13 @@ const smartTransform = (
     String(actionArg).length === 1
   ) {
     acc[acc.length - 1][0][1] = `${acc[acc.length - 1][0][1]}${actionArg}`;
-  } else if (action === RawKeycodeSequenceAction.Tap) {
+  } else if (
+    action === RawKeycodeSequenceAction.Tap ||
+    action === RawKeycodeSequenceAction.Down
+  ) {
     acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
       .flat()
       .concat(actionArg as string);
-  } else if (action === RawKeycodeSequenceAction.Down) {
-    acc[acc.length - 1][0][1] = [acc[acc.length - 1][0][1] as string[]]
-      .flat()
-      .concat(actionArg as string);
-    currHeld = currHeld + 1;
   } else if (action === RawKeycodeSequenceAction.Up) {
     currHeld = currHeld - 1;
   } else if (action === RawKeycodeSequenceAction.CharacterStream) {
@@ -255,31 +253,25 @@ export const MacroRecorder: React.FC<{
         const Label = getSequenceItemComponent(action);
         return !showWaitTimes &&
           action === RawKeycodeSequenceAction.Delay ? null : (
-          <>
+          <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
             {RawKeycodeSequenceAction.Delay !== action ? (
-              <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
-                <Label>
-                  {action === RawKeycodeSequenceAction.CharacterStream
-                    ? actionArg
-                    : Array.isArray(actionArg)
-                    ? actionArg
-                        .map((k) => getSequenceLabel(KeycodeMap[k]) ?? k)
-                        .join(' + ')
-                    : getSequenceLabel(KeycodeMap[actionArg])}
-                </Label>
-              </Deletable>
+              <Label>
+                {action === RawKeycodeSequenceAction.CharacterStream
+                  ? actionArg
+                  : Array.isArray(actionArg)
+                  ? actionArg
+                      .map((k) => getSequenceLabel(KeycodeMap[k]) ?? k)
+                      .join(' + ')
+                  : getSequenceLabel(KeycodeMap[actionArg])}
+              </Label>
             ) : showWaitTimes ? (
-              <>
-                <Deletable key={id} index={id} deleteItem={deleteSequenceItem}>
-                  <WaitInput
-                    index={id}
-                    value={Number(actionArg)}
-                    updateValue={editSequenceItem}
-                  />
-                </Deletable>
-              </>
+              <WaitInput
+                index={id}
+                value={Number(actionArg)}
+                updateValue={editSequenceItem}
+              />
             ) : null}
-          </>
+          </Deletable>
         );
       }),
       <SequenceLabelSeparator />,
