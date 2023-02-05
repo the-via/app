@@ -31,7 +31,7 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
 
     return (
       <>
-        <group ref={spinnerRef} scale={0.6} position={[0, yInit, -19]}>
+        <group scale={0.6} position={[0, yInit, -19]}>
           <PresentationControls
             enabled={true} // the controls can be disabled by setting this to false
             global={true} // Spin globally or by dragging the model
@@ -42,7 +42,9 @@ export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
             polar={[-Math.PI / 3, Math.PI / 3]} // Vertical limits
             config={{mass: 1, tension: 200, friction: 5}} // Spring config
           >
-            <primitive object={cubeyGLTF.scene} />
+            <group ref={spinnerRef}>
+              <primitive object={cubeyGLTF.scene} />
+            </group>
           </PresentationControls>
         </group>
       </>
