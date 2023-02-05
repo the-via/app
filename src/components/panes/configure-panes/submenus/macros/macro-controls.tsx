@@ -83,7 +83,7 @@ export const MacroEditControls: React.FC<{
   isFullscreen: boolean;
   isRecording: boolean;
   hasUnsavedChanges?: boolean;
-  revertChanges(): void;
+  undoChanges(): void;
   deleteMacro(): void;
   saveChanges(): void;
   toggleFullscreen(): void;
@@ -95,7 +95,7 @@ export const MacroEditControls: React.FC<{
   isRecording,
   recordingToggleChange,
   hasUnsavedChanges,
-  revertChanges,
+  undoChanges,
   saveChanges,
   isEmpty,
   deleteMacro,
@@ -130,7 +130,7 @@ export const MacroEditControls: React.FC<{
             <>
               <IconButtonContainer
                 disabled={!hasUnsavedChanges || isRecording}
-                onClick={revertChanges}
+                onClick={undoChanges}
               >
                 <FontAwesomeIcon
                   size={'sm'}

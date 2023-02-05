@@ -177,6 +177,12 @@ export const MacroRecorder: React.FC<{
     setShowOriginalMacro(true);
   }, [setKeycodeSequence, saveMacro]);
 
+  const undoChanges = useCallback(() => {
+    undoMacro();
+    setKeycodeSequence([]);
+    setShowOriginalMacro(true);
+  }, [undoMacro]);
+
   // When we switch to another macro, reset
   useEffect(() => {
     setShowOriginalMacro(true);
@@ -311,11 +317,7 @@ export const MacroRecorder: React.FC<{
           addText={() => {}}
           deleteMacro={deleteMacro}
           toggleFullscreen={toggleFullscreen}
-          revertChanges={() => {
-            undoMacro();
-            setKeycodeSequence([]);
-            setShowOriginalMacro(true);
-          }}
+          undoChanges={undoChanges}
           saveChanges={() => saveMacro()}
           hasUnsavedChanges={!!keycodeSequence.length}
           recordingToggleChange={recordingToggleChange}
