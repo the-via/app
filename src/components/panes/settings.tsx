@@ -42,7 +42,6 @@ const Container = styled.div`
 `;
 
 const DiagnosticContainer = styled(Container)`
-  border-top: 1px solid var(--color_dark-grey);
   margin-top: 20px;
   padding-top: 20px;
 `;
