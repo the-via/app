@@ -39,7 +39,7 @@ const ErrorHome = styled.div`
   flex-grow: 1;
   height: 100%;
   overflow: hidden;
-  height: fit-content;
+  height: auto;
   left: 0;
   right: 0;
   bottom: 0;
