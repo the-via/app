@@ -177,6 +177,7 @@ const mapKeycodeToCharacterStream: Record<string, string[]> = {
   KC_LBRC: ['[', '{'],
   KC_RBRC: [']', '}'],
   KC_BSLS: ['\\', '|'],
+  KC_SCLN: [';', ':'],
   KC_QUOT: ["'", '"'],
   KC_GRV: ['`', '~'],
   KC_COMM: [',', '<'],
