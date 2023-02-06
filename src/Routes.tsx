@@ -6,6 +6,7 @@ import {createGlobalStyle} from 'styled-components';
 import {CanvasRouter} from './components/three-fiber/canvas-router';
 import {TestContext} from './components/panes/test';
 import {useMemo, useState} from 'react';
+import {OVERRIDE_HID_CHECK} from './utils/override';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -14,7 +15,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export default () => {
-  const hasHIDSupport = 'hid' in navigator;
+  const hasHIDSupport = 'hid' in navigator || OVERRIDE_HID_CHECK;
 
   const RouteComponents = useMemo(
     () =>
