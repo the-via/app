@@ -7,6 +7,7 @@ import {MacroDetailPane} from './submenus/macros/macro-detail';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
 import {getExpressions, saveMacros} from '../../../store/macrosSlice';
+import {IconButtonTooltip, MenuTooltip} from 'src/components/inputs/tooltip';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;

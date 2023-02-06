@@ -95,6 +95,7 @@ export class MacroAPIV11 implements IMacroAPI {
 
   async readRawKeycodeSequences(): Promise<RawKeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
+    console.log('macro', bytes.length);
     const macroCount = await this.keyboardApi.getMacroCount();
 
     let macroId = 0;
@@ -114,6 +115,9 @@ export class MacroAPIV11 implements IMacroAPI {
           sequences[macroId] = currentSequence;
           macroId++;
           currentSequence = [];
+          if (macroId === macroCount) {
+            console.log('macro last index of terminator', i);
+          }
           break;
         case KeyActionPrefix:
           byte = bytes[++i];

@@ -12,7 +12,45 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
+import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 
+const ProgressBarContainer = styled.div`
+  position: relative;
+  margin-top: 10px;
+  &:hover {
+    & .tooltip {
+      transform: scale(1) translateY(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: translateY(5px) scale(0.6);
+    opacity: 0;
+  }
+`;
+const ProgressBar = styled.div`
+  background: var(--bg_control);
+  position: relative;
+  padding: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: 250px;
+
+  > span {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--color_accent);
+    height: 10px;
+    width: 100%;
+    transform: scaleX(0.1);
+    transform-origin: left;
+    transition: transform 0.4s ease-in-out;
+  }
+`;
 const MacroTab = styled.span<{selected: boolean}>`
   display: inline-flex;
   border: 1px solid;
@@ -104,6 +142,12 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           </MacroTab>
         </TabBar>
       </CenterTabContainer>
+      <ProgressBarContainer>
+        <ProgressBar>
+          <span style={{transform: `scaleX(0.5)`}} />
+        </ProgressBar>
+        <ProgressBarTooltip>8 bytes left</ProgressBarTooltip>
+      </ProgressBarContainer>
       {showSettings ? (
         <ControlRow>
           <Label>Script Mode</Label>
