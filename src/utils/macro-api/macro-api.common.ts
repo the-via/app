@@ -1,6 +1,7 @@
 import {
   GroupedKeycodeSequenceAction,
   OptimizedKeycodeSequence,
+  OptimizedKeycodeSequenceItem,
   RawKeycodeSequence,
   RawKeycodeSequenceAction,
   RawKeycodeSequenceItem,
@@ -66,6 +67,15 @@ export function rawSequenceToOptimizedSequence(
   sequence: RawKeycodeSequence,
 ): OptimizedKeycodeSequence {
   let result: OptimizedKeycodeSequence = [];
+  result = convertToChords(sequence);
+  result = convertToCharacterStreams(result);
+  return result;
+}
+
+export function convertToChords(
+  sequence: OptimizedKeycodeSequence,
+): OptimizedKeycodeSequence {
+  let result: OptimizedKeycodeSequence = [];
   let cat: OptimizedKeycodeSequence = [];
   let keyDownKeycodes: string[] = [];
   let unmatchedKeyDownCount: number = 0;
@@ -119,6 +129,110 @@ export function rawSequenceToOptimizedSequence(
       unmatchedKeyDownCount = 0;
     }
   });
+
+  return result;
+}
+
+const mapKeycodeToCharacterStream: Record<string, string[]> = {
+  KC_A: ['a', 'A'],
+  KC_B: ['b', 'B'],
+  KC_C: ['c', 'C'],
+  KC_D: ['d', 'D'],
+  KC_E: ['e', 'E'],
+  KC_F: ['f', 'F'],
+  KC_G: ['g', 'G'],
+  KC_H: ['h', 'H'],
+  KC_I: ['i', 'I'],
+  KC_J: ['j', 'J'],
+  KC_K: ['k', 'K'],
+  KC_L: ['l', 'L'],
+  KC_M: ['m', 'M'],
+  KC_N: ['n', 'N'],
+  KC_O: ['o', 'O'],
+  KC_P: ['p', 'P'],
+  KC_Q: ['q', 'Q'],
+  KC_R: ['r', 'R'],
+  KC_S: ['s', 'S'],
+  KC_T: ['t', 'T'],
+  KC_U: ['u', 'U'],
+  KC_V: ['v', 'V'],
+  KC_W: ['w', 'W'],
+  KC_X: ['x', 'X'],
+  KC_Y: ['y', 'Y'],
+  KC_Z: ['z', 'Z'],
+  KC_1: ['1', '!'],
+  KC_2: ['2', '@'],
+  KC_3: ['3', '#'],
+  KC_4: ['4', '$'],
+  KC_5: ['5', '%'],
+  KC_6: ['6', '^'],
+  KC_7: ['7', '&'],
+  KC_8: ['8', '*'],
+  KC_9: ['9', '('],
+  KC_0: ['0', ')'],
+  KC_SPC: [' ', ' '],
+  KC_MINS: ['-', '_'],
+  KC_EQL: ['=', '+'],
+  KC_LBRC: ['[', '{'],
+  KC_RBRC: [']', '}'],
+  KC_BSLS: ['\\', '|'],
+  KC_QUOT: ["'", '"'],
+  KC_GRV: ['`', '~'],
+  KC_COMM: [',', '<'],
+  KC_DOT: ['.', '>'],
+  KC_SLSH: ['/', '?'],
+};
+
+export function convertToCharacterStreams(
+  sequence: OptimizedKeycodeSequence,
+): OptimizedKeycodeSequence {
+  let result: OptimizedKeycodeSequence = sequence.reduce((p, n) => {
+    let newChars = '';
+
+    if (
+      n[0] == RawKeycodeSequenceAction.Tap &&
+      n[1] in mapKeycodeToCharacterStream
+    ) {
+      newChars = mapKeycodeToCharacterStream[n[1]][0];
+    } else if (
+      n[0] == GroupedKeycodeSequenceAction.Chord &&
+      n[1].every(
+        (keycode) =>
+          keycode in mapKeycodeToCharacterStream ||
+          keycode === 'KC_LSFT' ||
+          keycode === 'KC_RSFT',
+      )
+    ) {
+      let shift = false;
+      newChars = n[1]
+        .reduce((p, n) => {
+          if (n === 'KC_LSFT' || n === 'KC_RSFT') {
+            shift = true;
+            return [...p];
+          }
+          return [...p, mapKeycodeToCharacterStream[n][shift ? 1 : 0]];
+        }, [] as string[])
+        .join('');
+    }
+
+    if (newChars.length > 0) {
+      if (
+        p[p.length - 1] !== undefined &&
+        p[p.length - 1][0] === RawKeycodeSequenceAction.CharacterStream
+      ) {
+        // append case
+        newChars = (p[p.length - 1][1] as string) + newChars;
+        return [
+          ...p.slice(0, -1),
+          [RawKeycodeSequenceAction.CharacterStream, newChars],
+        ];
+      } else {
+        return [...p, [RawKeycodeSequenceAction.CharacterStream, newChars]];
+      }
+    } else {
+      return [...p, n];
+    }
+  }, [] as OptimizedKeycodeSequenceItem[]);
 
   return result;
 }
