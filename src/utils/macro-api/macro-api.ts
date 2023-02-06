@@ -146,8 +146,8 @@ export class MacroAPI implements IMacroAPI {
     return sequences;
   }
 
-  async writeRawKeycodeSequences(sequences: RawKeycodeSequence[]) {
-    const macroBytes = sequences.flatMap((sequence) => {
+  rawKeycodeSequencesToMacroBytes(sequences: RawKeycodeSequence[]): number[] {
+    return sequences.flatMap((sequence) => {
       const bytes: number[] = [];
       sequence.forEach((element) => {
         switch (element[0]) {
@@ -176,7 +176,10 @@ export class MacroAPI implements IMacroAPI {
       bytes.push(MacroTerminator);
       return bytes;
     });
+  }
 
+  async writeRawKeycodeSequences(sequences: RawKeycodeSequence[]) {
+    const macroBytes = this.rawKeycodeSequencesToMacroBytes(sequences);
     await this.keyboardApi.setMacroBytes(macroBytes);
   }
 }

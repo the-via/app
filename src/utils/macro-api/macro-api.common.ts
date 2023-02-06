@@ -14,6 +14,7 @@ export type ValidationResult = {
 export interface IMacroAPI {
   readRawKeycodeSequences(): Promise<RawKeycodeSequence[]>;
   writeRawKeycodeSequences(sequences: RawKeycodeSequence[]): void;
+  rawKeycodeSequencesToMacroBytes(sequences: RawKeycodeSequence[]): number[];
 }
 
 // Corresponds to 'magic codes' in qmk sendstring

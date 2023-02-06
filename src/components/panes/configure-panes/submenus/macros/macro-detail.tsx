@@ -13,6 +13,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
+import {getMacroBufferSize} from 'src/store/macrosSlice';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {getMacroAPI} from 'src/utils/macro-api';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -96,6 +99,28 @@ type Props = {
   protocol: number;
 };
 
+const BufferSizeUsage = () => {
+  const ast = useAppSelector((state) => state.macros.ast);
+  const bufferSize = useAppSelector(getMacroBufferSize);
+  const connectedDevice = useAppSelector(getSelectedConnectedDevice);
+  if (!connectedDevice) {
+    return null;
+  }
+  const {protocol, api} = connectedDevice;
+  const macroApi = getMacroAPI(protocol, api);
+  const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
+  return (
+    <ProgressBarContainer>
+      <ProgressBar>
+        <span style={{transform: `scaleX(${bytesUsed / bufferSize})`}} />
+      </ProgressBar>
+      <ProgressBarTooltip>
+        {100 - Math.round((100 * bytesUsed) / bufferSize)}% memory remaining
+      </ProgressBarTooltip>
+    </ProgressBarContainer>
+  );
+};
+
 export const MacroDetailPane: React.VFC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const [showSettings, setShowSettings] = React.useState(false);
@@ -142,12 +167,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           </MacroTab>
         </TabBar>
       </CenterTabContainer>
-      <ProgressBarContainer>
-        <ProgressBar>
-          <span style={{transform: `scaleX(0.5)`}} />
-        </ProgressBar>
-        <ProgressBarTooltip>8 bytes left</ProgressBarTooltip>
-      </ProgressBarContainer>
+      <BufferSizeUsage />
       {showSettings ? (
         <ControlRow>
           <Label>Script Mode</Label>

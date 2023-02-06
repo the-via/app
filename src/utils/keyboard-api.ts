@@ -518,7 +518,6 @@ export class KeyboardAPI {
   async setMacroBytes(data: number[]) {
     const macroBufferSize = await this.getMacroBufferSize();
     const size = data.length;
-    console.log('macro:', size, ':', macroBufferSize);
     if (size > macroBufferSize) {
       throw new Error(
         `Macro size (${size}) exceeds buffer size (${macroBufferSize})`,
