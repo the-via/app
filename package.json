@@ -55,6 +55,7 @@
     "@types/wicg-file-system-access": "^2020.9.5",
     "@vitejs/plugin-react": "^2.2.0",
     "concurrently": "^7.6.0",
+    "husky": "^8.0.3",
     "ts-node": "^10.4.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.3",
