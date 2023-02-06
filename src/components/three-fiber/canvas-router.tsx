@@ -1,5 +1,5 @@
-import {Canvas, useFrame} from '@react-three/fiber';
-import {Suspense, useCallback, useEffect, useMemo, useRef} from 'react';
+import {Canvas} from '@react-three/fiber';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -26,7 +26,7 @@ import {
 import {a, config, useSpring} from '@react-spring/three';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
-import {Color, Object3D} from 'three';
+import {Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
@@ -65,9 +65,7 @@ export const CanvasRouter = () => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
-  const container2Ref = useRef(null);
   const loadProgress = useAppSelector(getLoadProgress);
-  const rootContainer3Ref = useRef(null);
   const {progress} = useProgress();
   const dispatch = useAppDispatch();
   const dimensions = useSize(body);
@@ -138,7 +136,7 @@ export const CanvasRouter = () => {
           <OrbitControls enabled={false} />
           <Camera />
           <LoaderCubey
-            color={accentColor}
+            theme={theme}
             visible={hideTerrainBG && !selectedDefinition}
           />
           <Html

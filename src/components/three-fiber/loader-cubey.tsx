@@ -3,18 +3,27 @@ import React, {useRef} from 'react';
 import cubeySrc from 'assets/models/cubey.glb';
 import {useFrame} from '@react-three/fiber';
 import {shallowEqual} from 'react-redux';
+import {Color, Mesh, MeshBasicMaterial} from 'three';
+import {Theme} from 'src/utils/themes';
 
-export const LoaderCubey: React.FC<{color: string; visible: boolean}> =
-  React.memo(({visible, color}) => {
+export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
+  React.memo(({visible, theme}) => {
     const cubeyGLTF = useGLTF(cubeySrc);
     const spinnerRef = useRef<any>();
     const yInit = !visible ? 10 : -0.3;
 
-    // TODO: theme cubey
+    const colorMap = {
+      'upper-body': new Color(theme.alpha.c),
+      'lower-body': new Color(theme.mod.c),
+      accent: new Color(theme.accent.c),
+      bowtie: new Color(theme.accent.c),
+    };
+
     cubeyGLTF.scene.children.forEach((child) => {
-      if (child.name === 'body') {
-        // child.material.color = new Color(color);
-        // console.log(child);
+      const bodyPart = child.name.split('_')[0] as keyof typeof colorMap;
+      const color = colorMap[bodyPart];
+      if (color) {
+        ((child as Mesh).material as MeshBasicMaterial).color = color;
       }
     });
 
