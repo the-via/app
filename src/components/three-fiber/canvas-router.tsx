@@ -213,7 +213,9 @@ const Lights = React.memo(() => {
     obj.updateMatrixWorld();
     return obj;
   }, []);
-  return (
+  // Setting for better perf on slower machines
+  const renderAllLights = false;
+  return renderAllLights ? (
     <>
       <ambientLight intensity={0.0} />
       <SpotLight
@@ -229,6 +231,11 @@ const Lights = React.memo(() => {
       ></SpotLight>
       <pointLight position={[x, y, z]} intensity={0.8} />
       <pointLight position={[-x, y, z]} intensity={0.8} />
+    </>
+  ) : (
+    <>
+      <ambientLight intensity={0.4} />
+      <pointLight position={[-0.5, y, z]} intensity={1.5} />
     </>
   );
 }, shallowEqual);
