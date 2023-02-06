@@ -31,7 +31,6 @@
     "downshift": "^6.1.7",
     "json-stringify-pretty-compact": "^3.0.0",
     "lodash.partition": "^4.6.0",
-    "raf-schd": "^4.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
