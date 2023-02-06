@@ -12,11 +12,13 @@ import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
   ast: RawKeycodeSequence[];
+  macroBufferSize: number;
   isFeatureSupported: boolean;
 };
 
 export const macrosInitialState: MacrosState = {
   ast: [],
+  macroBufferSize: 0,
   isFeatureSupported: true,
 };
 
@@ -26,9 +28,13 @@ export const macrosSlice = createSlice({
   reducers: {
     loadMacrosSuccess: (
       state,
-      action: PayloadAction<{ast: RawKeycodeSequence[]}>,
+      action: PayloadAction<{
+        ast: RawKeycodeSequence[];
+        macroBufferSize: number;
+      }>,
     ) => {
       state.ast = action.payload.ast;
+      state.macroBufferSize = action.payload.macroBufferSize;
     },
     saveMacrosSuccess: (
       state,
@@ -61,7 +67,8 @@ export const loadMacros =
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const sequences = await macroApi.readRawKeycodeSequences();
-          dispatch(loadMacrosSuccess({ast: sequences}));
+          const macroBufferSize = await api.getMacroBufferSize();
+          dispatch(loadMacrosSuccess({ast: sequences, macroBufferSize}));
         }
       } catch (err) {
         dispatch(setMacrosNotSupported());
@@ -89,6 +96,8 @@ export const getIsMacroFeatureSupported = (state: RootState) =>
   state.macros.isFeatureSupported;
 
 export const getAST = (state: RootState) => state.macros.ast;
+export const getMacroBufferSize = (state: RootState) =>
+  state.macros.macroBufferSize;
 
 export const getExpressions = createSelector(getAST, (sequences) =>
   sequences.map((sequence) => {
