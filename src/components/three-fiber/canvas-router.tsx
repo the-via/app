@@ -1,5 +1,5 @@
-import {Canvas, useFrame} from '@react-three/fiber';
-import {Suspense, useCallback, useEffect, useMemo, useRef} from 'react';
+import {Canvas} from '@react-three/fiber';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -26,7 +26,7 @@ import {
 import {a, config, useSpring} from '@react-spring/three';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
-import {Color, Object3D} from 'three';
+import {Color, MeshBasicMaterial, Object3D} from 'three';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
@@ -38,6 +38,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
 import {LoaderCubey} from './loader-cubey';
+import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 useGLTF.preload(cubeySrc);
 useGLTF.preload(glbSrc);
 
@@ -60,7 +61,6 @@ const KeyboardBG: React.FC<{
     </mesh>
   );
 }, shallowEqual);
-
 export const CanvasRouter = () => {
   const [path] = useLocation();
   const body = useRef(document.body);
@@ -96,9 +96,9 @@ export const CanvasRouter = () => {
       dispatch(updateSelectedKey(null));
     }
   }, [dispatch]);
-  const hasHIDSupport = 'hid' in navigator;
+  const showAuthorizeButton = 'hid' in navigator || OVERRIDE_HID_CHECK;
   const hideCanvasScene =
-    !hasHIDSupport ||
+    !showAuthorizeButton ||
     ['/settings'].includes(path) ||
     hideDesignScene ||
     hideConfigureScene;
@@ -149,27 +149,32 @@ export const CanvasRouter = () => {
               -19,
             ]}
           >
-            {!selectedDefinition ? (
-              <AccentButtonLarge
-                onClick={() => dispatch(reloadConnectedDevices())}
-                style={{width: 'max-content'}}
-              >
-                Authorize device
-                <FontAwesomeIcon style={{marginLeft: '10px'}} icon={faUnlock} />
-              </AccentButtonLarge>
-            ) : (
-              <>
-                <div
-                  style={{
-                    textAlign: 'center',
-                    color: 'var(--color_accent)',
-                    fontSize: 60,
-                  }}
+            {showAuthorizeButton ? (
+              !selectedDefinition ? (
+                <AccentButtonLarge
+                  onClick={() => dispatch(reloadConnectedDevices())}
+                  style={{width: 'max-content'}}
                 >
-                  <FontAwesomeIcon spinPulse icon={faSpinner} />
-                </div>
-              </>
-            )}
+                  Authorize device
+                  <FontAwesomeIcon
+                    style={{marginLeft: '10px'}}
+                    icon={faUnlock}
+                  />
+                </AccentButtonLarge>
+              ) : (
+                <>
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      color: 'var(--color_accent)',
+                      fontSize: 60,
+                    }}
+                  >
+                    <FontAwesomeIcon spinPulse icon={faSpinner} />
+                  </div>
+                </>
+              )
+            ) : null}
           </Html>
           <Float
             speed={1} // Animation speed, defaults to 1

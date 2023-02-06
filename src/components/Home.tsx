@@ -30,6 +30,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {mapEvtToKeycode} from 'src/utils/key-event';
+import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -38,6 +39,13 @@ const ErrorHome = styled.div`
   flex-grow: 1;
   height: 100%;
   overflow: hidden;
+  height: fit-content;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 24px;
+  position: absolute;
+  border-top: 1px solid var(--border_color_cell);
 `;
 
 const UsbError = styled.div`
@@ -206,8 +214,8 @@ export const Home: React.VFC<HomeProps> = (props) => {
     toggleLights();
   }, [selectedDevice]);
 
-  return !hasHIDSupport ? (
-    <ErrorHome ref={homeElem} tabIndex={0} style={{flex: 1}}>
+  return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
+    <ErrorHome ref={homeElem} tabIndex={0}>
       <UsbError>
         <UsbErrorIcon>❌</UsbErrorIcon>
         <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
