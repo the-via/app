@@ -122,6 +122,7 @@ export const CanvasRouter = () => {
             : '',
           position: hideCanvasScene && !hideTerrainBG ? 'absolute' : 'relative',
           overflow: 'visible',
+          zIndex: 0,
           visibility: hideCanvasScene && !hideTerrainBG ? 'hidden' : 'visible',
         }}
         ref={containerRef}
