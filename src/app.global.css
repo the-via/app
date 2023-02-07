@@ -56,6 +56,10 @@ a:hover {
   --color_tinge: #c7c3c3;
   --color_tinge-light: #ebe4e4;
   --color_tinge-dark: #796c6c;
+  --box-shadow-keycap: inset -1px -1px 0 rgb(0 0 0 / 20%),
+    inset 1px 1px 0 rgb(255 255 255 / 20%);
+  --box-shadow-keyboard: var(--box-shadow-keycap);
+
 }
 
 html[data-theme-mode='dark'] {
@@ -148,5 +152,17 @@ html[data-theme-mode='light'] {
   }
   100% {
     stroke: var(--color_accent);
+  }
+}
+
+@keyframes select-glow {
+  0% {
+    filter: brightness(0.75);
+  }
+  50% {
+    filter: brightness(1.25);
+  }
+  100% {
+    filter: brightness(0.75);
   }
 }

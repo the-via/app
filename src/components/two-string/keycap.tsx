@@ -460,7 +460,6 @@ export const Keycap = React.memo(
           onPointerOver={onPointerOver}
           onPointerOut={onPointerOut}
           style={{
-            background: getDarkenedColor(props.color.c, 0.8),
             transform: `translate(${
               props.position[0] -
               (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
@@ -475,10 +474,23 @@ export const Keycap = React.memo(
             height: textureHeight * CSSVarObject.keyHeight,
           }}
         >
-          <GlowContainer selected={selected}>
+          <GlowContainer
+            selected={selected}
+            style={{
+              background: getDarkenedColor(props.color.c, 0.8),
+              borderRadius: 3,
+              width: textureWidth * CSSVarObject.keyWidth,
+              height: textureHeight * CSSVarObject.keyHeight,
+            }}
+          >
             <canvas
               ref={canvasRef}
-              style={{borderRadius: 2, overflow: 'hidden'}}
+              style={{
+                borderRadius: 4,
+                overflow: 'hidden',
+                boxShadow:
+                  'inset -1px -1px 0 rgb(0 0 0 / 20%), inset 1px 1px 0 rgb(255 255 255 / 20%)  ',
+              }}
             />
           </GlowContainer>
         </KeycapContainer>
@@ -501,8 +513,20 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
   top: 0;
   width: 52px;
   height: 54px;
+  &:hover {
+    z-index: 1;
+    animation: 3s infinite alternate select-glow;
+  }
+`;
+const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
+  transition: transform 0.2s ease-out;
+  transform: perspective(100px) translateZ(0px);
+  box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
+    inset 1px 1px 0 rgb(255 255 255 / 20%);
+  &:hover {
+    transform: perspective(100px) translateZ(-5px);
+  }
 `;
-const GlowContainer = styled.div<{selected: boolean}>``;
 const TooltipContainer = styled.div<{position: [number, number]}>``;

@@ -39,12 +39,12 @@ export const Case = React.memo((props: {width: number; height: number}) => {
     props.width * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing;
   const properHeight =
     CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing;
-  const insideBorder = 4;
+  const insideBorder = 10;
   const insideWidth = properWidth + insideBorder * 1;
-  const outsideWidth = properWidth + insideBorder * 2.5;
+  const outsideWidth = properWidth + insideBorder * 3;
   const [insideHeight, outsideHeight] = [
     properHeight + insideBorder,
-    properHeight + insideBorder * 2,
+    properHeight + insideBorder * 3,
   ];
   return (
     <CaseGroup>
@@ -53,8 +53,10 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         width={outsideWidth}
         height={outsideHeight}
         style={{
-          transform: `translate( ${-(outsideHeight - insideHeight)}px,
-           ${-(outsideWidth - insideWidth)}px)`,
+          transform: `translate( ${-(outsideWidth - properWidth) / 2}px,
+           ${-(outsideHeight - properHeight) / 2}px)`,
+          borderRadius: 8,
+          boxShadow: 'var(--box-shadow-keyboard)',
         }}
       ></OuterCase>
       <InnerCase
@@ -65,8 +67,10 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         width={insideWidth}
         height={insideHeight}
         style={{
-          transform: `translate( ${-(outsideHeight - insideHeight) / 2}px,
-           ${-(outsideWidth - insideWidth) / 2}px)`,
+          transform: `translate( ${-(insideWidth - properWidth) / 2}px,
+           ${-(insideHeight - properHeight) / 2}px)`,
+          boxShadow: 'var(--box-shadow-keyboard)',
+          borderRadius: 8,
         }}
       ></InnerCase>
     </CaseGroup>
