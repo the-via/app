@@ -468,7 +468,7 @@ export const Keycap = React.memo(
               (CSSVarObject.keyHeight * textureHeight -
                 CSSVarObject.keyHeight) /
                 2
-            }px)`,
+            }px) rotate(${-props.rotation[2]}rad)`,
             borderRadius: 3,
             width: textureWidth * CSSVarObject.keyWidth,
             height: textureHeight * CSSVarObject.keyHeight,
