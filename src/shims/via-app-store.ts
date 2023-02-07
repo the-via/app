@@ -29,14 +29,15 @@ export class Store {
     return this.store[key];
   }
   set<K extends keyof StoreData>(key: K, value: StoreData[K]) {
-    this.store = {
+    const newStoreData = {
       ...this.store,
-      [key]: value,
+      [key]: {...value},
     };
+    this.store = newStoreData;
     // This ends up triggering an error about .get proxy failing for JSON.stringify
     // because it's inside an async function, so we delay it out of that event loop
     setTimeout(() => {
-      localStorage.setItem('via-app-store', JSON.stringify(this.store));
+      localStorage.setItem('via-app-store', JSON.stringify(newStoreData));
     }, 0);
   }
 }

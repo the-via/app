@@ -3,10 +3,13 @@ import {Route} from 'wouter';
 import PANES from './utils/pane-config';
 import {Home} from './components/Home';
 import {createGlobalStyle} from 'styled-components';
-import {CanvasRouter} from './components/three-fiber/canvas-router';
+import {CanvasRouter as CanvasRouter3D} from './components/three-fiber/canvas-router';
+import {CanvasRouter as CanvasRouter2D} from './components/two-string/canvas-router';
 import {TestContext} from './components/panes/test';
 import {useMemo, useState} from 'react';
 import {OVERRIDE_HID_CHECK} from './utils/override';
+import {useAppSelector} from './store/hooks';
+import {getRenderMode} from './store/settingsSlice';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -17,6 +20,7 @@ const GlobalStyle = createGlobalStyle`
 export default () => {
   const hasHIDSupport = 'hid' in navigator || OVERRIDE_HID_CHECK;
 
+  const renderMode = useAppSelector(getRenderMode);
   const RouteComponents = useMemo(
     () =>
       PANES.map((pane) => {
@@ -27,6 +31,7 @@ export default () => {
     [],
   );
 
+  const CanvasRouter = renderMode === '2D' ? CanvasRouter2D : CanvasRouter3D;
   const testContextState = useState({clearTestKeys: () => {}});
   return (
     <>

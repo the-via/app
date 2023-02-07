@@ -48,6 +48,10 @@ export const settingsSlice = createSlice({
       state.themeMode = newThemeMode;
       setSettings(state);
     },
+    updateRenderMode: (state, action: PayloadAction<'3D' | '2D'>) => {
+      state.renderMode = action.payload;
+      setSettings(state);
+    },
     updateThemeName: (state, action: PayloadAction<string>) => {
       state.themeName = action.payload;
       updateCSSVariables(state.themeName as keyof typeof THEMES);
@@ -73,6 +77,7 @@ export const {
   toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
+  updateRenderMode,
   updateThemeName,
 } = settingsSlice.actions;
 
@@ -90,6 +95,7 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
+export const getRenderMode = (state: RootState) => state.settings.renderMode;
 export const getThemeMode = (state: RootState) => state.settings.themeMode;
 export const getThemeName = (state: RootState) => state.settings.themeName;
 export const getSelectedTheme = createSelector(getThemeName, (themeName) => {

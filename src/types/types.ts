@@ -76,6 +76,7 @@ export type Settings = {
   allowKeyboardKeyRemapping: boolean;
   showDesignTab: boolean;
   disableFastRemap: boolean;
+  renderMode: '3D' | '2D';
   themeMode: 'light' | 'dark';
   themeName: string;
 };

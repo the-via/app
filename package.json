@@ -22,6 +22,7 @@
     "@microsoft/applicationinsights-web": "^2.8.9",
     "@react-hook/resize-observer": "^1.2.6",
     "@react-spring/three": "^9.5.5",
+    "@react-spring/web": "^9.6.1",
     "@react-three/drei": "^9.48.1",
     "@react-three/fiber": "^8.9.1",
     "@reduxjs/toolkit": "^1.9.0",

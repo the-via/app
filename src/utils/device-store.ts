@@ -31,6 +31,7 @@ const defaultStoreData = {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
     disableFastRemap: false,
+    renderMode: '2D' as const,
     themeMode: 'dark' as const,
     themeName: 'OLIVIA_DARK',
   },
@@ -166,6 +167,10 @@ export const getThemeFromStore = (): ThemeDefinition =>
 
 export const getThemeModeFromStore = (): 'dark' | 'light' => {
   return deviceStore.get('settings')?.themeMode;
+};
+
+export const getRenderModeFromStore = (): '3D' | '2D' => {
+  return deviceStore.get('settings')?.renderMode;
 };
 
 export const getThemeNameFromStore = () => {

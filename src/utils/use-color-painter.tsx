@@ -31,7 +31,7 @@ export const useColorPainter = (
   }, [customMenuData.__perKeyRGB && customMenuData.__perKeyRGB.length, keys]);
 
   const onKeycapPointerHandler = useCallback(
-    (evt: ThreeEvent<MouseEvent>, idx: number) => {
+    (evt: ThreeEvent<MouseEvent> | React.MouseEvent, idx: number) => {
       if (evt.buttons === 1 && device) {
         const hue = Math.round((selectedPaletteColor[0] * 255) / 360);
         const sat = Math.round(selectedPaletteColor[1] * 255);

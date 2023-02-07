@@ -24,6 +24,8 @@ import {
   toggleThemeMode,
   getThemeName,
   updateThemeName,
+  getRenderMode,
+  updateRenderMode,
 } from 'src/store/settingsSlice';
 import {AccentSelect} from '../inputs/accent-select';
 import {THEMES} from 'src/utils/themes';
@@ -57,15 +59,32 @@ export const Settings = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
+  const renderMode = useAppSelector(getRenderMode);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
 
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
-  const selectOptions = Object.keys(THEMES).map((k) => ({
+  const themeSelectOptions = Object.keys(THEMES).map((k) => ({
     label: k.replaceAll('_', ' '),
     value: k,
   }));
-  const defaultValue = selectOptions.find((opt) => opt.value === themeName);
+  const themeDefaultValue = themeSelectOptions.find(
+    (opt) => opt.value === themeName,
+  );
+
+  const renderModeOptions = [
+    {
+      label: '2D',
+      value: '2D',
+    },
+    {
+      label: '3D',
+      value: '3D',
+    },
+  ];
+  const renderModeDefaultValue = renderModeOptions.find(
+    (opt) => opt.value === renderMode,
+  );
 
   return (
     <Pane>
@@ -113,10 +132,22 @@ export const Settings = () => {
               <Label>Keycap Theme</Label>
               <Detail>
                 <AccentSelect
-                  defaultValue={defaultValue}
-                  options={selectOptions}
+                  defaultValue={themeDefaultValue}
+                  options={themeSelectOptions}
                   onChange={(option: any) => {
                     option && dispatch(updateThemeName(option.value));
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Render Mode</Label>
+              <Detail>
+                <AccentSelect
+                  defaultValue={renderModeDefaultValue}
+                  options={renderModeOptions}
+                  onChange={(option: any) => {
+                    option && dispatch(updateRenderMode(option.value));
                   }}
                 />
               </Detail>
