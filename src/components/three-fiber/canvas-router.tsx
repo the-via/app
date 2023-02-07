@@ -213,7 +213,7 @@ const Lights = React.memo(() => {
     return obj;
   }, []);
   // Setting for better perf on slower machines
-  const renderAllLights = false;
+  const renderAllLights = true;
   return renderAllLights ? (
     <>
       <ambientLight intensity={0.0} />
