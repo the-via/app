@@ -2,6 +2,8 @@ import {useSpring} from '@react-spring/web';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
+import {getDarkenedColor} from 'src/utils/color-math';
+import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
 import * as THREE from 'three';
 import {KeycapTooltip} from '../inputs/tooltip';
@@ -287,9 +289,9 @@ const paintKeycap = (
     textureOffsetX,
   );
 
-  const canvasSize = 52;
-  canvas.width = canvasSize * widthMultiplier;
-  canvas.height = canvasSize * heightMultiplier;
+  const [canvasWidth, canvasHeight] = [40, 43];
+  canvas.width = canvasWidth * textureWidth;
+  canvas.height = canvasHeight * textureHeight;
 
   const context = canvas.getContext('2d');
   if (context == null) {
@@ -458,11 +460,26 @@ export const Keycap = React.memo(
           onPointerOver={onPointerOver}
           onPointerOut={onPointerOut}
           style={{
-            transform: `translate(${props.position[0]}px,${props.position[1]}px)`,
+            background: getDarkenedColor(props.color.c, 0.8),
+            transform: `translate(${
+              props.position[0] -
+              (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
+            }px,${
+              props.position[1] -
+              (CSSVarObject.keyHeight * textureHeight -
+                CSSVarObject.keyHeight) /
+                2
+            }px)`,
+            borderRadius: 3,
+            width: textureWidth * CSSVarObject.keyWidth,
+            height: textureHeight * CSSVarObject.keyHeight,
           }}
         >
           <GlowContainer selected={selected}>
-            <canvas ref={canvasRef} />
+            <canvas
+              ref={canvasRef}
+              style={{borderRadius: 2, overflow: 'hidden'}}
+            />
           </GlowContainer>
         </KeycapContainer>
         {(macroData || overflowsTexture) && (
@@ -482,6 +499,10 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
   position: absolute;
   left: 0;
   top: 0;
+  width: 52px;
+  height: 54px;
+  box-sizing: border-box;
+  padding: 2px 6px 10px 6px;
 `;
 const GlowContainer = styled.div<{selected: boolean}>``;
 const TooltipContainer = styled.div<{position: [number, number]}>``;

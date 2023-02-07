@@ -16,26 +16,13 @@ import {
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
-import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
 import {ThreeEvent} from '@react-three/fiber';
 import {getRGB} from 'src/utils/color-math';
 import {Color} from 'three';
 import {getExpressions} from 'src/store/macrosSlice';
 import styled from 'styled-components';
+import {getSelectedTheme} from 'src/store/settingsSlice';
 
-const getSRGBArray = (keyColors: number[][]) => {
-  return keyColors.map(([hue, sat]) => {
-    const rgbStr = getRGB({
-      hue: Math.round((255 * hue) / 360),
-      sat: Math.round(255 * sat),
-    });
-    const srgbStr = `#${new Color(rgbStr)
-      .convertSRGBToLinear()
-      .getHexString()}`;
-    const keyColor = {c: srgbStr, t: srgbStr};
-    return keyColor;
-  });
-};
 const KeyGroupContainer = styled.div<{}>`
   position: absolute;
   top: 0;
@@ -55,11 +42,9 @@ export const KeyGroup: React.VFC<{
 }> = (props) => {
   const dispatch = useAppDispatch();
   const selectedKey = useAppSelector(getSelectedKey);
-  const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
+  const selectedTheme = useAppSelector(getSelectedTheme);
   const macroExpressions = useAppSelector(getExpressions);
-  const keyColorPalette = props.keyColors
-    ? getSRGBArray(props.keyColors)
-    : selectedSRGBTheme;
+  const keyColorPalette = props.keyColors ? props.keyColors : selectedTheme;
   console.log(keyColorPalette, 'colors');
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
