@@ -160,26 +160,12 @@ export const CanvasRouter = () => {
             : '',
           position: hideCanvasScene && !hideTerrainBG ? 'absolute' : 'relative',
           overflow: 'visible',
-          zIndex: 0,
+          zIndex: 2,
           visibility: hideCanvasScene && !hideTerrainBG ? 'hidden' : 'visible',
         }}
         ref={containerRef}
       >
-        <KeyboardBG
-          onClick={terrainOnClick}
-          color={accentColor}
-          visible={!hideTerrainBG}
-        />
-        <KeyboardGroup
-          containerDimensions={containerDimensions}
-          configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-          loadProgress={loadProgress}
-        />
-        <Canvas
-          flat={true}
-          shadows
-          style={{display: 'none', overflow: 'visible'}}
-        >
+        <Canvas flat={true} shadows style={{overflow: 'visible'}}>
           <Camera />
           <Lights />
           <LoaderCubey
@@ -222,6 +208,16 @@ export const CanvasRouter = () => {
             ) : null}
           </Html>
         </Canvas>
+        <KeyboardBG
+          onClick={terrainOnClick}
+          color={accentColor}
+          visible={!hideTerrainBG}
+        />
+        <KeyboardGroup
+          containerDimensions={containerDimensions}
+          configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+          loadProgress={loadProgress}
+        />
       </div>
     </>
   );
@@ -290,7 +286,6 @@ const Keyboards = React.memo((props: any) => {
   return (
     <>
       <KeyboardRouteGroup position={0} visible={loadProgress === 1}>
-        1
         <ConfigureKeyboard
           dimensions={dimensions}
           selectable={configureKeyboardIsSelectable}
