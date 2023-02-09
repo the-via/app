@@ -300,8 +300,8 @@ const paintKeycap = (
   }
 
   // Fill the canvas with the keycap background color
-  context.fillStyle = bgColor;
-  context.fillRect(0, 0, canvas.width, canvas.height);
+  //context.fillStyle = bgColor;
+  //context.fillRect(0, 0, canvas.width, canvas.height);
 
   // Leaving this here for future maintenance.
   // This draws lines around the keycap edge and the top face edge,
@@ -503,15 +503,16 @@ export const Keycap = React.memo(
               height: textureHeight * CSSVarObject.keyHeight,
             }}
           >
-            <canvas
-              ref={canvasRef}
+            <CanvasContainer
               style={{
                 borderRadius: 4,
-                overflow: 'hidden',
-                boxShadow:
-                  'inset -1px -1px 0 rgb(0 0 0 / 20%), inset 1px 1px 0 rgb(255 255 255 / 20%)  ',
+                background: props.color.c,
+                height: '100%',
+                padding: 1,
               }}
-            />
+            >
+              <canvas ref={canvasRef} style={{}} />
+            </CanvasContainer>
           </GlowContainer>
         </KeycapContainer>
         {false && (macroData || overflowsTexture) && (
@@ -537,6 +538,7 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
     z-index: 1;
   }
 `;
+const CanvasContainer = styled.div<{}>``;
 const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
