@@ -7,6 +7,7 @@ import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
 import * as THREE from 'three';
 import {KeycapTooltip} from '../inputs/tooltip';
+import {EncoderKey} from './encoder';
 const DEBUG_ENABLE = false;
 
 export enum DisplayMode {
@@ -450,8 +451,27 @@ export const Keycap = React.memo(
         idx,
         mode,
       ]);
-
-    return (
+    return shouldRotate ? (
+      <EncoderKey
+        {...props}
+        style={{
+          transform: `translate(${
+            props.position[0] -
+            (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
+          }px,${
+            (textureWidth * (CSSVarObject.keyHeight - CSSVarObject.keyWidth)) /
+              2 +
+            props.position[1] -
+            (CSSVarObject.keyHeight * textureHeight - CSSVarObject.keyHeight) /
+              2
+          }px) rotate(${-props.rotation[2]}rad)`,
+          borderRadius: 3,
+          width: textureWidth * CSSVarObject.keyWidth,
+          height: textureHeight * CSSVarObject.keyWidth,
+          color: props.color.c,
+        }}
+      />
+    ) : (
       <>
         <KeycapContainer
           {...props}
@@ -494,7 +514,7 @@ export const Keycap = React.memo(
             />
           </GlowContainer>
         </KeycapContainer>
-        {(macroData || overflowsTexture) && (
+        {false && (macroData || overflowsTexture) && (
           <TooltipContainer position={props.position}>
             <KeycapTooltip>
               {macroData || (label && label.tooltipLabel)}
@@ -515,18 +535,23 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
   height: 54px;
   &:hover {
     z-index: 1;
-    animation: 3s infinite alternate select-glow;
   }
 `;
 const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
   transition: transform 0.2s ease-out;
-  transform: perspective(100px) translateZ(0px);
+  transform: ${(p) =>
+    p.selected
+      ? 'perspective(100px) translateZ(-5px)'
+      : 'perspective(100px) translateZ(0px)'};
   box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
     inset 1px 1px 0 rgb(255 255 255 / 20%);
+  animation: ${(p) =>
+    p.selected ? '1.5s infinite alternate select-glow' : 'initial'};
   &:hover {
     transform: perspective(100px) translateZ(-5px);
+    animation: 0.5s 1 alternate select-glow;
   }
 `;
 const TooltipContainer = styled.div<{position: [number, number]}>``;

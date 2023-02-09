@@ -6,6 +6,7 @@ import type {RootState} from '.';
 import {THEMES} from 'src/utils/themes';
 import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
 import {updateCSSVariables} from 'src/utils/color-math';
+import {webGLIsAvailable} from 'src/utils/test-webgl';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 export type SettingsState = Settings & {
@@ -95,7 +96,8 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
-export const getRenderMode = (state: RootState) => state.settings.renderMode;
+export const getRenderMode = (state: RootState) =>
+  webGLIsAvailable ? state.settings.renderMode : '2D';
 export const getThemeMode = (state: RootState) => state.settings.themeMode;
 export const getThemeName = (state: RootState) => state.settings.themeName;
 export const getSelectedTheme = createSelector(getThemeName, (themeName) => {

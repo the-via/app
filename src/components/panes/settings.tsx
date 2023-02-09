@@ -35,6 +35,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faToolbox} from '@fortawesome/free-solid-svg-icons';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {ErrorMessage} from '../styled';
+import {webGLIsAvailable} from 'src/utils/test-webgl';
 
 const Container = styled.div`
   display: flex;
@@ -72,16 +73,18 @@ export const Settings = () => {
     (opt) => opt.value === themeName,
   );
 
-  const renderModeOptions = [
-    {
-      label: '2D',
-      value: '2D',
-    },
-    {
-      label: '3D',
-      value: '3D',
-    },
-  ];
+  const renderModeOptions = webGLIsAvailable
+    ? [
+        {
+          label: '2D',
+          value: '2D',
+        },
+        {
+          label: '3D',
+          value: '3D',
+        },
+      ]
+    : [{label: '2D', value: '2D'}];
   const renderModeDefaultValue = renderModeOptions.find(
     (opt) => opt.value === renderMode,
   );

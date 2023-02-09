@@ -33,6 +33,7 @@ import styled from 'styled-components';
 import {Object3D} from 'three';
 import {Camera} from './camera';
 import {getDarkenedColor} from 'src/utils/color-math';
+import {webGLIsAvailable} from 'src/utils/test-webgl';
 Globals.assign({
   frameLoop: 'always',
 });
@@ -165,49 +166,51 @@ export const CanvasRouter = () => {
         }}
         ref={containerRef}
       >
-        <Canvas flat={true} shadows style={{overflow: 'visible'}}>
-          <Camera />
-          <Lights />
-          <LoaderCubey
-            theme={theme}
-            visible={hideTerrainBG && !selectedDefinition}
-          />
-          <Html
-            center
-            position={[
-              0,
-              hideTerrainBG ? (!selectedDefinition ? -1 : 0) : 10,
-              -19,
-            ]}
-          >
-            {showAuthorizeButton ? (
-              !selectedDefinition ? (
-                <AccentButtonLarge
-                  onClick={() => dispatch(reloadConnectedDevices())}
-                  style={{width: 'max-content'}}
-                >
-                  Authorize device
-                  <FontAwesomeIcon
-                    style={{marginLeft: '10px'}}
-                    icon={faUnlock}
-                  />
-                </AccentButtonLarge>
-              ) : (
-                <>
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      color: 'var(--color_accent)',
-                      fontSize: 60,
-                    }}
+        {webGLIsAvailable ? (
+          <Canvas flat={true} shadows style={{overflow: 'visible'}}>
+            <Camera />
+            <Lights />
+            <LoaderCubey
+              theme={theme}
+              visible={hideTerrainBG && !selectedDefinition}
+            />
+            <Html
+              center
+              position={[
+                0,
+                hideTerrainBG ? (!selectedDefinition ? -1 : 0) : 10,
+                -19,
+              ]}
+            >
+              {showAuthorizeButton ? (
+                !selectedDefinition ? (
+                  <AccentButtonLarge
+                    onClick={() => dispatch(reloadConnectedDevices())}
+                    style={{width: 'max-content'}}
                   >
-                    <FontAwesomeIcon spinPulse icon={faSpinner} />
-                  </div>
-                </>
-              )
-            ) : null}
-          </Html>
-        </Canvas>
+                    Authorize device
+                    <FontAwesomeIcon
+                      style={{marginLeft: '10px'}}
+                      icon={faUnlock}
+                    />
+                  </AccentButtonLarge>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        color: 'var(--color_accent)',
+                        fontSize: 60,
+                      }}
+                    >
+                      <FontAwesomeIcon spinPulse icon={faSpinner} />
+                    </div>
+                  </>
+                )
+              ) : null}
+            </Html>
+          </Canvas>
+        ) : null}
         <KeyboardBG
           onClick={terrainOnClick}
           color={accentColor}
