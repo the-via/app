@@ -355,7 +355,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     // Remove event listeners on cleanup
     if (path !== '/test') {
       dispatch(setTestMatrixEnabled(false));
-      //   testContext[0].clearTestKeys();
+      testContext[0].clearTestKeys();
     }
     if (path !== '/') {
       dispatch(setLayer(0));

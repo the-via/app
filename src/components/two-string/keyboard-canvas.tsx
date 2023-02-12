@@ -104,7 +104,7 @@ export const KeyboardCanvasContent: React.VFC<{
         keys={keys}
         mode={mode}
         matrixKeycodes={matrixKeycodes}
-        selectable={true || selectable}
+        selectable={selectable}
         definition={definition}
         pressedKeys={pressedKeys}
       />
