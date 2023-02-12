@@ -150,10 +150,15 @@ const paintKeycapLabel = (
   }
   const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
-  const margin = {x: 0.015, y: 0.02};
-  const centerLabelMargin = {x: 0.01, y: -0.01};
-  const singleLabelMargin = {x: 0.01, y: 0.02};
-
+  const margin = {x: 0.015, y: 0.1};
+  const centerLabelMargin = {x: 0.015, y: 0};
+  const singleLabelMargin = {x: 0.015, y: 0.15};
+  const [canvasWidth1U, canvasHeight1U] = [
+    CSSVarObject.keyWidth -
+      CSSVarObject.faceXPadding.reduce((x, y) => x + y, 0),
+    CSSVarObject.keyHeight -
+      -CSSVarObject.faceYPadding.reduce((x, y) => x + y, 0),
+  ];
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
   context.moveTo(rect.bl.x * canvas.width, (1 - rect.bl.y) * canvas.height);
@@ -167,8 +172,8 @@ const paintKeycapLabel = (
   if (label === undefined) {
   } else if (label.topLabel && label.bottomLabel) {
     //    let fontSize = 52;
-    let fontSize = 10;
-    let fontHeightTU = (0.75 * fontSize) / canvas.height;
+    let fontSize = 15;
+    let fontHeightTU = (0.5 * fontSize) / canvas.height;
     let topLabelOffset = label.offset[0] * fontHeightTU;
     let bottomLabelOffset = label.offset[1] * fontHeightTU;
     context.font = `bold ${fontSize}px ${fontFamily}`;
@@ -185,29 +190,29 @@ const paintKeycapLabel = (
     );
   } else if (label.centerLabel) {
     //    let fontSize = 37.5 * label.size;
-    let fontSize = 14;
+    let fontSize = 13;
     let fontHeightTU = (0.75 * fontSize) / canvas.height;
     let faceMidLeftY = (rect.tr.y + rect.bl.y) / 2;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + centerLabelMargin.x) * canvas.width,
+      (rect.bl.x + centerLabelMargin.x) * canvasWidth1U,
       (1 - (faceMidLeftY - 0.5 * fontHeightTU - centerLabelMargin.y)) *
         canvas.height,
     );
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvas.width
+      (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvasWidth1U
     );
   } else if (typeof label.label === 'string') {
     //   let fontSize = 75;
-    let fontSize = 28;
-    let fontHeightTU = (0.75 * fontSize) / canvas.height;
+    let fontSize = 22;
+    let fontHeightTU = (0.6 * fontSize) / canvas.height;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + singleLabelMargin.x) * canvas.width,
+      (rect.bl.x + singleLabelMargin.x) * canvasWidth1U,
       (1 - (rect.tr.y - fontHeightTU - singleLabelMargin.y)) * canvas.height,
     );
   }
@@ -249,13 +254,13 @@ const calculateTextureRects = (
   }
 
   let keycapRect: Rect = {
-    bl: {x: gap, y: gap},
-    tr: {x: keycapWidth * size1u - gap, y: keycapHeight * size1u - gap},
+    bl: {x: 0, y: 1},
+    tr: {x: 1, y: 0},
   };
 
   let faceRect: Rect = {
-    bl: {x: keycapRect.bl.x + 0.07, y: keycapRect.bl.y + 0.08},
-    tr: {x: keycapRect.tr.x - 0.07, y: keycapRect.tr.y - 0.0146},
+    bl: {x: keycapRect.bl.x, y: keycapRect.bl.y},
+    tr: {x: keycapRect.tr.x, y: keycapRect.tr.y},
   };
 
   // textureOffsetX is the X offset in U from the left edge of the keycap shape
@@ -282,17 +287,19 @@ const paintKeycap = (
   label: any,
   textureOffsetX: number,
 ) => {
-  const textureRects: TextureRects = calculateTextureRects(
-    widthMultiplier,
-    heightMultiplier,
-    textureWidth,
-    textureHeight,
-    textureOffsetX,
-  );
+  const keycapRect = {bl: {x: 0, y: 0}, tr: {x: 1, y: 1}};
+  const faceRect = keycapRect;
 
-  const [canvasWidth, canvasHeight] = [40, 43];
-  canvas.width = canvasWidth * textureWidth;
-  canvas.height = canvasHeight * textureHeight;
+  const [canvasWidth, canvasHeight] = [
+    CSSVarObject.keyWidth,
+    CSSVarObject.keyHeight,
+  ];
+  canvas.width =
+    canvasWidth * textureWidth -
+    CSSVarObject.faceXPadding.reduce((x, y) => x + y, 0);
+  canvas.height =
+    canvasHeight * textureHeight -
+    CSSVarObject.faceYPadding.reduce((x, y) => x + y, 0);
 
   const context = canvas.getContext('2d');
   if (context == null) {
@@ -308,10 +315,10 @@ const paintKeycap = (
   // *or* a clipped area within it when keycaps are large, vertical or odd shapes.
   const debug = false;
   if (debug) {
-    paintDebugLines(canvas, textureRects.keycapRect, textureRects.faceRect);
+    paintDebugLines(canvas, keycapRect, faceRect);
   }
 
-  return paintKeycapLabel(canvas, textureRects.faceRect, legendColor, label);
+  return paintKeycapLabel(canvas, faceRect, legendColor, label);
 };
 
 export const Keycap = React.memo(
