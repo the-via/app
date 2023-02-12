@@ -6,7 +6,7 @@ import {getDarkenedColor} from 'src/utils/color-math';
 import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
 import * as THREE from 'three';
-import {KeycapTooltip} from '../inputs/tooltip';
+import {Keycap2DTooltip} from '../inputs/tooltip';
 import {EncoderKey} from './encoder';
 const DEBUG_ENABLE = false;
 
@@ -526,14 +526,14 @@ export const Keycap = React.memo(
               <canvas ref={canvasRef} style={{}} />
             </CanvasContainer>
           </GlowContainer>
+          {(macroData || overflowsTexture) && (
+            <TooltipContainer rotate={rotation[2]}>
+              <Keycap2DTooltip>
+                {macroData || (label && label.tooltipLabel)}
+              </Keycap2DTooltip>
+            </TooltipContainer>
+          )}
         </KeycapContainer>
-        {false && (macroData || overflowsTexture) && (
-          <TooltipContainer position={props.position}>
-            <KeycapTooltip>
-              {macroData || (label && label.tooltipLabel)}
-            </KeycapTooltip>
-          </TooltipContainer>
-        )}
       </>
     );
   },
@@ -548,6 +548,14 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
   height: 54px;
   &:hover {
     z-index: 1;
+    & .tooltip {
+      transform: scale(1) translateY(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: translateY(5px) scale(0.6);
+    opacity: 0;
   }
 `;
 const CanvasContainer = styled.div<{}>`
@@ -571,4 +579,11 @@ const GlowContainer = styled.div<{selected: boolean}>`
     animation: 0.5s 1 alternate select-glow;
   }
 `;
-const TooltipContainer = styled.div<{position: [number, number]}>``;
+
+const TooltipContainer = styled.div<{rotate: number}>`
+  position: absolute;
+  transform: rotate(${(p) => p.rotate}rad);
+  width: 100%;
+  height: 100%;
+  bottom: 0;
+`;
