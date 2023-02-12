@@ -167,7 +167,12 @@ export const CanvasRouter = () => {
         ref={containerRef}
       >
         {webGLIsAvailable ? (
-          <Canvas flat={true} shadows style={{overflow: 'visible'}}>
+          <Canvas
+            frameloop={!hideTerrainBG ? 'demand' : 'always'}
+            flat={true}
+            shadows
+            style={{overflow: 'visible'}}
+          >
             <Camera />
             <Lights />
             <LoaderCubey

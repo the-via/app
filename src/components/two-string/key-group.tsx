@@ -16,17 +16,15 @@ import {
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
-import {ThreeEvent} from '@react-three/fiber';
-import {getRGB} from 'src/utils/color-math';
-import {Color} from 'three';
 import {getExpressions} from 'src/store/macrosSlice';
 import styled from 'styled-components';
 import {getSelectedTheme} from 'src/store/settingsSlice';
+import {CaseInsideBorder} from './case';
 
-const KeyGroupContainer = styled.div<{}>`
+const KeyGroupContainer = styled.div<{height: number; width: number}>`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: ${(p) => CaseInsideBorder * 1.5}px;
+  left: ${(p) => CaseInsideBorder * 1.5}px;
 `;
 export const KeyGroup: React.VFC<{
   selectable?: boolean;
@@ -164,5 +162,9 @@ export const KeyGroup: React.VFC<{
     keyColorPalette,
     props.definition.vendorProductId,
   ]);
-  return <KeyGroupContainer>{elems}</KeyGroupContainer>;
+  return (
+    <KeyGroupContainer height={height} width={width}>
+      {elems}
+    </KeyGroupContainer>
+  );
 };

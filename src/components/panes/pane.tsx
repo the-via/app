@@ -21,5 +21,5 @@ export const ConfigureBasePane = styled(Pane)`
   justify-content: space-evenly;
   background: transparent;
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
 `;

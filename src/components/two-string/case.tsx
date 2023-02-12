@@ -31,6 +31,8 @@ const InnerCase = styled.div<{
   height: ${(props) => props.height}px;
 `;
 
+export const CaseInsideBorder = 10;
+
 export const Case = React.memo((props: {width: number; height: number}) => {
   const theme = useAppSelector(getSelectedTheme);
   const outsideColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
@@ -53,8 +55,6 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         width={outsideWidth}
         height={outsideHeight}
         style={{
-          transform: `translate( ${-(outsideWidth - properWidth) / 2}px,
-           ${-(outsideHeight - properHeight) / 2}px)`,
           borderRadius: 8,
           boxShadow: 'var(--box-shadow-keyboard)',
         }}
@@ -67,8 +67,8 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         width={insideWidth}
         height={insideHeight}
         style={{
-          transform: `translate( ${-(insideWidth - properWidth) / 2}px,
-           ${-(insideHeight - properHeight) / 2}px)`,
+          transform: `translate( ${insideWidth - properWidth}px,
+           ${insideHeight - properHeight}px)`,
           boxShadow: 'var(--box-shadow-keyboard)',
           borderRadius: 8,
         }}
