@@ -70,16 +70,6 @@ const paintEncoder = (
   }
 };
 
-type Point = {
-  x: number;
-  y: number;
-};
-
-type Rect = {
-  bl: Point;
-  tr: Point;
-};
-
 const paintDebugLines = (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
   if (context == null) {
@@ -107,9 +97,10 @@ const paintKeycapLabel = (
   }
   const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
-  const margin = {x: 3, y: 1};
-  const centerLabelMargin = {x: 2, y: 0};
-  const singleLabelMargin = {x: 2, y: 2};
+  const topLabelMargin = {x: 4, y: 4};
+  const bottomLabelMargin = {x: 4, y: 4};
+  const centerLabelMargin = {x: 3, y: 0};
+  const singleLabelMargin = {x: 4, y: 4};
 
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
@@ -123,20 +114,20 @@ const paintKeycapLabel = (
   context.fillStyle = legendColor;
   if (label === undefined) {
   } else if (label.topLabel && label.bottomLabel) {
-    let fontSize = 17;
+    let fontSize = 16;
     let fontHeight = 0.75 * fontSize;
-    let topLabelOffset = 0; //label.offset[0] * fontHeight;
-    let bottomLabelOffset = 0; //label.offset[1] * fontHeight;
+    let topLabelOffset = label.offset[0] * fontHeight;
+    let bottomLabelOffset = label.offset[1] * fontHeight;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.topLabel,
-      margin.x,
-      margin.y + topLabelOffset + fontHeight,
+      topLabelMargin.x,
+      topLabelMargin.y + topLabelOffset + fontHeight,
     );
     context.fillText(
       label.bottomLabel,
-      margin.x,
-      canvas.height - 1 - margin.y - bottomLabelOffset,
+      bottomLabelMargin.x,
+      canvas.height - bottomLabelMargin.y - bottomLabelOffset,
     );
   } else if (label.centerLabel) {
     let fontSize = 13 * label.size;
@@ -163,65 +154,6 @@ const paintKeycapLabel = (
       singleLabelMargin.y + fontHeight,
     );
   }
-};
-
-// coordinates of corners of keycap and top face in texture coordinates (UVs)
-type TextureRects = {
-  keycapRect: Rect;
-  faceRect: Rect;
-};
-
-const calculateTextureRects = (
-  widthMultiplier: number,
-  heightMultiplier: number,
-  textureWidth: number,
-  textureHeight: number,
-  textureOffsetX: number,
-): TextureRects => {
-  // Constants used in texture coordinate (UV) mapping
-  // See update-uv-maps.ts
-  const size1u = 1 / 2.6;
-  const unitScale = 19.05;
-  const offsetToCorner = 0.445;
-  const gap = (offsetToCorner / unitScale) * size1u;
-
-  // textureWidth,textureHeight is the size of the keycap in U
-  // Clip this to 2.75U because the texture coordinates (UV)
-  // only spans 2.6U, which is *just* enough to reach the right
-  // edge of the top face of a 2.75U keycap.
-  let keycapWidth = Math.min(2.75, textureWidth);
-  let keycapHeight = Math.min(2.75, textureHeight);
-
-  // If the model is a "stretched" 1U key,
-  // pretend it's a 1U key, since the texture coordinates (UVs)
-  // will be for a 1U key.
-  if (widthMultiplier > 1 || heightMultiplier > 1) {
-    keycapWidth = 1;
-    keycapHeight = 1;
-  }
-
-  let keycapRect: Rect = {
-    bl: {x: 0, y: 1},
-    tr: {x: 1, y: 0},
-  };
-
-  let faceRect: Rect = {
-    bl: {x: keycapRect.bl.x, y: keycapRect.bl.y},
-    tr: {x: keycapRect.tr.x, y: keycapRect.tr.y},
-  };
-
-  // textureOffsetX is the X offset in U from the left edge of the keycap shape
-  // to the left edge of the narrower part of the keycap shape, when it's an ISO or BAE.
-  // Multiplying by size1u converts it to an offset in TU
-  // Add to the existing offset from keycap left edge to face left edge
-  if (textureOffsetX > 0) {
-    faceRect.bl.x += textureOffsetX * size1u;
-    faceRect.tr.x += textureOffsetX * size1u;
-    keycapRect.bl.x += textureOffsetX * size1u;
-    keycapRect.tr.x += textureOffsetX * size1u;
-  }
-
-  return {keycapRect, faceRect};
 };
 
 const paintKeycap = (

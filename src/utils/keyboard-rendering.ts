@@ -418,7 +418,7 @@ const getLabelOffsets = (
   bottomLabel: string,
 ): [number, number] => {
   let topLabelOffset = 0.0;
-  let bottomLabelOffset = 0.1;
+  let bottomLabelOffset = 0.0;
 
   if (topLabel.length == 1) {
     if ('^*"'.split('').includes(topLabel[0])) {
