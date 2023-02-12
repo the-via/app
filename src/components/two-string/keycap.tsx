@@ -340,12 +340,14 @@ export const Keycap = React.memo(
       DisplayMode.Test === mode
         ? pressedState === KeycapState.Unpressed
           ? wasPressed
-            ? 'palevioletred'
+            ? 'mediumvioletred'
             : 'lightgrey'
-          : 'pink'
+          : 'mediumvioletred'
         : pressedState === KeycapState.Unpressed
         ? 'lightgrey'
         : 'lightgrey';
+    const keycapOpacity =
+      pressedState === KeycapState.Unpressed ? (wasPressed ? 0.4 : 0) : 0.6;
 
     const [onClick, onPointerOver, onPointerOut, onPointerDown] =
       useMemo(() => {
@@ -440,6 +442,9 @@ export const Keycap = React.memo(
           <GlowContainer
             selected={selected}
             style={{
+              animation: selected
+                ? '1.5s infinite alternate select-glow'
+                : 'initial',
               background: getDarkenedColor(props.color.c, 0.8),
               transform: `perspective(100px) translateZ(${keycapZ}px)`,
               borderRadius: 3,
@@ -449,6 +454,20 @@ export const Keycap = React.memo(
                 textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
             }}
           >
+            {DisplayMode.Test === mode ? (
+              <div
+                style={{
+                  background: keycapColor,
+                  opacity: keycapOpacity,
+                  transition: 'all 0.2s ease-out',
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                }}
+              ></div>
+            ) : null}
             <CanvasContainer
               style={{
                 borderRadius: 4,
@@ -466,20 +485,6 @@ export const Keycap = React.memo(
               </Keycap2DTooltip>
             </TooltipContainer>
           )}
-          {DisplayMode.Test === mode ? (
-            <div
-              style={{
-                background: keycapColor,
-                opacity: 0.4,
-                transition: 'all 0.2s ease-out',
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                right: 0,
-                bottom: 0,
-              }}
-            ></div>
-          ) : null}
         </KeycapContainer>
       </>
     );
@@ -513,10 +518,6 @@ const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
   transition: transform 0.2s ease-out;
-  transform: ${(p) =>
-    p.selected
-      ? 'perspective(100px) translateZ(-5px)'
-      : 'perspective(100px) translateZ(0px)'};
   box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
     inset 1px 1px 0 rgb(255 255 255 / 20%);
   animation: ${(p) =>

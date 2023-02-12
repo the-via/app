@@ -15,7 +15,6 @@ import {
   getConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
 import {Globals} from '@react-spring/shared';
-import {animated, config, useSpring} from '@react-spring/web';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {getSelectedVersion} from 'src/store/designSlice';
@@ -257,7 +256,7 @@ const getRouteX = (route: string) => {
   }
 };
 
-const KeyboardGroupContainer = styled(animated.div)`
+const KeyboardGroupContainer = styled.div`
   z-index: 2;
   display: block;
   white-space: nowrap;
@@ -274,10 +273,10 @@ const KeyboardGroup = React.memo((props: any) => {
   const [path] = useLocation();
   const routeX = getRouteX(path);
   console.log('bla');
-  const style = useSpring({
-    config: config.stiff,
+  const style = {
+    transition: 'transform 0.25s ease-in-out',
     transform: `translate(${routeX}vw,0px)`,
-  });
+  };
   return (
     <KeyboardGroupContainer style={style}>
       <Keyboards
