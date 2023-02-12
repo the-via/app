@@ -437,6 +437,7 @@ export const Keycap = React.memo(
               textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
             height:
               textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
+            cursor: !disabled ? 'pointer' : 'initial',
           }}
         >
           <GlowContainer
