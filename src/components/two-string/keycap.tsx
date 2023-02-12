@@ -488,17 +488,16 @@ export const Keycap = React.memo(
           onPointerOut={onPointerOut}
           style={{
             transform: `translate(${
+              CSSVarObject.keyWidth / 2 +
               props.position[0] -
-              (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
+              (CSSVarObject.keyXPos * textureWidth - CSSVarObject.keyXSpacing) /
+                2
             }px,${
               props.position[1] -
               (CSSVarObject.keyHeight * textureHeight -
                 CSSVarObject.keyHeight) /
                 2
             }px) rotate(${-props.rotation[2]}rad)`,
-            borderRadius: 3,
-            width: textureWidth * CSSVarObject.keyWidth,
-            height: textureHeight * CSSVarObject.keyHeight,
           }}
         >
           <GlowContainer
@@ -506,8 +505,10 @@ export const Keycap = React.memo(
             style={{
               background: getDarkenedColor(props.color.c, 0.8),
               borderRadius: 3,
-              width: textureWidth * CSSVarObject.keyWidth,
-              height: textureHeight * CSSVarObject.keyHeight,
+              width:
+                textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
+              height:
+                textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
             }}
           >
             <CanvasContainer
@@ -545,7 +546,10 @@ const KeycapContainer = styled.div<{position: [number, number]}>`
     z-index: 1;
   }
 `;
-const CanvasContainer = styled.div<{}>``;
+const CanvasContainer = styled.div<{}>`
+  box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
+    inset 1px 1px 0 rgb(255 255 255 / 10%);
+`;
 const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
