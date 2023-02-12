@@ -1,4 +1,3 @@
-import {useSpring} from '@react-spring/web';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
@@ -81,9 +80,7 @@ type Rect = {
   tr: Point;
 };
 
-const paintDebugLines = (
-  canvas: HTMLCanvasElement,
-) => {
+const paintDebugLines = (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
   if (context == null) {
     return;
@@ -91,11 +88,11 @@ const paintDebugLines = (
   context.strokeStyle = 'magenta';
   context.lineWidth = 1;
   context.beginPath();
-  context.moveTo(0,0);
-  context.lineTo(canvas.width,0);
-  context.lineTo(canvas.width,canvas.height);
-  context.lineTo(0,canvas.height);
-  context.lineTo(0,0);
+  context.moveTo(0, 0);
+  context.lineTo(canvas.width, 0);
+  context.lineTo(canvas.width, canvas.height);
+  context.lineTo(0, canvas.height);
+  context.lineTo(0, 0);
   context.stroke();
 };
 
@@ -116,11 +113,11 @@ const paintKeycapLabel = (
 
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
-  context.moveTo(0,0);
-  context.lineTo(canvas.width,0);
-  context.lineTo(canvas.width,canvas.height);
-  context.lineTo(0,canvas.height);
-  context.lineTo(0,0);
+  context.moveTo(0, 0);
+  context.lineTo(canvas.width, 0);
+  context.lineTo(canvas.width, canvas.height);
+  context.lineTo(0, canvas.height);
+  context.lineTo(0, 0);
   context.clip();
 
   context.fillStyle = legendColor;
@@ -128,8 +125,8 @@ const paintKeycapLabel = (
   } else if (label.topLabel && label.bottomLabel) {
     let fontSize = 17;
     let fontHeight = 0.75 * fontSize;
-    let topLabelOffset = 0;//label.offset[0] * fontHeight;
-    let bottomLabelOffset = 0;//label.offset[1] * fontHeight;
+    let topLabelOffset = 0; //label.offset[0] * fontHeight;
+    let bottomLabelOffset = 0; //label.offset[1] * fontHeight;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.topLabel,
@@ -149,7 +146,7 @@ const paintKeycapLabel = (
     context.fillText(
       label.label,
       centerLabelMargin.x,
-      faceMidLeftY + (0.5 * fontHeight),
+      faceMidLeftY + 0.5 * fontHeight,
     );
     // return if label would have overflowed so that we know to show tooltip
     return (
@@ -323,23 +320,17 @@ export const Keycap = React.memo(
     ]);
     useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
 
-    const glow = useSpring({
-      config: {duration: 800},
-      from: {x: 0, y: '#f4a0a0'},
-      loop: selected ? {reverse: true} : false,
-      to: {x: 100, y: '#b49999'},
-    });
     // Set Z to half the total height so that keycaps are at the same level since the center
     // is in the middle and each row has a different height
-    const [zDown, zUp] = [0, 0 + 8];
+    const [zDown, zUp] = [-8, 0];
     const pressedState =
       DisplayMode.Test === mode
         ? TestKeyState.KeyDown === keyState
           ? KeycapState.Pressed
           : KeycapState.Unpressed
         : hovered || selected
-        ? KeycapState.Unpressed
-        : KeycapState.Pressed;
+        ? KeycapState.Pressed
+        : KeycapState.Unpressed;
     const [keycapZ, rotationZ] =
       pressedState === KeycapState.Pressed
         ? [zDown, rotation[2]]
@@ -355,14 +346,6 @@ export const Keycap = React.memo(
         : pressedState === KeycapState.Unpressed
         ? 'lightgrey'
         : 'lightgrey';
-
-    const {z, b, rotateZ, tooltipScale} = useSpring({
-      config: {duration: 100},
-      z: keycapZ,
-      b: keycapColor,
-      rotateZ: rotationZ,
-      tooltipScale: !hovered ? 0 : 1,
-    });
 
     const [onClick, onPointerOver, onPointerOut, onPointerDown] =
       useMemo(() => {
@@ -458,6 +441,7 @@ export const Keycap = React.memo(
             selected={selected}
             style={{
               background: getDarkenedColor(props.color.c, 0.8),
+              transform: `perspective(100px) translateZ(${keycapZ}px)`,
               borderRadius: 3,
               width:
                 textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
@@ -482,6 +466,20 @@ export const Keycap = React.memo(
               </Keycap2DTooltip>
             </TooltipContainer>
           )}
+          {DisplayMode.Test === mode ? (
+            <div
+              style={{
+                background: keycapColor,
+                opacity: 0.4,
+                transition: 'all 0.2s ease-out',
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                right: 0,
+                bottom: 0,
+              }}
+            ></div>
+          ) : null}
         </KeycapContainer>
       </>
     );

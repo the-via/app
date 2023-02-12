@@ -331,8 +331,6 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   );
 
   const api = selectedDevice && selectedDevice.api;
-  const [globalPressedKeys, matrixPressedKeys] = [[], []];
-  /*
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
     !isTestMatrixEnabled && isShowingTest,
   );
@@ -342,19 +340,16 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     selectedDefinition as any,
   );
 
-  */
-  /*
   const clearTestKeys = useCallback(() => {
     setGlobalPressedKeys(EMPTY_ARR);
     setMatrixPressedKeys(EMPTY_ARR);
   }, [setGlobalPressedKeys, setMatrixPressedKeys]);
-  */
 
-  //const testContext = useContext(TestContext);
+  const testContext = useContext(TestContext);
   //// Hack to share setting a local state to avoid causing cascade of rerender
-  //if (testContext[0].clearTestKeys !== clearTestKeys) {
-  //testContext[1]({clearTestKeys});
-  //}
+  if (testContext[0].clearTestKeys !== clearTestKeys) {
+    testContext[1]({clearTestKeys});
+  }
 
   useEffect(() => {
     // Remove event listeners on cleanup
