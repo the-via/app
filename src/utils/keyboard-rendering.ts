@@ -36,8 +36,8 @@ export const CSSVarObject = {
   keyYSpacing: 2,
   keyXPos: 52 + 2,
   keyYPos: 54 + 2,
-  faceXPadding: [8, 8],
-  faceYPadding: [3, 11],
+  faceXPadding: [6, 6],
+  faceYPadding: [2, 10],
 };
 
 export const KeycapMetric = {

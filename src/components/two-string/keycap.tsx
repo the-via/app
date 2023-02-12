@@ -83,64 +83,24 @@ type Rect = {
 
 const paintDebugLines = (
   canvas: HTMLCanvasElement,
-  keycapRect: Rect,
-  faceRect: Rect,
 ) => {
   const context = canvas.getContext('2d');
   if (context == null) {
     return;
   }
   context.strokeStyle = 'magenta';
-  context.lineWidth = 2;
+  context.lineWidth = 1;
   context.beginPath();
-  context.moveTo(
-    keycapRect.bl.x * canvas.width,
-    (1 - keycapRect.bl.y) * canvas.height,
-  );
-  context.lineTo(
-    keycapRect.bl.x * canvas.width,
-    (1 - keycapRect.tr.y) * canvas.height,
-  );
-  context.lineTo(
-    keycapRect.tr.x * canvas.width,
-    (1 - keycapRect.tr.y) * canvas.height,
-  );
-  context.lineTo(
-    keycapRect.tr.x * canvas.width,
-    (1 - keycapRect.bl.y) * canvas.height,
-  );
-  context.lineTo(
-    keycapRect.bl.x * canvas.width,
-    (1 - keycapRect.bl.y) * canvas.height,
-  );
-  context.stroke();
-  context.beginPath();
-  context.moveTo(
-    faceRect.bl.x * canvas.width,
-    (1 - faceRect.bl.y) * canvas.height,
-  );
-  context.lineTo(
-    faceRect.bl.x * canvas.width,
-    (1 - faceRect.tr.y) * canvas.height,
-  );
-  context.lineTo(
-    faceRect.tr.x * canvas.width,
-    (1 - faceRect.tr.y) * canvas.height,
-  );
-  context.lineTo(
-    faceRect.tr.x * canvas.width,
-    (1 - faceRect.bl.y) * canvas.height,
-  );
-  context.lineTo(
-    faceRect.bl.x * canvas.width,
-    (1 - faceRect.bl.y) * canvas.height,
-  );
+  context.moveTo(0,0);
+  context.lineTo(canvas.width,0);
+  context.lineTo(canvas.width,canvas.height);
+  context.lineTo(0,canvas.height);
+  context.lineTo(0,0);
   context.stroke();
 };
 
 const paintKeycapLabel = (
   canvas: HTMLCanvasElement,
-  rect: Rect,
   legendColor: string,
   label: any,
 ) => {
@@ -150,70 +110,60 @@ const paintKeycapLabel = (
   }
   const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
-  const margin = {x: 0.015, y: 0.1};
-  const centerLabelMargin = {x: 0.015, y: 0};
-  const singleLabelMargin = {x: 0.015, y: 0.15};
-  const [canvasWidth1U, canvasHeight1U] = [
-    CSSVarObject.keyWidth -
-      CSSVarObject.faceXPadding.reduce((x, y) => x + y, 0),
-    CSSVarObject.keyHeight -
-      -CSSVarObject.faceYPadding.reduce((x, y) => x + y, 0),
-  ];
+  const margin = {x: 3, y: 1};
+  const centerLabelMargin = {x: 2, y: 0};
+  const singleLabelMargin = {x: 2, y: 2};
+
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
-  context.moveTo(rect.bl.x * canvas.width, (1 - rect.bl.y) * canvas.height);
-  context.lineTo(rect.bl.x * canvas.width, (1 - rect.tr.y) * canvas.height);
-  context.lineTo(rect.tr.x * canvas.width, (1 - rect.tr.y) * canvas.height);
-  context.lineTo(rect.tr.x * canvas.width, (1 - rect.bl.y) * canvas.height);
-  context.lineTo(rect.bl.x * canvas.width, (1 - rect.bl.y) * canvas.height);
+  context.moveTo(0,0);
+  context.lineTo(canvas.width,0);
+  context.lineTo(canvas.width,canvas.height);
+  context.lineTo(0,canvas.height);
+  context.lineTo(0,0);
   context.clip();
 
   context.fillStyle = legendColor;
   if (label === undefined) {
   } else if (label.topLabel && label.bottomLabel) {
-    //    let fontSize = 52;
-    let fontSize = 15;
-    let fontHeightTU = (0.5 * fontSize) / canvas.height;
-    let topLabelOffset = label.offset[0] * fontHeightTU;
-    let bottomLabelOffset = label.offset[1] * fontHeightTU;
+    let fontSize = 17;
+    let fontHeight = 0.75 * fontSize;
+    let topLabelOffset = 0;//label.offset[0] * fontHeight;
+    let bottomLabelOffset = 0;//label.offset[1] * fontHeight;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.topLabel,
-      (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.tr.y - fontHeightTU - margin.y - topLabelOffset)) *
-        canvas.height,
+      margin.x,
+      margin.y + topLabelOffset + fontHeight,
     );
     context.fillText(
       label.bottomLabel,
-      (rect.bl.x + margin.x) * canvas.width,
-      (1 - (rect.bl.y + margin.y + bottomLabelOffset)) * canvas.height,
+      margin.x,
+      canvas.height - 1 - margin.y - bottomLabelOffset,
     );
   } else if (label.centerLabel) {
-    //    let fontSize = 37.5 * label.size;
-    let fontSize = 13;
-    let fontHeightTU = (0.75 * fontSize) / canvas.height;
-    let faceMidLeftY = (rect.tr.y + rect.bl.y) / 2;
+    let fontSize = 13 * label.size;
+    let fontHeight = 0.75 * fontSize;
+    let faceMidLeftY = canvas.height / 2;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + centerLabelMargin.x) * canvasWidth1U,
-      (1 - (faceMidLeftY - 0.5 * fontHeightTU - centerLabelMargin.y)) *
-        canvas.height,
+      centerLabelMargin.x,
+      faceMidLeftY + (0.5 * fontHeight),
     );
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      (rect.tr.x - (rect.bl.x + centerLabelMargin.x)) * canvasWidth1U
+      canvas.width - centerLabelMargin.x
     );
   } else if (typeof label.label === 'string') {
-    //   let fontSize = 75;
     let fontSize = 22;
-    let fontHeightTU = (0.6 * fontSize) / canvas.height;
+    let fontHeight = 0.75 * fontSize;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
-      (rect.bl.x + singleLabelMargin.x) * canvasWidth1U,
-      (1 - (rect.tr.y - fontHeightTU - singleLabelMargin.y)) * canvas.height,
+      singleLabelMargin.x,
+      singleLabelMargin.y + fontHeight,
     );
   }
 };
@@ -315,10 +265,10 @@ const paintKeycap = (
   // *or* a clipped area within it when keycaps are large, vertical or odd shapes.
   const debug = false;
   if (debug) {
-    paintDebugLines(canvas, keycapRect, faceRect);
+    paintDebugLines(canvas);
   }
 
-  return paintKeycapLabel(canvas, faceRect, legendColor, label);
+  return paintKeycapLabel(canvas, legendColor, label);
 };
 
 export const Keycap = React.memo(
@@ -520,7 +470,6 @@ export const Keycap = React.memo(
                 borderRadius: 4,
                 background: props.color.c,
                 height: '100%',
-                padding: 1,
               }}
             >
               <canvas ref={canvasRef} style={{}} />
