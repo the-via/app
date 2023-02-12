@@ -498,6 +498,10 @@ export const Keycap = React.memo(
                 CSSVarObject.keyHeight) /
                 2
             }px) rotate(${-props.rotation[2]}rad)`,
+            width:
+              textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
+            height:
+              textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
           }}
         >
           <GlowContainer
