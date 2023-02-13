@@ -159,10 +159,7 @@ html[data-theme-mode='light'] {
   0% {
     filter: brightness(0.75);
   }
-  50% {
-    filter: brightness(1.25);
-  }
   100% {
-    filter: brightness(0.75);
+    filter: brightness(1.25);
   }
 }
