@@ -38,7 +38,6 @@ import {
   faSquareCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import {useProgress} from '@react-three/drei';
-import ChippyLoader from '../chippy-loader';
 
 const Container = styled.div`
   display: flex;
@@ -80,9 +79,7 @@ export const Test: FC = () => {
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
-  return progress !== 100 ? (
-    <ChippyLoader progress={progress / 100} />
-  ) : (
+  return progress !== 100 ? null : (
     <TestPane>
       <Grid>
         <MenuCell style={{pointerEvents: 'all'}}>
