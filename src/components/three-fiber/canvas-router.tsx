@@ -1,5 +1,5 @@
 import {Canvas} from '@react-three/fiber';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -75,6 +75,7 @@ export const CanvasRouter = () => {
   const theme = useAppSelector(getSelectedTheme);
   const cubey = useGLTF(cubeySrc);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
+  const [fontLoaded, setLoaded] = useState(false);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
   console.log(cubey, 'cubey');
@@ -105,6 +106,12 @@ export const CanvasRouter = () => {
   );
 
   const hideTerrainBG = showLoader;
+  useEffect(() => {
+    // Block rendering due to font legend being required to render keyboardss
+    document.fonts.load('bold 16px Fira Sans').then(() => {
+      setLoaded(true);
+    });
+  }, []);
   return (
     <>
       <UpdateUVMaps />
@@ -175,18 +182,20 @@ export const CanvasRouter = () => {
               )
             ) : null}
           </Html>
-          <Float
-            speed={1} // Animation speed, defaults to 1
-            rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
-            floatIntensity={0.8} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
-            floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
-          >
-            <KeyboardGroup
-              containerRef={containerRef}
-              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-              loadProgress={loadProgress}
-            />
-          </Float>
+          {fontLoaded ? (
+            <Float
+              speed={1} // Animation speed, defaults to 1
+              rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
+              floatIntensity={0.8} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
+              floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
+            >
+              <KeyboardGroup
+                containerRef={containerRef}
+                configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+                loadProgress={loadProgress}
+              />
+            </Float>
+          ) : null}
         </Canvas>
       </div>
     </>
