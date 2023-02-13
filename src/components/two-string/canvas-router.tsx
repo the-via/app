@@ -1,5 +1,5 @@
 import {Canvas} from '@react-three/fiber';
-import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
@@ -294,8 +294,14 @@ const KeyboardGroup = React.memo((props: any) => {
 }, shallowEqual);
 const Keyboards = React.memo((props: any) => {
   const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
-  console.log('rerender');
-  return (
+  const [fontLoaded, setLoaded] = useState(false);
+  useEffect(() => {
+    // Block rendering due to font legend being required to render keyboardss
+    document.fonts.load('bold 16px Fira Sans').then(() => {
+      setLoaded(true);
+    });
+  }, []);
+  return fontLoaded ? (
     <>
       <KeyboardRouteGroup position={0} visible={loadProgress === 1}>
         <ConfigureKeyboard
@@ -311,5 +317,5 @@ const Keyboards = React.memo((props: any) => {
       </KeyboardRouteGroup>
       <KeyboardRouteGroup position={3}></KeyboardRouteGroup>
     </>
-  );
+  ) : null;
 }, shallowEqual);
