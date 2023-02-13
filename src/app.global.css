@@ -1,3 +1,10 @@
+/* This is a workaround to ← → missing in Google Fonts web font.
+Explicitly import the missing arrows.
+See https://stackoverflow.com/questions/40822458/styled-unicode-arrows-not-showing-up-with-google-fonts-web-font
+ */
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans');
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans&text=%E2%86%90|%E2%86%92');
+
 html,
 body {
   height: 100%;
