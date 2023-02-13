@@ -128,7 +128,7 @@ const EncoderKeyContainer = styled.div`
   height: 52px;
   &:hover {
     z-index: 1;
-    animation: 3s infinite alternate select-glow;
+    animation: 0.75s infinite alternate select-glow;
   }
 `;
 

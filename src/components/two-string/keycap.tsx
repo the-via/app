@@ -376,9 +376,11 @@ export const Keycap = React.memo(
           <GlowContainer
             selected={selected}
             style={{
-              animation: selected
-                ? '1.5s infinite alternate select-glow'
-                : 'initial',
+              animation: disabled
+                ? 'initial' // This prevents the hover animation from firing when the keycap can't be interacted with
+                : selected
+                ? '.75s infinite alternate select-glow'
+                : '',
               background: getDarkenedColor(props.color.c, 0.8),
               transform: `perspective(100px) translateZ(${keycapZ}px)`,
               borderRadius: 3,
@@ -455,10 +457,10 @@ const GlowContainer = styled.div<{selected: boolean}>`
   box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
     inset 1px 1px 0 rgb(255 255 255 / 20%);
   animation: ${(p) =>
-    p.selected ? '1.5s infinite alternate select-glow' : 'initial'};
+    p.selected ? '.75s infinite alternate select-glow' : 'initial'};
   &:hover {
     transform: perspective(100px) translateZ(-5px);
-    animation: 0.5s 1 alternate select-glow;
+    animation: 0.5s 1 forwards select-glow;
   }
 `;
 

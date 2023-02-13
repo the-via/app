@@ -13,6 +13,7 @@ import {
   getLoadProgress,
   updateSelectedKey,
   getConfigureKeyboardIsSelectable,
+  clearSelectedKey,
 } from 'src/store/keymapSlice';
 import {Globals} from '@react-spring/shared';
 import React from 'react';
@@ -162,6 +163,10 @@ export const CanvasRouter = () => {
           overflow: 'visible',
           zIndex: 2,
           visibility: hideCanvasScene && !hideTerrainBG ? 'hidden' : 'visible',
+        }}
+        onClick={(evt) => {
+          if ((evt.target as any).nodeName !== 'CANVAS')
+            dispatch(clearSelectedKey());
         }}
         ref={containerRef}
       >
