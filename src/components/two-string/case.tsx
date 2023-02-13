@@ -48,6 +48,9 @@ export const Case = React.memo((props: {width: number; height: number}) => {
     properHeight + insideBorder,
     properHeight + insideBorder * 3,
   ];
+  const [stp1, stp2, stp3] = [0.15, 0.25, 0.2].map((num) =>
+    getDarkenedColor(outsideColor, num),
+  );
   return (
     <CaseGroup>
       <OuterCase
@@ -60,10 +63,7 @@ export const Case = React.memo((props: {width: number; height: number}) => {
         }}
       ></OuterCase>
       <InnerCase
-        background={`linear-gradient(200deg,${innerColor} 40%,${getDarkenedColor(
-          outsideColor,
-          0.2,
-        )},${innerColor} 80%)`}
+        background={`linear-gradient(200deg,${stp1} 40%,${stp2},${stp3} 80%)`}
         width={insideWidth}
         height={insideHeight}
         style={{

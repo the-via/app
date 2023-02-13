@@ -95,7 +95,8 @@ const paintKeycapLabel = (
   if (context == null) {
     return;
   }
-  const fontFamily = 'Arial Rounded MT, Arial Rounded MT Bold, Arial';
+  const fontFamily =
+    'Fira Sans, Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
   const topLabelMargin = {x: 4, y: 4};
   const bottomLabelMargin = {x: 4, y: 4};
