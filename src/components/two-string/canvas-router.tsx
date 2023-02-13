@@ -177,68 +177,22 @@ export const CanvasRouter = () => {
         }}
         ref={containerRef}
       >
-        {webGLIsAvailable ? (
-          <Canvas
-            frameloop={!hideTerrainBG ? 'demand' : 'always'}
-            flat={true}
-            shadows
-            style={{overflow: 'visible'}}
-          >
-            <Camera />
-            <Lights />
-            <LoaderCubey
-              theme={theme}
-              visible={hideTerrainBG && !selectedDefinition}
+        {hideCanvasScene ? null : (
+          <>
+            <KeyboardBG
+              onClick={terrainOnClick}
+              color={accentColor}
+              visible={!hideTerrainBG}
             />
-            <Html
-              center
-              position={[
-                0,
-                hideTerrainBG ? (!selectedDefinition ? -1 : 0) : 10,
-                -19,
-              ]}
-            >
-              {showAuthorizeButton ? (
-                !selectedDefinition ? (
-                  <AccentButtonLarge
-                    onClick={() => dispatch(reloadConnectedDevices())}
-                    style={{width: 'max-content'}}
-                  >
-                    Authorize device
-                    <FontAwesomeIcon
-                      style={{marginLeft: '10px'}}
-                      icon={faUnlock}
-                    />
-                  </AccentButtonLarge>
-                ) : (
-                  <>
-                    <div
-                      style={{
-                        textAlign: 'center',
-                        color: 'var(--color_accent)',
-                        fontSize: 60,
-                      }}
-                    >
-                      <FontAwesomeIcon spinPulse icon={faSpinner} />
-                    </div>
-                  </>
-                )
-              ) : null}
-            </Html>
-          </Canvas>
-        ) : null}
-        <KeyboardBG
-          onClick={terrainOnClick}
-          color={accentColor}
-          visible={!hideTerrainBG}
-        />
-        {fontLoaded ? (
-          <KeyboardGroup
-            containerDimensions={containerDimensions}
-            configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-            loadProgress={loadProgress}
-          />
-        ) : null}
+            {fontLoaded ? (
+              <KeyboardGroup
+                containerDimensions={containerDimensions}
+                configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+                loadProgress={loadProgress}
+              />
+            ) : null}
+          </>
+        )}
       </div>
     </>
   );

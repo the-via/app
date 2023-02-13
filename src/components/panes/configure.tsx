@@ -41,6 +41,7 @@ import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
 import {useProgress} from '@react-three/drei';
 import {CategoryMenuTooltip, MenuTooltip} from '../inputs/tooltip';
+import {getRenderMode, getSelectedTheme} from 'src/store/settingsSlice';
 
 const MenuContainer = styled.div`
   padding: 15px 10px 20px 10px;
@@ -141,12 +142,13 @@ const getRowsForKeyboardV2 = (
   );
 };
 
-function Loader(props: {
+export const Loader: React.FC<{
   loadProgress: number;
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
-}) {
+}> = (props) => {
   const {loadProgress, selectedDefinition} = props;
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(getSelectedTheme);
 
   const connectedDevices = useAppSelector(getConnectedDevices);
   const supportedIds = useAppSelector(getSupportedIds);
@@ -167,8 +169,8 @@ function Loader(props: {
     return () => clearTimeout(timeout);
   }, [selectedDefinition]);
   return (
-    <>
-      {<ChippyLoader progress={chippyProgress || null} />}
+    <LoaderPane>
+      {<ChippyLoader theme={theme} progress={loadProgress || null} />}
       {(showButton || noConnectedDevices) && !noSupportedIds && !isElectron ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device
@@ -177,23 +179,37 @@ function Loader(props: {
       ) : (
         <LoadingText isSearching={!selectedDefinition} />
       )}
-    </>
+    </LoaderPane>
   );
-}
+};
 
 const LoaderPane = styled(CenterPane)`
   display: flex;
   align-items: center;
   justify-content: center;
-  row-gap: 100px;
+  row-gap: 50px;
+  position: absolute;
+  bottom: 50px;
+  top: 50px;
+  left: 0;
+  right: 0;
+  z-index: 4;
 `;
 
 export const ConfigurePane = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const loadProgress = useAppSelector(getLoadProgress);
+  const renderMode = useAppSelector(getRenderMode);
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
-  return showLoader ? null : (
+  return showLoader ? (
+    renderMode === '2D' ? (
+      <Loader
+        selectedDefinition={selectedDefinition || null}
+        loadProgress={loadProgress}
+      />
+    ) : null
+  ) : (
     <ConfigureBasePane>
       <ConfigureGrid />
     </ConfigureBasePane>
