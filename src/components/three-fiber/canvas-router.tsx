@@ -293,13 +293,13 @@ const KeyboardGroup = React.memo((props: any) => {
     </a.group>
   );
 }, shallowEqual);
+
 const Keyboards = React.memo((props: any) => {
   const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
   const testPosition = -getRouteX('/test');
   const designPosition = -getRouteX('/design');
   const debugPosition = -getRouteX('/debug');
 
-  console.log('rerender');
   return (
     <>
       <group visible={loadProgress === 1}>

@@ -109,6 +109,7 @@ export const CanvasRouter = () => {
   const dispatch = useAppDispatch();
   const containerDimensions = useSize(containerRef);
   const dimensions = useSize(body);
+  const [fontLoaded, setLoaded] = useState(false);
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
@@ -143,8 +144,14 @@ export const CanvasRouter = () => {
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
-
   const hideTerrainBG = showLoader;
+  useEffect(() => {
+    // Block rendering due to font legend being required to render keyboardss
+    document.fonts.load('bold 16px Fira Sans').then(() => {
+      setLoaded(true);
+    });
+  }, []);
+
   return (
     <>
       <div
@@ -225,11 +232,13 @@ export const CanvasRouter = () => {
           color={accentColor}
           visible={!hideTerrainBG}
         />
-        <KeyboardGroup
-          containerDimensions={containerDimensions}
-          configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-          loadProgress={loadProgress}
-        />
+        {fontLoaded ? (
+          <KeyboardGroup
+            containerDimensions={containerDimensions}
+            configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+            loadProgress={loadProgress}
+          />
+        ) : null}
       </div>
     </>
   );
@@ -294,14 +303,7 @@ const KeyboardGroup = React.memo((props: any) => {
 }, shallowEqual);
 const Keyboards = React.memo((props: any) => {
   const {loadProgress, dimensions, configureKeyboardIsSelectable} = props;
-  const [fontLoaded, setLoaded] = useState(false);
-  useEffect(() => {
-    // Block rendering due to font legend being required to render keyboardss
-    document.fonts.load('bold 16px Fira Sans').then(() => {
-      setLoaded(true);
-    });
-  }, []);
-  return fontLoaded ? (
+  return (
     <>
       <KeyboardRouteGroup position={0} visible={loadProgress === 1}>
         <ConfigureKeyboard
@@ -317,5 +319,5 @@ const Keyboards = React.memo((props: any) => {
       </KeyboardRouteGroup>
       <KeyboardRouteGroup position={3}></KeyboardRouteGroup>
     </>
-  ) : null;
+  );
 }, shallowEqual);
