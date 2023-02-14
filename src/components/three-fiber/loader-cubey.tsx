@@ -5,6 +5,7 @@ import {useFrame} from '@react-three/fiber';
 import {shallowEqual} from 'react-redux';
 import {Color, Mesh, MeshBasicMaterial} from 'three';
 import {Theme} from 'src/utils/themes';
+import {getDarkenedColor} from 'src/utils/color-math';
 
 export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
   React.memo(({visible, theme}) => {
@@ -12,11 +13,12 @@ export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
     const spinnerRef = useRef<any>();
     const yInit = !visible ? 10 : -0.3;
 
+    const darkAccent = getDarkenedColor(theme.accent.c, 0.8);
     const colorMap = {
-      'upper-body': new Color(theme.alpha.c),
-      'lower-body': new Color(theme.mod.c),
-      accent: new Color(theme.accent.c),
-      bowtie: new Color(theme.accent.c),
+      'upper-body': new Color(theme.mod.c),
+      'lower-body': new Color(theme.mod.t),
+      accent: new Color(darkAccent),
+      bowtie: new Color(darkAccent),
     };
 
     cubeyGLTF.scene.children.forEach((child) => {

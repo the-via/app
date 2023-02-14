@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import svgSrc from 'assets/images/squarey.svg';
 import imgSrc from 'assets/images/chippy_600.png';
 import {Theme} from 'src/utils/themes';
+import {getDarkenedColor} from 'src/utils/color-math';
 
 const defaultChippy = {
   width: 300,
@@ -62,124 +63,171 @@ type Props = {
   height?: number;
   theme: Theme;
 };
-import * as React from 'react';
 
 const SvgComponent: React.FC<any & {theme: Theme}> = (props) => {
   const {theme} = props;
+
+  const darkAccent = getDarkenedColor(theme.accent.c, 0.8);
   const colorMap = {
-    'upper-body': theme.alpha.c,
+    'upper-body': theme.mod.t,
     'lower-body': theme.mod.c,
-    accent: theme.accent.c,
-    bowtie: theme.accent.c,
+    accent: darkAccent,
+    bowtie: darkAccent,
+    pins: darkAccent,
+    feet: '#000',
   };
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 587.68 461" {...props}>
-      <defs>
-        <style>
-          {
-            '.cls-1,.cls-5,.cls-6{fill-rule:evenodd}.cls-6,.cls-8{stroke:#000;stroke-miterlimit:10;stroke-width:4px}.cls-7{fill:#cb9688}.cls-5{fill:#fdfefe}.cls-6,.cls-8{fill:#dcdbdb}'
-          }
-        </style>
-      </defs>
-      <g id="Layer_2" data-name="Layer 2">
+    <svg
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      x={0}
+      y={0}
+      viewBox="0 0 600 600"
+      style={{
+        enableBackground: 'new 0 0 600 600',
+      }}
+      xmlSpace="preserve"
+      {...props}
+    >
+      <style>
+        {`.st3{fill:#fdfefe}.st4{fill:${colorMap.bowtie}}.st5{fill-rule:evenodd;clip-rule:evenodd;fill:${colorMap.accent}}.st7,.st9{fill-rule:evenodd;clip-rule:evenodd}.st10,.st9{fill:#fff}`}
+      </style>
+      <g id="Layer_2_00000088814685506851870240000015950599998114990989_">
         <g id="Feet">
-          <path
-            className="cls-1"
-            d="M166.29 360a50.5 50.5 0 1 1-50.5 50.5 50.5 50.5 0 0 1 50.5-50.5ZM417.29 360a50.5 50.5 0 1 1-50.5 50.5 50.5 50.5 0 0 1 50.5-50.5Z"
-            style={{
-              strokeWidth: 2,
-              stroke: '#fff',
-            }}
-          />
+          <path d="M169.7 432.1c28.3 0 51.5 23.3 51.5 51.5s-23.3 51.5-51.5 51.5-51.5-23.3-51.5-51.5 23.2-51.5 51.5-51.5zM425.8 432.1c28.3 0 51.5 23.3 51.5 51.5s-23.3 51.5-51.5 51.5-51.5-23.3-51.5-51.5 23.2-51.5 51.5-51.5z" />
         </g>
         <g id="Body">
           <path
-            d="M23.79 2h540a15 15 0 0 1 15 15v379a15 15 0 0 1-15 15h-540a15 15 0 0 1-15-15V17a15 15 0 0 1 15-15Z"
+            d="M26.7 66.8h546.2c9.8 0 17.7 7.9 17.7 17.7v273.3H9V84.6c0-9.8 7.9-17.8 17.7-17.8z"
             style={{
-              strokeWidth: 2,
-              stroke: '#fff',
-              strokeMiterlimit: 10,
               fill: colorMap['upper-body'],
-              fillRule: 'evenodd',
             }}
           />
           <path
-            d="M9.29 286.77h570v111.46a15 15 0 0 1-15 15h-540a15 15 0 0 1-15-15Z"
+            d="M9 357.4h581.6v113.7c0 8.4-6.9 15.3-15.3 15.3h-551c-8.4 0-15.3-6.9-15.3-15.3V357.4z"
             style={{
               fill: colorMap['lower-body'],
-              strokeWidth: 2,
-              stroke: '#fff',
-              strokeMiterlimit: 10,
-              fillRule: 'evenodd',
             }}
           />
         </g>
         <path
-          d="M224.79 194s32.82 19 65 19c32.81 0 65-19 65-19"
+          d="M229.4 262.8s33.5 19.4 66.3 19.4c33.5 0 66.3-19.4 66.3-19.4"
           style={{
-            strokeLinecap: 'round',
-            strokeWidth: 5,
-            stroke: '#000',
-            strokeMiterlimit: 10,
-            fillRule: 'evenodd',
             fill: 'none',
+            stroke: '#000',
+            strokeWidth: 6.8265,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
+            strokeMiterlimit: 2.0408,
           }}
           id="Smile"
         />
         <g id="Eyes">
+          <path d="M417.1 132.4c26.5 0 48 26.4 48 59.1s-21.4 59.1-48 59.1-48-26.4-48-59.1 21.5-59.1 48-59.1zM175.3 132.4c26.5 0 48 26.4 48 59.1s-21.4 59.1-48 59.1-48-26.4-48-59.1 21.5-59.1 48-59.1z" />
           <path
-            className="cls-1"
-            d="M408.79 66.25c26 0 47 25.91 47 57.87s-21 57.88-47 57.88-47-25.91-47-57.88 21.04-57.87 47-57.87ZM171.79 66.25c26 0 47 25.91 47 57.87s-21 57.88-47 57.88-47-25.91-47-57.88 21.04-57.87 47-57.87Z"
-          />
-          <path
-            className="cls-5"
-            d="M414.29 143a7.5 7.5 0 1 1-7.5 7.5 7.5 7.5 0 0 1 7.5-7.5ZM409.79 93a17 17 0 1 1-17 17 17 17 0 0 1 17-17ZM176.29 143a7.5 7.5 0 1 1-7.5 7.5 7.5 7.5 0 0 1 7.5-7.5ZM171.79 93a17 17 0 1 1-17 17 17 17 0 0 1 17-17Z"
+            className="st3"
+            d="M422.7 210.7c4.2 0 7.7 3.5 7.7 7.7s-3.5 7.7-7.7 7.7-7.7-3.5-7.7-7.7 3.5-7.7 7.7-7.7zM418.2 159.7c9.5 0 17.3 7.8 17.3 17.3s-7.8 17.3-17.3 17.3-17.3-7.8-17.3-17.3c-.1-9.5 7.7-17.3 17.3-17.3zM179.9 210.7c4.2 0 7.7 3.5 7.7 7.7s-3.5 7.7-7.7 7.7-7.7-3.5-7.7-7.7 3.5-7.7 7.7-7.7zM175.3 159.7c9.5 0 17.3 7.8 17.3 17.3s-7.8 17.3-17.3 17.3S158 186.5 158 177c-.1-9.5 7.8-17.3 17.3-17.3z"
           />
         </g>
         <g id="Pins">
           <path
-            className="cls-6"
-            d="M12.31 207h17.17c5.7 0 10.31 6.72 10.31 15v32c0 8.28-4.61 15-10.31 15H12.31C6.61 269 2 262.28 2 254v-32c0-8.28 4.61-15 10.31-15ZM12.31 123h17.17c5.7 0 10.31 6.72 10.31 15v32c0 8.28-4.61 15-10.31 15H12.31C6.61 185 2 178.28 2 170v-32c0-8.28 4.61-15 10.31-15ZM12.31 37h17.17c5.7 0 10.31 6.72 10.31 15v32c0 8.28-4.61 15-10.31 15H12.31C6.61 99 2 92.28 2 84V52c0-8.28 4.61-15 10.31-15ZM558.2 207h17.18c5.69 0 10.3 6.72 10.3 15v32c0 8.28-4.61 15-10.3 15H558.2c-5.69 0-10.31-6.72-10.31-15v-32c0-8.28 4.62-15 10.31-15ZM558.2 123h17.18c5.69 0 10.3 6.72 10.3 15v32c0 8.28-4.61 15-10.3 15H558.2c-5.69 0-10.31-6.72-10.31-15v-32c0-8.28 4.62-15 10.31-15ZM558.2 37h17.18c5.69 0 10.3 6.72 10.3 15v32c0 8.28-4.61 15-10.3 15H558.2c-5.69 0-10.31-6.72-10.31-15V52c0-8.28 4.62-15 10.31-15Z"
-            style={{
-              strokeWidth: 2,
-              stroke: '#fff',
-              fill: colorMap['accent'],
-            }}
+            className="st4"
+            d="M12.6 276h17.5c5.8 0 10.5 6.9 10.5 15.3V324c0 8.4-4.7 15.3-10.5 15.3H12.6C6.7 339.3 2 332.4 2 324v-32.7c0-8.4 4.7-15.3 10.6-15.3zM12.6 190.3h17.5c5.8 0 10.5 6.9 10.5 15.3v32.7c0 8.4-4.7 15.3-10.5 15.3H12.6c-5.8 0-10.5-6.9-10.5-15.3v-32.7c-.1-8.4 4.6-15.3 10.5-15.3zM12.6 102.6h17.5c5.8 0 10.5 6.9 10.5 15.3v32.7c0 8.4-4.7 15.3-10.5 15.3H12.6C6.7 165.8 2 159 2 150.5v-32.7c0-8.4 4.7-15.2 10.6-15.2zM569.6 276h17.5c5.8 0 10.5 6.9 10.5 15.3V324c0 8.4-4.7 15.3-10.5 15.3h-17.5c-5.8 0-10.5-6.9-10.5-15.3v-32.7c0-8.4 4.7-15.3 10.5-15.3zM569.6 190.3h17.5c5.8 0 10.5 6.9 10.5 15.3v32.7c0 8.4-4.7 15.3-10.5 15.3h-17.5c-5.8 0-10.5-6.9-10.5-15.3v-32.7c0-8.4 4.7-15.3 10.5-15.3zM569.6 102.6h17.5c5.8 0 10.5 6.9 10.5 15.3v32.7c0 8.4-4.7 15.3-10.5 15.3h-17.5c-5.8 0-10.5-6.9-10.5-15.3v-32.7c0-8.5 4.7-15.3 10.5-15.3z"
           />
         </g>
         <g id="Cheeks">
-          <g id="Layer_8" data-name="Layer 8">
+          <g id="Layer_8">
             <ellipse
-              className="cls-7"
-              cx={126.98}
-              cy={207.18}
-              rx={12.65}
-              ry={28.67}
-              transform="rotate(-60 126.975 207.173)"
-              style={{fill: colorMap['lower-body']}}
+              transform="rotate(120 89.724 277.697)"
+              className="st5"
+              cx={68.5}
+              cy={243.9}
+              rx={12.9}
+              ry={29.3}
             />
             <ellipse
-              className="cls-7"
-              cx={456.98}
-              cy={207.18}
-              rx={28.67}
-              ry={12.65}
-              transform="rotate(-30 456.989 207.17)"
-              style={{fill: colorMap['lower-body']}}
+              transform="rotate(150 447.814 278.705)"
+              className="st5"
+              cx={430.5}
+              cy={271.6}
+              rx={29.3}
+              ry={12.9}
             />
           </g>
         </g>
         <g id="Bowties">
           <path
-            className="cls-8"
-            d="m287.79 286 72-33v66ZM287.79 286l-72 33v-66Z"
-            style={{
-              strokeWidth: 2,
-              stroke: '#fff',
-              fill: colorMap['bowtie'],
-            }}
+            className="st4"
+            d="m293.7 356.6 73.5-33.7v67.3l-73.5-33.6zM293.7 356.6l-73.5 33.7V323l73.5 33.6z"
           />
         </g>
+      </g>
+      <g
+        id="Layer2"
+        style={{
+          opacity: 0.15,
+        }}
+      >
+        <path
+          className="st7"
+          d="M6.7 105.2c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-7 2.7-11 4.7-13z"
+        />
+        <path
+          d="M112.4 486.3H24c-13 0-14.8-14.5-14.8-14.5S9 332.7 9 353.4c0 20.8 79.5 132.9 103.4 132.9z"
+          style={{
+            fillRule: 'evenodd',
+            clipRule: 'evenodd',
+            fill: '#180000',
+          }}
+        />
+        <path
+          className="st9"
+          d="M35.9 105.1c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.8-11-4.7-13z"
+        />
+        <path
+          className="st7"
+          d="M6.7 192.9c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-7 2.7-11 4.7-13z"
+        />
+        <path
+          className="st9"
+          d="M35.9 192.8c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.8-11-4.7-13z"
+        />
+        <path
+          className="st7"
+          d="M6.7 278.6c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-6.9 2.7-10.9 4.7-13z"
+        />
+        <path
+          className="st9"
+          d="M35.9 278.5c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.8-11-4.7-13z"
+        />
+        <path
+          className="st7"
+          d="M563.7 105.2c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-7 2.7-11 4.7-13z"
+        />
+        <path
+          className="st9"
+          d="M592.9 105.1c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.7-11-4.7-13z"
+        />
+        <path
+          className="st7"
+          d="M563.7 192.9c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-7 2.7-11 4.7-13z"
+        />
+        <path
+          className="st9"
+          d="M592.9 192.8c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.7-11-4.7-13z"
+        />
+        <path
+          className="st7"
+          d="M563.7 278.6c2.5-2.6 5.8-2.5 5.8-2.5v63.2s-3.9.4-7.1-4c-.7-.7-3.4-5.1-3.4-11.3v-32.4c0-6.9 2.7-10.9 4.7-13z"
+        />
+        <path
+          className="st9"
+          d="M592.9 278.5c-2.5-2.6-5.8-2.5-5.8-2.5v63.2s3.9.4 7.1-4c.7-.7 3.4-5.1 3.4-11.3v-32.4c0-7-2.7-11-4.7-13z"
+        />
+        <path
+          className="st10"
+          d="M220.2 323.1v34.2l73.4-.6zM293.7 356.6l73.5-33.6v34.3"
+        />
       </g>
     </svg>
   );
