@@ -3,7 +3,7 @@ import React, {useRef} from 'react';
 import cubeySrc from 'assets/models/cubey.glb';
 import {useFrame} from '@react-three/fiber';
 import {shallowEqual} from 'react-redux';
-import {Color, Mesh, MeshBasicMaterial} from 'three';
+import {Color, Mesh, MeshBasicMaterial, MeshStandardMaterial} from 'three';
 import {Theme} from 'src/utils/themes';
 import {getDarkenedColor} from 'src/utils/color-math';
 
@@ -24,6 +24,10 @@ export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
     cubeyGLTF.scene.children.forEach((child) => {
       const bodyPart = child.name.split('_')[0] as keyof typeof colorMap;
       const color = colorMap[bodyPart];
+      // This is a hack and the .gltf should be updated
+      if (bodyPart === 'upper-body') {
+        ((child as Mesh).material as MeshStandardMaterial).roughness = 0.7;
+      }
       if (color) {
         ((child as Mesh).material as MeshBasicMaterial).color = color;
       }
