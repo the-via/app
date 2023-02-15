@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import styled from 'styled-components';
 
 export const HiddenInput = styled.input`
@@ -50,6 +50,7 @@ export function AccentSlider(props: Props) {
   const {isChecked, onChange} = props;
 
   const [isHiddenChecked, setIsHiddenChecked] = React.useState(isChecked);
+  const ref = useRef<HTMLInputElement>(null);
 
   // If the parent isChecked changes, update our local checked state
   React.useEffect(() => {
@@ -60,11 +61,15 @@ export function AccentSlider(props: Props) {
     const newIsChecked = !isChecked;
     setIsHiddenChecked(newIsChecked);
     onChange(newIsChecked);
+    if (ref.current) {
+      ref.current.blur();
+    }
   };
 
   return (
     <Switch>
       <HiddenInput
+        ref={ref}
         type="checkbox"
         checked={isHiddenChecked}
         onChange={hiddenOnChange}

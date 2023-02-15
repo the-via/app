@@ -117,11 +117,13 @@ export const IndentedControlRow = styled(ControlRow)`
 
 export const Label = styled.label`
   color: var(--color_label);
+  font-weight: 400;
 `;
 
 export const SubLabel = styled(Label)`
   font-size: 18px;
   font-style: italic;
+  font-weight: 400;
 `;
 
 export const Detail = styled.span`
