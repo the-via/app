@@ -138,6 +138,8 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
+        const newSequence = getSliceableSequence();
+        setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
       }
     },
     [setIsRecording],
