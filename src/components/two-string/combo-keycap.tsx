@@ -173,7 +173,7 @@ export const ComboKeycap = (props: any) => {
             ></TestOverlay>
           ) : null}
         </ComboKeyBoundingContainer>
-        {(true || props.macroData || props.overflowsTexture) && (
+        {(props.macroData || props.overflowsTexture) && (
           <TooltipContainer rotate={props.rotation[2]}>
             <Keycap2DTooltip>
               {props.macroData || (props.label && props.label.tooltipLabel)}
