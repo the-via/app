@@ -109,6 +109,7 @@ const KeycodeDesc = styled.div`
   padding: 5px;
   font-size: 14px;
   opacity: 1;
+  pointer-events: none;
   &:empty {
     opacity: 0;
   }

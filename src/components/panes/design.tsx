@@ -57,6 +57,9 @@ import {
 } from 'src/store/designSlice';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
+import {MessageDialog} from '../inputs/message-dialog';
+
+const hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -245,6 +248,15 @@ export const DesignTab: FC = () => {
         evt.stopPropagation();
       }}
     >
+      <MessageDialog
+        isOpen={!hideDesignWarning}
+        onClose={() => sessionStorage.setItem('hideDesignWarning', '1')}
+      >
+        This view is intended for debugging and adding one-off keyboards that
+        don't make sense to store in the VIA Repository. Please contact your
+        keyboard's maker to add your keyboard to VIA's Repository to avoid
+        having to manually add the definition.
+      </MessageDialog>
       <SinglePaneFlexCell ref={flexRef}>
         {!definition && (
           <UploadIcon

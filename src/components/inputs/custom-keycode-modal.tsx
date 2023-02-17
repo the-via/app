@@ -1,6 +1,6 @@
 import React, {useState, VFC} from 'react';
 import styled from 'styled-components';
-import {AccentButton} from './accent-button';
+import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
 import {
   anyKeycodeToString,
@@ -14,44 +14,12 @@ import {
   getBasicKeyToByte,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-
-const ModalBackground = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.75);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-`;
-
-const ModalContainer = styled.div`
-  width: 480px;
-  height: 200px;
-  background-color: var(--bg_control);
-  border-radius: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-`;
-
-const PromptText = styled.h4`
-  font-weight: 500;
-  color: var(--color_label);
-  font-size: 20px;
-  margin: 0 0 20px 0;
-`;
-
-const RowDiv = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 220px;
-`;
+import {
+  ModalBackground,
+  ModalContainer,
+  PromptText,
+  RowDiv,
+} from './dialog-base';
 
 const AutocompleteContainer = styled.li`
   position: fixed;
@@ -239,7 +207,8 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           </AutocompleteContainer>
         </div>
         <RowDiv>
-          <AccentButton
+          <AccentButton onClick={props.onExit}>Cancel</AccentButton>
+          <PrimaryAccentButton
             disabled={!isValid}
             onClick={() => {
               props.onConfirm(
@@ -248,8 +217,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
             }}
           >
             Confirm
-          </AccentButton>
-          <AccentButton onClick={props.onExit}>Cancel</AccentButton>
+          </PrimaryAccentButton>
         </RowDiv>
       </ModalContainer>
     </ModalBackground>
