@@ -8,6 +8,7 @@ import {
   calculateKeyboardFrameDimensions,
   calculatePointPosition,
   CSSVarObject,
+  getComboKeyProps,
   getKeyboardRowPartitions,
   getKeyId,
   getLabel,
@@ -118,7 +119,6 @@ export const KeyGroup: React.VFC<{
     return props.keys.map((k, i) => {
       const {
         position,
-        meshKey,
         rotation,
         scale,
         color,
@@ -132,6 +132,7 @@ export const KeyGroup: React.VFC<{
 
       return (
         <Keycap
+          {...getComboKeyProps(k)}
           mode={props.mode}
           key={key}
           position={position}

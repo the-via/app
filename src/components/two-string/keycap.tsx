@@ -6,15 +6,16 @@ import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
 import * as THREE from 'three';
 import {Keycap2DTooltip} from '../inputs/tooltip';
+import {ComboKeycap} from './combo-keycap';
 import {EncoderKey} from './encoder';
+import {
+  CanvasContainer,
+  DisplayMode,
+  KeycapContainer,
+  TestOverlay,
+  TooltipContainer,
+} from './keycap-base';
 const DEBUG_ENABLE = false;
-
-export enum DisplayMode {
-  Test = 1,
-  Configure = 2,
-  Design = 3,
-  ConfigureColors = 4,
-}
 
 export enum KeycapState {
   Pressed = 1,
@@ -346,6 +347,35 @@ export const Keycap = React.memo(
           color: props.color.c,
         }}
       />
+    ) : props.clipPath ? (
+      <ComboKeycap
+        {...props}
+        onClick={onClick}
+        onPointerDown={onPointerDown}
+        onPointerOver={onPointerOver}
+        onPointerOut={onPointerOut}
+        keycapZ={keycapZ}
+        keycapOpacity={keycapOpacity}
+        keycapColor={keycapColor}
+        canvasRef={canvasRef}
+        macroData={macroData}
+        overflowsTexture={overflowsTexture}
+        style={{
+          transform: `translate(${
+            CSSVarObject.keyWidth / 2 +
+            props.position[0] -
+            (CSSVarObject.keyXPos * textureWidth - CSSVarObject.keyXSpacing) / 2
+          }px,${
+            CSSVarObject.keyHeight / 2 +
+            props.position[1] -
+            (CSSVarObject.keyYPos * textureHeight - CSSVarObject.keyYSpacing) /
+              2
+          }px) rotate(${-props.rotation[2]}rad)`,
+          width: textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
+          height:
+            textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
+        }}
+      />
     ) : (
       <>
         <KeycapContainer
@@ -361,9 +391,10 @@ export const Keycap = React.memo(
               (CSSVarObject.keyXPos * textureWidth - CSSVarObject.keyXSpacing) /
                 2
             }px,${
+              CSSVarObject.keyHeight / 2 +
               props.position[1] -
-              (CSSVarObject.keyHeight * textureHeight -
-                CSSVarObject.keyHeight) /
+              (CSSVarObject.keyYPos * textureHeight -
+                CSSVarObject.keyYSpacing) /
                 2
             }px) rotate(${-props.rotation[2]}rad)`,
             width:
@@ -391,18 +422,12 @@ export const Keycap = React.memo(
             }}
           >
             {DisplayMode.Test === mode ? (
-              <div
+              <TestOverlay
                 style={{
                   background: keycapColor,
                   opacity: keycapOpacity,
-                  transition: 'all 0.2s ease-out',
-                  position: 'absolute',
-                  left: 0,
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
                 }}
-              ></div>
+              ></TestOverlay>
             ) : null}
             <CanvasContainer
               style={{
@@ -428,28 +453,6 @@ export const Keycap = React.memo(
   shallowEqual,
 );
 
-const KeycapContainer = styled.div<{position: [number, number]}>`
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 52px;
-  height: 54px;
-  &:hover {
-    z-index: 1;
-    & .tooltip {
-      transform: scale(1) translateY(0px);
-      opacity: 1;
-    }
-  }
-  .tooltip {
-    transform: translateY(5px) scale(0.6);
-    opacity: 0;
-  }
-`;
-const CanvasContainer = styled.div<{}>`
-  box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
-    inset 1px 1px 0 rgb(255 255 255 / 10%);
-`;
 const GlowContainer = styled.div<{selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
@@ -463,11 +466,4 @@ const GlowContainer = styled.div<{selected: boolean}>`
     animation: 0.5s 1 forwards select-glow;
   }
 `;
-
-const TooltipContainer = styled.div<{rotate: number}>`
-  position: absolute;
-  transform: rotate(${(p) => p.rotate}rad);
-  width: 100%;
-  height: 100%;
-  bottom: 0;
-`;
+export {DisplayMode};
