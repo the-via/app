@@ -22,6 +22,8 @@ import {
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
   DefinitionVersionMap,
+  VIADefinitionV2,
+  VIADefinitionV3,
 } from '@the-via/reader';
 import type {DefinitionVersion} from '@the-via/reader';
 import {
@@ -39,12 +41,12 @@ import {
   IconContainer,
 } from './grid';
 import {useDispatch} from 'react-redux';
-import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
+import {selectDevice, ensureSupportedIds} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getCustomDefinitions,
-  loadCustomDefinition,
+  loadCustomDefinitions,
 } from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
@@ -108,17 +110,23 @@ const UploadIcon = styled.div`
   }
 `;
 
-const makeReaderPromise = (file: File): Promise<string> => {
+const makeReaderPromise = (file: File): Promise<[string, string]> => {
   return new Promise((res, rej) => {
     const reader = new FileReader();
     reader.onload = () => {
       if (!reader.result) return rej();
-      res(reader.result.toString());
+      res([file.name, reader.result.toString()]);
     };
     reader.onerror = rej;
     reader.onabort = rej;
     reader.readAsBinaryString(file);
   });
+};
+
+const isVIADefinition = (
+  definition: VIADefinitionV2 | VIADefinitionV3 | null | undefined,
+): definition is VIADefinitionV2 | VIADefinitionV3 => {
+  return isVIADefinitionV2(definition) || isVIADefinitionV3(definition);
 };
 
 // TODO: move this inside function component and then use the closured dispatch?
@@ -128,69 +136,70 @@ function importDefinitions(
   dispatch: Dispatch<any>,
   setErrors: (errors: string[]) => void,
 ) {
-  Promise.all(files.map(makeReaderPromise)).then((results) =>
-    results.forEach((result) => {
-      try {
-        const res = JSON.parse(result.toString());
-        const isValid =
-          version === 'v2'
-            ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
-            : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
-        if (isValid) {
-          setErrors([]);
-          const definition =
+  Promise.all(files.map(makeReaderPromise)).then((results) => {
+    let errors: string[] = [];
+    setErrors([]);
+    const definitions = results
+      .map(([fileName, result]) => {
+        if (errors.length > 0) {
+          return null;
+        }
+        try {
+          const res = JSON.parse(result.toString());
+          const isValid =
             version === 'v2'
-              ? isVIADefinitionV2(res)
+              ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
+              : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
+          if (isValid) {
+            const definition =
+              version === 'v2'
+                ? isVIADefinitionV2(res)
+                  ? res
+                  : keyboardDefinitionV2ToVIADefinitionV2(res)
+                : isVIADefinitionV3(res)
                 ? res
-                : keyboardDefinitionV2ToVIADefinitionV2(res)
-              : isVIADefinitionV3(res)
-              ? res
-              : keyboardDefinitionV3ToVIADefinitionV3(res);
-
-          if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
-            const commonMenuKeys = Object.keys(getCommonMenus());
-            const lookupFailedKeys = (res.menus || []).filter((menu) => {
-              if (typeof menu === 'string') {
-                return !commonMenuKeys.includes(menu);
-              }
-              return false;
-            });
-            if (lookupFailedKeys.length) {
-              throw Error(
-                `Menu key lookup failed for: ${lookupFailedKeys.join(', ')}`,
-              );
-            }
-          }
-          dispatch(loadCustomDefinition({definition, version}));
-
-          dispatch(
-            ensureSupportedId({
-              productId: definition.vendorProductId as number,
-              version,
-            }),
-          );
-          dispatch(selectDevice(null));
-          dispatch(reloadConnectedDevices());
-        } else {
-          setErrors(
-            (version === 'v2'
-              ? isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []
-              : isKeyboardDefinitionV3.errors || isVIADefinitionV3.errors || []
+                : keyboardDefinitionV3ToVIADefinitionV3(res);
+            return definition;
+          } else {
+            errors = (
+              version === 'v2'
+                ? isKeyboardDefinitionV2.errors ||
+                  isVIADefinitionV2.errors ||
+                  []
+                : isKeyboardDefinitionV3.errors ||
+                  isVIADefinitionV3.errors ||
+                  []
             ).map(
               (e) =>
-                `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
-            ),
-          );
+                `${fileName} ${e.dataPath ? e.dataPath + ': ' : 'Object: '}${
+                  e.message
+                }`,
+            );
+          }
+        } catch (err: any) {
+          if (err.name) {
+            errors.push(`${err.name}: ${err.message}`);
+          } else {
+            errors.push(`${err}`);
+          }
         }
-      } catch (err: any) {
-        if (err.name) {
-          setErrors([`${err.name}: ${err.message}`]);
-        } else {
-          setErrors([`${err}`]);
-        }
-      }
-    }),
-  );
+      })
+      .filter(isVIADefinition);
+
+    if (errors.length) {
+      setErrors(errors);
+    } else {
+      dispatch(loadCustomDefinitions({definitions, version}));
+      dispatch(
+        ensureSupportedIds({
+          productIds: definitions.map((d) => d.vendorProductId),
+          version,
+        }),
+      );
+      dispatch(selectDevice(null));
+      dispatch(reloadConnectedDevices());
+    }
+  });
 }
 
 function onDrop(
