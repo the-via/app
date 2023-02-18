@@ -9,6 +9,7 @@ import {
 import {KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
+  DefinitionVersionMap,
   KeyboardDictionary,
   VIADefinitionV2,
   VIADefinitionV3,
@@ -22,6 +23,7 @@ import {
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
+import {del, entries, update} from 'idb-keyval';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -46,6 +48,33 @@ const definitionsSlice = createSlice({
     updateDefinitions: (state, action: PayloadAction<KeyboardDictionary>) => {
       state.definitions = {...state.definitions, ...action.payload};
     },
+    loadInitialCustomDefinitions: (
+      state,
+      action: PayloadAction<KeyboardDictionary>,
+    ) => {
+      state.customDefinitions = action.payload;
+    },
+    unloadCustomDefinition: (
+      state,
+      action: PayloadAction<{
+        id: number;
+        version: DefinitionVersion;
+      }>,
+    ) => {
+      const {version, id} = action.payload;
+      const definitionEntry = state.customDefinitions[id];
+      if (Object.keys(definitionEntry).length === 1) {
+        delete state.customDefinitions[id];
+        del(id);
+      } else {
+        delete definitionEntry[version];
+        update(id, (d) => {
+          delete d[version];
+          return d;
+        });
+      }
+      state.customDefinitions = {...state.customDefinitions};
+    },
     loadCustomDefinition: (
       state,
       action: PayloadAction<{
@@ -69,8 +98,13 @@ const definitionsSlice = createSlice({
   },
 });
 
-export const {loadCustomDefinition, updateDefinitions, updateLayoutOptions} =
-  definitionsSlice.actions;
+export const {
+  loadCustomDefinition,
+  loadInitialCustomDefinitions,
+  updateDefinitions,
+  unloadCustomDefinition,
+  updateLayoutOptions,
+} = definitionsSlice.actions;
 
 export default definitionsSlice.reducer;
 
@@ -186,6 +220,27 @@ export const updateLayoutOption =
     );
   };
 
+export const loadStoredCustomDefinitions =
+  (): AppThunk => async (dispatch, getState) => {
+    try {
+      const dictionaryEntries: [string, DefinitionVersionMap][] =
+        await entries();
+      const keyboardDictionary = dictionaryEntries
+        .filter(([key]) => {
+          console.log(key);
+
+          return ['string', 'number'].includes(typeof key);
+        })
+        .reduce((p, n) => {
+          console.log(n);
+          return {...p, [n[0]]: n[1]};
+        }, {} as KeyboardDictionary);
+      // Each entry should be in the form of [id, {v2:..., v3:...}]
+      dispatch(loadInitialCustomDefinitions(keyboardDictionary));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const selectedDefinition = getSelectedDefinition(state);

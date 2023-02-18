@@ -47,6 +47,7 @@ export const deviceSlice = createSlice({
     ) => {
       const {productId, version} = action.payload;
       state.supportedIds[productId] = state.supportedIds[productId] ?? {};
+      // Side effect
       state.supportedIds[productId][version] = true;
     },
   },

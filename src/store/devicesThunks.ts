@@ -15,6 +15,7 @@ import {
   updateDefinitions,
   getDefinitions,
   getBasicKeyToByte,
+  loadStoredCustomDefinitions,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
 import {updateLightingData} from './lightingSlice';
@@ -140,5 +141,6 @@ export const loadSupportedIds = (): AppThunk => async (dispatch) => {
   await syncStore();
   dispatch(updateSupportedIds(getSupportedIdsFromStore()));
   dispatch(updateDefinitions(getDefinitionsFromStore()));
+  await dispatch(loadStoredCustomDefinitions());
   dispatch(reloadConnectedDevices());
 };
