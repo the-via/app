@@ -47,6 +47,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {
   getCustomDefinitions,
   loadCustomDefinitions,
+  storeCustomDefinitions,
 } from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
@@ -190,6 +191,7 @@ function importDefinitions(
       setErrors(errors);
     } else {
       dispatch(loadCustomDefinitions({definitions, version}));
+      dispatch(storeCustomDefinitions({definitions, version}));
       dispatch(
         ensureSupportedIds({
           productIds: definitions.map((d) => d.vendorProductId),

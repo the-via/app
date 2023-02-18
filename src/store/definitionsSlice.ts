@@ -19,11 +19,12 @@ import type {AppThunk, RootState} from './index';
 import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
+  ensureSupportedIds,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
-import {del, entries, update} from 'idb-keyval';
+import {del, entries, setMany, update} from 'idb-keyval';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -222,6 +223,33 @@ export const updateLayoutOption =
     );
   };
 
+export const storeCustomDefinitions =
+  ({
+    definitions,
+    version,
+  }: {
+    definitions: (VIADefinitionV2 | VIADefinitionV3)[];
+    version: DefinitionVersion;
+  }): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const allCustomDefinitions = getCustomDefinitions(getState());
+      const entries = definitions.map((definition) => {
+        return [
+          definition.vendorProductId,
+          {
+            ...allCustomDefinitions[definition.vendorProductId],
+            [version]: definition,
+          },
+        ] as [IDBValidKey, DefinitionVersionMap];
+      });
+      return setMany(entries);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  };
+
 export const loadStoredCustomDefinitions =
   (): AppThunk => async (dispatch, getState) => {
     try {
@@ -239,6 +267,19 @@ export const loadStoredCustomDefinitions =
         }, {} as KeyboardDictionary);
       // Each entry should be in the form of [id, {v2:..., v3:...}]
       dispatch(loadInitialCustomDefinitions(keyboardDictionary));
+
+      const [v2Ids, v3Ids] = dictionaryEntries.reduce(
+        ([v2Ids, v3Ids], [entryId, definitionVersionMap]) => [
+          definitionVersionMap.v2 ? [...v2Ids, Number(entryId)] : v2Ids,
+          definitionVersionMap.v3 ? [...v3Ids, Number(entryId)] : v3Ids,
+        ],
+
+        [[] as number[], [] as number[]],
+      );
+
+      console.log(v2Ids, v3Ids, 'hello friends :D:D:D:D');
+      dispatch(ensureSupportedIds({productIds: v2Ids, version: 'v2'}));
+      dispatch(ensureSupportedIds({productIds: v3Ids, version: 'v3'}));
     } catch (e) {
       console.error(e);
     }
