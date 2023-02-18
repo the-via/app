@@ -15,28 +15,17 @@ import {
   getConfigureKeyboardIsSelectable,
   clearSelectedKey,
 } from 'src/store/keymapSlice';
-import {Globals} from '@react-spring/shared';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {getSelectedTheme} from 'src/store/settingsSlice';
 import cubeySrc from 'assets/models/cubey.glb';
-import {AccentButtonLarge} from '../inputs/accent-button';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {reloadConnectedDevices} from 'src/store/devicesThunks';
-import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
-import {LoaderCubey} from './loader-cubey';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardRouteGroup} from './keyboard-route-group';
 import styled from 'styled-components';
 import {Object3D} from 'three';
-import {Camera} from './camera';
 import {getDarkenedColor} from 'src/utils/color-math';
-import {webGLIsAvailable} from 'src/utils/test-webgl';
-Globals.assign({
-  frameLoop: 'always',
-});
 
 const KeyboardBG = styled.div<{
   onClick: () => void;
