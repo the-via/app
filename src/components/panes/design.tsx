@@ -59,7 +59,7 @@ import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
 
-const hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
+let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -250,7 +250,10 @@ export const DesignTab: FC = () => {
     >
       <MessageDialog
         isOpen={!hideDesignWarning}
-        onClose={() => sessionStorage.setItem('hideDesignWarning', '1')}
+        onClose={() => {
+          sessionStorage.setItem('hideDesignWarning', '1');
+          hideDesignWarning = '1';
+        }}
       >
         This view is intended for debugging and adding one-off keyboards that
         don't make sense to store in the VIA Repository. Please contact your
