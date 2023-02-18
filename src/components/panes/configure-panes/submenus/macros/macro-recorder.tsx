@@ -138,11 +138,18 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
-        const newSequence = getSliceableSequence();
-        setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
+        if (!showVerboseKeyState && !recordWaitTimes) {
+          const optimizedSequence = rawSequenceToOptimizedSequence(
+            keycodeSequence.filter(
+              ([action]) =>
+                showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
+            ),
+          );
+          setKeycodeSequence(optimizedSequenceToRawSequence(optimizedSequence));
+        }
       }
     },
-    [setIsRecording],
+    [keycodeSequence, setIsRecording],
   );
   const deleteMacro = useCallback(() => {
     saveMacro('');
@@ -201,6 +208,7 @@ export const MacroRecorder: React.FC<{
     showWaitTimes,
     selectedMacro,
   ]);
+
   useEffect(() => {
     if (displayedSequence) {
       setUnsavedMacro(
