@@ -399,20 +399,17 @@ export const DesignTab: FC = () => {
                       .padStart(8, '0')
                       .toUpperCase()}
                     <IconButtonUnfilledContainer
+                      onClick={() => {
+                        dispatch(
+                          unloadCustomDefinition({
+                            id: definition[definitionVersion].vendorProductId,
+                            version: definitionVersion,
+                          }),
+                        );
+                      }}
                       style={{marginLeft: 10, borderRadius: 4}}
                     >
-                      <FontAwesomeIcon
-                        icon={faXmark}
-                        size={'lg'}
-                        onClick={() => {
-                          dispatch(
-                            unloadCustomDefinition({
-                              id: definition[definitionVersion].vendorProductId,
-                              version: definitionVersion,
-                            }),
-                          );
-                        }}
-                      />
+                      <FontAwesomeIcon icon={faXmark} size={'lg'} />
                     </IconButtonUnfilledContainer>
                   </Detail>
                 </IndentedControlRow>
