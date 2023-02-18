@@ -107,12 +107,14 @@ export const ControlRow = styled.div`
   line-height: 50px;
   min-height: 50px;
   box-sizing: border-box;
+  padding-left: 5px;
+  padding-right: 5px;
 `;
 
 export const SubControlRow = styled(ControlRow)``;
 
 export const IndentedControlRow = styled(ControlRow)`
-  padding-left: 12px;
+  padding-left: 17px;
 `;
 
 export const Label = styled.label`

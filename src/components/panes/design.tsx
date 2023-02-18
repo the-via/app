@@ -8,12 +8,7 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
 import Layouts from '../Layouts';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faArrowUpFromBracket,
-  faBook,
-  faPlus,
-  faUpload,
-} from '@fortawesome/free-solid-svg-icons';
+import {faBook, faUpload, faXmark} from '@fortawesome/free-solid-svg-icons';
 import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
@@ -48,6 +43,7 @@ import {
   getCustomDefinitions,
   loadCustomDefinitions,
   storeCustomDefinitions,
+  unloadCustomDefinition,
 } from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
@@ -61,6 +57,12 @@ import {
 import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
+import {Deletable} from './configure-panes/submenus/macros/deletable';
+import {AccentButton} from '../inputs/accent-button';
+import {
+  IconButtonContainer,
+  IconButtonUnfilledContainer,
+} from '../inputs/icon-button';
 
 let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
@@ -386,13 +388,32 @@ export const DesignTab: FC = () => {
             </ControlRow>
             {versionDefinitions.map((definition) => {
               return (
-                <IndentedControlRow>
+                <IndentedControlRow
+                  key={`${definitionVersion}-${definition[definitionVersion].vendorProductId}`}
+                >
                   <SubLabel>{definition[definitionVersion].name}</SubLabel>
                   <Detail>
                     0x
                     {definition[definitionVersion].vendorProductId
                       .toString(16)
+                      .padStart(8, '0')
                       .toUpperCase()}
+                    <IconButtonUnfilledContainer
+                      style={{marginLeft: 10, borderRadius: 4}}
+                    >
+                      <FontAwesomeIcon
+                        icon={faXmark}
+                        size={'lg'}
+                        onClick={() => {
+                          dispatch(
+                            unloadCustomDefinition({
+                              id: definition[definitionVersion].vendorProductId,
+                              version: definitionVersion,
+                            }),
+                          );
+                        }}
+                      />
+                    </IconButtonUnfilledContainer>
                   </Detail>
                 </IndentedControlRow>
               );
