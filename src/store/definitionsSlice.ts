@@ -75,22 +75,24 @@ const definitionsSlice = createSlice({
       }
       state.customDefinitions = {...state.customDefinitions};
     },
-    loadCustomDefinition: (
+    loadCustomDefinitions: (
       state,
       action: PayloadAction<{
-        definition: VIADefinitionV2 | VIADefinitionV3;
+        definitions: (VIADefinitionV2 | VIADefinitionV3)[];
         version: DefinitionVersion;
       }>,
     ) => {
-      const {version, definition} = action.payload;
-      const definitionEntry =
-        state.customDefinitions[definition.vendorProductId] ?? {};
-      if (version === 'v2') {
-        definitionEntry[version] = definition as VIADefinitionV2;
-      } else {
-        definitionEntry[version] = definition as VIADefinitionV3;
-      }
-      state.customDefinitions[definition.vendorProductId] = definitionEntry;
+      const {version, definitions} = action.payload;
+      definitions.forEach((definition) => {
+        const definitionEntry =
+          state.customDefinitions[definition.vendorProductId] ?? {};
+        if (version === 'v2') {
+          definitionEntry[version] = definition as VIADefinitionV2;
+        } else {
+          definitionEntry[version] = definition as VIADefinitionV3;
+        }
+        state.customDefinitions[definition.vendorProductId] = definitionEntry;
+      });
     },
     updateLayoutOptions: (state, action: PayloadAction<LayoutOptionsMap>) => {
       state.layoutOptionsMap = {...state.layoutOptionsMap, ...action.payload};
@@ -99,7 +101,7 @@ const definitionsSlice = createSlice({
 });
 
 export const {
-  loadCustomDefinition,
+  loadCustomDefinitions,
   loadInitialCustomDefinitions,
   updateDefinitions,
   unloadCustomDefinition,

@@ -41,14 +41,16 @@ export const deviceSlice = createSlice({
     updateSupportedIds: (state, action: PayloadAction<VendorProductIdMap>) => {
       state.supportedIds = action.payload;
     },
-    ensureSupportedId: (
+    ensureSupportedIds: (
       state,
-      action: PayloadAction<{productId: number; version: DefinitionVersion}>,
+      action: PayloadAction<{productIds: number[]; version: DefinitionVersion}>,
     ) => {
-      const {productId, version} = action.payload;
-      state.supportedIds[productId] = state.supportedIds[productId] ?? {};
-      // Side effect
-      state.supportedIds[productId][version] = true;
+      const {productIds, version} = action.payload;
+      productIds.forEach((productId) => {
+        state.supportedIds[productId] = state.supportedIds[productId] ?? {};
+        // Side effect
+        state.supportedIds[productId][version] = true;
+      });
     },
   },
 });
@@ -57,7 +59,7 @@ export const {
   selectDevice,
   updateConnectedDevices,
   updateSupportedIds,
-  ensureSupportedId,
+  ensureSupportedIds,
 } = deviceSlice.actions;
 
 export default deviceSlice.reducer;
