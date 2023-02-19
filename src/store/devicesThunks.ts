@@ -22,6 +22,7 @@ import {updateLightingData} from './lightingSlice';
 import {loadMacros} from './macrosSlice';
 import {updateV3MenuData} from './menusSlice';
 import {
+  clearAllDevices,
   getConnectedDevices,
   getSelectedDevicePath,
   getSupportedIds,
@@ -86,9 +87,14 @@ export const selectConnectedDevice =
       selectConnectedDeviceRetry.clear();
     } catch (e) {
       console.log('Loading keyboard failed:', e);
-      selectConnectedDeviceRetry.retry(() => {
-        dispatch(selectConnectedDevice(connectedDevice));
-      });
+      if (selectConnectedDeviceRetry.retriesLeft()) {
+        selectConnectedDeviceRetry.retry(() => {
+          dispatch(selectConnectedDevice(connectedDevice));
+        });
+      } else {
+        console.log('Hard resetting device store:', e);
+        dispatch(clearAllDevices());
+      }
     }
   };
 

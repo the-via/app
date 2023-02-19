@@ -38,6 +38,10 @@ export const deviceSlice = createSlice({
     ) => {
       state.connectedDevices = action.payload;
     },
+    clearAllDevices: (state) => {
+      state.selectedDevicePath = null;
+      state.connectedDevices = {};
+    },
     updateSupportedIds: (state, action: PayloadAction<VendorProductIdMap>) => {
       state.supportedIds = action.payload;
     },
@@ -56,6 +60,7 @@ export const deviceSlice = createSlice({
 });
 
 export const {
+  clearAllDevices,
   selectDevice,
   updateConnectedDevices,
   updateSupportedIds,
