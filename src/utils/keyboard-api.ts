@@ -658,7 +658,7 @@ export class KeyboardAPI {
       );
       throw new Error('Receiving incorrect response for command');
     }
-    console.info(
+    console.debug(
       `Command for ${this.kbAddr}`,
       commandBytes,
       'Correct Resp:',
