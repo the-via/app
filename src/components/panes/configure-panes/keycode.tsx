@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, useMemo} from 'react';
+import {FC, useState, useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';

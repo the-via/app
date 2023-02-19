@@ -6,7 +6,6 @@ import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
 import * as THREE from 'three';
 import {KeycapTooltip} from '../inputs/tooltip';
-const DEBUG_ENABLE = false;
 
 export enum DisplayMode {
   Test = 1,

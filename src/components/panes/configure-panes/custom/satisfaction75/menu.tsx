@@ -1,5 +1,4 @@
-// TODO: test this still works on a satisfaction75
-import React, {Component} from 'react';
+import {Component} from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import {

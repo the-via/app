@@ -1,4 +1,4 @@
-import React, {useState, useMemo, FC, useCallback} from 'react';
+import {useState, useMemo, FC, useCallback} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';

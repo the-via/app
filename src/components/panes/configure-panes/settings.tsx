@@ -1,4 +1,3 @@
-import React from 'react';
 import {title, component} from '../../icons/tune';
 import {OverflowCell} from '../grid';
 

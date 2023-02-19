@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect} from 'react';
+import {FC, useState, useEffect} from 'react';
 import {Detail, Label, OverflowCell, ControlRow} from '../grid';
 import {CenterPane} from '../pane';
 import styled from 'styled-components';

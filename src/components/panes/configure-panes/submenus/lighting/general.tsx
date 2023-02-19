@@ -1,4 +1,3 @@
-import React from 'react';
 import type {FC} from 'react';
 import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';

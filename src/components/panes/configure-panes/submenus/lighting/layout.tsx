@@ -1,4 +1,3 @@
-import React from 'react';
 import {ControlRow, Label, Detail} from '../../../grid';
 import {AccentSlider} from '../../../../inputs/accent-slider';
 import {

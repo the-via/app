@@ -1,4 +1,4 @@
-import React, {FC, useState} from 'react';
+import {FC, useState} from 'react';
 import styled from 'styled-components';
 import stringify from 'json-stringify-pretty-compact';
 import {ErrorMessage, SuccessMessage} from '../../styled';

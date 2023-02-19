@@ -1,4 +1,4 @@
-import React, {useState, VFC} from 'react';
+import {useState, VFC} from 'react';
 import styled from 'styled-components';
 import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';

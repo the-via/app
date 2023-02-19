@@ -1,7 +1,7 @@
-import {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
-import {VIAKey, KeyColorType, DefinitionVersionMap} from '@the-via/reader';
+import {VIAKey, DefinitionVersionMap} from '@the-via/reader';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedKeyDefinitions,
