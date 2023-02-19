@@ -31,6 +31,9 @@ import {
 } from './devicesSlice';
 import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
 import type {KeyboardDictionary} from '@the-via/reader';
+import {createRetry} from 'src/utils/retry';
+
+const selectConnectedDeviceRetry = createRetry(8, 100);
 
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
@@ -68,20 +71,24 @@ export const selectConnectedDevice =
       );
       const {basicKeyToByte} = getBasicKeyToByte(getState());
       dispatch(selectDevice(connectedDevice));
-      dispatch(loadMacros(connectedDevice, basicKeyToByte));
-      dispatch(loadLayoutOptions());
+      await dispatch(loadMacros(connectedDevice, basicKeyToByte));
+      await dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
       if (protocol < 11) {
-        dispatch(updateLightingData(connectedDevice));
+        await dispatch(updateLightingData(connectedDevice));
       }
       if (protocol >= 11) {
-        dispatch(updateV3MenuData(connectedDevice));
+        await dispatch(updateV3MenuData(connectedDevice));
       }
 
-      dispatch(loadKeymapFromDevice(connectedDevice));
+      await dispatch(loadKeymapFromDevice(connectedDevice));
+      selectConnectedDeviceRetry.clear();
     } catch (e) {
       console.log('Loading keyboard failed:', e);
+      selectConnectedDeviceRetry.retry(() => {
+        dispatch(selectConnectedDevice(connectedDevice));
+      });
     }
   };
 
