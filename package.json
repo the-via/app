@@ -22,7 +22,7 @@
     "@react-hook/resize-observer": "^1.2.6",
     "@reduxjs/toolkit": "^1.6.1",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.5.10",
+    "@the-via/reader": "^1.6.0",
     "@types/lodash.partition": "^4.6.6",
     "@webscopeio/react-textarea-autocomplete": "^4.7.3",
     "downshift": "^6.1.7",
