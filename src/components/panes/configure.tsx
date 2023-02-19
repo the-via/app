@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
@@ -39,8 +39,7 @@ import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
 import {useAppDispatch} from 'src/store/hooks';
-import {useProgress} from '@react-three/drei';
-import {CategoryMenuTooltip, MenuTooltip} from '../inputs/tooltip';
+import {MenuTooltip} from '../inputs/tooltip';
 import {getRenderMode, getSelectedTheme} from 'src/store/settingsSlice';
 
 const MenuContainer = styled.div`
@@ -155,10 +154,7 @@ export const Loader: React.FC<{
   const noSupportedIds = !Object.values(supportedIds).length;
   const noConnectedDevices = !Object.values(connectedDevices).length;
   const [showButton, setShowButton] = useState<boolean>(false);
-  const fullProgress = useProgress();
-  const {progress} = fullProgress;
-  const chippyProgress =
-    loadProgress > 0 ? (loadProgress + progress / 100) / 2 : loadProgress;
+
   useEffect(() => {
     // TODO: Remove the timeout because it is funky
     const timeout = setTimeout(() => {

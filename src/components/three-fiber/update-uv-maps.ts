@@ -16,8 +16,7 @@ export const UpdateUVMaps = () => {
       // 1U scale to texture unit
       const size1u = 1 / 2.6;
       const geometry100u = u100.geometry as BufferGeometry;
-      const {min, max} = geometry100u!.boundingBox as Box3;
-      const maxRangeY = max.y - min.y;
+      const {min} = geometry100u!.boundingBox as Box3;
       // 1U in mm (which is also mesh units)
       const unitScale = 19.05;
       // This is the offset between the cherry grid corner and a keycap corner in mm

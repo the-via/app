@@ -4,7 +4,6 @@ import {TestKeyState} from 'src/types/types';
 import {getDarkenedColor} from 'src/utils/color-math';
 import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
-import * as THREE from 'three';
 import {Keycap2DTooltip} from '../inputs/tooltip';
 import {ComboKeycap} from './combo-keycap';
 import {EncoderKey} from './encoder';
@@ -15,7 +14,6 @@ import {
   TestOverlay,
   TooltipContainer,
 } from './keycap-base';
-const DEBUG_ENABLE = false;
 
 export enum KeycapState {
   Pressed = 1,
@@ -168,9 +166,6 @@ const paintKeycap = (
   label: any,
   textureOffsetX: number,
 ) => {
-  const keycapRect = {bl: {x: 0, y: 0}, tr: {x: 1, y: 1}};
-  const faceRect = keycapRect;
-
   const [canvasWidth, canvasHeight] = [
     CSSVarObject.keyWidth,
     CSSVarObject.keyHeight,
@@ -265,7 +260,7 @@ export const Keycap = React.memo(
         : hovered || selected
         ? KeycapState.Pressed
         : KeycapState.Unpressed;
-    const [keycapZ, rotationZ] =
+    const [keycapZ] =
       pressedState === KeycapState.Pressed
         ? [zDown, rotation[2]]
         : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];

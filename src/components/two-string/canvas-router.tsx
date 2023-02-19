@@ -7,7 +7,7 @@ import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {ConfigureKeyboard, Design, Test} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {SpotLight, useProgress} from '@react-three/drei';
+import {useProgress} from '@react-three/drei';
 import {
   getLoadProgress,
   updateSelectedKey,
@@ -22,7 +22,6 @@ import {getSelectedTheme} from 'src/store/settingsSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardRouteGroup} from './keyboard-route-group';
 import styled from 'styled-components';
-import {Object3D} from 'three';
 import {getDarkenedColor} from 'src/utils/color-math';
 
 const KeyboardBG = styled.div<{
@@ -41,51 +40,6 @@ const KeyboardBG = styled.div<{
     )} 50%, rgba(150,150,150,1) 90%)`};
   opacity: ${(props) => (props.visible ? 1 : 0)};
 `;
-const Lights = React.memo(() => {
-  const x = 3;
-  const y = 0.5;
-  const z = -15;
-  const spotlightY = 12;
-  const spotlightZ = -19;
-  const ref = useRef<THREE.SpotLight>(null);
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.shadow.mapSize.width = 2048;
-      ref.current.shadow.mapSize.height = 2048;
-    }
-  }, [ref.current]);
-  const targetObj = React.useMemo(() => {
-    const obj = new Object3D();
-    obj.position.set(0, 0, spotlightZ);
-    obj.updateMatrixWorld();
-    return obj;
-  }, []);
-  // Setting for better perf on slower machines
-  const renderAllLights = true;
-  return renderAllLights ? (
-    <>
-      <ambientLight intensity={0.0} />
-      <SpotLight
-        ref={ref}
-        distance={spotlightY + 3}
-        position={[0, spotlightY, spotlightZ + 2]}
-        angle={Math.PI / 5}
-        attenuation={5}
-        target={targetObj}
-        intensity={10}
-        castShadow={true}
-        anglePower={5} // Diffuse-cone anglePower (default: 5)
-      ></SpotLight>
-      <pointLight position={[x, y, z]} intensity={0.8} />
-      <pointLight position={[-x, y, z]} intensity={0.8} />
-    </>
-  ) : (
-    <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[-0.5, y, z]} intensity={1.5} />
-    </>
-  );
-}, shallowEqual);
 
 export const CanvasRouter = () => {
   const [path] = useLocation();

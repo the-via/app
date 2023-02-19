@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import svgSrc from 'assets/images/squarey.svg';
 import imgSrc from 'assets/images/chippy_600.png';
 import {Theme} from 'src/utils/themes';
 import {getDarkenedColor} from 'src/utils/color-math';

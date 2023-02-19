@@ -1,11 +1,8 @@
-import {KeyColorType, VIAKey} from '@the-via/reader';
+import {KeyColorType} from '@the-via/reader';
 import React from 'react';
 import {useMemo} from 'react';
 import {shallowEqual} from 'react-redux';
-import {
-  getSelectedDefinition,
-  getSelectedKeyDefinitions,
-} from 'src/store/definitionsSlice';
+import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedTheme} from 'src/store/settingsSlice';
 import {getDarkenedColor} from 'src/utils/color-math';
@@ -161,11 +158,7 @@ const SimplePlate: React.FC<{width: number; height: number}> = ({
 }) => {
   const depthOffset = 0.5;
   const heightOffset = 0.5;
-  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
-    getSelectedKeyDefinitions,
-  );
   const definition = useAppSelector(getSelectedDefinition);
-  const macros = useAppSelector((state) => state.macros);
   if (!definition) {
     return null;
   }
@@ -311,7 +304,6 @@ const makeShape2 = (layoutHeight: number) => {
   let radius = 2;
 
   let baseAngle = Math.PI / 2;
-  let inclineAngle = (Math.PI * 7.5) / 180;
 
   path.moveTo(-topWidth, halfY);
   path.absarc(

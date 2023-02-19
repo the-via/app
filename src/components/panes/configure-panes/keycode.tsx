@@ -21,7 +21,7 @@ import {
   isVIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {OverflowCell, SubmenuOverflowCell, Row, SubmenuRow} from '../grid';
+import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getBasicKeyToByte,
@@ -30,7 +30,6 @@ import {
 } from 'src/store/definitionsSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
-  getNumberOfLayers,
   getSelectedKey,
   getSelectedKeymap,
   updateKey as updateKeyAction,
@@ -155,7 +154,6 @@ export const KeycodePane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
-  const layerCount = useAppSelector(getNumberOfLayers);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const KeycodeCategories = useMemo(
     () => generateKeycodeCategories(basicKeyToByte),

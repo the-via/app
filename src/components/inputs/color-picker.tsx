@@ -263,7 +263,7 @@ export class ColorPicker extends Component<Props, State> {
 
   render() {
     const color = this.getRGB(this.props.color);
-    const {isSelected = false, onOpen, onClose} = this.props;
+    const {isSelected = false} = this.props;
     const {offset} = this.state;
 
     const lensTransform = `translate3d(${offset[0] - 5}px, ${

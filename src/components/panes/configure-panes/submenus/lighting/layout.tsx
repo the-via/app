@@ -6,7 +6,6 @@ import {
   isVIADefinitionV2,
   LightingValue,
 } from '@the-via/reader';
-import {useDispatch} from 'react-redux';
 import {
   getSelectedLightingData,
   updateBacklightValue,

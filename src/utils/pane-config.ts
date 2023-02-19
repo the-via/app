@@ -1,5 +1,4 @@
 import {
-  faArrowUpFromBracket,
   faBrush,
   faBug,
   faGear,

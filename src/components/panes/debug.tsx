@@ -1,4 +1,4 @@
-import {useRef, useState, FC, useEffect, useCallback, useMemo} from 'react';
+import {useState, FC, useEffect, useCallback} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
@@ -9,7 +9,7 @@ import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {getKLEFiles, authGithub, getUser} from '../../utils/github';
+import {authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
   Label,
@@ -33,14 +33,11 @@ import {
   getBasicKeyToByte,
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
-import {useSize} from 'src/utils/use-size';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {ColorPalettePicker} from '../inputs/color-palette-picker';
-import {get256HSV, getHSV, getRandomColor} from 'src/utils/color-math';
 import {useDispatch} from 'react-redux';
 import {
   getSelected256PaletteColor,
-  getSelectedPaletteColor,
   setSelectedPaletteColor,
 } from 'src/store/keymapSlice';
 import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
@@ -255,9 +252,6 @@ export const Debug: FC = () => {
     value: `${index}`,
   }));
   const entry = allDefinitions[selectedDefinitionIndex];
-
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
 
   return (
     <Pane>

@@ -18,24 +18,6 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const MenuItem = styled.button<{selected?: boolean}>`
-  background: ${(props) => (props.selected ? 'var(--bg_icon)' : 'none')};
-  border: none;
-  font-family: inherit;
-  outline: none;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 18px;
-  margin: 0 5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  color: ${(props) =>
-    props.selected ? 'var(--color_label-highlighted)' : 'var(--color_label)'};
-  &:hover {
-    color: var(--color_label-highlighted);
-  }
-`;
-
 const {DEBUG_PROD, MODE, DEV} = import.meta.env;
 const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 

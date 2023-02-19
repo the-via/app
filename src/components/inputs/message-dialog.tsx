@@ -1,7 +1,7 @@
 import {PropsWithChildren, useCallback, useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
-import {ModalContainer, PromptText, RowDiv} from './dialog-base';
+import {ModalContainer, PromptText} from './dialog-base';
 
 const MessageDialogContainer = styled.dialog`
   padding: 0;

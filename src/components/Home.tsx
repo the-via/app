@@ -1,4 +1,4 @@
-import React, {createRef, useEffect, useState} from 'react';
+import React, {createRef, useEffect} from 'react';
 import styled from 'styled-components';
 import {getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';

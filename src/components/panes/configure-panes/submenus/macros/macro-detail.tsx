@@ -5,12 +5,7 @@ import {AccentSlider} from '../../../../inputs/accent-slider';
 import {MacroRecorder} from './macro-recorder';
 import {useAppSelector} from 'src/store/hooks';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faCheck,
-  faCode,
-  faGear,
-  faXmark,
-} from '@fortawesome/free-solid-svg-icons';
+import {faCode, faGear} from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
@@ -87,9 +82,6 @@ const TabContainer = styled.div`
 `;
 const CenterTabContainer = styled(TabContainer)`
   justify-content: center;
-`;
-const EndTabContainer = styled(TabContainer)`
-  justify-content: flex-end;
 `;
 
 type Props = {

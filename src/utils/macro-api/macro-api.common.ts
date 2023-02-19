@@ -244,7 +244,6 @@ export function sequenceToExpression(
 ): string {
   let result: string[] = [];
   sequence.forEach((element) => {
-    const action: number = element[0] as number;
     switch (element[0]) {
       case RawKeycodeSequenceAction.Tap:
         result.push('{' + element[1] + '}');

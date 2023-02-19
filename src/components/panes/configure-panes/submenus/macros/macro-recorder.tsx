@@ -1,5 +1,3 @@
-import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {AccentSlider} from 'src/components/inputs/accent-slider';
 import {ControlRow, Detail, Label} from 'src/components/panes/grid';

@@ -10,7 +10,6 @@ import {
   VIADefinitionV3,
 } from '@the-via/reader';
 import {LightingControl} from './lighting-control';
-import {useDispatch} from 'react-redux';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedLightingData,

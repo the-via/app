@@ -1,4 +1,4 @@
-import React, {FC, useState, createRef} from 'react';
+import React, {FC, useState} from 'react';
 import styled from 'styled-components';
 import stringify from 'json-stringify-pretty-compact';
 import {ErrorMessage, SuccessMessage} from '../../styled';
@@ -62,7 +62,7 @@ export const Pane: FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const getEncoderValues = async () => {
-    const {name, vendorProductId, layouts} = selectedDefinition;
+    const {layouts} = selectedDefinition;
     const {keys, optionKeys} = layouts;
     const encoders = [
       ...keys,

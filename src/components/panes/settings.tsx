@@ -5,7 +5,6 @@ import {
   ControlRow,
   Label,
   Detail,
-  OverflowCell,
   Grid,
   MenuCell,
   Row,

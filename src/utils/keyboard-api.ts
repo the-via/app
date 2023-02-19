@@ -499,7 +499,6 @@ export class KeyboardAPI {
     // Can only get 28 bytes at a time
     const size = 28;
     const bytesP = [];
-    const bytes = [];
     for (let offset = 0; offset < macroBufferSize; offset += 28) {
       bytesP.push(
         this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [

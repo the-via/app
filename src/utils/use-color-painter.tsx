@@ -1,6 +1,6 @@
 import {ThreeEvent} from '@react-three/fiber';
 import {VIAKey} from '@the-via/reader';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedCustomMenuData} from 'src/store/menusSlice';

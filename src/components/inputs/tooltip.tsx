@@ -1,8 +1,4 @@
-import {KeyColorType} from '@the-via/reader';
 import {PropsWithChildren, useMemo} from 'react';
-import {useAppSelector} from 'src/store/hooks';
-import {getSelectedTheme} from 'src/store/settingsSlice';
-import {getColors} from 'src/utils/keyboard-rendering';
 
 export const Keycap2DTooltip: React.FC<PropsWithChildren> = (props) => {
   const styles = useMemo(

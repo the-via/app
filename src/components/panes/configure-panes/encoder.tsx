@@ -4,16 +4,12 @@ import {CenterPane} from '../pane';
 import styled from 'styled-components';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {PelpiKeycodeInput} from 'src/components/inputs/pelpi/keycode-input';
-import {
-  getSelectedDefinition,
-  getSelectedKeyDefinitions,
-} from 'src/store/definitionsSlice';
+import {getSelectedKeyDefinitions} from 'src/store/definitionsSlice';
 import {
   getSelectedKey,
   getSelectedKeymap,
   getSelectedLayerIndex,
   updateKey,
-  updateSelectedKey,
 } from 'src/store/keymapSlice';
 import type {VIAKey} from '@the-via/reader';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';

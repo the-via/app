@@ -1,4 +1,4 @@
-import React, {FC, useContext, useEffect} from 'react';
+import React, {FC, useContext} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
@@ -7,8 +7,6 @@ import {
   ControlRow,
   Label,
   Detail,
-  OverflowCell,
-  Grid1Col,
   MenuCell,
   Row,
   IconContainer,
@@ -29,14 +27,9 @@ import {
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
-import Icon from './configure-panes/custom/icon';
 import {MenuTooltip} from '../inputs/tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faCircleQuestion,
-  faSquare,
-  faSquareCheck,
-} from '@fortawesome/free-solid-svg-icons';
+import {faCircleQuestion} from '@fortawesome/free-solid-svg-icons';
 import {useProgress} from '@react-three/drei';
 
 const Container = styled.div`

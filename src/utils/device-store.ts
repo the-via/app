@@ -12,7 +12,6 @@ import type {
   VendorProductIdMap,
   Settings,
   Device,
-  CommonMenusMap,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 

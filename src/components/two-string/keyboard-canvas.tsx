@@ -1,4 +1,3 @@
-import {ThreeEvent} from '@react-three/fiber';
 import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
 import React, {useMemo} from 'react';
 import {shallowEqual} from 'react-redux';
