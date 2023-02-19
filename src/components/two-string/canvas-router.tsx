@@ -1,4 +1,3 @@
-import {Canvas} from '@react-three/fiber';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   getCustomDefinitions,
@@ -8,7 +7,7 @@ import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {ConfigureKeyboard, Design, Test} from './keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {Html, SpotLight, useGLTF, useProgress} from '@react-three/drei';
+import {SpotLight, useProgress} from '@react-three/drei';
 import {
   getLoadProgress,
   updateSelectedKey,
@@ -20,7 +19,6 @@ import {shallowEqual} from 'react-redux';
 import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {getSelectedTheme} from 'src/store/settingsSlice';
-import cubeySrc from 'assets/models/cubey.glb';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardRouteGroup} from './keyboard-route-group';
 import styled from 'styled-components';
@@ -103,7 +101,6 @@ export const CanvasRouter = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
   const theme = useAppSelector(getSelectedTheme);
-  const cubey = useGLTF(cubeySrc);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);

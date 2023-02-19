@@ -13,7 +13,6 @@ import {
   Float,
   Html,
   OrbitControls,
-  PresentationControls,
   SpotLight,
   useGLTF,
   useProgress,
@@ -73,12 +72,10 @@ export const CanvasRouter = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
   const theme = useAppSelector(getSelectedTheme);
-  const cubey = useGLTF(cubeySrc);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const [fontLoaded, setLoaded] = useState(false);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
-  console.log(cubey, 'cubey');
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
