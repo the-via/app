@@ -228,14 +228,45 @@ const KeyboardGroup = React.memo((props: any) => {
   const {loadProgress, configureKeyboardIsSelectable, containerDimensions} =
     props;
   const [path] = useLocation();
+  const ref = useRef<HTMLDivElement>(null);
   const routeX = getRouteX(path);
-  console.log('bla');
-  const style = {
+  const animation = {
     transition: 'transform 0.25s ease-in-out',
-    transform: `translate(${routeX}vw,0px)`,
+    transform: `translate(${routeX}vw, 0px)`,
   };
+
+  const addTransition = useCallback(() => {
+    if (ref.current) {
+      ref.current.style.transition = animation.transition;
+    }
+  }, [ref.current]);
+
+  const removeTransition = useCallback(() => {
+    if (ref.current) {
+      ref.current.style.transition = '';
+    }
+  }, [ref.current]);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.addEventListener('transitionend', removeTransition);
+      ref.current.style.transform = animation.transform;
+    }
+    return () => {
+      if (ref.current) {
+        ref.current?.removeEventListener('transitionend', removeTransition);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (ref.current && ref.current.style.transform !== animation.transform) {
+      addTransition();
+      ref.current.style.transform = animation.transform;
+    }
+  }, [routeX]);
   return (
-    <KeyboardGroupContainer style={style}>
+    <KeyboardGroupContainer ref={ref}>
       <Keyboards
         configureKeyboardIsSelectable={configureKeyboardIsSelectable}
         loadProgress={loadProgress}
