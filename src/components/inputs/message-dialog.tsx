@@ -21,6 +21,11 @@ const MessageDialogContainer = styled.dialog`
     transform: translateY(0px);
   }
 `;
+export const Controls = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 export const MessageDialog: React.FC<
   PropsWithChildren<{
     isOpen: boolean;
@@ -52,9 +57,9 @@ export const MessageDialog: React.FC<
     <MessageDialogContainer ref={ref}>
       <ModalContainer>
         <PromptText>{props.children}</PromptText>
-        <RowDiv>
+        <Controls>
           <AccentButton onClick={closeModalWithCallback}>Confirm</AccentButton>
-        </RowDiv>
+        </Controls>
       </ModalContainer>
     </MessageDialogContainer>
   );

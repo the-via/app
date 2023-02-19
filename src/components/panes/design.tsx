@@ -261,10 +261,9 @@ export const DesignTab: FC = () => {
           hideDesignWarning = '1';
         }}
       >
-        This view is intended for debugging and adding one-off keyboards that
-        don't make sense to store in the VIA Repository. Please contact your
-        keyboard's maker to add your keyboard to VIA's Repository to avoid
-        having to manually add the definition.
+        This feature is intended for development purposes. If your keyboard is
+        not recognized automatically by VIA, please contact your keyboard's
+        manufacturer or vendor.
       </MessageDialog>
       <SinglePaneFlexCell ref={flexRef}>
         {!definition && (
