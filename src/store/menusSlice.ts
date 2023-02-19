@@ -142,7 +142,7 @@ export const updateV3MenuData =
       const maxLedIndex = Math.max(
         ...definition.layouts.keys.map((key) => key.li ?? -1),
       );
-      console.log(maxLedIndex, 'max');
+      console.debug(maxLedIndex, 'maxLedIndex');
 
       if (maxLedIndex >= 0) {
         // Ask for PerKeyRGBValues -- hardcoded to 62

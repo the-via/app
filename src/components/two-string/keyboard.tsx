@@ -181,7 +181,6 @@ export const TestKeyboard = (props: {
     pressedKeys,
     definition,
   } = props;
-  console.log(containerDimensions);
   if (!containerDimensions) {
     return null;
   }

@@ -9,7 +9,6 @@ const ZOOM = DEBUG ? 1 : 5.5 * 0.8;
 export const Camera = () => {
   const {progress} = useProgress();
   const camera = useThree((state) => state.camera);
-  //const [startX, endX] = [10, 7];
   const [startX, endX] = [7, 7];
   const glow = useSpring({
     config: {duration: 800},
@@ -18,15 +17,15 @@ export const Camera = () => {
 
   React.useEffect(() => {
     if (progress === 100) {
-      console.log('lets animate');
+      console.debug('lets animate');
       glow.x.start(endX);
     }
   }, [progress]);
 
   React.useEffect(() => {
-    console.log('mounting');
+    console.debug('mounting');
     return () => {
-      console.log('unmounting');
+      console.debug('unmounting');
     };
   }, []);
   useFrame(() => {

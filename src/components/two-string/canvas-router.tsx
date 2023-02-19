@@ -107,7 +107,6 @@ export const CanvasRouter = () => {
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
-  console.log(cubey, 'cubey');
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
@@ -229,7 +228,6 @@ const KeyboardGroup = React.memo((props: any) => {
     props;
   const [path] = useLocation();
   const routeX = getRouteX(path);
-  console.log('bla');
   const style = {
     transition: 'transform 0.25s ease-in-out',
     transform: `translate(${routeX}vw,0px)`,

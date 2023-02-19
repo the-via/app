@@ -263,12 +263,9 @@ export const loadStoredCustomDefinitions =
         await entries();
       const keyboardDictionary = dictionaryEntries
         .filter(([key]) => {
-          console.log(key);
-
           return ['string', 'number'].includes(typeof key);
         })
         .reduce((p, n) => {
-          console.log(n);
           return {...p, [n[0]]: n[1]};
         }, {} as KeyboardDictionary);
       // Each entry should be in the form of [id, {v2:..., v3:...}]
@@ -283,7 +280,6 @@ export const loadStoredCustomDefinitions =
         [[] as number[], [] as number[]],
       );
 
-      console.log(v2Ids, v3Ids, 'hello friends :D:D:D:D');
       dispatch(ensureSupportedIds({productIds: v2Ids, version: 'v2'}));
       dispatch(ensureSupportedIds({productIds: v3Ids, version: 'v3'}));
     } catch (e) {
