@@ -3,6 +3,8 @@ import svgSrc from 'assets/images/squarey.svg';
 import imgSrc from 'assets/images/chippy_600.png';
 import {Theme} from 'src/utils/themes';
 import {getDarkenedColor} from 'src/utils/color-math';
+import {getSelectedTheme} from 'src/store/settingsSlice';
+import {useAppSelector} from 'src/store/hooks';
 
 const defaultChippy = {
   width: 300,
@@ -21,6 +23,7 @@ const CircleContainer = styled.div<{
   containerHeight: number;
   containerWidth: number;
   progress: number | null;
+  progressColor: string;
 }>`
   border-radius: 50%;
   background-color: var(--bg_icon);
@@ -44,7 +47,7 @@ const CircleContainer = styled.div<{
     width: ${(props) => props.containerWidth}px;
     position: absolute;
     content: '';
-    background-color: var(--color_accent);
+    background-color: ${(p) => p.progressColor};
     top: ${(props) => props.containerHeight + 1}px;
     left: 0;
     right: 0;
@@ -241,10 +244,13 @@ export default function ChippyLoader(props: Props) {
     height + containerPadding * 2,
     width + containerPadding * 2,
   ];
+  const selectedTheme = useAppSelector(getSelectedTheme);
+
   return (
     <LoaderContainer {...{containerHeight, containerWidth}}>
       <CircleContainer
         progress={props.progress}
+        progressColor={getDarkenedColor(selectedTheme.accent.c, 0.9)}
         {...{containerHeight, containerWidth}}
       >
         <div
