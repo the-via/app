@@ -188,9 +188,8 @@ export class KeyboardAPI {
       const [, count] = await this.hidCommand(DYNAMIC_KEYMAP_GET_LAYER_COUNT);
       return count;
     }
-    if (version === PROTOCOL_ALPHA) {
-      return 4;
-    }
+
+    return 4;
   }
 
   async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<Keymap> {
@@ -310,7 +309,7 @@ export class KeyboardAPI {
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(GET_KEYBOARD_VALUE, bytes);
-    return res.slice(2, 2 + resultLength);
+    return Array.from(res.slice(2, 2 + resultLength));
   }
 
   async setKeyboardValue(command: KeyboardValue, ...rest: number[]) {
@@ -324,10 +323,7 @@ export class KeyboardAPI {
     isClockwise: boolean,
   ): Promise<number> {
     const bytes = [layer, id, +isClockwise];
-    const res: number[] = await this.hidCommand(
-      DYNAMIC_KEYMAP_GET_ENCODER,
-      bytes,
-    );
+    const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_ENCODER, bytes);
     return shiftTo16Bit([res[4], res[5]]);
   }
 
@@ -343,7 +339,7 @@ export class KeyboardAPI {
 
   async getCustomMenuValue(commandBytes: number[]): Promise<number[]> {
     const res = await this.hidCommand(CUSTOM_MENU_GET_VALUE, commandBytes);
-    return res.slice(0 + commandBytes.length);
+    return Array.from(res.slice(0 + commandBytes.length));
   }
 
   async setCustomMenuValue(...args: number[]): Promise<void> {
@@ -383,7 +379,7 @@ export class KeyboardAPI {
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(BACKLIGHT_CONFIG_GET_VALUE, bytes);
-    return res.slice(2, 2 + resultLength);
+    return Array.from(res.slice(2, 2 + resultLength));
   }
 
   async setBacklightValue(command: LightingValue, ...rest: number[]) {
@@ -577,7 +573,10 @@ export class KeyboardAPI {
     });
   }
 
-  async hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
+  async hidCommand(
+    command: Command,
+    bytes: Array<number> = [],
+  ): Promise<Uint8Array> {
     return new Promise((res, rej) => {
       this.commandQueueWrapper.commandQueue.push({
         res,

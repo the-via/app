@@ -1,3 +1,4 @@
+import {EncoderBehavior} from 'src/types/types';
 import type {KeyboardAPI} from '../../../../../utils/keyboard-api';
 
 const GET_KEYBOARD_VALUE = 0x02;
@@ -52,7 +53,7 @@ export const setOLEDMode = async (api: KeyboardAPI, newDefaultMode: number) => {
 export const getCustomEncoderConfig = async (
   api: KeyboardAPI,
   encoderIdx: number,
-) => {
+): Promise<EncoderBehavior> => {
   const bytes = [KB_VALUES.ENCODER_CUSTOM, encoderIdx];
   const raw = await api.hidCommand(GET_KEYBOARD_VALUE, bytes);
   const [, , , cw1, cw2, ccw1, ccw2, press1, press2] = raw;

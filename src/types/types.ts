@@ -100,3 +100,5 @@ export type DefinitionIndex = Pick<
   supportedVendorProductIdMap: VendorProductIdMap;
   hash: string;
 };
+
+export type EncoderBehavior = [number, number, number];
