@@ -121,8 +121,14 @@ export const getLayoutOptionsMap = (state: RootState) =>
 export const getDefinitions = createSelector(
   getBaseDefinitions,
   getCustomDefinitions,
-  (definitions, customDefinitions) =>
-    ({...definitions, ...customDefinitions} as KeyboardDictionary),
+  (definitions, customDefinitions) => {
+    return Object.entries(customDefinitions).reduce(
+      (p, [id, definitionMap]) => {
+        return {...p, [id]: {...p[id], ...definitionMap}};
+      },
+      {...definitions},
+    );
+  },
 );
 
 export const getSelectedDefinition = createSelector(
