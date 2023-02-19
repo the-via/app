@@ -7,7 +7,10 @@ import {
   isVIADefinitionV2,
   LightingValue,
 } from '@the-via/reader';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardApi,
+} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
   reloadConnectedDevices,
@@ -31,7 +34,6 @@ import {
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {mapEvtToKeycode} from 'src/utils/key-event';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -103,6 +105,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const api = useAppSelector(getSelectedKeyboardApi);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
@@ -157,7 +160,6 @@ export const Home: React.VFC<HomeProps> = (props) => {
     if (!selectedDevice) {
       return;
     }
-    const api = new KeyboardAPI(selectedDevice.path);
 
     // TODO: Some sort of toggling lights on v3 firmware
     if (!isVIADefinitionV2(selectedDefinition)) {

@@ -1,7 +1,7 @@
 import {useState, FC, useEffect, useCallback} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {KeyboardAPI, KeyboardValue} from '../../utils/keyboard-api';
+import {KeyboardValue} from '../../utils/keyboard-api';
 import {anyKeycodeToString} from '../../utils/advanced-keys';
 import {MusicalKeySlider} from '../inputs/musical-key-slider';
 import {AccentSelect} from '../inputs/accent-select';
@@ -24,7 +24,7 @@ import {AccentRange} from '../inputs/accent-range';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getConnectedDevices,
-  getSelectedConnectedDevice,
+  getSelectedKeyboardApi,
 } from 'src/store/devicesSlice';
 import {
   getBaseDefinitions,
@@ -215,8 +215,7 @@ const TestControls = () => {
 };
 
 export const Debug: FC = () => {
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = selectedDevice ? new KeyboardAPI(selectedDevice.path) : null;
+  const api = useAppSelector(getSelectedKeyboardApi);
   const connectedDevices = useAppSelector(getConnectedDevices);
 
   // Temporary patch that gets the page to load

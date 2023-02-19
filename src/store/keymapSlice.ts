@@ -14,6 +14,7 @@ import {
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardApi,
   selectDevice,
 } from './devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
@@ -138,8 +139,7 @@ export const loadKeymapFromDevice =
     }
 
     const {path, vendorProductId, requiredDefinitionVersion} = connectedDevice;
-
-    const api = new KeyboardAPI(path);
+    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
 
     const numberOfLayers = await api.getLayerCount();
     dispatch(setNumberOfLayers(numberOfLayers));
@@ -160,12 +160,12 @@ export const saveRawKeymapToDevice =
   async (dispatch, getState) => {
     const state = getState();
     const {path} = connectedDevice;
+    const api = getSelectedKeyboardApi(state);
     const definition = getSelectedDefinition(state);
-    if (!path || !definition) {
+    if (!path || !definition || !api) {
       return;
     }
 
-    const api = new KeyboardAPI(path);
     const {matrix} = definition;
 
     await api.writeRawMatrix(matrix, keymap);
@@ -182,14 +182,14 @@ export const updateKey =
     const state = getState();
     const keys = getSelectedKeyDefinitions(state);
     const connectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardApi(state);
     const selectedDefinition = getSelectedDefinition(state);
-    if (!connectedDevice || !keys || !selectedDefinition) {
+    if (!connectedDevice || !keys || !selectedDefinition || !api) {
       return;
     }
 
     const selectedLayerIndex = getSelectedLayerIndex(state);
     const {path} = connectedDevice;
-    const api = new KeyboardAPI(path);
     const {row, col} = keys[keyIndex];
     await api.setKey(selectedLayerIndex, row, col, value);
 

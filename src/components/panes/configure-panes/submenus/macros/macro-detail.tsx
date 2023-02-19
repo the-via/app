@@ -9,9 +9,11 @@ import {faCode, faGear} from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardApi,
+} from 'src/store/devicesSlice';
 import {getMacroAPI} from 'src/utils/macro-api';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -96,11 +98,11 @@ const BufferSizeUsage = () => {
   const ast = useAppSelector((state) => state.macros.ast);
   const bufferSize = useAppSelector(getMacroBufferSize);
   const connectedDevice = useAppSelector(getSelectedConnectedDevice);
-  if (!connectedDevice) {
+  const api = useAppSelector(getSelectedKeyboardApi);
+  if (!connectedDevice || !api) {
     return null;
   }
-  const {protocol, path} = connectedDevice;
-  const api = new KeyboardAPI(path);
+  const {protocol} = connectedDevice;
   const macroApi = getMacroAPI(protocol, api);
   const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
   return (

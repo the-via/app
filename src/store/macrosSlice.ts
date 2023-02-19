@@ -9,6 +9,7 @@ import {
 } from 'src/utils/macro-api/macro-api.common';
 import {RawKeycodeSequence} from 'src/utils/macro-api/types';
 import type {ConnectedDevice} from '../types/types';
+import {getSelectedKeyboardApi} from './devicesSlice';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
@@ -56,13 +57,14 @@ export default macrosSlice.reducer;
 
 export const loadMacros =
   (connectedDevice: ConnectedDevice): AppThunk =>
-  async (dispatch) => {
-    const {path, protocol} = connectedDevice;
+  async (dispatch, getState) => {
+    const {protocol} = connectedDevice;
     if (protocol < 8) {
       dispatch(setMacrosNotSupported());
     } else {
       try {
-        const api = new KeyboardAPI(path);
+        const state = getState();
+        const api = getSelectedKeyboardApi(state) as KeyboardAPI;
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const sequences = await macroApi.readRawKeycodeSequences();
@@ -77,9 +79,10 @@ export const loadMacros =
 
 export const saveMacros =
   (connectedDevice: ConnectedDevice, macros: string[]): AppThunk =>
-  async (dispatch) => {
-    const {path, protocol} = connectedDevice;
-    const api = new KeyboardAPI(path);
+  async (dispatch, getState) => {
+    const state = getState();
+    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+    const {protocol} = connectedDevice;
     const macroApi = getMacroAPI(protocol, api);
     if (macroApi) {
       const sequences = macros.map((expression) => {

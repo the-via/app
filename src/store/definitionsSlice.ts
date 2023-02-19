@@ -6,7 +6,7 @@ import {
   packBits,
   unpackBits,
 } from '../utils/bit-pack';
-import {KeyboardAPI, KeyboardValue} from '../utils/keyboard-api';
+import {KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   DefinitionVersionMap,
@@ -20,6 +20,7 @@ import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
   ensureSupportedIds,
+  getSelectedKeyboardApi,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
@@ -195,10 +196,10 @@ export const updateLayoutOption =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const selectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardApi(state);
     const path = getSelectedDevicePath(state);
 
-    if (!definition || !selectedDevice || !path || !definition.layouts.labels) {
+    if (!definition || !api || !path || !definition.layouts.labels) {
       return;
     }
 
@@ -216,7 +217,6 @@ export const updateLayoutOption =
     );
 
     try {
-      const api = new KeyboardAPI(selectedDevice.path);
       await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
     } catch {
       console.warn('Setting layout option command not working');
@@ -290,17 +290,18 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const selectedDefinition = getSelectedDefinition(state);
   const connectedDevice = getSelectedConnectedDevice(state);
+  const api = getSelectedKeyboardApi(state);
   if (
     !connectedDevice ||
     !selectedDefinition ||
-    !selectedDefinition.layouts.labels
+    !selectedDefinition.layouts.labels ||
+    !api
   ) {
     return;
   }
 
   const {path} = connectedDevice;
   try {
-    const api = new KeyboardAPI(path);
     const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
     const options = unpackBits(
       bytesIntoNum(res),

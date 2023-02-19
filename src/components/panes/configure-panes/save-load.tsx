@@ -18,9 +18,11 @@ import {
   saveRawKeymapToDevice,
 } from 'src/store/keymapSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardApi,
+} from 'src/store/devicesSlice';
 import {getExpressions, saveMacros} from 'src/store/macrosSlice';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type ViaSaveFile = {
   name: string;
@@ -49,13 +51,14 @@ export const Pane: FC = () => {
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardApi);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
   const expressions = useAppSelector(getExpressions);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
 
   // TODO: improve typing so we can remove this
-  if (!selectedDefinition || !selectedDevice) {
+  if (!selectedDefinition || !selectedDevice || !api) {
     return null;
   }
 
@@ -76,7 +79,6 @@ export const Pane: FC = () => {
     if (encoders.length > 0) {
       const maxEncoder = Math.max(...encoders) + 1;
       const numberOfLayers = rawLayers.length;
-      const api = new KeyboardAPI(selectedDevice.path);
       const encoderValues = await Promise.all(
         Array(maxEncoder)
           .fill(0)
@@ -202,7 +204,6 @@ export const Pane: FC = () => {
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
 
-      const api = new KeyboardAPI(selectedDevice.path);
       if (saveFile.encoders) {
         await Promise.all(
           saveFile.encoders.map((encoder, id) =>

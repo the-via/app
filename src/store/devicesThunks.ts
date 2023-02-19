@@ -14,7 +14,6 @@ import {
   loadLayoutOptions,
   updateDefinitions,
   getDefinitions,
-  getBasicKeyToByte,
   loadStoredCustomDefinitions,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';

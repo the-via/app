@@ -1,5 +1,6 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {DefinitionVersion} from '@the-via/reader';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {
   ConnectedDevice,
   ConnectedDevices,
@@ -78,4 +79,8 @@ export const getSelectedConnectedDevice = createSelector(
   getConnectedDevices,
   getSelectedDevicePath,
   (devices, path) => path && devices[path],
+);
+export const getSelectedKeyboardApi = createSelector(
+  getSelectedDevicePath,
+  (path) => path && new KeyboardAPI(path),
 );

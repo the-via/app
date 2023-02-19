@@ -10,6 +10,7 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardApi,
 } from './devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 
@@ -89,7 +90,7 @@ export const updateBacklightValue =
       }),
     );
 
-    const api = new KeyboardAPI(path);
+    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
     await api.setBacklightValue(command, ...rest);
     await api.saveLighting();
   };
@@ -99,8 +100,9 @@ export const updateCustomColor =
   async (dispatch, getState) => {
     const state = getState();
     const connectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardApi(state);
     const oldLightingData = getSelectedLightingData(state);
-    if (!connectedDevice || !oldLightingData) {
+    if (!connectedDevice || !oldLightingData || !api) {
       // TODO: shoud we be throwing instead of returning whenever we do these device checks in thunks?
       return;
     }
@@ -114,7 +116,6 @@ export const updateCustomColor =
     const {path} = connectedDevice;
     dispatch(updateSelectedLightingData({lightingData, devicePath: path}));
 
-    const api = new KeyboardAPI(path);
     api.setCustomColor(idx, hue, sat);
     await api.saveLighting();
   };
@@ -124,7 +125,8 @@ export const updateLightingData =
   async (dispatch, getState) => {
     const state = getState();
     const selectedDefinition = getSelectedDefinition(state);
-    if (!selectedDefinition) {
+    const api = getSelectedKeyboardApi(state);
+    if (!selectedDefinition || !api) {
       return;
     }
 
@@ -138,7 +140,6 @@ export const updateLightingData =
 
     if (supportedLightingValues.length !== 0) {
       let props = {};
-      const api = new KeyboardAPI(path);
 
       // Special case for m6_b
       if (

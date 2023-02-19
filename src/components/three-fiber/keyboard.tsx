@@ -16,7 +16,7 @@ import {
 } from 'src/store/keymapSlice';
 import {KeyboardCanvas} from './keyboard-canvas';
 import {useLocation} from 'wouter';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {getSelectedKeyboardApi} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
@@ -36,7 +36,6 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 enum DisplayMode {
   Test = 1,
@@ -322,7 +321,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
   const isShowingTest = path === '/test';
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardApi);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
@@ -330,10 +329,6 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     (state) => getSelectedKeymap(state) || [],
   );
 
-  const api =
-    selectedDevice &&
-    selectedDevice.path &&
-    new KeyboardAPI(selectedDevice.path);
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
     !isTestMatrixEnabled && isShowingTest,
   );

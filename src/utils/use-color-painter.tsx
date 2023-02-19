@@ -1,17 +1,20 @@
 import {ThreeEvent} from '@react-three/fiber';
 import {VIAKey} from '@the-via/reader';
 import {useCallback, useEffect, useState} from 'react';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardApi,
+} from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedCustomMenuData} from 'src/store/menusSlice';
 import {getHSVFrom256} from './color-math';
-import {KeyboardAPI} from './keyboard-api';
 
 export const useColorPainter = (
   keys: VIAKey[],
   selectedPaletteColor: [number, number],
 ) => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardApi);
   const customMenuData = useAppSelector(getSelectedCustomMenuData) || {
     __perKeyRGB: [],
   };
@@ -34,8 +37,7 @@ export const useColorPainter = (
 
   const onKeycapPointerHandler = useCallback(
     (evt: ThreeEvent<MouseEvent> | React.MouseEvent, idx: number) => {
-      if (evt.buttons === 1 && selectedDevice) {
-        const api = new KeyboardAPI(selectedDevice.path);
+      if (evt.buttons === 1 && api) {
         const hue = Math.round((selectedPaletteColor[0] * 255) / 360);
         const sat = Math.round(selectedPaletteColor[1] * 255);
         const ledIndex = keys[idx].li;
