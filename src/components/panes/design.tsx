@@ -2,7 +2,6 @@ import {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
-import {getCommonMenus} from 'src/utils/device-store';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
@@ -27,7 +26,6 @@ import {
   SubLabel,
   Detail,
   IndentedControlRow,
-  OverflowCell,
   SinglePaneFlexCell,
   Grid,
   SpanOverflowCell,
@@ -57,12 +55,7 @@ import {
 import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
-import {Deletable} from './configure-panes/submenus/macros/deletable';
-import {AccentButton} from '../inputs/accent-button';
-import {
-  IconButtonContainer,
-  IconButtonUnfilledContainer,
-} from '../inputs/icon-button';
+import {IconButtonUnfilledContainer} from '../inputs/icon-button';
 
 let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 

@@ -26,7 +26,7 @@
     "@react-three/fiber": "^8.9.1",
     "@reduxjs/toolkit": "^1.9.0",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.5.10",
+    "@the-via/reader": "^1.6.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^6.1.7",
     "idb-keyval": "^6.2.0",
