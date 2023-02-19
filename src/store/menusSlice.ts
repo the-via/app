@@ -13,7 +13,6 @@ import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
 } from './devicesSlice';
-import {getCommonMenus} from 'src/utils/device-store';
 import {
   makeCustomMenu,
   makeCustomMenus,
