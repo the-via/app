@@ -126,7 +126,7 @@ export const getDefinitions = createSelector(
       (p, [id, definitionMap]) => {
         return {...p, [id]: {...p[id], ...definitionMap}};
       },
-      {...definitions},
+      definitions,
     );
   },
 );
