@@ -17,6 +17,7 @@ import {
   makeCustomMenu,
   makeCustomMenus,
 } from 'src/components/panes/configure-panes/custom/menu-generator';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
@@ -85,13 +86,15 @@ export const updateCustomMenuValue =
       ...menuData,
       [command]: [...rest.slice(commands[command].length)],
     };
-    const {api, device} = connectedDevice;
+    const {device} = connectedDevice;
     dispatch(
       updateSelectedCustomMenuData({
         menuData: data,
         devicePath: device.path,
       }),
     );
+
+    const api = new KeyboardAPI(device);
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
@@ -113,15 +116,18 @@ export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {api, protocol, device} = connectedDevice;
-
     const definition = getSelectedDefinition(state);
+
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
     const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
+    const {protocol, device} = connectedDevice;
+
     if (commands.length !== 0 && protocol >= 11) {
+      const api = new KeyboardAPI(device);
+
       let props = {} as CustomMenuData;
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
         command: name,

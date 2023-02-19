@@ -16,6 +16,7 @@ import {
   getSelectedDevicePath,
   selectDevice,
 } from './devicesSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 export type KeymapState = {
   rawDeviceMap: DeviceLayerMap;
@@ -136,8 +137,10 @@ export const loadKeymapFromDevice =
       return;
     }
 
-    const {api, device, vendorProductId, requiredDefinitionVersion} =
+    const {device, vendorProductId, requiredDefinitionVersion} =
       connectedDevice;
+
+    const api = new KeyboardAPI(device);
 
     const numberOfLayers = await api.getLayerCount();
     dispatch(setNumberOfLayers(numberOfLayers));
@@ -157,12 +160,13 @@ export const saveRawKeymapToDevice =
   (keymap: number[][], connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {api} = connectedDevice;
+    const {device} = connectedDevice;
     const definition = getSelectedDefinition(state);
-    if (!api || !definition) {
+    if (!device || !definition) {
       return;
     }
 
+    const api = new KeyboardAPI(device);
     const {matrix} = definition;
 
     await api.writeRawMatrix(matrix, keymap);
@@ -187,7 +191,8 @@ export const updateKey =
     }
 
     const selectedLayerIndex = getSelectedLayerIndex(state);
-    const {api, device} = connectedDevice;
+    const {device} = connectedDevice;
+    const api = new KeyboardAPI(device);
     const {row, col} = keys[keyIndex];
     await api.setKey(selectedLayerIndex, row, col, value);
 

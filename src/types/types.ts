@@ -45,7 +45,6 @@ export type WebVIADevice = Device & {
 };
 
 export type ConnectedDevice = {
-  api: KeyboardAPI;
   device: Device;
   vendorProductId: number;
   protocol: number;

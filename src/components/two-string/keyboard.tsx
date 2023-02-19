@@ -36,6 +36,7 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 enum DisplayMode {
   Test = 1,
@@ -329,7 +330,10 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     (state) => getSelectedKeymap(state) || [],
   );
 
-  const api = selectedDevice && selectedDevice.api;
+  const api =
+    selectedDevice &&
+    selectedDevice.device &&
+    new KeyboardAPI(selectedDevice.device);
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
     !isTestMatrixEnabled && isShowingTest,
   );

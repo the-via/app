@@ -70,9 +70,8 @@ export const selectConnectedDevice =
         connectedDevice,
         getDefinitions(getState()),
       );
-      const {basicKeyToByte} = getBasicKeyToByte(getState());
       dispatch(selectDevice(connectedDevice));
-      await dispatch(loadMacros(connectedDevice, basicKeyToByte));
+      await dispatch(loadMacros(connectedDevice));
       await dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
@@ -121,7 +120,6 @@ export const reloadConnectedDevices =
       (devices, device, idx) => {
         const protocol = protocolVersions[idx];
         devices[device.path] = {
-          api: new KeyboardAPI(device),
           device,
           protocol,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',

@@ -6,7 +6,7 @@ import {
   packBits,
   unpackBits,
 } from '../utils/bit-pack';
-import {KeyboardValue} from '../utils/keyboard-api';
+import {KeyboardAPI, KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   DefinitionVersionMap,
@@ -195,17 +195,16 @@ export const updateLayoutOption =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const device = getSelectedConnectedDevice(state);
+    const selectedDevice = getSelectedConnectedDevice(state);
     const path = getSelectedDevicePath(state);
 
-    if (!definition || !device || !path || !definition.layouts.labels) {
+    if (!definition || !selectedDevice || !path || !definition.layouts.labels) {
       return;
     }
 
     const optionsNums = definition.layouts.labels.map((layoutLabel) =>
       Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
     );
-    const {api} = device;
 
     // Clone the existing options into a new array so it can be modified with
     // the new layout index
@@ -217,6 +216,7 @@ export const updateLayoutOption =
     );
 
     try {
+      const api = new KeyboardAPI(selectedDevice.device);
       await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
     } catch {
       console.warn('Setting layout option command not working');
@@ -298,8 +298,9 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     return;
   }
 
-  const {api, device} = connectedDevice;
+  const {device} = connectedDevice;
   try {
+    const api = new KeyboardAPI(device);
     const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
     const options = unpackBits(
       bytesIntoNum(res),

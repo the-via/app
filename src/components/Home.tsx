@@ -31,6 +31,7 @@ import {
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {mapEvtToKeycode} from 'src/utils/key-event';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -156,7 +157,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
     if (!selectedDevice) {
       return;
     }
-    const {api} = selectedDevice;
+    const api = new KeyboardAPI(selectedDevice.device);
 
     // TODO: Some sort of toggling lights on v3 firmware
     if (!isVIADefinitionV2(selectedDefinition)) {

@@ -11,6 +11,7 @@ import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
 } from './devicesSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type LightingMap = {[devicePath: string]: LightingData};
 
@@ -80,13 +81,15 @@ export const updateBacklightValue =
       ...selectedLightingData,
       [command]: [...rest],
     };
-    const {api, device} = connectedDevice;
+    const {device} = connectedDevice;
     dispatch(
       updateSelectedLightingData({
         lightingData,
         devicePath: device.path,
       }),
     );
+
+    const api = new KeyboardAPI(device);
     await api.setBacklightValue(command, ...rest);
     await api.saveLighting();
   };
@@ -108,10 +111,12 @@ export const updateCustomColor =
       ...oldLightingData,
       customColors,
     };
-    const {api, device} = connectedDevice;
+    const {device} = connectedDevice;
     dispatch(
       updateSelectedLightingData({lightingData, devicePath: device.path}),
     );
+
+    const api = new KeyboardAPI(device);
     api.setCustomColor(idx, hue, sat);
     await api.saveLighting();
   };
@@ -125,7 +130,7 @@ export const updateLightingData =
       return;
     }
 
-    const {api, device} = connectedDevice;
+    const {device} = connectedDevice;
     if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error('This method is only compatible with v2 definitions');
     }
@@ -135,6 +140,7 @@ export const updateLightingData =
 
     if (supportedLightingValues.length !== 0) {
       let props = {};
+      const api = new KeyboardAPI(device);
 
       // Special case for m6_b
       if (

@@ -11,6 +11,7 @@ import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {getMacroAPI} from 'src/utils/macro-api';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -98,7 +99,8 @@ const BufferSizeUsage = () => {
   if (!connectedDevice) {
     return null;
   }
-  const {protocol, api} = connectedDevice;
+  const {protocol, device} = connectedDevice;
+  const api = new KeyboardAPI(device);
   const macroApi = getMacroAPI(protocol, api);
   const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
   return (

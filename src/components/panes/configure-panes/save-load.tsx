@@ -20,6 +20,7 @@ import {
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {getExpressions, saveMacros} from 'src/store/macrosSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type ViaSaveFile = {
   name: string;
@@ -75,6 +76,7 @@ export const Pane: FC = () => {
     if (encoders.length > 0) {
       const maxEncoder = Math.max(...encoders) + 1;
       const numberOfLayers = rawLayers.length;
+      const api = new KeyboardAPI(selectedDevice.device);
       const encoderValues = await Promise.all(
         Array(maxEncoder)
           .fill(0)
@@ -84,8 +86,8 @@ export const Pane: FC = () => {
                 .fill(0)
                 .map((_, j) =>
                   Promise.all([
-                    selectedDevice.api.getEncoderValue(j, i, false),
-                    selectedDevice.api.getEncoderValue(j, i, true),
+                    api.getEncoderValue(j, i, false),
+                    api.getEncoderValue(j, i, true),
                   ]).then(
                     (a) =>
                       a.map(
@@ -199,13 +201,15 @@ export const Pane: FC = () => {
       );
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+
+      const api = new KeyboardAPI(selectedDevice.device);
       if (saveFile.encoders) {
         await Promise.all(
           saveFile.encoders.map((encoder, id) =>
             Promise.all(
               encoder.map((layer, layerId) =>
                 Promise.all([
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     false,
@@ -214,7 +218,7 @@ export const Pane: FC = () => {
                       basicKeyToByte,
                     ),
                   ),
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     true,

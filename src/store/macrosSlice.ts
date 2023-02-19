@@ -1,4 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 import {getMacroAPI} from 'src/utils/macro-api';
 import {
   expressionToSequence,
@@ -54,16 +55,14 @@ export const {loadMacrosSuccess, saveMacrosSuccess, setMacrosNotSupported} =
 export default macrosSlice.reducer;
 
 export const loadMacros =
-  (
-    connectedDevice: ConnectedDevice,
-    basicKeyToByte: Record<string, number>,
-  ): AppThunk =>
+  (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
-    const {api, protocol} = connectedDevice;
+    const {device, protocol} = connectedDevice;
     if (protocol < 8) {
       dispatch(setMacrosNotSupported());
     } else {
       try {
+        const api = new KeyboardAPI(device);
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const sequences = await macroApi.readRawKeycodeSequences();
@@ -79,7 +78,8 @@ export const loadMacros =
 export const saveMacros =
   (connectedDevice: ConnectedDevice, macros: string[]): AppThunk =>
   async (dispatch) => {
-    const {api, protocol} = connectedDevice;
+    const {device, protocol} = connectedDevice;
+    const api = new KeyboardAPI(device);
     const macroApi = getMacroAPI(protocol, api);
     if (macroApi) {
       const sequences = macros.map((expression) => {
