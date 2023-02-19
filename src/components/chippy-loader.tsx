@@ -19,7 +19,10 @@ const LoaderContainer = styled.div`
   align-items: center;
 `;
 
-const CircleContainer = styled.div<{
+const CircleContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    !['progressColor', 'containerHeight', 'containerWidth'].includes(prop),
+})<{
   containerHeight: number;
   containerWidth: number;
   progress: number | null;
@@ -247,7 +250,7 @@ export default function ChippyLoader(props: Props) {
   const selectedTheme = useAppSelector(getSelectedTheme);
 
   return (
-    <LoaderContainer {...{containerHeight, containerWidth}}>
+    <LoaderContainer>
       <CircleContainer
         progress={props.progress}
         progressColor={getDarkenedColor(selectedTheme.accent.c, 0.9)}
