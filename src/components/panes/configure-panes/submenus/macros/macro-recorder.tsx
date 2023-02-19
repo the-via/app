@@ -40,7 +40,9 @@ const NoMacroRecorded = styled.div`
   color: var(--color_label-highlighted);
 `;
 
-const MacroSequenceContainer = styled.div<{isModified: boolean}>`
+const MacroSequenceContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isModified',
+})<{isModified: boolean}>`
   max-width: 960px;
   width: 100%;
   display: block;
@@ -98,7 +100,7 @@ const smartTransform = (
 const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
   return arr.reduce((acc, next, idx) => {
     if (idx) {
-      acc.push(separator);
+      acc.push({...separator, key: idx});
     }
     acc.push(next);
     return acc;

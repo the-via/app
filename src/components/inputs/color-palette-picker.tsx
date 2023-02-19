@@ -70,12 +70,13 @@ export const ColorPalettePicker: React.FC<{
   return (
     <ColorPalettePickerContainer>
       <PreviousColorContainer>
-        {initialColors.map((savedColor) => {
+        {initialColors.map((savedColor, idx) => {
           const isSelected =
             selectedColor[0] === savedColor[0] &&
             selectedColor[1] === savedColor[1];
           return (
             <PreviousColorOption
+              key={idx}
               selected={isSelected}
               style={{
                 background: getRGB({

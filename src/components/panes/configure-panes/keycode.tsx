@@ -299,6 +299,7 @@ export const KeycodePane: FC = () => {
   const renderCustomKeycode = () => {
     return (
       <CustomKeycode
+        key="customKeycode"
         onClick={() => selectedKey !== null && handleClick('text', 0)}
         onMouseOver={() => setMouseOverDesc('Enter any QMK Keycode')}
         onMouseOut={() => setMouseOverDesc(null)}

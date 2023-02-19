@@ -45,7 +45,9 @@ const KeyboardTitle = styled.label`
     filter: brightness(0.7);
   }
 `;
-const KeyboardList = styled.ul<{show: boolean}>`
+const KeyboardList = styled.ul.withConfig({
+  shouldForwardProp: (prop) => prop !== 'show',
+})<{show: boolean}>`
   padding: 0;
   border: 1px solid var(--bg_control);
   width: 160px;

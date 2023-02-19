@@ -434,7 +434,7 @@ export const Debug: FC = () => {
                   </Detail>
                 </summary>
                 {Object.values(remoteDefinitions).map(([id, definition]) => (
-                  <IndentedControlRow>
+                  <IndentedControlRow key={id}>
                     <SubLabel>{definition.name}</SubLabel>
                     <Detail>
                       0x

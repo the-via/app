@@ -13,7 +13,9 @@ const Switch = styled.label`
   width: 60px;
   height: 34px;
 `;
-const Slider = styled.span<{ischecked?: boolean}>`
+const Slider = styled.span.withConfig({
+  shouldForwardProp: (prop) => prop !== 'ischecked',
+})<{ischecked?: boolean}>`
   position: absolute;
   cursor: pointer;
   top: 0;
