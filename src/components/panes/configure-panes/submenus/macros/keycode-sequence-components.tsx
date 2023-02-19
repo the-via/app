@@ -1,6 +1,6 @@
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import React, {ChangeEvent, PropsWithChildren, useRef, useState} from 'react';
+import React, {ChangeEvent, PropsWithChildren, useRef} from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import {IKeycode} from 'src/utils/key';
 import {
@@ -174,22 +174,13 @@ export const WaitInput: React.FC<{
   index: number;
   updateValue: (id: number, wait: number) => void;
 }> = (props) => {
-  const [waitNumber, setWaitNumber] = useState(props.value);
   const inputRef = useRef(null);
   const onBeforeInput = (evt: InputEvent) => {
     if (!evt.data || !/^\d$/.test(evt.data)) {
       evt.preventDefault();
     }
-    console.log(evt.data);
   };
   const onChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    if (
-      evt.target.value === '' ||
-      (+evt.target.value > 0 && +evt.target.value < 100000)
-    ) {
-      // Update internal value
-      setWaitNumber(evt.target.value);
-    }
     if (+evt.target.value > 0 && +evt.target.value < 100000) {
       // Update external value
       props.updateValue(props.index, +evt.target.value);
