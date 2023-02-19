@@ -61,24 +61,28 @@ const validateDefinitionAvailable = async (
 export const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
-    await validateDefinitionAvailable(
-      connectedDevice,
-      getDefinitions(getState()),
-    );
-    const {basicKeyToByte} = getBasicKeyToByte(getState());
-    dispatch(selectDevice(connectedDevice));
-    dispatch(loadMacros(connectedDevice, basicKeyToByte));
-    dispatch(loadLayoutOptions());
+    try {
+      await validateDefinitionAvailable(
+        connectedDevice,
+        getDefinitions(getState()),
+      );
+      const {basicKeyToByte} = getBasicKeyToByte(getState());
+      dispatch(selectDevice(connectedDevice));
+      dispatch(loadMacros(connectedDevice, basicKeyToByte));
+      dispatch(loadLayoutOptions());
 
-    const {protocol} = connectedDevice;
-    if (protocol < 11) {
-      dispatch(updateLightingData(connectedDevice));
-    }
-    if (protocol >= 11) {
-      dispatch(updateV3MenuData(connectedDevice));
-    }
+      const {protocol} = connectedDevice;
+      if (protocol < 11) {
+        dispatch(updateLightingData(connectedDevice));
+      }
+      if (protocol >= 11) {
+        dispatch(updateV3MenuData(connectedDevice));
+      }
 
-    dispatch(loadKeymapFromDevice(connectedDevice));
+      dispatch(loadKeymapFromDevice(connectedDevice));
+    } catch (e) {
+      console.log('Loading keyboard failed:', e);
+    }
   };
 
 // This scans for potentially compatible devices, filter out the ones that have the correct protocol
