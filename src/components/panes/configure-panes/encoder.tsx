@@ -47,12 +47,8 @@ export const Pane: FC = () => {
   const canClick = encoderKey.col !== -1 && encoderKey.row !== -1;
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const setEncoderValue = (type: 'ccw' | 'cw' | 'click', val: number) => {
-    if (
-      selectedDevice &&
-      selectedDevice.device &&
-      encoderKey.ei !== undefined
-    ) {
-      const api = new KeyboardAPI(selectedDevice.device);
+    if (selectedDevice && selectedDevice.path && encoderKey.ei !== undefined) {
+      const api = new KeyboardAPI(selectedDevice.path);
       const encoderId = +encoderKey.ei;
       switch (type) {
         case 'ccw': {
@@ -83,10 +79,10 @@ export const Pane: FC = () => {
       encoderKey !== undefined &&
       encoderKey.ei !== undefined &&
       selectedDevice &&
-      selectedDevice.device
+      selectedDevice.path
     ) {
       const encoderId = +encoderKey.ei;
-      const api = new KeyboardAPI(selectedDevice.device);
+      const api = new KeyboardAPI(selectedDevice.path);
       loadValues(layer, encoderId, api);
     }
   }, [encoderKey, selectedDevice, layer]);

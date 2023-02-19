@@ -35,6 +35,7 @@ const tagDevice = (device: HIDDevice) => {
   };
   return (ExtendedHID._cache[path] = HIDDevice);
 };
+
 const ExtendedHID = {
   _cache: {} as {[key: string]: any},
   requestDevice: async () => {

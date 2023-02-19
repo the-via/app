@@ -137,10 +137,9 @@ export const loadKeymapFromDevice =
       return;
     }
 
-    const {device, vendorProductId, requiredDefinitionVersion} =
-      connectedDevice;
+    const {path, vendorProductId, requiredDefinitionVersion} = connectedDevice;
 
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
 
     const numberOfLayers = await api.getLayerCount();
     dispatch(setNumberOfLayers(numberOfLayers));
@@ -150,7 +149,7 @@ export const loadKeymapFromDevice =
 
     for (var layerIndex = 0; layerIndex < numberOfLayers; layerIndex++) {
       const keymap = await api.readRawMatrix(matrix, layerIndex);
-      dispatch(loadLayerSuccess({layerIndex, keymap, devicePath: device.path}));
+      dispatch(loadLayerSuccess({layerIndex, keymap, devicePath: path}));
     }
   };
 
@@ -160,13 +159,13 @@ export const saveRawKeymapToDevice =
   (keymap: number[][], connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {device} = connectedDevice;
+    const {path} = connectedDevice;
     const definition = getSelectedDefinition(state);
-    if (!device || !definition) {
+    if (!path || !definition) {
       return;
     }
 
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
     const {matrix} = definition;
 
     await api.writeRawMatrix(matrix, keymap);
@@ -174,9 +173,7 @@ export const saveRawKeymapToDevice =
       keymap: layer,
       isLoaded: true,
     }));
-    dispatch(
-      saveKeymapSuccess({layers, devicePath: connectedDevice.device.path}),
-    );
+    dispatch(saveKeymapSuccess({layers, devicePath: path}));
   };
 
 export const updateKey =
@@ -191,15 +188,15 @@ export const updateKey =
     }
 
     const selectedLayerIndex = getSelectedLayerIndex(state);
-    const {device} = connectedDevice;
-    const api = new KeyboardAPI(device);
+    const {path} = connectedDevice;
+    const api = new KeyboardAPI(path);
     const {row, col} = keys[keyIndex];
     await api.setKey(selectedLayerIndex, row, col, value);
 
     const {matrix} = selectedDefinition;
     const keymapIndex = row * matrix.cols + col;
 
-    dispatch(setKey({keymapIndex, value, devicePath: device.path}));
+    dispatch(setKey({keymapIndex, value, devicePath: path}));
   };
 
 export const getConfigureKeyboardIsSelectable = (state: RootState) =>

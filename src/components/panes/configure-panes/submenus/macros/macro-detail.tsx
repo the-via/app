@@ -99,8 +99,8 @@ const BufferSizeUsage = () => {
   if (!connectedDevice) {
     return null;
   }
-  const {protocol, device} = connectedDevice;
-  const api = new KeyboardAPI(device);
+  const {protocol, path} = connectedDevice;
+  const api = new KeyboardAPI(path);
   const macroApi = getMacroAPI(protocol, api);
   const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
   return (

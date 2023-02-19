@@ -157,7 +157,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
     if (!selectedDevice) {
       return;
     }
-    const api = new KeyboardAPI(selectedDevice.device);
+    const api = new KeyboardAPI(selectedDevice.path);
 
     // TODO: Some sort of toggling lights on v3 firmware
     if (!isVIADefinitionV2(selectedDefinition)) {

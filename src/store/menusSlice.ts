@@ -86,15 +86,15 @@ export const updateCustomMenuValue =
       ...menuData,
       [command]: [...rest.slice(commands[command].length)],
     };
-    const {device} = connectedDevice;
+    const {path} = connectedDevice;
     dispatch(
       updateSelectedCustomMenuData({
         menuData: data,
-        devicePath: device.path,
+        devicePath: path,
       }),
     );
 
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
@@ -123,10 +123,10 @@ export const updateV3MenuData =
     }
     const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
-    const {protocol, device} = connectedDevice;
+    const {protocol, path} = connectedDevice;
 
     if (commands.length !== 0 && protocol >= 11) {
-      const api = new KeyboardAPI(device);
+      const api = new KeyboardAPI(path);
 
       let props = {} as CustomMenuData;
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
@@ -162,7 +162,7 @@ export const updateV3MenuData =
 
       dispatch(
         updateSelectedCustomMenuData({
-          devicePath: device.path,
+          devicePath: path,
           menuData: {
             ...props,
           },

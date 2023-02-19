@@ -216,7 +216,7 @@ const TestControls = () => {
 
 export const Debug: FC = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = selectedDevice ? new KeyboardAPI(selectedDevice.device) : null;
+  const api = selectedDevice ? new KeyboardAPI(selectedDevice.path) : null;
   const connectedDevices = useAppSelector(getConnectedDevices);
 
   // Temporary patch that gets the page to load
@@ -392,7 +392,7 @@ export const Debug: FC = () => {
               ) as KeyboardDefinitionEntry;
               if (definitionEntry) {
                 return (
-                  <IndentedControlRow key={device.device.path}>
+                  <IndentedControlRow key={device.path}>
                     <SubLabel>
                       {
                         (

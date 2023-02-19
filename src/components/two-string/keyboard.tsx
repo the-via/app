@@ -332,8 +332,8 @@ export const Test = (props: {dimensions?: DOMRect}) => {
 
   const api =
     selectedDevice &&
-    selectedDevice.device &&
-    new KeyboardAPI(selectedDevice.device);
+    selectedDevice.path &&
+    new KeyboardAPI(selectedDevice.path);
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
     !isTestMatrixEnabled && isShowingTest,
   );

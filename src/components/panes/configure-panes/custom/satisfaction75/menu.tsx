@@ -78,7 +78,7 @@ type State = {
 export const SatisfactionMenu = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   if (selectedDevice) {
-    const api = new KeyboardAPI(selectedDevice.device);
+    const api = new KeyboardAPI(selectedDevice.path);
     return <BaseSatisfactionMenu api={api} />;
   }
   return null;

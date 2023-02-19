@@ -81,15 +81,15 @@ export const updateBacklightValue =
       ...selectedLightingData,
       [command]: [...rest],
     };
-    const {device} = connectedDevice;
+    const {path} = connectedDevice;
     dispatch(
       updateSelectedLightingData({
         lightingData,
-        devicePath: device.path,
+        devicePath: path,
       }),
     );
 
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
     await api.setBacklightValue(command, ...rest);
     await api.saveLighting();
   };
@@ -111,12 +111,10 @@ export const updateCustomColor =
       ...oldLightingData,
       customColors,
     };
-    const {device} = connectedDevice;
-    dispatch(
-      updateSelectedLightingData({lightingData, devicePath: device.path}),
-    );
+    const {path} = connectedDevice;
+    dispatch(updateSelectedLightingData({lightingData, devicePath: path}));
 
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
     api.setCustomColor(idx, hue, sat);
     await api.saveLighting();
   };
@@ -130,7 +128,7 @@ export const updateLightingData =
       return;
     }
 
-    const {device} = connectedDevice;
+    const {path} = connectedDevice;
     if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error('This method is only compatible with v2 definitions');
     }
@@ -140,7 +138,7 @@ export const updateLightingData =
 
     if (supportedLightingValues.length !== 0) {
       let props = {};
-      const api = new KeyboardAPI(device);
+      const api = new KeyboardAPI(path);
 
       // Special case for m6_b
       if (
@@ -172,7 +170,7 @@ export const updateLightingData =
 
       dispatch(
         updateLighting({
-          [device.path]: {
+          [path]: {
             ...props,
           },
         }),

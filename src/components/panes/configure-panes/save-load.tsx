@@ -76,7 +76,7 @@ export const Pane: FC = () => {
     if (encoders.length > 0) {
       const maxEncoder = Math.max(...encoders) + 1;
       const numberOfLayers = rawLayers.length;
-      const api = new KeyboardAPI(selectedDevice.device);
+      const api = new KeyboardAPI(selectedDevice.path);
       const encoderValues = await Promise.all(
         Array(maxEncoder)
           .fill(0)
@@ -202,7 +202,7 @@ export const Pane: FC = () => {
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
 
-      const api = new KeyboardAPI(selectedDevice.device);
+      const api = new KeyboardAPI(selectedDevice.path);
       if (saveFile.encoders) {
         await Promise.all(
           saveFile.encoders.map((encoder, id) =>

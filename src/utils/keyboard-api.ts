@@ -77,7 +77,7 @@ export const PROTOCOL_GAMMA = 9;
 export const BACKLIGHT_PROTOCOL_NONE = 0;
 export const BACKLIGHT_PROTOCOL_WILBA = 1;
 
-const cache: {[addr: string]: {device: Device; hid: any}} = {};
+const cache: {[addr: string]: {hid: any}} = {};
 
 const eqArr = <T>(arr1: T[], arr2: T[]) => {
   if (arr1.length !== arr2.length) {
@@ -124,7 +124,7 @@ const globalCommandQueue: {
 
 export const canConnect = (device: Device) => {
   try {
-    initKeyboardAPI(device);
+    new KeyboardAPI(device.path);
     return true;
   } catch (e) {
     console.error('Skipped ', device, e);
@@ -132,25 +132,15 @@ export const canConnect = (device: Device) => {
   }
 };
 
-const initKeyboardAPI = (device: Device) => {
-  return new KeyboardAPI(device);
-};
-
 export class KeyboardAPI {
   kbAddr: HIDAddress;
 
-  constructor(device: Device) {
-    const {path} = device;
+  constructor(path: string) {
     this.kbAddr = path;
     if (!cache[path]) {
-      cache[path] = {device, hid: initAndConnectDevice(device)};
-    } else {
-      cache[path] = {...cache[path], device};
+      const device = initAndConnectDevice({path});
+      cache[path] = {hid: device};
     }
-  }
-
-  getDevice() {
-    return cache[this.kbAddr].device;
   }
 
   refresh(kbAddr: HIDAddress) {

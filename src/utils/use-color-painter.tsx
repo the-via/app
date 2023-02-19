@@ -35,7 +35,7 @@ export const useColorPainter = (
   const onKeycapPointerHandler = useCallback(
     (evt: ThreeEvent<MouseEvent> | React.MouseEvent, idx: number) => {
       if (evt.buttons === 1 && selectedDevice) {
-        const api = new KeyboardAPI(selectedDevice.device);
+        const api = new KeyboardAPI(selectedDevice.path);
         const hue = Math.round((selectedPaletteColor[0] * 255) / 360);
         const sat = Math.round(selectedPaletteColor[1] * 255);
         const ledIndex = keys[idx].li;

@@ -216,7 +216,7 @@ export const updateLayoutOption =
     );
 
     try {
-      const api = new KeyboardAPI(selectedDevice.device);
+      const api = new KeyboardAPI(selectedDevice.path);
       await api.setKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, ...bytes);
     } catch {
       console.warn('Setting layout option command not working');
@@ -298,9 +298,9 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     return;
   }
 
-  const {device} = connectedDevice;
+  const {path} = connectedDevice;
   try {
-    const api = new KeyboardAPI(device);
+    const api = new KeyboardAPI(path);
     const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
     const options = unpackBits(
       bytesIntoNum(res),
@@ -310,7 +310,7 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     );
     dispatch(
       updateLayoutOptions({
-        [device.path]: options,
+        [path]: options,
       }),
     );
   } catch {
@@ -334,8 +334,8 @@ export const reloadDefinitions =
           );
         })
         // Go and get it if we don't
-        .map(({device, requiredDefinitionVersion}) =>
-          getMissingDefinition(device, requiredDefinitionVersion),
+        .map((device) =>
+          getMissingDefinition(device, device.requiredDefinitionVersion),
         ),
     );
     if (!missingDefinitions.length) {

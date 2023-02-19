@@ -1,4 +1,3 @@
-import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   KeyboardDefinitionIndex,
@@ -45,7 +44,9 @@ export type WebVIADevice = Device & {
 };
 
 export type ConnectedDevice = {
-  device: Device;
+  path: string;
+  productId: number;
+  vendorId: number;
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
