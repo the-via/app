@@ -9,7 +9,7 @@ import {
 } from '@the-via/reader';
 import {
   getSelectedConnectedDevice,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
@@ -99,13 +99,12 @@ export const Home: React.VFC<HomeProps> = (props) => {
     getAllowKeyboardKeyRemapping,
   );
   const selectedKey = useAppSelector(getSelectedKey);
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
@@ -157,7 +156,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
   };
 
   const toggleLights = async () => {
-    if (!selectedDevice) {
+    if (!api) {
       return;
     }
 
@@ -215,7 +214,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
   useEffect(() => {
     dispatch(updateSelectedKeyAction(null));
     toggleLights();
-  }, [selectedDevice]);
+  }, [api]);
 
   return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
     <ErrorHome ref={homeElem} tabIndex={0}>

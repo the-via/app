@@ -3,7 +3,7 @@ import {VIAKey} from '@the-via/reader';
 import {useCallback, useEffect, useState} from 'react';
 import {
   getSelectedConnectedDevice,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedCustomMenuData} from 'src/store/menusSlice';
@@ -14,7 +14,7 @@ export const useColorPainter = (
   selectedPaletteColor: [number, number],
 ) => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const customMenuData = useAppSelector(getSelectedCustomMenuData) || {
     __perKeyRGB: [],
   };

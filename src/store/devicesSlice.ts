@@ -80,7 +80,7 @@ export const getSelectedConnectedDevice = createSelector(
   getSelectedDevicePath,
   (devices, path) => path && devices[path],
 );
-export const getSelectedKeyboardApi = createSelector(
+export const getSelectedKeyboardAPI = createSelector(
   getSelectedDevicePath,
   (path) => path && new KeyboardAPI(path),
 );

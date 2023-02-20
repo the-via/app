@@ -20,7 +20,7 @@ import {
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedConnectedDevice,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {getExpressions, saveMacros} from 'src/store/macrosSlice';
 
@@ -51,7 +51,7 @@ export const Pane: FC = () => {
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
   const expressions = useAppSelector(getExpressions);

@@ -14,7 +14,7 @@ import {
 import type {VIAKey} from '@the-via/reader';
 import {
   getSelectedConnectedDevice,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 
@@ -49,7 +49,7 @@ export const Pane: FC = () => {
   const encoderKey = keys[selectedKey];
   const canClick = encoderKey.col !== -1 && encoderKey.row !== -1;
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
 
   const setEncoderValue = (type: 'ccw' | 'cw' | 'click', val: number) => {
     if (api && encoderKey.ei !== undefined) {

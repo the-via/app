@@ -16,7 +16,7 @@ import {
 } from 'src/store/keymapSlice';
 import {KeyboardCanvas} from './keyboard-canvas';
 import {useLocation} from 'wouter';
-import {getSelectedKeyboardApi} from 'src/store/devicesSlice';
+import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
@@ -321,7 +321,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
   const isShowingTest = path === '/test';
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);

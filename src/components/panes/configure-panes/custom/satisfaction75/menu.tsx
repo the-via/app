@@ -14,7 +14,7 @@ import {
 import {EncoderModeToggle} from './encoder-mode-toggle';
 import {EncoderCustomConfig} from './encoder-custom-config';
 import {KeyboardAPI} from '../../../../../utils/keyboard-api';
-import {getSelectedKeyboardApi} from 'src/store/devicesSlice';
+import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {EncoderBehavior} from 'src/types/types';
 
@@ -76,7 +76,7 @@ type State = {
 
 // TODO: Can we get rid of SatisfactionMenu now that we have v3 definitions?
 export const SatisfactionMenu = () => {
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   if (api) {
     return <BaseSatisfactionMenu api={api} />;
   }

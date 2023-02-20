@@ -20,7 +20,7 @@ import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
   ensureSupportedIds,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
@@ -196,7 +196,7 @@ export const updateLayoutOption =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const api = getSelectedKeyboardApi(state);
+    const api = getSelectedKeyboardAPI(state);
     const path = getSelectedDevicePath(state);
 
     if (!definition || !api || !path || !definition.layouts.labels) {
@@ -290,7 +290,7 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const selectedDefinition = getSelectedDefinition(state);
   const connectedDevice = getSelectedConnectedDevice(state);
-  const api = getSelectedKeyboardApi(state);
+  const api = getSelectedKeyboardAPI(state);
   if (
     !connectedDevice ||
     !selectedDefinition ||

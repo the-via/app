@@ -10,7 +10,7 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 
@@ -90,7 +90,7 @@ export const updateBacklightValue =
       }),
     );
 
-    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     await api.setBacklightValue(command, ...rest);
     await api.saveLighting();
   };
@@ -100,7 +100,7 @@ export const updateCustomColor =
   async (dispatch, getState) => {
     const state = getState();
     const connectedDevice = getSelectedConnectedDevice(state);
-    const api = getSelectedKeyboardApi(state);
+    const api = getSelectedKeyboardAPI(state);
     const oldLightingData = getSelectedLightingData(state);
     if (!connectedDevice || !oldLightingData || !api) {
       // TODO: shoud we be throwing instead of returning whenever we do these device checks in thunks?
@@ -125,7 +125,7 @@ export const updateLightingData =
   async (dispatch, getState) => {
     const state = getState();
     const selectedDefinition = getSelectedDefinition(state);
-    const api = getSelectedKeyboardApi(state);
+    const api = getSelectedKeyboardAPI(state);
     if (!selectedDefinition || !api) {
       return;
     }

@@ -9,7 +9,7 @@ import {
 } from 'src/utils/macro-api/macro-api.common';
 import {RawKeycodeSequence} from 'src/utils/macro-api/types';
 import type {ConnectedDevice} from '../types/types';
-import {getSelectedKeyboardApi} from './devicesSlice';
+import {getSelectedKeyboardAPI} from './devicesSlice';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
@@ -64,7 +64,7 @@ export const loadMacros =
     } else {
       try {
         const state = getState();
-        const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+        const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
         const macroApi = getMacroAPI(protocol, api);
         if (macroApi) {
           const sequences = await macroApi.readRawKeycodeSequences();
@@ -81,7 +81,7 @@ export const saveMacros =
   (connectedDevice: ConnectedDevice, macros: string[]): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     const {protocol} = connectedDevice;
     const macroApi = getMacroAPI(protocol, api);
     if (macroApi) {

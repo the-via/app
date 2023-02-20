@@ -11,7 +11,7 @@ import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
 import {
   getSelectedConnectedDevice,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {getMacroAPI} from 'src/utils/macro-api';
 
@@ -98,7 +98,7 @@ const BufferSizeUsage = () => {
   const ast = useAppSelector((state) => state.macros.ast);
   const bufferSize = useAppSelector(getMacroBufferSize);
   const connectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   if (!connectedDevice || !api) {
     return null;
   }

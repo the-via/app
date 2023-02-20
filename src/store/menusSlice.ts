@@ -12,7 +12,7 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {
   makeCustomMenu,
@@ -95,7 +95,7 @@ export const updateCustomMenuValue =
       }),
     );
 
-    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
@@ -118,7 +118,7 @@ export const updateV3MenuData =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const api = getSelectedKeyboardApi(state) as KeyboardAPI;
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
 
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');

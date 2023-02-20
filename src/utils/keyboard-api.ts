@@ -151,7 +151,7 @@ export class KeyboardAPI {
     };
   }
 
-  async getByteBuffer(): Promise<number[]> {
+  async getByteBuffer(): Promise<Uint8Array> {
     return this.getHID().readP();
   }
 
@@ -309,7 +309,7 @@ export class KeyboardAPI {
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(GET_KEYBOARD_VALUE, bytes);
-    return Array.from(res.slice(2, 2 + resultLength));
+    return res.slice(2, 2 + resultLength);
   }
 
   async setKeyboardValue(command: KeyboardValue, ...rest: number[]) {
@@ -339,7 +339,7 @@ export class KeyboardAPI {
 
   async getCustomMenuValue(commandBytes: number[]): Promise<number[]> {
     const res = await this.hidCommand(CUSTOM_MENU_GET_VALUE, commandBytes);
-    return Array.from(res.slice(0 + commandBytes.length));
+    return res.slice(0 + commandBytes.length);
   }
 
   async setCustomMenuValue(...args: number[]): Promise<void> {
@@ -379,7 +379,7 @@ export class KeyboardAPI {
   ): Promise<number[]> {
     const bytes = [command];
     const res = await this.hidCommand(BACKLIGHT_CONFIG_GET_VALUE, bytes);
-    return Array.from(res.slice(2, 2 + resultLength));
+    return res.slice(2, 2 + resultLength);
   }
 
   async setBacklightValue(command: LightingValue, ...rest: number[]) {
@@ -494,7 +494,7 @@ export class KeyboardAPI {
       );
     }
     const allBytes = await Promise.all(bytesP);
-    return allBytes.flatMap((bytes) => Array.from(bytes.slice(4)));
+    return allBytes.flatMap((bytes) => bytes.slice(4));
   }
 
   // From protocol: id_dynamic_keymap_macro_set_buffer <offset> <size> <data>
@@ -576,7 +576,7 @@ export class KeyboardAPI {
   async hidCommand(
     command: Command,
     bytes: Array<number> = [],
-  ): Promise<Uint8Array> {
+  ): Promise<number[]> {
     return new Promise((res, rej) => {
       this.commandQueueWrapper.commandQueue.push({
         res,
@@ -634,7 +634,7 @@ export class KeyboardAPI {
       this.refresh(kbAddr);
       this.getHID().write(paddedArray);
     }
-    const buffer = await this.getByteBuffer();
+    const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {

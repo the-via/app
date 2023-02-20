@@ -24,7 +24,7 @@ import {AccentRange} from '../inputs/accent-range';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getConnectedDevices,
-  getSelectedKeyboardApi,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {
   getBaseDefinitions,
@@ -215,7 +215,7 @@ const TestControls = () => {
 };
 
 export const Debug: FC = () => {
-  const api = useAppSelector(getSelectedKeyboardApi);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const connectedDevices = useAppSelector(getConnectedDevices);
 
   // Temporary patch that gets the page to load
