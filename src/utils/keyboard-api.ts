@@ -77,7 +77,7 @@ export const PROTOCOL_GAMMA = 9;
 export const BACKLIGHT_PROTOCOL_NONE = 0;
 export const BACKLIGHT_PROTOCOL_WILBA = 1;
 
-const cache: {[addr: string]: {device: Device; hid: any}} = {};
+const cache: {[addr: string]: {hid: any}} = {};
 
 const eqArr = <T>(arr1: T[], arr2: T[]) => {
   if (arr1.length !== arr2.length) {
@@ -124,7 +124,7 @@ const globalCommandQueue: {
 
 export const canConnect = (device: Device) => {
   try {
-    initKeyboardAPI(device);
+    new KeyboardAPI(device.path);
     return true;
   } catch (e) {
     console.error('Skipped ', device, e);
@@ -132,25 +132,15 @@ export const canConnect = (device: Device) => {
   }
 };
 
-const initKeyboardAPI = (device: Device) => {
-  return new KeyboardAPI(device);
-};
-
 export class KeyboardAPI {
   kbAddr: HIDAddress;
 
-  constructor(device: Device) {
-    const {path} = device;
+  constructor(path: string) {
     this.kbAddr = path;
     if (!cache[path]) {
-      cache[path] = {device, hid: initAndConnectDevice(device)};
-    } else {
-      cache[path] = {...cache[path], device};
+      const device = initAndConnectDevice({path});
+      cache[path] = {hid: device};
     }
-  }
-
-  getDevice() {
-    return cache[this.kbAddr].device;
   }
 
   refresh(kbAddr: HIDAddress) {
@@ -161,7 +151,7 @@ export class KeyboardAPI {
     };
   }
 
-  async getByteBuffer(): Promise<number[]> {
+  async getByteBuffer(): Promise<Uint8Array> {
     return this.getHID().readP();
   }
 
@@ -198,9 +188,8 @@ export class KeyboardAPI {
       const [, count] = await this.hidCommand(DYNAMIC_KEYMAP_GET_LAYER_COUNT);
       return count;
     }
-    if (version === PROTOCOL_ALPHA) {
-      return 4;
-    }
+
+    return 4;
   }
 
   async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<Keymap> {
@@ -334,10 +323,7 @@ export class KeyboardAPI {
     isClockwise: boolean,
   ): Promise<number> {
     const bytes = [layer, id, +isClockwise];
-    const res: number[] = await this.hidCommand(
-      DYNAMIC_KEYMAP_GET_ENCODER,
-      bytes,
-    );
+    const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_ENCODER, bytes);
     return shiftTo16Bit([res[4], res[5]]);
   }
 
@@ -508,7 +494,7 @@ export class KeyboardAPI {
       );
     }
     const allBytes = await Promise.all(bytesP);
-    return allBytes.flatMap((bytes) => Array.from(bytes.slice(4)));
+    return allBytes.flatMap((bytes) => bytes.slice(4));
   }
 
   // From protocol: id_dynamic_keymap_macro_set_buffer <offset> <size> <data>
@@ -587,7 +573,10 @@ export class KeyboardAPI {
     });
   }
 
-  async hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
+  async hidCommand(
+    command: Command,
+    bytes: Array<number> = [],
+  ): Promise<number[]> {
     return new Promise((res, rej) => {
       this.commandQueueWrapper.commandQueue.push({
         res,
@@ -645,7 +634,7 @@ export class KeyboardAPI {
       this.refresh(kbAddr);
       this.getHID().write(paddedArray);
     }
-    const buffer = await this.getByteBuffer();
+    const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {

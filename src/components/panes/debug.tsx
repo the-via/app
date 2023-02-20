@@ -24,7 +24,7 @@ import {AccentRange} from '../inputs/accent-range';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getConnectedDevices,
-  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {
   getBaseDefinitions,
@@ -215,8 +215,7 @@ const TestControls = () => {
 };
 
 export const Debug: FC = () => {
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = selectedDevice ? selectedDevice.api : null;
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const connectedDevices = useAppSelector(getConnectedDevices);
 
   // Temporary patch that gets the page to load
@@ -392,7 +391,7 @@ export const Debug: FC = () => {
               ) as KeyboardDefinitionEntry;
               if (definitionEntry) {
                 return (
-                  <IndentedControlRow key={device.device.path}>
+                  <IndentedControlRow key={device.path}>
                     <SubLabel>
                       {
                         (

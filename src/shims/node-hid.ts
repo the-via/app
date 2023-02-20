@@ -18,7 +18,7 @@ const getVIAPathIdentifier = () =>
   (self.crypto && self.crypto.randomUUID && self.crypto.randomUUID()) ||
   `via-path:${Math.random()}`;
 
-const tagDevice = (device: HIDDevice) => {
+const tagDevice = (device: HIDDevice): WebVIADevice => {
   // This is super important in order to have a stable way to identify the same device
   // that was already scanned. It's a bit hacky but https://github.com/WICG/webhid/issues/7
   // ¯\_(ツ)_/¯
@@ -35,8 +35,9 @@ const tagDevice = (device: HIDDevice) => {
   };
   return (ExtendedHID._cache[path] = HIDDevice);
 };
+
 const ExtendedHID = {
-  _cache: {} as {[key: string]: any},
+  _cache: {} as {[key: string]: WebVIADevice},
   requestDevice: async () => {
     const requestedDevice = await navigator.hid.requestDevice({
       filters: [

@@ -20,6 +20,7 @@ import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
   ensureSupportedIds,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
@@ -195,17 +196,16 @@ export const updateLayoutOption =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const device = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardAPI(state);
     const path = getSelectedDevicePath(state);
 
-    if (!definition || !device || !path || !definition.layouts.labels) {
+    if (!definition || !api || !path || !definition.layouts.labels) {
       return;
     }
 
     const optionsNums = definition.layouts.labels.map((layoutLabel) =>
       Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
     );
-    const {api} = device;
 
     // Clone the existing options into a new array so it can be modified with
     // the new layout index
@@ -290,15 +290,17 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const selectedDefinition = getSelectedDefinition(state);
   const connectedDevice = getSelectedConnectedDevice(state);
+  const api = getSelectedKeyboardAPI(state);
   if (
     !connectedDevice ||
     !selectedDefinition ||
-    !selectedDefinition.layouts.labels
+    !selectedDefinition.layouts.labels ||
+    !api
   ) {
     return;
   }
 
-  const {api, device} = connectedDevice;
+  const {path} = connectedDevice;
   try {
     const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, 4);
     const options = unpackBits(
@@ -309,7 +311,7 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     );
     dispatch(
       updateLayoutOptions({
-        [device.path]: options,
+        [path]: options,
       }),
     );
   } catch {
@@ -333,8 +335,8 @@ export const reloadDefinitions =
           );
         })
         // Go and get it if we don't
-        .map(({device, requiredDefinitionVersion}) =>
-          getMissingDefinition(device, requiredDefinitionVersion),
+        .map((device) =>
+          getMissingDefinition(device, device.requiredDefinitionVersion),
         ),
     );
     if (!missingDefinitions.length) {

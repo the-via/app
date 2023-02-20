@@ -12,11 +12,13 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {
   makeCustomMenu,
   makeCustomMenus,
 } from 'src/components/panes/configure-panes/custom/menu-generator';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
@@ -85,13 +87,15 @@ export const updateCustomMenuValue =
       ...menuData,
       [command]: [...rest.slice(commands[command].length)],
     };
-    const {api, device} = connectedDevice;
+    const {path} = connectedDevice;
     dispatch(
       updateSelectedCustomMenuData({
         menuData: data,
-        devicePath: device.path,
+        devicePath: path,
       }),
     );
+
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
@@ -113,14 +117,16 @@ export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {api, protocol, device} = connectedDevice;
-
     const definition = getSelectedDefinition(state);
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
+
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
     const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
+    const {protocol, path} = connectedDevice;
+
     if (commands.length !== 0 && protocol >= 11) {
       let props = {} as CustomMenuData;
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
@@ -156,7 +162,7 @@ export const updateV3MenuData =
 
       dispatch(
         updateSelectedCustomMenuData({
-          devicePath: device.path,
+          devicePath: path,
           menuData: {
             ...props,
           },

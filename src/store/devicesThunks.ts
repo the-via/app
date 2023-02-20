@@ -14,7 +14,6 @@ import {
   loadLayoutOptions,
   updateDefinitions,
   getDefinitions,
-  getBasicKeyToByte,
   loadStoredCustomDefinitions,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
@@ -47,16 +46,16 @@ export const selectConnectedDeviceByPath =
   };
 
 const validateDefinitionAvailable = async (
-  {device, requiredDefinitionVersion, vendorProductId}: ConnectedDevice,
+  device: ConnectedDevice,
   definitions: KeyboardDictionary,
 ) => {
   const definition =
     definitions &&
-    definitions[vendorProductId] &&
-    definitions[vendorProductId][requiredDefinitionVersion];
+    definitions[device.vendorProductId] &&
+    definitions[device.vendorProductId][device.requiredDefinitionVersion];
   if (!definition) {
     console.log('missing definition: fetching new one');
-    await getMissingDefinition(device, requiredDefinitionVersion);
+    await getMissingDefinition(device, device.requiredDefinitionVersion);
   }
 };
 
@@ -70,9 +69,8 @@ export const selectConnectedDevice =
         connectedDevice,
         getDefinitions(getState()),
       );
-      const {basicKeyToByte} = getBasicKeyToByte(getState());
       dispatch(selectDevice(connectedDevice));
-      await dispatch(loadMacros(connectedDevice, basicKeyToByte));
+      await dispatch(loadMacros(connectedDevice));
       await dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
@@ -113,16 +111,18 @@ export const reloadConnectedDevices =
 
     const protocolVersions = await Promise.all(
       recognisedDevices.map((device) =>
-        new KeyboardAPI(device).getProtocolVersion(),
+        new KeyboardAPI(device.path).getProtocolVersion(),
       ),
     );
 
     const connectedDevices = recognisedDevices.reduce<ConnectedDevices>(
       (devices, device, idx) => {
+        const {path, productId, vendorId} = device;
         const protocol = protocolVersions[idx];
         devices[device.path] = {
-          api: new KeyboardAPI(device),
-          device,
+          path,
+          productId,
+          vendorId,
           protocol,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
           vendorProductId: getVendorProductId(

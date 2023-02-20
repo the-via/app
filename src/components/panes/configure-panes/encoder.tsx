@@ -12,8 +12,11 @@ import {
   updateKey,
 } from 'src/store/keymapSlice';
 import type {VIAKey} from '@the-via/reader';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import type {KeyboardAPI} from 'src/utils/keyboard-api';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 const Encoder = styled(CenterPane)`
   height: 100%;
@@ -46,9 +49,10 @@ export const Pane: FC = () => {
   const encoderKey = keys[selectedKey];
   const canClick = encoderKey.col !== -1 && encoderKey.row !== -1;
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardAPI);
+
   const setEncoderValue = (type: 'ccw' | 'cw' | 'click', val: number) => {
-    if (selectedDevice && selectedDevice.api && encoderKey.ei !== undefined) {
-      const {api} = selectedDevice;
+    if (api && encoderKey.ei !== undefined) {
       const encoderId = +encoderKey.ei;
       switch (type) {
         case 'ccw': {
@@ -75,14 +79,9 @@ export const Pane: FC = () => {
     setCCWValue(ccw);
   };
   useEffect(() => {
-    if (
-      encoderKey !== undefined &&
-      encoderKey.ei !== undefined &&
-      selectedDevice &&
-      selectedDevice.api
-    ) {
+    if (encoderKey !== undefined && encoderKey.ei !== undefined && api) {
       const encoderId = +encoderKey.ei;
-      loadValues(layer, encoderId, selectedDevice.api);
+      loadValues(layer, encoderId, api);
     }
   }, [encoderKey, selectedDevice, layer]);
 

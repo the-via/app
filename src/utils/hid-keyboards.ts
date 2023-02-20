@@ -41,7 +41,7 @@ const idExists = ({productId, vendorId}: Device, vpidMap: VendorProductIdMap) =>
 
 export const getRecognisedDevices = async (vpidMap: VendorProductIdMap) => {
   const usbDevices = await scanDevices();
-  return usbDevices.filter((device: Device) => {
+  return usbDevices.filter((device) => {
     const validVendorProduct = idExists(device, vpidMap);
     const validInterface = isValidInterface(device);
     // attempt connection

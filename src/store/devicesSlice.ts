@@ -1,5 +1,6 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {DefinitionVersion} from '@the-via/reader';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 import type {
   ConnectedDevice,
   ConnectedDevices,
@@ -10,13 +11,13 @@ import type {RootState} from './index';
 
 export type DevicesState = {
   selectedDevicePath: string | null;
-  connectedDevices: ConnectedDevices;
+  connectedDevicePaths: ConnectedDevices;
   supportedIds: VendorProductIdMap;
 };
 
 const initialState: DevicesState = {
   selectedDevicePath: null,
-  connectedDevices: {},
+  connectedDevicePaths: {},
   supportedIds: {},
 };
 
@@ -29,18 +30,18 @@ export const deviceSlice = createSlice({
       if (!action.payload) {
         state.selectedDevicePath = null;
       } else {
-        state.selectedDevicePath = action.payload.device.path;
+        state.selectedDevicePath = action.payload.path;
       }
     },
     updateConnectedDevices: (
       state,
       action: PayloadAction<ConnectedDevices>,
     ) => {
-      state.connectedDevices = action.payload;
+      state.connectedDevicePaths = action.payload;
     },
     clearAllDevices: (state) => {
       state.selectedDevicePath = null;
-      state.connectedDevices = {};
+      state.connectedDevicePaths = {};
     },
     updateSupportedIds: (state, action: PayloadAction<VendorProductIdMap>) => {
       state.supportedIds = action.payload;
@@ -70,7 +71,7 @@ export const {
 export default deviceSlice.reducer;
 
 export const getConnectedDevices = (state: RootState) =>
-  state.devices.connectedDevices;
+  state.devices.connectedDevicePaths;
 export const getSelectedDevicePath = (state: RootState) =>
   state.devices.selectedDevicePath;
 export const getSupportedIds = (state: RootState) => state.devices.supportedIds;
@@ -78,4 +79,8 @@ export const getSelectedConnectedDevice = createSelector(
   getConnectedDevices,
   getSelectedDevicePath,
   (devices, path) => path && devices[path],
+);
+export const getSelectedKeyboardAPI = createSelector(
+  getSelectedDevicePath,
+  (path) => path && new KeyboardAPI(path),
 );

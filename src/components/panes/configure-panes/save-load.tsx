@@ -18,7 +18,10 @@ import {
   saveRawKeymapToDevice,
 } from 'src/store/keymapSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
 import {getExpressions, saveMacros} from 'src/store/macrosSlice';
 
 type ViaSaveFile = {
@@ -48,13 +51,14 @@ export const Pane: FC = () => {
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
   const expressions = useAppSelector(getExpressions);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
 
   // TODO: improve typing so we can remove this
-  if (!selectedDefinition || !selectedDevice) {
+  if (!selectedDefinition || !selectedDevice || !api) {
     return null;
   }
 
@@ -84,8 +88,8 @@ export const Pane: FC = () => {
                 .fill(0)
                 .map((_, j) =>
                   Promise.all([
-                    selectedDevice.api.getEncoderValue(j, i, false),
-                    selectedDevice.api.getEncoderValue(j, i, true),
+                    api.getEncoderValue(j, i, false),
+                    api.getEncoderValue(j, i, true),
                   ]).then(
                     (a) =>
                       a.map(
@@ -199,13 +203,14 @@ export const Pane: FC = () => {
       );
 
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+
       if (saveFile.encoders) {
         await Promise.all(
           saveFile.encoders.map((encoder, id) =>
             Promise.all(
               encoder.map((layer, layerId) =>
                 Promise.all([
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     false,
@@ -214,7 +219,7 @@ export const Pane: FC = () => {
                       basicKeyToByte,
                     ),
                   ),
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     true,
