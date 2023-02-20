@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const KeyboardRouteGroup = styled.div<{
-  visible?: boolean;
   position: number;
 }>`
   position: absolute;

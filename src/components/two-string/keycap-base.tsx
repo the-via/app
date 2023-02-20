@@ -6,7 +6,17 @@ export enum DisplayMode {
   ConfigureColors = 4,
 }
 
-export const KeycapContainer = styled.div<{position: [number, number]}>`
+export const KeycapContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) =>
+    ![
+      'normalizedRects',
+      'textureWidth',
+      'textureHeight',
+      'textureOffsetX',
+      'shouldRotate',
+      'keyState',
+    ].includes(prop),
+})<{position: [number, number]}>`
   position: absolute;
   left: 0;
   top: 0;

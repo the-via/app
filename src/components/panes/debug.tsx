@@ -415,8 +415,8 @@ export const Debug: FC = () => {
                 {Object.values(localDefinitions).length} Definitions
               </Detail>
             </ControlRow>
-            {Object.values(localDefinitions).map(([id, definition]) => (
-              <IndentedControlRow key={id}>
+            {Object.values(localDefinitions).map(([id, definition], idx) => (
+              <IndentedControlRow key={idx}>
                 <SubLabel>{definition.name}</SubLabel>
                 <Detail>
                   0x
@@ -432,15 +432,17 @@ export const Debug: FC = () => {
                     {Object.values(remoteDefinitions).length} Definitions
                   </Detail>
                 </summary>
-                {Object.values(remoteDefinitions).map(([id, definition]) => (
-                  <IndentedControlRow key={id}>
-                    <SubLabel>{definition.name}</SubLabel>
-                    <Detail>
-                      0x
-                      {parseInt(id).toString(16).toUpperCase()}
-                    </Detail>
-                  </IndentedControlRow>
-                ))}
+                {Object.values(remoteDefinitions).map(
+                  ([id, definition], idx) => (
+                    <IndentedControlRow key={idx}>
+                      <SubLabel>{definition.name}</SubLabel>
+                      <Detail>
+                        0x
+                        {parseInt(id).toString(16).toUpperCase()}
+                      </Detail>
+                    </IndentedControlRow>
+                  ),
+                )}
               </details>
             </ControlRow>
           </ControlGroup>
