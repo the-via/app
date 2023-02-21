@@ -25,10 +25,6 @@ export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
     cubeyGLTF.scene.children.forEach((child) => {
       const bodyPart = child.name.split('_')[0] as keyof typeof colorMap;
       const color = colorMap[bodyPart];
-      // This is a hack and the .gltf should be updated
-      if (bodyPart === 'upper-body') {
-        ((child as Mesh).material as MeshStandardMaterial).roughness = 0.7;
-      }
       if (color) {
         ((child as Mesh).material as MeshBasicMaterial).color = color;
       }
