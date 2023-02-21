@@ -52,7 +52,7 @@ const ProgressBar = styled.div`
     transition: transform 0.4s ease-in-out;
   }
 `;
-const MacroTab = styled.span<{selected: boolean}>`
+const MacroTab = styled.span<{$selected: boolean}>`
   display: inline-flex;
   border: 1px solid;
   line-height: initial;
@@ -64,11 +64,11 @@ const MacroTab = styled.span<{selected: boolean}>`
   justify-content: center;
   box-sizing: border-box;
   color: ${(props) =>
-    props.selected ? 'var(--color_accent)' : 'var(--bg_icon)'};
+    props.$selected ? 'var(--color_accent)' : 'var(--bg_icon)'};
   cursor: pointer;
   &:hover {
     color: ${(props) =>
-      props.selected ? 'var(--color_accent)' : 'var(--bg_icon-highlighted)'};
+      props.$selected ? 'var(--color_accent)' : 'var(--bg_icon-highlighted)'};
   }
 `;
 
@@ -150,13 +150,13 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
       <CenterTabContainer>
         <TabBar>
           <MacroTab
-            selected={!showSettings}
+            $selected={!showSettings}
             onClick={() => setShowSettings(false)}
           >
             <FontAwesomeIcon icon={faCode} />
           </MacroTab>
           <MacroTab
-            selected={showSettings}
+            $selected={showSettings}
             onClick={() => setShowSettings(true)}
           >
             <FontAwesomeIcon icon={faGear} />

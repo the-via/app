@@ -256,7 +256,7 @@ const ConfigureGrid = () => {
                 <Row
                   key={idx}
                   onClick={(_) => setRow(idx)}
-                  selected={selectedRow === idx}
+                  $selected={selectedRow === idx}
                 >
                   <IconContainer>
                     <Icon />

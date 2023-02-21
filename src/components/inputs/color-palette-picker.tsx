@@ -23,7 +23,7 @@ export const PreviousColorContainer = styled.div`
   border-radius: 15px;
 `;
 
-export const PreviousColorOption = styled.div<{selected: boolean}>`
+export const PreviousColorOption = styled.div<{$selected: boolean}>`
   display: inline-block;
   height: 25px;
   width: 25px;
@@ -34,9 +34,9 @@ export const PreviousColorOption = styled.div<{selected: boolean}>`
   &:hover {
     opacity: 0.8;
   }
-  transform: ${(props) => (props.selected ? 'scale(0.8)' : 'scale(0.6)')};
+  transform: ${(props) => (props.$selected ? 'scale(0.8)' : 'scale(0.6)')};
   border-color: ${(props) =>
-    props.selected ? 'var(--color_accent)' : 'var(--border_color_cell)'};
+    props.$selected ? 'var(--color_accent)' : 'var(--border_color_cell)'};
 `;
 
 export const ConnectedColorPalettePicker: React.FC = () => {
@@ -77,7 +77,7 @@ export const ColorPalettePicker: React.FC<{
           return (
             <PreviousColorOption
               key={idx}
-              selected={isSelected}
+              $selected={isSelected}
               style={{
                 background: getRGB({
                   hue: savedColor[0] ?? 0,

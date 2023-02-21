@@ -153,7 +153,7 @@ export const Pane: React.VFC<Props> = (props: any) => {
         <MenuContainer>
           {menus.map((menu) => (
             <SubmenuRow
-              selected={selectedCategory.label === menu.label}
+              $selected={selectedCategory.label === menu.label}
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >

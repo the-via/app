@@ -13,14 +13,14 @@ const EncoderKeyContainer = styled.div`
   }
 `;
 
-const EncoderKeyContent2 = styled.div<{innerPadding: number; size: number}>`
-  --inner-padding: ${(p) => p.innerPadding}px;
+const EncoderKeyContent2 = styled.div<{$innerPadding: number; size: number}>`
+  --inner-padding: ${(p) => p.$innerPadding}px;
   --size: ${(p) => p.size}px;
-  --inner-size: ${(p) => p.size - p.innerPadding * 2}px;
-  --half-size: ${(p) => (p.size - p.innerPadding * 2) / 2}px;
-  --half-size-p1: ${(p) => 1 + (p.size - p.innerPadding * 2) / 2}px;
+  --inner-size: ${(p) => p.size - p.$innerPadding * 2}px;
+  --half-size: ${(p) => (p.size - p.$innerPadding * 2) / 2}px;
+  --half-size-p1: ${(p) => 1 + (p.size - p.$innerPadding * 2) / 2}px;
   --half-size-p05p: ${(p) =>
-    p.innerPadding / 2 + (p.size - p.innerPadding * 2) / 2}px;
+    p.$innerPadding / 2 + (p.size - p.$innerPadding * 2) / 2}px;
   background-color: currentColor;
   padding: var(--inner-padding);
   min-width: var(--size);
@@ -158,7 +158,7 @@ export const EncoderKey = (props: any) => {
     <EncoderKeyContainer {...props}>
       <EncoderKeyContent2
         size={props.style.width}
-        innerPadding={(5 * props.style.width) / 52}
+        $innerPadding={(5 * props.style.width) / 52}
       />
     </EncoderKeyContainer>
   );

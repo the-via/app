@@ -77,7 +77,7 @@ export const Test: FC = () => {
       <Grid>
         <MenuCell style={{pointerEvents: 'all'}}>
           <MenuContainer>
-            <Row selected={true}>
+            <Row $selected={true}>
               <IconContainer>
                 <FontAwesomeIcon icon={faCircleQuestion} />
                 <MenuTooltip>Check Key</MenuTooltip>

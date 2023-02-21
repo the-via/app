@@ -7,10 +7,7 @@ import {
   isVIADefinitionV2,
   LightingValue,
 } from '@the-via/reader';
-import {
-  getSelectedConnectedDevice,
-  getSelectedKeyboardAPI,
-} from 'src/store/devicesSlice';
+import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
   reloadConnectedDevices,

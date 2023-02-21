@@ -37,7 +37,7 @@ export const UnconnectedGlobalMenu = () => {
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
         <Link key={pane.key} to={pane.path}>
-          <CategoryIconContainer selected={pane.path === location}>
+          <CategoryIconContainer $selected={pane.path === location}>
             <FontAwesomeIcon size={'xl'} icon={pane.icon} />
             <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
           </CategoryIconContainer>

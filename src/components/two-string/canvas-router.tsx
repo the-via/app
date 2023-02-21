@@ -26,7 +26,7 @@ import {getDarkenedColor} from 'src/utils/color-math';
 
 const KeyboardBG = styled.div<{
   onClick: () => void;
-  color: string;
+  $color: string;
   $visible: boolean;
 }>`
   position: absolute;
@@ -36,7 +36,7 @@ const KeyboardBG = styled.div<{
   left: 0;
   background: ${(props) =>
     `linear-gradient(30deg, rgba(150,150,150,1) 10%,${getDarkenedColor(
-      props.color,
+      props.$color,
     )} 50%, rgba(150,150,150,1) 90%)`};
   opacity: ${(props) => (props.$visible ? 1 : 0)};
 `;
@@ -120,7 +120,7 @@ export const CanvasRouter = () => {
           <>
             <KeyboardBG
               onClick={terrainOnClick}
-              color={accentColor}
+              $color={accentColor}
               $visible={!hideTerrainBG}
             />
             {fontLoaded ? (
@@ -229,19 +229,19 @@ const Keyboards = React.memo((props: any) => {
   const {dimensions, configureKeyboardIsSelectable} = props;
   return (
     <>
-      <KeyboardRouteGroup position={0}>
+      <KeyboardRouteGroup $position={0}>
         <ConfigureKeyboard
           dimensions={dimensions}
           selectable={configureKeyboardIsSelectable}
         />
       </KeyboardRouteGroup>
-      <KeyboardRouteGroup position={1}>
+      <KeyboardRouteGroup $position={1}>
         <Test dimensions={dimensions} />
       </KeyboardRouteGroup>
-      <KeyboardRouteGroup position={2}>
+      <KeyboardRouteGroup $position={2}>
         <Design dimensions={dimensions} />
       </KeyboardRouteGroup>
-      <KeyboardRouteGroup position={3}></KeyboardRouteGroup>
+      <KeyboardRouteGroup $position={3}></KeyboardRouteGroup>
     </>
   );
 }, shallowEqual);

@@ -20,14 +20,14 @@ const Label = styled.label`
   color: var(--color_label-highlighted);
   margin-right: 6px;
 `;
-const LayerButton = styled.button<{selected?: boolean}>`
+const LayerButton = styled.button<{$selected?: boolean}>`
   outline: none;
   font-variant-numeric: tabular-nums;
   border: none;
   background: ${(props) =>
-    props.selected ? 'var(--color_accent)' : 'transparent'};
+    props.$selected ? 'var(--color_accent)' : 'transparent'};
   color: ${(props) =>
-    props.selected
+    props.$selected
       ? 'var(--color_inside-accent)'
       : 'var(--color_label-highlighted)'};
   cursor: pointer;
@@ -35,9 +35,9 @@ const LayerButton = styled.button<{selected?: boolean}>`
   font-weight: 400;
   &:hover {
     border: none;
-    background: ${(props) => (props.selected ? 'auto' : 'var(--bg_menu)')};
+    background: ${(props) => (props.$selected ? 'auto' : 'var(--bg_menu)')};
     color: ${(props) =>
-      props.selected ? 'auto' : 'var(--color_label-highlighted)'};
+      props.$selected ? 'auto' : 'var(--color_label-highlighted)'};
   }
 `;
 
@@ -54,7 +54,7 @@ export const LayerControl = () => {
         .map((layerLabel) => (
           <LayerButton
             key={layerLabel}
-            selected={layerLabel === selectedLayerIndex}
+            $selected={layerLabel === selectedLayerIndex}
             onClick={() => dispatch(setLayer(layerLabel))}
           >
             {layerLabel}

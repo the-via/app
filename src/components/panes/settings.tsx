@@ -93,7 +93,7 @@ export const Settings = () => {
       <Grid style={{overflow: 'hidden'}}>
         <MenuCell style={{pointerEvents: 'all', borderTop: 'none'}}>
           <MenuContainer>
-            <Row selected={true}>
+            <Row $selected={true}>
               <IconContainer>
                 <FontAwesomeIcon icon={faToolbox} />
                 <MenuTooltip>General</MenuTooltip>

@@ -18,19 +18,16 @@ const LoaderContainer = styled.div`
   align-items: center;
 `;
 
-const CircleContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) =>
-    !['progressColor', 'containerHeight', 'containerWidth'].includes(prop),
-})<{
-  containerHeight: number;
-  containerWidth: number;
-  progress: number | null;
-  progressColor: string;
+const CircleContainer = styled.div<{
+  $containerHeight: number;
+  $containerWidth: number;
+  $progress: number | null;
+  $progressColor: string;
 }>`
   border-radius: 50%;
   background-color: var(--bg_icon);
-  height: ${(props) => props.containerHeight}px;
-  width: ${(props) => props.containerWidth}px;
+  height: ${(props) => props.$containerHeight}px;
+  width: ${(props) => props.$containerWidth}px;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
@@ -45,18 +42,18 @@ const CircleContainer = styled.div.withConfig({
   animation-timing-function: ease-in-out;
 
   &::after {
-    height: ${(props) => props.containerHeight}px;
-    width: ${(props) => props.containerWidth}px;
+    height: ${(props) => props.$containerHeight}px;
+    width: ${(props) => props.$containerWidth}px;
     position: absolute;
     content: '';
-    background-color: ${(p) => p.progressColor};
-    top: ${(props) => props.containerHeight + 1}px;
+    background-color: ${(p) => p.$progressColor};
+    top: ${(props) => props.$containerHeight + 1}px;
     left: 0;
     right: 0;
     transition: transform 0.4s ease-out;
     transform: translate3d(
       0,
-      ${(props) => -(props.progress || 0) * props.containerHeight}px,
+      ${(props) => -(props.$progress || 0) * props.$containerHeight}px,
       0
     );
   }
@@ -251,9 +248,10 @@ export default function ChippyLoader(props: Props) {
   return (
     <LoaderContainer>
       <CircleContainer
-        progress={props.progress}
-        progressColor={getDarkenedColor(selectedTheme.accent.c, 0.9)}
-        {...{containerHeight, containerWidth}}
+        $progress={props.progress}
+        $progressColor={getDarkenedColor(selectedTheme.accent.c, 0.9)}
+        $containerHeight={containerHeight}
+        $containerWidth={containerWidth}
       >
         <div
           style={{

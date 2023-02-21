@@ -45,9 +45,7 @@ const KeyboardTitle = styled.label`
     filter: brightness(0.7);
   }
 `;
-const KeyboardList = styled.ul.withConfig({
-  shouldForwardProp: (prop) => prop !== 'show',
-})<{show: boolean}>`
+const KeyboardList = styled.ul<{$show: boolean}>`
   padding: 0;
   border: 1px solid var(--bg_control);
   width: 160px;
@@ -57,14 +55,14 @@ const KeyboardList = styled.ul.withConfig({
   margin-top: 5px;
   right: 10px;
   position: absolute;
-  pointer-events: ${(props) => (props.show ? 'all' : 'none')};
+  pointer-events: ${(props) => (props.$show ? 'all' : 'none')};
   transition: all 0.2s ease-out;
   z-index: 11;
-  opacity: ${(props) => (props.show ? 1 : 0)};
+  opacity: ${(props) => (props.$show ? 1 : 0)};
   overflow: hidden;
-  transform: ${(props) => (props.show ? 0 : `translateY(-5px)`)};
+  transform: ${(props) => (props.$show ? 0 : `translateY(-5px)`)};
 `;
-const KeyboardButton = styled.button<{selected?: boolean}>`
+const KeyboardButton = styled.button<{$selected?: boolean}>`
   display: block;
   text-align: center;
   outline: none;
@@ -75,9 +73,9 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   width: 100%;
   border: none;
   background: ${(props) =>
-    props.selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
+    props.$selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
   color: ${(props) =>
-    props.selected
+    props.$selected
       ? 'var(--color_icon_highlighted)'
       : 'var(--color_label-highlighted)'};
   cursor: pointer;
@@ -88,9 +86,9 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   &:hover {
     border: none;
     background: ${(props) =>
-      props.selected ? 'var(--bg_icon-highlighted)' : 'var(--bg_control)'};
+      props.$selected ? 'var(--bg_icon-highlighted)' : 'var(--bg_control)'};
     color: ${(props) =>
-      props.selected
+      props.$selected
         ? 'var(--color_control-highlighted)'
         : 'var(--color_label-highlighted)'};
   }
@@ -126,11 +124,11 @@ const KeyboardSelectors: React.VFC<{
   return (
     <>
       {props.show && <ClickCover onClick={props.onClickOut} />}
-      <KeyboardList show={props.show}>
+      <KeyboardList $show={props.show}>
         {props.keyboards.map(([path, keyboard]) => {
           return (
             <KeyboardButton
-              selected={path === props.selectedPath}
+              $selected={path === props.selectedPath}
               key={path}
               onClick={() => props.selectKeyboard(path as string)}
             >

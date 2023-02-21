@@ -11,14 +11,14 @@ const KeycodeLabel = styled.span`
   color: var(--color_label);
   display: flex;
 `;
-const Item = styled.div<{selected?: boolean}>`
+const Item = styled.div<{$selected?: boolean}>`
   box-sizing: border-box;
   min-width: 200px;
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
   background-color: ${(props) =>
-    !props.selected ? 'var(--bg_menu)' : 'var(--bg_control)'};
+    !props.$selected ? 'var(--bg_menu)' : 'var(--bg_control)'};
 
   &:hover {
     background-color: var(--bg_control);
@@ -29,7 +29,7 @@ export const AutocompleteItem: React.VFC<any> = ({
   selected,
   entity: {label, code},
 }) => (
-  <Item selected={selected}>
+  <Item $selected={selected}>
     <KeycodeLabel>{label}</KeycodeLabel> <Keycode>{code}</Keycode>
   </Item>
 );

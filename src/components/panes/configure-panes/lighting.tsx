@@ -77,7 +77,7 @@ export const Pane: FC = () => {
         <MenuContainer>
           {getMenus().map((menu) => (
             <SubmenuRow
-              selected={selectedCategory === menu}
+              $selected={selectedCategory === menu}
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >

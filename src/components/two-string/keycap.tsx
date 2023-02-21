@@ -374,7 +374,6 @@ export const Keycap = React.memo(
     ) : (
       <>
         <KeycapContainer
-          {...props}
           onClick={onClick}
           onPointerDown={onPointerDown}
           onPointerOver={onPointerOver}
@@ -400,7 +399,7 @@ export const Keycap = React.memo(
           }}
         >
           <GlowContainer
-            selected={selected}
+            $selected={selected}
             style={{
               animation: disabled
                 ? 'initial' // This prevents the hover animation from firing when the keycap can't be interacted with
@@ -435,7 +434,7 @@ export const Keycap = React.memo(
             </CanvasContainer>
           </GlowContainer>
           {(macroData || overflowsTexture) && (
-            <TooltipContainer rotate={rotation[2]}>
+            <TooltipContainer $rotate={rotation[2]}>
               <Keycap2DTooltip>
                 {macroData || (label && label.tooltipLabel)}
               </Keycap2DTooltip>
@@ -448,14 +447,14 @@ export const Keycap = React.memo(
   shallowEqual,
 );
 
-const GlowContainer = styled.div<{selected: boolean}>`
+const GlowContainer = styled.div<{$selected: boolean}>`
   box-sizing: border-box;
   padding: 2px 6px 10px 6px;
   transition: transform 0.2s ease-out;
   box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
     inset 1px 1px 0 rgb(255 255 255 / 20%);
   animation: ${(p) =>
-    p.selected ? '.75s infinite alternate select-glow' : 'initial'};
+    p.$selected ? '.75s infinite alternate select-glow' : 'initial'};
   &:hover {
     transform: perspective(100px) translateZ(-5px);
     animation: 0.5s 1 forwards select-glow;

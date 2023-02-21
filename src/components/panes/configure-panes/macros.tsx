@@ -54,7 +54,7 @@ export const Pane: FC = () => {
         .map((_, idx) => idx)
         .map((idx) => (
           <SubmenuRow
-            selected={selectedMacro === idx}
+            $selected={selectedMacro === idx}
             onClick={() => setSelectedMacro(idx)}
             key={idx}
             style={{borderWidth: 0, textAlign: 'center'}}

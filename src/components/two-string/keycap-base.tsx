@@ -6,17 +6,7 @@ export enum DisplayMode {
   ConfigureColors = 4,
 }
 
-export const KeycapContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) =>
-    ![
-      'normalizedRects',
-      'textureWidth',
-      'textureHeight',
-      'textureOffsetX',
-      'shouldRotate',
-      'keyState',
-    ].includes(prop),
-})<{position: [number, number]}>`
+export const KeycapContainer = styled.div`
   position: absolute;
   left: 0;
   top: 0;
@@ -35,9 +25,9 @@ export const KeycapContainer = styled.div.withConfig({
   }
 `;
 
-export const TooltipContainer = styled.div<{rotate: number}>`
+export const TooltipContainer = styled.div<{$rotate: number}>`
   position: absolute;
-  transform: rotate(${(p) => p.rotate}rad);
+  transform: rotate(${(p) => p.$rotate}rad);
   width: 100%;
   height: 100%;
   bottom: 0;

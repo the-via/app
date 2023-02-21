@@ -2,10 +2,10 @@ import styled from 'styled-components';
 
 export enum Direction {
   Left,
-  Right
+  Right,
 }
 
-export const CarouselButton = styled.button<{direction: Direction}>`
+export const CarouselButton = styled.button<{$direction: Direction}>`
   display: block;
   margin: 0;
   padding: 0;
@@ -24,8 +24,8 @@ export const CarouselButton = styled.button<{direction: Direction}>`
   position: absolute;
   outline: none;
 
-  ${props =>
-    props.direction === Direction.Right
+  ${(props) =>
+    props.$direction === Direction.Right
       ? 'transform: rotate(90deg); right: -6px;'
       : 'transform: rotate(-90deg); left: -6px;'}
 

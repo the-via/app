@@ -225,7 +225,7 @@ export const KeycodePane: FC = () => {
       <MenuContainer>
         {getEnabledMenus().map(({label}) => (
           <SubmenuRow
-            selected={label === selectedCategory}
+            $selected={label === selectedCategory}
             onClick={() => setSelectedCategory(label)}
             key={label}
           >

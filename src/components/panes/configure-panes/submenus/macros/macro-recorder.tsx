@@ -40,14 +40,12 @@ const NoMacroRecorded = styled.div`
   color: var(--color_label-highlighted);
 `;
 
-const MacroSequenceContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isModified',
-})<{isModified: boolean}>`
+const MacroSequenceContainer = styled.div<{$isModified: boolean}>`
   max-width: 960px;
   width: 100%;
   display: block;
   border: 1px solid var(--border_color_cell);
-  border-style: ${(props) => (props.isModified ? 'dashed' : 'solid')};
+  border-style: ${(props) => (props.$isModified ? 'dashed' : 'solid')};
   padding: 10px 20px;
   border-radius: 15px;
   margin-top: 10px;
@@ -322,7 +320,7 @@ export const MacroRecorder: React.FC<{
     <>
       <MacroSequenceContainer
         ref={macroSequenceRef}
-        isModified={!showOriginalMacro}
+        $isModified={!showOriginalMacro}
       >
         {sequence.length ? (
           sequence

@@ -31,7 +31,7 @@ export const ComboKeycap = (props: any) => {
     <>
       <KeycapContainer {...otherProps}>
         <ComboKeyBoundingContainer
-          selected={props.selected}
+          $selected={props.selected}
           onClick={onClick}
           onPointerDown={onPointerDown}
           onPointerOver={onPointerOver}
@@ -174,7 +174,7 @@ export const ComboKeycap = (props: any) => {
           ) : null}
         </ComboKeyBoundingContainer>
         {(props.macroData || props.overflowsTexture) && (
-          <TooltipContainer rotate={props.rotation[2]}>
+          <TooltipContainer $rotate={props.rotation[2]}>
             <Keycap2DTooltip>
               {props.macroData || (props.label && props.label.tooltipLabel)}
             </Keycap2DTooltip>
@@ -185,11 +185,11 @@ export const ComboKeycap = (props: any) => {
   );
 };
 
-const ComboKeyBoundingContainer = styled.div<{selected: boolean}>`
+const ComboKeyBoundingContainer = styled.div<{$selected: boolean}>`
   box-sizing: border-box;
   transition: transform 0.2s ease-out;
   animation: ${(p) =>
-    p.selected ? '.75s infinite alternate select-glow' : 'initial'};
+    p.$selected ? '.75s infinite alternate select-glow' : 'initial'};
   &:hover {
     transform: perspective(100px) translateZ(-5px);
     animation: 0.5s 1 forwards select-glow;
