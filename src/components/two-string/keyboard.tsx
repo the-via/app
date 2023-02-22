@@ -19,6 +19,7 @@ import {useLocation} from 'wouter';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
+  getTestKeyboardSoundsEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
@@ -36,6 +37,7 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
+import { testKeyboardSounds } from 'src/utils/test-keyboard-sounds/test-keyboard-sounds';
 
 enum DisplayMode {
   Test = 1,
@@ -316,6 +318,7 @@ export const Design = (props: {dimensions?: DOMRect}) => {
     </div>
   );
 };
+
 const EMPTY_ARR = [] as any[];
 export const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
@@ -325,6 +328,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+  const testKeyboardSoundsEnabled = useAppSelector(getTestKeyboardSoundsEnabled);
   const selectedMatrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -380,6 +384,14 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
+
+  useEffect(() => {
+    if ( testKeyboardSoundsEnabled ) {
+      testKeyboardSounds(isTestMatrixEnabled ? pressedKeys : globalPressedKeys );
+    } else {
+      testKeyboardSounds([]);
+    }
+  }, [pressedKeys, globalPressedKeys, testKeyboardSoundsEnabled]);
 
   return (
     <TestKeyboard

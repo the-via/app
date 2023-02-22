@@ -61,6 +61,10 @@ export const settingsSlice = createSlice({
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
       state.isTestMatrixEnabled = action.payload;
     },
+    setTestKeyboardSoundsEnabled: (state, action: PayloadAction<boolean>) => {
+      state.testKeyboardSoundsEnabled = action.payload;
+      setSettings(state);
+    },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
     },
@@ -75,6 +79,7 @@ export const {
   toggleFastRemap,
   toggleCreatorMode,
   setTestMatrixEnabled,
+  setTestKeyboardSoundsEnabled,
   toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
@@ -96,6 +101,8 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
+export const getTestKeyboardSoundsEnabled = (state: RootState) =>
+  state.settings.testKeyboardSoundsEnabled;
 export const getRenderMode = (state: RootState) =>
   webGLIsAvailable ? state.settings.renderMode : '2D';
 export const getThemeMode = (state: RootState) => state.settings.themeMode;

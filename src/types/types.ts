@@ -79,6 +79,7 @@ export type Settings = {
   renderMode: '3D' | '2D';
   themeMode: 'light' | 'dark';
   themeName: string;
+  testKeyboardSoundsEnabled: boolean;
 };
 
 export type CommonMenusMap = {
