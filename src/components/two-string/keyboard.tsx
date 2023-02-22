@@ -37,7 +37,7 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
-import { testKeyboardSounds } from 'src/utils/test-keyboard-sounds/test-keyboard-sounds';
+import {testKeyboardSounds} from 'src/utils/test-keyboard-sounds/test-keyboard-sounds';
 
 enum DisplayMode {
   Test = 1,
@@ -328,7 +328,9 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const testKeyboardSoundsEnabled = useAppSelector(getTestKeyboardSoundsEnabled);
+  const testKeyboardSoundsEnabled = useAppSelector(
+    getTestKeyboardSoundsEnabled,
+  );
   const selectedMatrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -386,8 +388,8 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   }
 
   useEffect(() => {
-    if ( testKeyboardSoundsEnabled ) {
-      testKeyboardSounds(isTestMatrixEnabled ? pressedKeys : globalPressedKeys );
+    if (testKeyboardSoundsEnabled) {
+      testKeyboardSounds(isTestMatrixEnabled ? pressedKeys : globalPressedKeys);
     } else {
       testKeyboardSounds([]);
     }

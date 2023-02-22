@@ -59,7 +59,9 @@ export const Test: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const testKeyboardSoundsEnabled = useAppSelector(getTestKeyboardSoundsEnabled);
+  const testKeyboardSoundsEnabled = useAppSelector(
+    getTestKeyboardSoundsEnabled,
+  );
   const [testContextObj] = useContext(TestContext);
   const {progress} = useProgress();
 

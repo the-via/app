@@ -14,8 +14,8 @@ function getAudioContext(): AudioContext {
 }
 
 function midiNoteToFrequency(midiNote: number): number {
-    let a = 440; //frequency of A (common value is 440Hz)
-    return Math.pow(2, (midiNote - 69) / 12) * a;
+  let a = 440; //frequency of A (common value is 440Hz)
+  return Math.pow(2, (midiNote - 69) / 12) * a;
 }
 
 export class Note {
@@ -29,7 +29,7 @@ export class Note {
     this.audioContext = getAudioContext();
     this.osc = new OscillatorNode(this.audioContext, {
       type: 'sine',
-      frequency: midiNoteToFrequency(this.midiNote)
+      frequency: midiNoteToFrequency(this.midiNote),
     });
     this.ampSustainTime = 0;
     this.amp = this.audioContext.createGain();
