@@ -10,6 +10,8 @@ import {
 import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
+  convertCharacterTaps,
+  filterAllDelays,
   optimizedSequenceToRawSequence,
   rawSequenceToOptimizedSequence,
   sequenceToExpression,
@@ -59,6 +61,8 @@ type SmartTransformAcc = [
   number,
 ];
 
+// TODO: make this handle {+LC_CTL}abc{-LC_CTL}
+// TODO: make this handle abc{KC_ENT}def{KC_ENT}
 const smartTransform = (
   [acc, , currHeld]: SmartTransformAcc,
   [curr, id]: [OptimizedKeycodeSequenceItem, number],
@@ -138,12 +142,10 @@ export const MacroRecorder: React.FC<{
         navigator.keyboard.unlock();
         if (!showVerboseKeyState && !recordWaitTimes) {
           const optimizedSequence = rawSequenceToOptimizedSequence(
-            keycodeSequence.filter(
-              ([action]) =>
-                showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
-            ),
+            convertCharacterTaps(filterAllDelays(keycodeSequence)),
           );
-          setKeycodeSequence(optimizedSequenceToRawSequence(optimizedSequence));
+          const rawSequence = optimizedSequenceToRawSequence(optimizedSequence);
+          setKeycodeSequence(rawSequence);
         }
       }
     },
@@ -173,7 +175,7 @@ export const MacroRecorder: React.FC<{
     let sliceableSequence = showOriginalMacro
       ? ((selectedMacro ?? []) as RawKeycodeSequence)
       : keycodeSequence;
-    return rawSequenceToOptimizedSequence(sliceableSequence);
+    return sliceableSequence;
   };
 
   const initialReduceState = [
@@ -209,6 +211,9 @@ export const MacroRecorder: React.FC<{
 
   useEffect(() => {
     if (displayedSequence) {
+      const unsavedMacro = sequenceToExpression(
+        displayedSequence.map(unwrapTagWithID),
+      );
       setUnsavedMacro(
         sequenceToExpression(displayedSequence.map(unwrapTagWithID)),
       );
