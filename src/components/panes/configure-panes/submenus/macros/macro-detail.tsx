@@ -5,7 +5,11 @@ import {AccentSlider} from '../../../../inputs/accent-slider';
 import {MacroRecorder} from './macro-recorder';
 import {useAppSelector} from 'src/store/hooks';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCode, faGear} from '@fortawesome/free-solid-svg-icons';
+import {
+  faClapperboard,
+  faCode,
+  faGear,
+} from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
@@ -119,7 +123,6 @@ const BufferSizeUsage = () => {
 
 export const MacroDetailPane: React.VFC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
-  const [showSettings, setShowSettings] = React.useState(false);
   const [showAdvancedView, setShowAdvancedView] = React.useState(false);
   const ast = useAppSelector((state) => state.macros.ast);
   const [unsavedMacro, setUnsavedMacro] = useState(currentMacro);
@@ -150,36 +153,24 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
       <CenterTabContainer>
         <TabBar>
           <MacroTab
-            $selected={!showSettings}
-            onClick={() => setShowSettings(false)}
+            $selected={!showAdvancedView}
+            onClick={() => setShowAdvancedView(false)}
           >
-            <FontAwesomeIcon icon={faCode} />
+            <FontAwesomeIcon icon={faClapperboard} />
           </MacroTab>
           <MacroTab
-            $selected={showSettings}
-            onClick={() => setShowSettings(true)}
+            $selected={showAdvancedView}
+            onClick={() => setShowAdvancedView(true)}
           >
-            <FontAwesomeIcon icon={faGear} />
+            <FontAwesomeIcon icon={faCode} />
           </MacroTab>
         </TabBar>
       </CenterTabContainer>
       <BufferSizeUsage />
-      {showSettings ? (
-        <ControlRow>
-          <Label>Script Mode</Label>
-          <Detail>
-            <AccentSlider
-              isChecked={showAdvancedView}
-              onChange={setShowAdvancedView}
-            />
-          </Detail>
-        </ControlRow>
-      ) : null}
       {showAdvancedView ? (
         <ScriptMode
           macro={currentMacro}
           macroIndex={props.selectedMacro}
-          showSettings={showSettings}
           protocol={props.protocol}
           setUnsavedMacro={setUnsavedMacro}
           saveMacros={props.saveMacros}
@@ -188,7 +179,6 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
       ) : (
         <MacroRecorder
           selectedMacro={ast[props.selectedMacro]}
-          showSettings={showSettings}
           setUnsavedMacro={setUnsavedMacro}
           undoMacro={undoChanges}
           saveMacro={saveMacro}

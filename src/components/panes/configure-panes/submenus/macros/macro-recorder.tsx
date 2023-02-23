@@ -38,7 +38,6 @@ declare global {
 }
 
 const NoMacroRecorded = styled.div`
-  margin: 10px 0px;
   font-style: italic;
   color: var(--color_label-highlighted);
 `;
@@ -49,7 +48,7 @@ const MacroSequenceContainer = styled.div<{$isModified: boolean}>`
   display: block;
   border: 1px solid var(--border_color_cell);
   border-style: ${(props) => (props.$isModified ? 'dashed' : 'solid')};
-  padding: 10px 20px;
+  padding: 30px 20px;
   border-radius: 15px;
   margin-top: 10px;
   box-sizing: border-box;
@@ -116,11 +115,10 @@ const KeycodeMap = getKeycodes()
 
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
-  showSettings: boolean;
   undoMacro(): void;
   saveMacro(macro?: string): void;
   setUnsavedMacro: (a: any) => void;
-}> = ({selectedMacro, showSettings, setUnsavedMacro, saveMacro, undoMacro}) => {
+}> = ({selectedMacro, setUnsavedMacro, saveMacro, undoMacro}) => {
   const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
   const [recordWaitTimes, setRecordWaitTimes] = useState(false);
   const [showOriginalMacro, setShowOriginalMacro] = useState(true);
@@ -319,7 +317,7 @@ export const MacroRecorder: React.FC<{
     }
   }, [recordingToggleChange]);
 
-  return !showSettings ? (
+  return (
     <>
       <MacroSequenceContainer
         ref={macroSequenceRef}
@@ -338,7 +336,7 @@ export const MacroRecorder: React.FC<{
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
-          transform: 'translate(-0px, -5px)',
+          transform: 'translate(-0px, -21px)',
         }}
       >
         <MacroEditControls
@@ -364,27 +362,6 @@ export const MacroRecorder: React.FC<{
           recordingToggleChange={recordingToggleChange}
         />
       </div>
-    </>
-  ) : (
-    <>
-      <ControlRow>
-        <Label>Include separate keyup/keydown actions</Label>
-        <Detail>
-          <AccentSlider
-            isChecked={showVerboseKeyState}
-            onChange={setShowVerboseKeyState}
-          />
-        </Detail>
-      </ControlRow>
-      <ControlRow>
-        <Label>Include delays (ms)</Label>
-        <Detail>
-          <AccentSlider
-            isChecked={recordWaitTimes}
-            onChange={setRecordWaitTimes}
-          />
-        </Detail>
-      </ControlRow>
     </>
   );
 };

@@ -70,17 +70,9 @@ export const ScriptMode: React.FC<{
   macro: string;
   protocol: number;
   macroIndex: number;
-  showSettings: boolean;
   setUnsavedMacro: (macro: string) => void;
   saveMacros: (val: string) => void;
-}> = ({
-  macro,
-  protocol,
-  showSettings,
-  setUnsavedMacro,
-  saveMacros,
-  macroIndex,
-}) => {
+}> = ({macro, protocol, setUnsavedMacro, saveMacros, macroIndex}) => {
   const enterToken = '{KC_ENT}';
   const trimmedMacro = macro.trimRight();
   const textareaInitialValue = trimmedMacro.replace(
@@ -111,14 +103,7 @@ export const ScriptMode: React.FC<{
     }
   };
   const hasError = errorMessage !== undefined;
-  return showSettings ? (
-    <ControlRow>
-      <Label>Tap 'Enter' at end of macro</Label>
-      <Detail>
-        <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
-      </Detail>
-    </ControlRow>
-  ) : (
+  return (
     <>
       <AutoHeightRow>
         <ReactTextareaAutocomplete
@@ -217,6 +202,12 @@ export const ScriptMode: React.FC<{
           </AccentButton>
         </Detail>
       </AutoHeightRow>
+      <ControlRow>
+        <Label>Tap 'Enter' at end of macro</Label>
+        <Detail>
+          <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
+        </Detail>
+      </ControlRow>
     </>
   );
 };
