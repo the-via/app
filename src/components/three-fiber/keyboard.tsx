@@ -37,10 +37,7 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
-import {
-  TestKeyboardSounds,
-  testKeyboardSounds,
-} from 'src/components/void/test-keyboard-sounds';
+import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
 
 enum DisplayMode {
   Test = 1,
