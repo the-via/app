@@ -69,3 +69,23 @@ export const IconButtonContainer = styled(IconButton)`
   background: var(--bg_control);
   border-right: 1px solid var(--border_color_icon);
 `;
+
+export const IconToggleContainer = styled(IconButton)<{$selected: boolean}>`
+  cursor: pointer;
+  transition: all 0.4s ease;
+  background: ${(props) =>
+    props.$selected ? 'var(--color_accent)' : 'var(--bg_menu)'};
+  svg {
+    color: ${(props) =>
+      props.$selected ? 'var(--color_inside-accent)' : 'var(--bg_icon)'};
+  }
+  &:hover {
+    background: ${(props) =>
+      props.$selected ? 'var(--color_accent)' : 'var(--bg_menu)'};
+    svg {
+      color: ${(props) =>
+        props.$selected ? 'var(--color_inside-accent)' : 'var(--bg_icon)'};
+    }
+  }
+  border-right: 1px solid var(--border_color_icon);
+`;

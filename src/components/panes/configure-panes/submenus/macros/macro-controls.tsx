@@ -2,13 +2,18 @@ import {
   faCircle,
   faCompress,
   faExpand,
+  faMagicWandSparkles,
   faSave,
   faSquare,
+  faStopwatch,
   faTrash,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {IconButtonContainer} from 'src/components/inputs/icon-button';
+import {
+  IconButtonContainer,
+  IconToggleContainer,
+} from 'src/components/inputs/icon-button';
 import {IconButtonTooltip} from 'src/components/inputs/tooltip';
 import styled from 'styled-components';
 
@@ -24,10 +29,14 @@ export const MacroEditControlsContainer = styled.div`
 export const MacroEditControls: React.FC<{
   isFullscreen: boolean;
   isRecording: boolean;
+  optimizeRecording: boolean;
+  recordDelays: boolean;
   hasUnsavedChanges?: boolean;
   undoChanges(): void;
   deleteMacro(): void;
   saveChanges(): void;
+  toggleOptimizeRecording(): void;
+  toggleRecordDelays(): void;
   toggleFullscreen(): void;
   isEmpty?: boolean;
   recordingToggleChange: (a: boolean) => void;
@@ -39,6 +48,10 @@ export const MacroEditControls: React.FC<{
   hasUnsavedChanges,
   undoChanges,
   saveChanges,
+  recordDelays,
+  toggleRecordDelays,
+  optimizeRecording,
+  toggleOptimizeRecording,
   isEmpty,
   deleteMacro,
   toggleFullscreen,
@@ -107,7 +120,34 @@ export const MacroEditControls: React.FC<{
           />
           <IconButtonTooltip>Delete Macro</IconButtonTooltip>
         </IconButtonContainer>
-      ) : null}
+      ) : (
+        <>
+          <IconToggleContainer
+            $selected={optimizeRecording}
+            onClick={toggleOptimizeRecording}
+          >
+            <FontAwesomeIcon size={'sm'} icon={faMagicWandSparkles} />
+            <IconButtonTooltip>
+              {!optimizeRecording
+                ? 'Use Smart Optimization'
+                : 'Skip Smart Optimization'}
+            </IconButtonTooltip>
+          </IconToggleContainer>
+          <IconToggleContainer
+            $selected={recordDelays}
+            onClick={toggleRecordDelays}
+          >
+            <FontAwesomeIcon
+              size={'sm'}
+              icon={faStopwatch}
+              className={'fa-stack-1x'}
+            />
+            <IconButtonTooltip>
+              {!recordDelays ? 'Record Delays' : 'Skip Recording Delays'}
+            </IconButtonTooltip>
+          </IconToggleContainer>
+        </>
+      )}
       {recordComponent}
       {
         <IconButtonContainer onClick={toggleFullscreen}>

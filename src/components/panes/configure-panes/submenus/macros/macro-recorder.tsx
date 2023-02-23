@@ -346,9 +346,19 @@ export const MacroRecorder: React.FC<{
         <MacroEditControls
           isFullscreen={isFullscreen}
           isEmpty={!selectedMacro || !selectedMacro.length}
+          optimizeRecording={!showVerboseKeyState}
+          recordDelays={recordWaitTimes}
           isRecording={isRecording}
           addText={() => {}}
           deleteMacro={deleteMacro}
+          toggleOptimizeRecording={() => {
+            console.log(showVerboseKeyState);
+            setShowVerboseKeyState(!showVerboseKeyState);
+          }}
+          toggleRecordDelays={() => {
+            console.log(recordWaitTimes);
+            setRecordWaitTimes(!recordWaitTimes);
+          }}
           toggleFullscreen={toggleFullscreen}
           undoChanges={undoChanges}
           saveChanges={() => saveMacro()}
