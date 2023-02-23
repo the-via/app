@@ -64,23 +64,66 @@ export function optimizedSequenceToRawSequence(
   });
 }
 
+export function filterSmallOverlaps(
+  sequence: RawKeycodeSequence,
+): RawKeycodeSequence {
+  const mods: Record<string, boolean> = {KC_LSFT: true, KC_RSFT: true};
+  let seq = [...sequence];
+  for (let index = 0; index + 2 < sequence.length; index++) {
+    if (
+      seq[index][0] === RawKeycodeSequenceAction.Down &&
+      seq[index + 1][0] === RawKeycodeSequenceAction.Delay &&
+      seq[index + 2][0] === RawKeycodeSequenceAction.Up &&
+      seq[index][1] != seq[index + 2][1] &&
+      seq[index + 1][1] < 2000 &&
+      seq[index][1] != 'KC_RSFT'
+    ) {
+      const temp = seq[index];
+      seq[index] = seq[index + 2];
+      seq[index + 2] = temp;
+    }
+  }
+  return seq;
+}
+
+export function filterAllDelays(
+  sequence: RawKeycodeSequence,
+): RawKeycodeSequence {
+  return sequence.filter(
+    ([action]) => action !== RawKeycodeSequenceAction.Delay,
+  );
+}
+
 export function rawSequenceToOptimizedSequence(
   sequence: RawKeycodeSequence,
 ): OptimizedKeycodeSequence {
   let result: OptimizedKeycodeSequence = [];
-  result = convertToChords(sequence);
+  result = convertToTapsAndChords(sequence);
   result = convertToCharacterStreams(result);
   return result;
 }
 
-export function convertToChords(
+export function convertToTapsAndChords(
   sequence: OptimizedKeycodeSequence,
 ): OptimizedKeycodeSequence {
-  let result: OptimizedKeycodeSequence = [];
   let cat: OptimizedKeycodeSequence = [];
   let keyDownKeycodes: string[] = [];
   let unmatchedKeyDownCount: number = 0;
-  sequence.forEach((element, index) => {
+
+  // Convert taps to down/up so that chord detection algorithm is simpler
+  const seq: OptimizedKeycodeSequence = sequence.reduce((p, n) => {
+    if (n[0] === RawKeycodeSequenceAction.Tap) {
+      return [
+        ...p,
+        [RawKeycodeSequenceAction.Down, n[1]],
+        [RawKeycodeSequenceAction.Up, n[1]],
+      ];
+    }
+    return [...p, n];
+  }, [] as OptimizedKeycodeSequenceItem[]);
+
+  let seq2: OptimizedKeycodeSequence = [];
+  seq.forEach((element, index) => {
     // This gets set true while we are iterating over
     // a possible key chord (symmetric nested key downs/key ups)
     let keepGoing = false;
@@ -109,7 +152,11 @@ export function convertToChords(
         if (unmatchedKeyDownCount == 0) {
           // If we have matched all the last key downs.
           // we have a valid key chord, concatenate it
-          result.push([GroupedKeycodeSequenceAction.Chord, keyDownKeycodes]);
+          if (keyDownKeycodes.length === 1) {
+            seq2.push([RawKeycodeSequenceAction.Tap, keyDownKeycodes[0]]);
+          } else {
+            seq2.push([GroupedKeycodeSequenceAction.Chord, keyDownKeycodes]);
+          }
           // We don't want this concatenated in the default case below.
           cat = [];
         } else {
@@ -119,19 +166,35 @@ export function convertToChords(
       }
     }
 
-    if (index === sequence.length - 1) {
+    if (index === seq.length - 1) {
       keepGoing = false;
     }
 
     if (!keepGoing) {
-      result.push(...cat);
+      seq2.push(...cat);
       cat = [];
       keyDownKeycodes = [];
       unmatchedKeyDownCount = 0;
     }
   });
 
-  return result;
+  // Convert adjacent down/ups to taps
+  let seq3: OptimizedKeycodeSequence = [];
+  for (let index = 0; index < seq2.length; index++) {
+    if (
+      index + 1 < seq2.length &&
+      seq2[index][0] == RawKeycodeSequenceAction.Down &&
+      seq2[index + 1][0] == RawKeycodeSequenceAction.Up &&
+      seq2[index][1] === seq2[index + 1][1]
+    ) {
+      seq3.push([RawKeycodeSequenceAction.Tap, seq2[index][1] as string]);
+      index++;
+    } else {
+      seq3.push(seq2[index]);
+    }
+  }
+
+  return seq3;
 }
 
 const mapKeycodeToCharacterStream: Record<string, string[]> = {
@@ -185,12 +248,43 @@ const mapKeycodeToCharacterStream: Record<string, string[]> = {
   KC_SLSH: ['/', '?'],
 };
 
+const mapCharToShiftedChar = Object.values(mapKeycodeToCharacterStream).reduce(
+  (p, [n, m]) => {
+    return {...p, [n]: m};
+  },
+  {} as Record<string, string>,
+);
+
+// Convert all down actions of characters (i.e. letters, numbers, punctuation)
+// into tap actions and throw away the up actions.
+export function convertCharacterTaps(
+  sequence: RawKeycodeSequence,
+): RawKeycodeSequence {
+  let result: RawKeycodeSequence = sequence.reduce((p, n) => {
+    if (
+      n[0] == RawKeycodeSequenceAction.Down &&
+      n[1] in mapKeycodeToCharacterStream
+    ) {
+      return [...p, [RawKeycodeSequenceAction.Tap, n[1]]];
+    } else if (
+      n[0] == RawKeycodeSequenceAction.Up &&
+      n[1] in mapKeycodeToCharacterStream
+    ) {
+      return p;
+    } else {
+      return [...p, n];
+    }
+  }, [] as RawKeycodeSequenceItem[]);
+  return result;
+}
+
 export function convertToCharacterStreams(
   sequence: OptimizedKeycodeSequence,
 ): OptimizedKeycodeSequence {
-  let result: OptimizedKeycodeSequence = sequence.reduce((p, n) => {
+  // Convert "{KC_A}{KC_B}{KC_C}" to "abc"
+  // Convert "{KC_LSFT,KC_A}" to "A"
+  let seq: OptimizedKeycodeSequence = sequence.reduce((p, n) => {
     let newChars = '';
-
     if (
       n[0] == RawKeycodeSequenceAction.Tap &&
       n[1] in mapKeycodeToCharacterStream
@@ -236,7 +330,44 @@ export function convertToCharacterStreams(
     }
   }, [] as OptimizedKeycodeSequenceItem[]);
 
-  return result;
+  // convert "{+KC_LSFT}abc{-KC_LSFT}" into "ABC"
+  let seq2: OptimizedKeycodeSequence = [];
+  for (let index = 0; index < seq.length; index++) {
+    if (
+      index + 2 < seq.length &&
+      seq[index][0] === RawKeycodeSequenceAction.Down &&
+      seq[index + 1][0] === RawKeycodeSequenceAction.CharacterStream &&
+      seq[index + 2][0] === RawKeycodeSequenceAction.Up &&
+      seq[index][1] === seq[index + 2][1] &&
+      (seq[index][1] === 'KC_LSFT' || seq[index][1] === 'KC_RSFT')
+    ) {
+      const newChars = (seq[index + 1][1] as string)
+        .split('')
+        .map((char) => mapCharToShiftedChar[char])
+        .join('');
+      seq2.push([RawKeycodeSequenceAction.CharacterStream, newChars]);
+      index += 2;
+    } else {
+      seq2.push(seq[index]);
+    }
+  }
+
+  // concatenate adjacent character streams
+  const seq3: OptimizedKeycodeSequence = seq2.reduce((p, n) => {
+    if (
+      n[0] === RawKeycodeSequenceAction.CharacterStream &&
+      p[p.length - 1] !== undefined &&
+      p[p.length - 1][0] === RawKeycodeSequenceAction.CharacterStream
+    ) {
+      p[p.length - 1][1] = (p[p.length - 1][1] as string).concat(
+        n[1] as string,
+      );
+      return p;
+    }
+    return [...p, n];
+  }, [] as OptimizedKeycodeSequenceItem[]);
+
+  return seq3;
 }
 
 export function sequenceToExpression(
@@ -262,7 +393,11 @@ export function sequenceToExpression(
         break;
       case RawKeycodeSequenceAction.CharacterStream:
         // Insert escape character \ before {
-        result.push((element[1] as string).replace(/{/g, '\\{'));
+        try {
+          result.push((element[1] as string).replace(/{/g, '\\{'));
+        } catch (e) {
+          debugger;
+        }
     }
   });
   return result.join('');
