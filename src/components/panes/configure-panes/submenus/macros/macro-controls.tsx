@@ -141,7 +141,26 @@ export const MacroEditControls: React.FC<{
           <MacroControlGroupDivider />
         </>
       ) : (
+        <></>
+      )}
+      <MacroControlGroupContainer>
+        {recordComponent}
+        {
+          <IconButtonContainer onClick={toggleFullscreen}>
+            <FontAwesomeIcon
+              size={'sm'}
+              color="var(--color_label)"
+              icon={isFullscreen ? faCompress : faExpand}
+            />
+            <IconButtonTooltip>
+              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+            </IconButtonTooltip>
+          </IconButtonContainer>
+        }
+      </MacroControlGroupContainer>
+      {!isRecording ? (
         <>
+          <MacroControlGroupDivider />
           <MacroControlGroupContainer>
             <IconToggleContainer
               $selected={optimizeRecording}
@@ -168,24 +187,8 @@ export const MacroEditControls: React.FC<{
               </IconButtonTooltip>
             </IconToggleContainer>
           </MacroControlGroupContainer>
-          <MacroControlGroupDivider />
         </>
-      )}
-      <MacroControlGroupContainer>
-        {recordComponent}
-        {
-          <IconButtonContainer onClick={toggleFullscreen}>
-            <FontAwesomeIcon
-              size={'sm'}
-              color="var(--color_label)"
-              icon={isFullscreen ? faCompress : faExpand}
-            />
-            <IconButtonTooltip>
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            </IconButtonTooltip>
-          </IconButtonContainer>
-        }
-      </MacroControlGroupContainer>
+      ) : null}
     </MacroEditControlsContainer>
   );
 };
