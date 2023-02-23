@@ -393,11 +393,7 @@ export function sequenceToExpression(
         break;
       case RawKeycodeSequenceAction.CharacterStream:
         // Insert escape character \ before {
-        try {
-          result.push((element[1] as string).replace(/{/g, '\\{'));
-        } catch (e) {
-          debugger;
-        }
+        result.push((element[1] as string).replace(/{/g, '\\{'));
     }
   });
   return result.join('');

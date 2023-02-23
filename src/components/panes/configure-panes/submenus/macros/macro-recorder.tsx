@@ -147,7 +147,6 @@ export const MacroRecorder: React.FC<{
             convertCharacterTaps(filterAllDelays(keycodeSequence)),
           );
           const rawSequence = optimizedSequenceToRawSequence(optimizedSequence);
-          console.log(`recording ended '${sequenceToExpression(rawSequence)}'`);
           setKeycodeSequence(rawSequence);
         }
       }
@@ -217,7 +216,6 @@ export const MacroRecorder: React.FC<{
       const unsavedMacro = sequenceToExpression(
         displayedSequence.map(unwrapTagWithID),
       );
-      console.log(`set unsaved macro '${unsavedMacro}'`);
       setUnsavedMacro(
         sequenceToExpression(displayedSequence.map(unwrapTagWithID)),
       );
