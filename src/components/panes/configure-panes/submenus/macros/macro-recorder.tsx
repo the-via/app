@@ -26,6 +26,7 @@ import {
 import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
 import {tagWithID, unwrapTagWithID} from './tagging';
+import {pipeline} from 'src/utils/pipeline';
 
 declare global {
   interface Navigator {
@@ -211,9 +212,6 @@ export const MacroRecorder: React.FC<{
 
   useEffect(() => {
     if (displayedSequence) {
-      const unsavedMacro = sequenceToExpression(
-        displayedSequence.map(unwrapTagWithID),
-      );
       setUnsavedMacro(
         sequenceToExpression(displayedSequence.map(unwrapTagWithID)),
       );
