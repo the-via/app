@@ -37,7 +37,10 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
-import {testKeyboardSounds} from 'src/utils/test-keyboard-sounds/test-keyboard-sounds';
+import {
+  TestKeyboardSounds,
+  testKeyboardSounds,
+} from 'src/components/void/test-keyboard-sounds';
 
 enum DisplayMode {
   Test = 1,
@@ -387,27 +390,32 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     return null;
   }
 
-  useEffect(() => {
-    if (testKeyboardSoundsEnabled) {
-      testKeyboardSounds(isTestMatrixEnabled ? pressedKeys : globalPressedKeys);
-    } else {
-      testKeyboardSounds({});
-    }
-  }, [pressedKeys, globalPressedKeys, testKeyboardSoundsEnabled]);
+  const testPressedKeys = isTestMatrixEnabled
+    ? (pressedKeys as TestKeyState[])
+    : (globalPressedKeys as TestKeyState[]);
 
   return (
-    <TestKeyboard
-      definition={testDefinition as VIADefinitionV2}
-      keys={testKeys as VIAKey[]}
-      pressedKeys={
-        isTestMatrixEnabled
-          ? (pressedKeys as TestKeyState[])
-          : (globalPressedKeys as TestKeyState[])
-      }
-      matrixKeycodes={
-        isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
-      }
-      containerDimensions={props.dimensions}
-    />
+    <>
+      <TestKeyboard
+        definition={testDefinition as VIADefinitionV2}
+        keys={testKeys as VIAKey[]}
+        pressedKeys={
+          isTestMatrixEnabled
+            ? (pressedKeys as TestKeyState[])
+            : (globalPressedKeys as TestKeyState[])
+        }
+        matrixKeycodes={
+          isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
+        }
+        containerDimensions={props.dimensions}
+      />
+      {testPressedKeys && testKeyboardSoundsEnabled && (
+        <TestKeyboardSounds
+          pressedKeys={
+            testPressedKeys as unknown as Record<string, TestKeyState>
+          }
+        />
+      )}
+    </>
   );
 };
