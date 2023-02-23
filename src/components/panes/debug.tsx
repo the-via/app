@@ -40,6 +40,7 @@ import {
   setSelectedPaletteColor,
 } from 'src/store/keymapSlice';
 import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
+import {RawKeycodeSequenceAction} from 'src/utils/macro-api/types';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -204,7 +205,12 @@ const TestControls = () => {
         </Detail>
       </ControlRow>
       <MacroRecorder
-        showSettings={false}
+        selectedMacro={[[RawKeycodeSequenceAction.Delay, 4]]}
+        setUnsavedMacro={(_) => _}
+        undoMacro={() => null}
+        saveMacro={() => null}
+      />
+      <MacroRecorder
         setUnsavedMacro={(_) => _}
         undoMacro={() => null}
         saveMacro={() => null}
