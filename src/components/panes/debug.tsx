@@ -3,7 +3,6 @@ import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
 import {anyKeycodeToString} from '../../utils/advanced-keys';
-import {MusicalKeySlider} from '../inputs/musical-key-slider';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
@@ -259,12 +258,6 @@ export const Debug: FC = () => {
           <GithubUserData />
           <ControlGroup>
             <ControlGroupHeader>Key Testing</ControlGroupHeader>
-            <ControlRow>
-              <Label>Key sounds</Label>
-              <Detail>
-                <MusicalKeySlider />
-              </Detail>
-            </ControlRow>
             <ControlRow>
               <Label>Show Matrix</Label>
               <Detail>

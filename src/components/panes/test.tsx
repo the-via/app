@@ -23,7 +23,9 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {
+  getTestKeyboardSoundsEnabled,
   getIsTestMatrixEnabled,
+  setTestKeyboardSoundsEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
@@ -57,6 +59,9 @@ export const Test: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+  const testKeyboardSoundsEnabled = useAppSelector(
+    getTestKeyboardSoundsEnabled,
+  );
   const [testContextObj] = useContext(TestContext);
   const {progress} = useProgress();
 
@@ -103,13 +108,23 @@ export const Test: FC = () => {
                     isChecked={isTestMatrixEnabled}
                     onChange={(val) => {
                       dispatch(setTestMatrixEnabled(val));
-
                       testContextObj.clearTestKeys();
                     }}
                   />
                 </Detail>
               </ControlRow>
             ) : null}
+            <ControlRow>
+              <Label>Key Sounds</Label>
+              <Detail>
+                <AccentSlider
+                  isChecked={testKeyboardSoundsEnabled}
+                  onChange={(val) => {
+                    dispatch(setTestKeyboardSoundsEnabled(val));
+                  }}
+                />
+              </Detail>
+            </ControlRow>
           </Container>
         </SpanOverflowCell>
       </Grid>

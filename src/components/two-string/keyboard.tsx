@@ -19,6 +19,7 @@ import {useLocation} from 'wouter';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
+  getTestKeyboardSoundsEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
@@ -36,6 +37,7 @@ import {
   getSelectedCustomMenuData,
   getShowKeyPainter,
 } from 'src/store/menusSlice';
+import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
 
 enum DisplayMode {
   Test = 1,
@@ -316,6 +318,7 @@ export const Design = (props: {dimensions?: DOMRect}) => {
     </div>
   );
 };
+
 const EMPTY_ARR = [] as any[];
 export const Test = (props: {dimensions?: DOMRect}) => {
   const dispatch = useAppDispatch();
@@ -325,6 +328,9 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
+  const testKeyboardSoundsEnabled = useAppSelector(
+    getTestKeyboardSoundsEnabled,
+  );
   const selectedMatrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -381,19 +387,28 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     return null;
   }
 
+  const testPressedKeys = isTestMatrixEnabled
+    ? (pressedKeys as TestKeyState[])
+    : (globalPressedKeys as TestKeyState[]);
+
   return (
-    <TestKeyboard
-      definition={testDefinition as VIADefinitionV2}
-      keys={testKeys as VIAKey[]}
-      pressedKeys={
-        isTestMatrixEnabled
-          ? (pressedKeys as TestKeyState[])
-          : (globalPressedKeys as TestKeyState[])
-      }
-      matrixKeycodes={
-        isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
-      }
-      containerDimensions={props.dimensions}
-    />
+    <>
+      <TestKeyboard
+        definition={testDefinition as VIADefinitionV2}
+        keys={testKeys as VIAKey[]}
+        pressedKeys={testPressedKeys}
+        matrixKeycodes={
+          isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
+        }
+        containerDimensions={props.dimensions}
+      />
+      {testPressedKeys && testKeyboardSoundsEnabled && (
+        <TestKeyboardSounds
+          pressedKeys={
+            testPressedKeys as unknown as Record<string, TestKeyState>
+          }
+        />
+      )}
+    </>
   );
 };
