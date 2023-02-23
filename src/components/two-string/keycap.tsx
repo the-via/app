@@ -51,7 +51,7 @@ const paintEncoder = (
   const workingAreaDivider = 2.6;
   if (context) {
     context.fillStyle = bgColor;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, canvasWidth, canvasHeight);
     context.fill();
 
     context.fillStyle = fgColor;
@@ -94,6 +94,14 @@ const paintKeycapLabel = (
   if (context == null) {
     return;
   }
+  const dpi = devicePixelRatio;
+  const [canvasWidth, canvasHeight] = [canvas.width, canvas.height];
+  canvas.width = canvasWidth * dpi;
+  canvas.height = canvasHeight * dpi;
+  canvas.style.width = `${canvasWidth}px`;
+  canvas.style.height = `${canvasHeight}px`;
+
+  context.scale(dpi, dpi);
   const fontFamily =
     'Fira Sans, Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
@@ -127,12 +135,12 @@ const paintKeycapLabel = (
     context.fillText(
       label.bottomLabel,
       bottomLabelMargin.x,
-      canvas.height - bottomLabelMargin.y - bottomLabelOffset,
+      canvasHeight - bottomLabelMargin.y - bottomLabelOffset,
     );
   } else if (label.centerLabel) {
     let fontSize = 13 * label.size;
     let fontHeight = 0.75 * fontSize;
-    let faceMidLeftY = canvas.height / 2;
+    let faceMidLeftY = canvasHeight / 2;
     context.font = `bold ${fontSize}px ${fontFamily}`;
     context.fillText(
       label.label,
@@ -142,7 +150,7 @@ const paintKeycapLabel = (
     // return if label would have overflowed so that we know to show tooltip
     return (
       context.measureText(label.centerLabel).width >
-      canvas.width - centerLabelMargin.x
+      canvasWidth - centerLabelMargin.x
     );
   } else if (typeof label.label === 'string') {
     let fontSize = 22;
