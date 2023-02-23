@@ -391,7 +391,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
     if (testKeyboardSoundsEnabled) {
       testKeyboardSounds(isTestMatrixEnabled ? pressedKeys : globalPressedKeys);
     } else {
-      testKeyboardSounds([]);
+      testKeyboardSounds({});
     }
   }, [pressedKeys, globalPressedKeys, testKeyboardSoundsEnabled]);
 

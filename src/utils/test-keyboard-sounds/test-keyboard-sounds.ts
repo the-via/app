@@ -1,9 +1,11 @@
 import {TestKeyState} from 'src/types/types';
 import {Note} from './note';
 
-let lastPressedKeys: TestKeyState[] = [];
-let notes: Record<number, Note> = {};
-export const testKeyboardSounds = (pressedKeys: TestKeyState[] | undefined) => {
+let lastPressedKeys: Record<string, TestKeyState> = {};
+let notes: Record<string, Note> = {};
+export const testKeyboardSounds = (
+  pressedKeys: Record<string, TestKeyState> | undefined,
+) => {
   if (pressedKeys === undefined) {
     return;
   }
@@ -13,11 +15,9 @@ export const testKeyboardSounds = (pressedKeys: TestKeyState[] | undefined) => {
     return;
   }
 
-  Object.keys(pressedKeys).forEach((key) => {
-    const index: number = Number.parseInt(key);
-    const oldState = lastPressedKeys[index] ?? TestKeyState.KeyUp;
-    const state = pressedKeys[index];
-    if (state != oldState) {
+  Object.entries(pressedKeys).forEach(([index, state]) => {
+    const lastState = lastPressedKeys[index] ?? TestKeyState.KeyUp;
+    if (state != lastState) {
       if (state == TestKeyState.KeyDown) {
         const midiNote =
           notes[index]?.midiNote ?? 60 + Math.floor(Math.random() * 24);
