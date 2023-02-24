@@ -14,12 +14,13 @@ import {
   getSelectedPaletteColor,
   setLayer,
 } from 'src/store/keymapSlice';
-import {KeyboardCanvas} from './keyboard-canvas';
+import {KeyboardCanvas as StringKeyboardCanvas} from '../two-string/keyboard-canvas';
+import {KeyboardCanvas as FiberKeyboardCanvas} from '../three-fiber/keyboard-canvas';
 import {useLocation} from 'wouter';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
-  getTestKeyboardSoundsEnabled,
   getIsTestMatrixEnabled,
+  getTestKeyboardSoundsEnabled,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
@@ -38,6 +39,7 @@ import {
   getShowKeyPainter,
 } from 'src/store/menusSlice';
 import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
+import {NDimension} from './types';
 
 enum DisplayMode {
   Test = 1,
@@ -46,15 +48,29 @@ enum DisplayMode {
   ConfigureColors = 4,
 }
 
-export const ConfigureRGBKeyboard = (props: {dimensions?: DOMRect}) => {
+const getKeyboardCanvas = (dimension: '2D' | '3D') =>
+  dimension === '2D' ? StringKeyboardCanvas : FiberKeyboardCanvas;
+
+export const ConfigureRGBKeyboard = (props: {
+  dimensions?: DOMRect;
+  nDimension: NDimension;
+}) => {
   const customMenuData = useAppSelector(getSelectedCustomMenuData);
   if (customMenuData && customMenuData.__perKeyRGB) {
-    return <ConfigureRGBKeyboardWithData dimensions={props.dimensions} />;
+    return (
+      <ConfigureRGBKeyboardWithData
+        dimensions={props.dimensions}
+        nDimension={props.nDimension}
+      />
+    );
   }
   return null;
 };
-export const ConfigureRGBKeyboardWithData = (props: {dimensions?: DOMRect}) => {
-  const {dimensions} = props;
+export const ConfigureRGBKeyboardWithData = (props: {
+  dimensions?: DOMRect;
+  nDimension: NDimension;
+}) => {
+  const {dimensions, nDimension} = props;
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -89,6 +105,7 @@ export const ConfigureRGBKeyboardWithData = (props: {dimensions?: DOMRect}) => {
     return null;
   }
 
+  const KeyboardCanvas = getKeyboardCanvas(nDimension);
   return (
     <KeyboardCanvas
       matrixKeycodes={matrixKeycodes}
@@ -105,9 +122,10 @@ export const ConfigureRGBKeyboardWithData = (props: {dimensions?: DOMRect}) => {
 };
 export const ConfigureKeyboard = (props: {
   selectable?: boolean;
-  containerDimensions?: DOMRect;
+  dimensions?: DOMRect;
+  nDimension: NDimension;
 }) => {
-  const {selectable, containerDimensions} = props;
+  const {selectable, dimensions} = props;
   const matrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
   );
@@ -131,10 +149,11 @@ export const ConfigureKeyboard = (props: {
       : [null, null];
   }, [keys, keyColors]);
 
-  if (!definition || !containerDimensions) {
+  if (!definition || !dimensions) {
     return null;
   }
 
+  const KeyboardCanvas = getKeyboardCanvas(props.nDimension);
   return (
     <>
       <KeyboardCanvas
@@ -142,7 +161,7 @@ export const ConfigureKeyboard = (props: {
         keys={keys}
         selectable={!!selectable}
         definition={definition}
-        containerDimensions={containerDimensions}
+        containerDimensions={dimensions}
         mode={DisplayMode.Configure}
         shouldHide={showKeyPainter}
       />
@@ -155,7 +174,7 @@ export const ConfigureKeyboard = (props: {
           keys={normalizedKeys}
           selectable={showKeyPainter}
           definition={definition}
-          containerDimensions={containerDimensions}
+          containerDimensions={dimensions}
           mode={DisplayMode.ConfigureColors}
           keyColors={normalizedColors}
           onKeycapPointerDown={onKeycapPointerDown}
@@ -174,6 +193,7 @@ export const TestKeyboard = (props: {
   matrixKeycodes: number[];
   keys: (VIAKey & {ei?: number})[];
   definition: VIADefinitionV2 | VIADefinitionV3;
+  nDimension: NDimension;
 }) => {
   const {
     selectable,
@@ -182,11 +202,13 @@ export const TestKeyboard = (props: {
     keys,
     pressedKeys,
     definition,
+    nDimension,
   } = props;
   if (!containerDimensions) {
     return null;
   }
 
+  const KeyboardCanvas = getKeyboardCanvas(nDimension);
   return (
     <KeyboardCanvas
       matrixKeycodes={matrixKeycodes}
@@ -204,6 +226,7 @@ export const DesignKeyboard = (props: {
   definition: VIADefinitionV2 | VIADefinitionV3;
   showMatrix?: boolean;
   selectedOptionKeys: number[];
+  nDimension: NDimension;
 }) => {
   const {containerDimensions, showMatrix, definition, selectedOptionKeys} =
     props;
@@ -230,6 +253,7 @@ export const DesignKeyboard = (props: {
   const displayedKeys = useMemo(() => {
     return [...keys, ...displayedOptionKeys];
   }, [keys, displayedOptionKeys]);
+  const KeyboardCanvas = getKeyboardCanvas(props.nDimension);
   return (
     <KeyboardCanvas
       matrixKeycodes={EMPTY_ARR}
@@ -249,6 +273,7 @@ export const DebugKeyboard = (props: {
   showMatrix?: boolean;
   selectedOptionKeys: number[];
   selectedKey?: number;
+  nDimension: NDimension;
 }) => {
   const {
     containerDimensions,
@@ -273,6 +298,7 @@ export const DebugKeyboard = (props: {
     : [];
 
   const displayedKeys = [...keys, ...displayedOptionKeys];
+  const KeyboardCanvas = getKeyboardCanvas(props.nDimension);
   return (
     <KeyboardCanvas
       matrixKeycodes={[]}
@@ -287,7 +313,10 @@ export const DebugKeyboard = (props: {
   );
 };
 
-export const Design = (props: {dimensions?: DOMRect}) => {
+export const Design = (props: {
+  dimensions?: DOMRect;
+  nDimension: NDimension;
+}) => {
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getSelectedVersion);
   const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
@@ -306,21 +335,20 @@ export const Design = (props: {dimensions?: DOMRect}) => {
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
 
   return (
-    <group>
-      {definition && (
-        <DesignKeyboard
-          containerDimensions={props.dimensions}
-          definition={definition}
-          selectedOptionKeys={selectedOptionKeys}
-          showMatrix={showMatrix}
-        />
-      )}
-    </group>
+    definition && (
+      <DesignKeyboard
+        containerDimensions={props.dimensions}
+        definition={definition}
+        selectedOptionKeys={selectedOptionKeys}
+        showMatrix={showMatrix}
+        nDimension={props.nDimension}
+      />
+    )
   );
 };
 
 const EMPTY_ARR = [] as any[];
-export const Test = (props: {dimensions?: DOMRect}) => {
+export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
   const isShowingTest = path === '/test';
@@ -350,7 +378,7 @@ export const Test = (props: {dimensions?: DOMRect}) => {
   }, [setGlobalPressedKeys, setMatrixPressedKeys]);
 
   const testContext = useContext(TestContext);
-  // Hack to share setting a local state to avoid causing cascade of rerender
+  //// Hack to share setting a local state to avoid causing cascade of rerender
   if (testContext[0].clearTestKeys !== clearTestKeys) {
     testContext[1]({clearTestKeys});
   }
@@ -396,15 +424,12 @@ export const Test = (props: {dimensions?: DOMRect}) => {
       <TestKeyboard
         definition={testDefinition as VIADefinitionV2}
         keys={testKeys as VIAKey[]}
-        pressedKeys={
-          isTestMatrixEnabled
-            ? (pressedKeys as TestKeyState[])
-            : (globalPressedKeys as TestKeyState[])
-        }
+        pressedKeys={testPressedKeys}
         matrixKeycodes={
           isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
         }
         containerDimensions={props.dimensions}
+        nDimension={props.nDimension}
       />
       {testPressedKeys && testKeyboardSoundsEnabled && (
         <TestKeyboardSounds

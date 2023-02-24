@@ -8,28 +8,16 @@ import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,
 } from 'src/utils/keyboard-rendering';
+import {
+  KeyboardCanvasContentProps,
+  KeyboardCanvasProps,
+} from '../n-links/types';
 import {Case} from './case';
 import {KeyGroup} from './key-group';
 import {DisplayMode} from './keycap';
 import {MatrixLines} from './matrix-lines';
-type KeyboardCanvasContent = {
-  selectable: boolean;
-  matrixKeycodes: number[];
-  keys: (VIAKey & {ei?: number})[];
-  definition: VIADefinitionV2 | VIADefinitionV3;
-  pressedKeys?: TestKeyState[];
-  mode: DisplayMode;
-  showMatrix?: boolean;
-  selectedKey?: number;
-  keyColors?: number[][];
-  shouldHide?: boolean;
-  onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
-  onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
-};
 export const KeyboardCanvas: React.FC<
-  KeyboardCanvasContent & {
-    containerDimensions: DOMRect;
-  }
+  KeyboardCanvasProps<ThreeEvent<MouseEvent>>
 > = (props) => {
   const {containerDimensions, shouldHide, ...otherProps} = props;
   const {width, height} = useMemo(
@@ -63,21 +51,9 @@ export const KeyboardCanvas: React.FC<
   );
 };
 
-export const KeyboardCanvasContent: React.VFC<{
-  selectable: boolean;
-  matrixKeycodes: number[];
-  keys: (VIAKey & {ei?: number})[];
-  definition: VIADefinitionV2 | VIADefinitionV3;
-  pressedKeys?: TestKeyState[];
-  mode: DisplayMode;
-  showMatrix?: boolean;
-  selectedKey?: number;
-  width: number;
-  height: number;
-  keyColors?: number[][];
-  onKeycapPointerDown?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
-  onKeycapPointerOver?: (e: ThreeEvent<MouseEvent>, idx: number) => void;
-}> = React.memo((props) => {
+export const KeyboardCanvasContent: React.VFC<
+  KeyboardCanvasContentProps<ThreeEvent<MouseEvent>>
+> = React.memo((props) => {
   const {
     matrixKeycodes,
     keys,

@@ -5,7 +5,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
-import {ConfigureKeyboard, Design, Test} from './keyboard';
+import {ConfigureKeyboard, Design, Test} from '../n-links/keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {useProgress} from '@react-three/drei';
 import {
@@ -224,13 +224,14 @@ const Keyboards = React.memo((props: any) => {
         <ConfigureKeyboard
           dimensions={dimensions}
           selectable={configureKeyboardIsSelectable}
+          nDimension={'2D'}
         />
       </KeyboardRouteGroup>
       <KeyboardRouteGroup $position={1}>
-        <Test dimensions={dimensions} />
+        <Test dimensions={dimensions} nDimension={'2D'} />
       </KeyboardRouteGroup>
       <KeyboardRouteGroup $position={2}>
-        <Design dimensions={dimensions} />
+        <Design dimensions={dimensions} nDimension={'2D'} />
       </KeyboardRouteGroup>
       <KeyboardRouteGroup $position={3}></KeyboardRouteGroup>
     </>

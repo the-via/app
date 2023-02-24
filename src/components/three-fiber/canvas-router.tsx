@@ -7,7 +7,7 @@ import {
 import {useSize} from 'src/utils/use-size';
 import {useLocation} from 'wouter';
 import {Camera} from './camera';
-import {ConfigureKeyboard, Design, Test} from './keyboard';
+import {ConfigureKeyboard, Design, Test} from '../n-links/keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   Float,
@@ -301,15 +301,16 @@ const Keyboards = React.memo((props: any) => {
     <>
       <group visible={loadProgress === 1}>
         <ConfigureKeyboard
-          containerDimensions={dimensions}
+          dimensions={dimensions}
           selectable={configureKeyboardIsSelectable}
+          nDimension={'3D'}
         />
       </group>
       <group position-x={testPosition}>
-        <Test dimensions={dimensions} />
+        <Test dimensions={dimensions} nDimension={'3D'} />
       </group>
       <group position-x={designPosition}>
-        <Design dimensions={dimensions} />
+        <Design dimensions={dimensions} nDimension={'3D'} />
       </group>
       <group position-x={debugPosition}></group>
     </>
