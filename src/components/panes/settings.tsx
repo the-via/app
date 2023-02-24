@@ -1,28 +1,18 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ControlRow, Label, Detail, OverflowCell} from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
-import {ErrorMessage} from '../styled';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
-  getAllowKeyboardKeyRemapping,
   getShowDesignTab,
   getDisableFastRemap,
-  getDisableHardwareAcceleration,
-  getRestartRequired,
   toggleCreatorMode,
   toggleFastRemap,
-  toggleHardwareAcceleration,
-  requireRestart,
-  toggleKeyRemappingViaKeyboard,
 } from 'src/store/settingsSlice';
-
-const RestartMessage = styled(ErrorMessage)`
-  margin: 0;
-  font-size: 20px;
-`;
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {ErrorMessage} from '../styled';
 
 const Container = styled.div`
   display: flex;
@@ -37,10 +27,24 @@ const DebugPane = styled(Pane)`
   grid-template-columns: 100vw;
 `;
 
+const DiagnosticContainer = styled(Container)`
+  border-top: 1px solid var(--color_dark-grey);
+  margin-top: 20px;
+  padding-top: 20px;
+`;
+
+const SettingsErrorMessage = styled(ErrorMessage)`
+  margin: 0;
+  font-style: italic;
+`;
+
 export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   return (
     <DebugPane>
@@ -64,7 +68,31 @@ export const Settings = () => {
               />
             </Detail>
           </ControlRow>
+          <ControlRow>
+            <Label>Show Diagnostic Information</Label>
+
+            <Detail>
+              {selectedDevice ? (
+                <AccentSlider
+                  onChange={() => setShowDiagnostics(!showDiagnostics)}
+                  isChecked={showDiagnostics}
+                />
+              ) : (
+                <SettingsErrorMessage>
+                  Requires connected device
+                </SettingsErrorMessage>
+              )}
+            </Detail>
+          </ControlRow>
         </Container>
+        {showDiagnostics && selectedDevice ? (
+          <DiagnosticContainer>
+            <ControlRow>
+              <Label>VIA Firmware Protocol</Label>
+              <Detail>{selectedDevice.protocol}</Detail>
+            </ControlRow>
+          </DiagnosticContainer>
+        ) : null}
       </OverflowCell>
     </DebugPane>
   );

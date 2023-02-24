@@ -1,6 +1,7 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {
+  commonMenus,
   isVIADefinitionV2,
   isVIADefinitionV3,
   isVIAMenu,
@@ -12,7 +13,6 @@ import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
 } from './devicesSlice';
-import {getCommonMenus} from 'src/utils/device-store';
 import {
   makeCustomMenu,
   makeCustomMenus,
@@ -90,14 +90,13 @@ export const updateCustomMenuValue =
     api.commitCustomMenu(channel);
   };
 
-// COMMON MENU IDENTIFIER RESOLCES INTO ACTUAL MODULE
+// COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
 export const tryResolveCommonMenu = (
   id: VIAMenu | string,
 ): VIAMenu | VIAMenu[] => {
   // Only convert to menu object if it is found in common menus, else return
-  const commonMenus = getCommonMenus();
   if (typeof id === 'string') {
-    return commonMenus[id] || id;
+    return commonMenus[id as keyof typeof commonMenus];
   }
   return id;
 };

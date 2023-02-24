@@ -2,7 +2,6 @@ import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
-import {getCommonMenus} from 'src/utils/device-store';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
@@ -17,6 +16,7 @@ import {
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
   DefinitionVersionMap,
+  commonMenus,
 } from '@the-via/reader';
 import type {DefinitionVersion} from '@the-via/reader';
 import {BlankPositionedKeyboard} from '../positioned-keyboard';
@@ -110,7 +110,7 @@ function importDefinition(
             : keyboardDefinitionV3ToVIADefinitionV3(res);
 
         if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
-          const commonMenuKeys = Object.keys(getCommonMenus());
+          const commonMenuKeys = Object.keys(commonMenus);
           const lookupFailedKeys = (res.menus || []).filter((menu) => {
             if (typeof menu === 'string') {
               return !commonMenuKeys.includes(menu);

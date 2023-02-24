@@ -31,7 +31,6 @@ const defaultStoreData = {
     disableFastRemap: false,
     disableHardwareAcceleration: false,
   },
-  commonMenus: {},
 };
 
 function initDeviceStore() {
@@ -60,7 +59,6 @@ export async function syncStore(): Promise<DefinitionIndex> {
     });
     const json: KeyboardDefinitionIndex = await response.json();
 
-    await setCommonMenus();
     // TODO: maybe we should just export this shape from keyboards repo
     // v3 is a superset of v2 - if the def is avail in v2, it is also avail in v3
     const v2vpidMap = json.vendorProductIds.v2.reduce(
@@ -96,19 +94,6 @@ export async function syncStore(): Promise<DefinitionIndex> {
 
   return currentDefinitionIndex;
 }
-
-export const setCommonMenus = async (): Promise<CommonMenusMap> => {
-  const url = `/definitions/common-menus.json`;
-  const response = await fetch(url);
-  const json: CommonMenusMap = await response.json();
-  try {
-    deviceStore.set('commonMenus', json);
-  } catch (err) {
-    // This is likely due to running out of space, so we clear it
-    localStorage.clear();
-  }
-  return json;
-};
 
 export const getMissingDefinition = async <
   K extends keyof DefinitionVersionMap,
@@ -146,9 +131,6 @@ export const getMissingDefinition = async <
   }
   return [json, version];
 };
-
-export const getCommonMenus = (): CommonMenusMap =>
-  deviceStore.get('commonMenus');
 
 export const getSupportedIdsFromStore = (): VendorProductIdMap =>
   deviceStore.get('definitionIndex')?.supportedVendorProductIdMap;
