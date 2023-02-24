@@ -1,4 +1,5 @@
 let globalAudioContext: AudioContext;
+let globalAmp: GainNode;
 
 const ampGain = 0.25;
 const ampAttack = 0.05;
@@ -13,6 +14,31 @@ function getAudioContext(): AudioContext {
   return globalAudioContext;
 }
 
+function getAmp(): GainNode {
+  if (globalAmp === undefined) {
+    const audioContext = getAudioContext();
+    globalAmp = audioContext.createGain();
+    globalAmp.gain.value = 1;
+    globalAmp.connect(audioContext.destination);
+  }
+  return globalAmp;
+}
+
+export function getAmpGain(): number {
+  return getAmp().gain.value;
+}
+
+export function setAmpGain(ampGain: number) {
+  getAmp().gain.setValueAtTime(
+    getAmp().gain.value,
+    getAudioContext().currentTime,
+  );
+  getAmp().gain.linearRampToValueAtTime(
+    ampGain,
+    getAudioContext().currentTime + 0.2,
+  );
+}
+
 function midiNoteToFrequency(midiNote: number): number {
   let a = 440; //frequency of A (common value is 440Hz)
   return Math.pow(2, (midiNote - 69) / 12) * a;
@@ -24,17 +50,17 @@ export class Note {
   amp: GainNode;
   ampSustainTime: number;
   midiNote: number;
-  constructor(midiNote: number) {
+  constructor(midiNote: number, oscillatorType: OscillatorType) {
     this.midiNote = midiNote;
     this.audioContext = getAudioContext();
     this.osc = new OscillatorNode(this.audioContext, {
-      type: 'sine',
+      type: oscillatorType,
       frequency: midiNoteToFrequency(this.midiNote),
     });
     this.ampSustainTime = 0;
     this.amp = this.audioContext.createGain();
     this.amp.gain.value = 0;
-    this.amp.connect(this.audioContext.destination);
+    this.amp.connect(getAmp());
     this.osc.connect(this.amp);
   }
 

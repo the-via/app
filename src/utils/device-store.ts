@@ -34,7 +34,11 @@ const defaultStoreData = {
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
     themeName: 'OLIVIA_DARK',
-    testKeyboardSoundsEnabled: true,
+    testKeyboardSoundsSettings: {
+      enabled: true,
+      volume: 100,
+      waveform: 'sine' as const,
+    },
   },
 };
 

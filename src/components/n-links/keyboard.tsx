@@ -20,7 +20,7 @@ import {useLocation} from 'wouter';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
-  getTestKeyboardSoundsEnabled,
+  getTestKeyboardSoundsSettings,
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {
@@ -356,8 +356,8 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const testKeyboardSoundsEnabled = useAppSelector(
-    getTestKeyboardSoundsEnabled,
+  const testKeyboardSoundsSettings = useAppSelector(
+    getTestKeyboardSoundsSettings,
   );
   const selectedMatrixKeycodes = useAppSelector(
     (state) => getSelectedKeymap(state) || [],
@@ -431,7 +431,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
         containerDimensions={props.dimensions}
         nDimension={props.nDimension}
       />
-      {testPressedKeys && testKeyboardSoundsEnabled && (
+      {testPressedKeys && testKeyboardSoundsSettings.enabled && (
         <TestKeyboardSounds
           pressedKeys={
             testPressedKeys as unknown as Record<string, TestKeyState>

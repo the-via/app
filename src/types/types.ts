@@ -72,6 +72,12 @@ export type Key = Pick<
   onClick?: (id: number) => void;
 };
 
+export type TestKeyboardSoundsSettings = {
+  enabled: boolean;
+  volume: number;
+  waveform: OscillatorType;
+};
+
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
   showDesignTab: boolean;
@@ -79,7 +85,7 @@ export type Settings = {
   renderMode: '3D' | '2D';
   themeMode: 'light' | 'dark';
   themeName: string;
-  testKeyboardSoundsEnabled: boolean;
+  testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
 };
 
 export type CommonMenusMap = {
