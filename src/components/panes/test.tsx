@@ -157,24 +157,6 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Waveform</Label>
-              <Detail>
-                <AccentSelect
-                  defaultValue={waveformDefaultValue}
-                  options={waveformOptions}
-                  onChange={(option: any) => {
-                    option &&
-                      dispatch(
-                        setTestKeyboardSoundsSettings({
-                          ...testKeyboardSoundsSettings,
-                          waveform: option.value,
-                        }),
-                      );
-                  }}
-                />
-              </Detail>
-            </ControlRow>
-            <ControlRow>
               <Label>Volume</Label>
               <Detail>
                 <AccentRange
@@ -188,6 +170,24 @@ export const Test: FC = () => {
                         volume: value,
                       }),
                     );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Waveform</Label>
+              <Detail>
+                <AccentSelect
+                  defaultValue={waveformDefaultValue}
+                  options={waveformOptions}
+                  onChange={(option: any) => {
+                    option &&
+                      dispatch(
+                        setTestKeyboardSoundsSettings({
+                          ...testKeyboardSoundsSettings,
+                          waveform: option.value,
+                        }),
+                      );
                   }}
                 />
               </Detail>
