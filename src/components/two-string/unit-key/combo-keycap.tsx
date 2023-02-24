@@ -1,7 +1,7 @@
 import {getDarkenedColor} from 'src/utils/color-math';
 import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
-import {Keycap2DTooltip} from '../inputs/tooltip';
+import {Keycap2DTooltip} from '../../inputs/tooltip';
 import {
   CanvasContainer,
   CanvasContainerBG,

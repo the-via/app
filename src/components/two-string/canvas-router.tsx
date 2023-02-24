@@ -20,7 +20,6 @@ import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {getSelectedTheme} from 'src/store/settingsSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
-import {KeyboardRouteGroup} from './keyboard-route-group';
 import styled from 'styled-components';
 import {getDarkenedColor} from 'src/utils/color-math';
 
@@ -39,6 +38,20 @@ const KeyboardBG = styled.div<{
       props.$color,
     )} 50%, rgba(150,150,150,1) 90%)`};
   opacity: ${(props) => (props.$visible ? 1 : 0)};
+`;
+
+const KeyboardRouteGroup = styled.div<{
+  $position: number;
+}>`
+  position: absolute;
+  left: 0;
+  transform: translateX(${(p) => p.$position * 100}vw);
+  height: 500px;
+  width: 100vw;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const CanvasRouter = () => {

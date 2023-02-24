@@ -14,7 +14,7 @@ import {
 } from '../n-links/types';
 import {Case} from './case';
 import {KeyGroup} from './key-group';
-import {DisplayMode} from './keycap';
+import {DisplayMode} from './unit-key/keycap';
 import {MatrixLines} from './matrix-lines';
 export const KeyboardCanvas: React.FC<
   KeyboardCanvasProps<ThreeEvent<MouseEvent>>

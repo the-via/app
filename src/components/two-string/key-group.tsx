@@ -2,7 +2,7 @@ import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
-import {Keycap} from './keycap';
+import {Keycap} from './unit-key/keycap';
 import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,

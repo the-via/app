@@ -5,7 +5,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
 import * as THREE from 'three';
-import {KeycapTooltip} from '../inputs/tooltip';
+import {KeycapTooltip} from '../../inputs/tooltip';
 
 export enum DisplayMode {
   Test = 1,
