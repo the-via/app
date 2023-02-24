@@ -231,7 +231,11 @@ export const Keycap = React.memo(
       if (canvasRef.current && color) {
         if (shouldRotate) {
           paintEncoder(canvasRef.current, scale, color.c, color.t);
-        } else {
+        } else if (
+          label &&
+          document.fonts.check('bold 16px "Fira Sans"', label.label)
+        ) {
+          // Only render label if it is available
           const doesOverflow = paintKeycap(
             canvasRef.current,
             scale,
@@ -256,6 +260,13 @@ export const Keycap = React.memo(
       shouldRotate,
     ]);
     useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
+
+    useEffect(() => {
+      document.fonts.addEventListener('loadingdone', redraw);
+      return () => {
+        document.fonts.removeEventListener('loadingdone', redraw);
+      };
+    }, []);
 
     // Set Z to half the total height so that keycaps are at the same level since the center
     // is in the middle and each row has a different height

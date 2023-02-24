@@ -50,7 +50,6 @@ export const CanvasRouter = () => {
   const dispatch = useAppDispatch();
   const containerDimensions = useSize(containerRef);
   const dimensions = useSize(body);
-  const [fontLoaded, setLoaded] = useState(false);
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const definitionVersion = useAppSelector(getSelectedVersion);
@@ -84,12 +83,6 @@ export const CanvasRouter = () => {
     getConfigureKeyboardIsSelectable,
   );
   const hideTerrainBG = showLoader;
-  useEffect(() => {
-    // Block rendering due to font legend being required to render keyboardss
-    document.fonts.load('bold 16px Fira Sans').then(() => {
-      setLoaded(true);
-    });
-  }, []);
 
   return (
     <>
@@ -123,13 +116,11 @@ export const CanvasRouter = () => {
               $color={accentColor}
               $visible={!hideTerrainBG}
             />
-            {fontLoaded ? (
-              <KeyboardGroup
-                containerDimensions={containerDimensions}
-                configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-                loadProgress={loadProgress}
-              />
-            ) : null}
+            <KeyboardGroup
+              containerDimensions={containerDimensions}
+              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+              loadProgress={loadProgress}
+            />
           </>
         )}
       </div>
