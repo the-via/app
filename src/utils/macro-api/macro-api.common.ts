@@ -302,7 +302,10 @@ export function mergeConsecutiveWaits(
       p[p.length - 1][0] === RawKeycodeSequenceAction.Delay &&
       n[0] === RawKeycodeSequenceAction.Delay
     ) {
-      p[p.length - 1][1] = Number(p[p.length - 1][1]) + Number(n[1]);
+      p.splice(-1, 1, [
+        RawKeycodeSequenceAction.Delay,
+        Number(p[p.length - 1][1]) + Number(n[1]),
+      ]);
     } else {
       p.push(n);
     }
