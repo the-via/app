@@ -63,10 +63,14 @@ export const settingsSlice = createSlice({
     },
     setTestKeyboardSoundsSettings: (
       state,
-      action: PayloadAction<TestKeyboardSoundsSettings>,
+      action: PayloadAction<Partial<TestKeyboardSoundsSettings>>,
     ) => {
-      state.testKeyboardSoundsSettings = action.payload;
+      state.testKeyboardSoundsSettings = {
+        ...state.testKeyboardSoundsSettings,
+        ...action.payload,
+      };
       setSettings(state);
+      return state;
     },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;

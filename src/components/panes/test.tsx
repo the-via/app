@@ -148,7 +148,6 @@ export const Test: FC = () => {
                   onChange={(val) => {
                     dispatch(
                       setTestKeyboardSoundsSettings({
-                        ...testKeyboardSoundsSettings,
                         enabled: val,
                       }),
                     );
@@ -166,7 +165,6 @@ export const Test: FC = () => {
                   onChange={(value: number) => {
                     dispatch(
                       setTestKeyboardSoundsSettings({
-                        ...testKeyboardSoundsSettings,
                         volume: value,
                       }),
                     );
@@ -184,7 +182,6 @@ export const Test: FC = () => {
                     option &&
                       dispatch(
                         setTestKeyboardSoundsSettings({
-                          ...testKeyboardSoundsSettings,
                           waveform: option.value,
                         }),
                       );
