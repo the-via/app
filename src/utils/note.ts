@@ -25,10 +25,6 @@ function getGlobalAmp(): GainNode {
   return globalAmp;
 }
 
-export function getGlobalAmpGain(): number {
-  return globalAmpGain;
-}
-
 export function setGlobalAmpGain(ampGain: number) {
   // Cache the value in case we don't have an AudioContext yet
   // See https://goo.gl/7K7WLu
