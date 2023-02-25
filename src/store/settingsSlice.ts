@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {Settings} from '../types/types';
+import type {Settings, TestKeyboardSoundsSettings} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
 import type {RootState} from '.';
@@ -61,9 +61,16 @@ export const settingsSlice = createSlice({
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
       state.isTestMatrixEnabled = action.payload;
     },
-    setTestKeyboardSoundsEnabled: (state, action: PayloadAction<boolean>) => {
-      state.testKeyboardSoundsEnabled = action.payload;
+    setTestKeyboardSoundsSettings: (
+      state,
+      action: PayloadAction<Partial<TestKeyboardSoundsSettings>>,
+    ) => {
+      state.testKeyboardSoundsSettings = {
+        ...state.testKeyboardSoundsSettings,
+        ...action.payload,
+      };
       setSettings(state);
+      return state;
     },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
@@ -79,7 +86,7 @@ export const {
   toggleFastRemap,
   toggleCreatorMode,
   setTestMatrixEnabled,
-  setTestKeyboardSoundsEnabled,
+  setTestKeyboardSoundsSettings,
   toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
@@ -101,8 +108,8 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
-export const getTestKeyboardSoundsEnabled = (state: RootState) =>
-  state.settings.testKeyboardSoundsEnabled;
+export const getTestKeyboardSoundsSettings = (state: RootState) =>
+  state.settings.testKeyboardSoundsSettings;
 export const getRenderMode = (state: RootState) =>
   webGLIsAvailable ? state.settings.renderMode : '2D';
 export const getThemeMode = (state: RootState) => state.settings.themeMode;

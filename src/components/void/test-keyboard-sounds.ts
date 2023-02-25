@@ -1,6 +1,8 @@
 import {useEffect} from 'react';
+import {getTestKeyboardSoundsSettings} from 'src/store/settingsSlice';
 import {TestKeyState} from 'src/types/types';
-import {Note} from '../../utils/note';
+import {Note, setAmpGain} from '../../utils/note';
+import {useAppSelector} from 'src/store/hooks';
 
 let lastPressedKeys: Record<string, TestKeyState> = {};
 let notes: Record<string, Note> = {};
@@ -12,6 +14,12 @@ const turnOffAllTheNotes = () => {
 export const TestKeyboardSounds: React.FC<{
   pressedKeys: Record<string, TestKeyState>;
 }> = ({pressedKeys}) => {
+  const {waveform, volume} = useAppSelector(getTestKeyboardSoundsSettings);
+
+  useEffect(() => {
+    setAmpGain(volume / 100);
+  }, [volume]);
+
   useEffect(() => {
     if (Object.keys(pressedKeys).length === 0) {
       turnOffAllTheNotes();
@@ -22,7 +30,7 @@ export const TestKeyboardSounds: React.FC<{
           if (state == TestKeyState.KeyDown) {
             const midiNote =
               notes[index]?.midiNote ?? 60 + Math.floor(Math.random() * 24);
-            notes[index] = new Note(midiNote);
+            notes[index] = new Note(midiNote, waveform);
             notes[index].noteOn();
           } else if (state == TestKeyState.KeyUp) {
             notes[index]?.noteOff();

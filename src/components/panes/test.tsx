@@ -23,16 +23,18 @@ import {
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
 import {
-  getTestKeyboardSoundsEnabled,
   getIsTestMatrixEnabled,
-  setTestKeyboardSoundsEnabled,
   setTestMatrixEnabled,
+  getTestKeyboardSoundsSettings,
+  setTestKeyboardSoundsSettings,
 } from 'src/store/settingsSlice';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faCircleQuestion} from '@fortawesome/free-solid-svg-icons';
 import {useProgress} from '@react-three/drei';
+import {AccentSelect} from '../inputs/accent-select';
+import {AccentRange} from '../inputs/accent-range';
 
 const Container = styled.div`
   display: flex;
@@ -59,9 +61,10 @@ export const Test: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-  const testKeyboardSoundsEnabled = useAppSelector(
-    getTestKeyboardSoundsEnabled,
+  const testKeyboardSoundsSettings = useAppSelector(
+    getTestKeyboardSoundsSettings,
   );
+
   const [testContextObj] = useContext(TestContext);
   const {progress} = useProgress();
 
@@ -77,6 +80,29 @@ export const Test: FC = () => {
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
+
+  const waveformOptions = [
+    {
+      label: 'Sine',
+      value: 'sine',
+    },
+    {
+      label: 'Triangle',
+      value: 'triangle',
+    },
+    {
+      label: 'Sawtooth',
+      value: 'sawtooth',
+    },
+    {
+      label: 'Square',
+      value: 'square',
+    },
+  ];
+  const waveformDefaultValue = waveformOptions.find(
+    (opt) => opt.value === testKeyboardSoundsSettings.waveform,
+  );
+
   return progress !== 100 ? null : (
     <TestPane>
       <Grid>
@@ -118,9 +144,47 @@ export const Test: FC = () => {
               <Label>Key Sounds</Label>
               <Detail>
                 <AccentSlider
-                  isChecked={testKeyboardSoundsEnabled}
+                  isChecked={testKeyboardSoundsSettings.isEnabled}
                   onChange={(val) => {
-                    dispatch(setTestKeyboardSoundsEnabled(val));
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        isEnabled: val,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Volume</Label>
+              <Detail>
+                <AccentRange
+                  max={100}
+                  min={0}
+                  defaultValue={testKeyboardSoundsSettings.volume}
+                  onChange={(value: number) => {
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        volume: value,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Waveform</Label>
+              <Detail>
+                <AccentSelect
+                  defaultValue={waveformDefaultValue}
+                  options={waveformOptions}
+                  onChange={(option: any) => {
+                    option &&
+                      dispatch(
+                        setTestKeyboardSoundsSettings({
+                          waveform: option.value,
+                        }),
+                      );
                   }}
                 />
               </Detail>
