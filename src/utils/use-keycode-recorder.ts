@@ -5,7 +5,10 @@ import {RawKeycodeSequence, RawKeycodeSequenceAction} from './macro-api/types';
 
 let heldKeys = {} as any;
 let lastEvtTime = 0;
-export const useKeycodeRecorder = (enableRecording: boolean) => {
+export const useKeycodeRecorder = (
+  enableRecording: boolean,
+  recordDelays: boolean,
+) => {
   const keycodeSequenceState = useState<RawKeycodeSequence>([]);
   const [, setKeycodeSequence] = keycodeSequenceState;
   const keycodes = useMemo(
@@ -21,7 +24,7 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
           const keycode = keycodes.find((k) => k.code === mapEvtToKeycode(evt));
           const currTime = Date.now();
           const keycodeLabel = keycode?.code;
-          if (keycodeSequence.length) {
+          if (keycodeSequence.length && recordDelays) {
             keycodeSequence.push([
               RawKeycodeSequenceAction.Delay,
               currTime - lastEvtTime,
@@ -35,7 +38,7 @@ export const useKeycodeRecorder = (enableRecording: boolean) => {
         });
       }
     },
-    [enableRecording],
+    [enableRecording, recordDelays],
   );
   const downHandler = useCallback(
     (evt: KeyboardEvent) => {

@@ -79,7 +79,7 @@ const smartTransform = (
     currHeld = currHeld + 1;
   } else if (
     action === RawKeycodeSequenceAction.Tap &&
-    String(actionArg).length === 1
+    String(actionArg).length === 1 // this is meant to concatenate letters
   ) {
     acc[acc.length - 1][0][1] = `${acc[acc.length - 1][0][1]}${actionArg}`;
   } else if (action === RawKeycodeSequenceAction.Tap) {
@@ -127,7 +127,15 @@ export const MacroRecorder: React.FC<{
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
   );
-  const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(isRecording);
+  const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(
+    isRecording,
+    recordWaitTimes,
+  );
+  const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
+    return pipeline(sequence, convertCharacterTaps, (a) =>
+      optimizedSequenceToRawSequence(rawSequenceToOptimizedSequence(a)),
+    );
+  };
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
     async (isRecording: boolean) => {
@@ -139,12 +147,8 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
-        if (!showVerboseKeyState && !recordWaitTimes) {
-          const optimizedSequence = rawSequenceToOptimizedSequence(
-            convertCharacterTaps(filterAllDelays(keycodeSequence)),
-          );
-          const rawSequence = optimizedSequenceToRawSequence(optimizedSequence);
-          setKeycodeSequence(rawSequence);
+        if (!showVerboseKeyState) {
+          setKeycodeSequence(optimizeKeycodeSequence(keycodeSequence));
         }
       }
     },
@@ -182,29 +186,26 @@ export const MacroRecorder: React.FC<{
     [[RawKeycodeSequenceAction.Delay, 0], -1],
     0,
   ] as SmartTransformAcc;
-  const showWaitTimes =
-    recordWaitTimes || showOriginalMacro || !useRecordingSettings;
   const displayedSequence = useMemo(() => {
     let partialSequence;
     let taggedSliceSequence = getSliceableSequence().map(tagWithID);
     if (!(showOriginalMacro || !useRecordingSettings || showVerboseKeyState)) {
-      partialSequence = taggedSliceSequence.reduce(
-        smartTransform,
-        initialReduceState,
-      )[0];
+      //partialSequence = taggedSliceSequence.reduce(
+      //smartTransform,
+      //initialReduceState,
+      //)[0];
+      partialSequence = optimizeKeycodeSequence(
+        taggedSliceSequence.map(unwrapTagWithID),
+      ).map(tagWithID);
     } else {
       partialSequence = taggedSliceSequence;
     }
-    return partialSequence.filter(
-      ([[action]]) =>
-        showWaitTimes || action !== RawKeycodeSequenceAction.Delay,
-    );
+    return partialSequence;
   }, [
     keycodeSequence,
     showOriginalMacro,
     showVerboseKeyState,
     useRecordingSettings,
-    showWaitTimes,
     selectedMacro,
   ]);
 
@@ -260,8 +261,7 @@ export const MacroRecorder: React.FC<{
     return componentJoin(
       displayedSequence.map(([[action, actionArg], id]) => {
         const Label = getSequenceItemComponent(action);
-        return !showWaitTimes &&
-          action === RawKeycodeSequenceAction.Delay ? null : (
+        return (
           <Deletable
             key={`${id}-${action}`}
             index={id}
@@ -270,26 +270,37 @@ export const MacroRecorder: React.FC<{
             {RawKeycodeSequenceAction.Delay !== action ? (
               <Label>
                 {action === RawKeycodeSequenceAction.CharacterStream
-                  ? actionArg
+                  ? componentJoin(
+                      String(actionArg)
+                        .split(' ')
+                        .map((a) => <span>{a}</span>),
+                      <span
+                        style={{
+                          fontFamily: 'fantasy, cursive, monospace',
+                        }}
+                      >
+                        ␣
+                      </span>,
+                    )
                   : Array.isArray(actionArg)
                   ? actionArg
                       .map((k) => getSequenceLabel(KeycodeMap[k]) ?? k)
                       .join(' + ')
                   : getSequenceLabel(KeycodeMap[actionArg])}
               </Label>
-            ) : showWaitTimes ? (
+            ) : (
               <WaitInput
                 index={id}
                 value={Number(actionArg)}
                 updateValue={editSequenceItem}
               />
-            ) : null}
+            )}
           </Deletable>
         );
       }),
       <SequenceLabelSeparator />,
     );
-  }, [displayedSequence, showWaitTimes]);
+  }, [displayedSequence]);
 
   useEffect(() => {
     const onFullScreenChanged: EventListener = () => {

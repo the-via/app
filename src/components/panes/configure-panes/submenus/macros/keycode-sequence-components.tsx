@@ -67,6 +67,14 @@ export const SequenceLabelSeparator = styled.div`
   border: 1px solid var(--color_accent);
 `;
 
+export const CharacterStreamLabel = styled(KeycodeSequenceLabel)`
+  border-color: var(--border_color_cell);
+  background: var(--bg_menu);
+  white-space: pre-wrap;
+  min-height: 1.25em;
+  letter-spacing: 2px;
+`;
+
 export const KeycodePressLabel = styled(KeycodeSequenceLabel)`
   border-color: var(--color_accent);
 `;
@@ -208,7 +216,7 @@ export const getSequenceItemComponent = (
     : action === RawKeycodeSequenceAction.Up
     ? KeycodeUpLabel
     : action === RawKeycodeSequenceAction.CharacterStream
-    ? KeycodePressLabel
+    ? CharacterStreamLabel
     : KeycodePressLabel;
 
 function capitalize(string: string) {
