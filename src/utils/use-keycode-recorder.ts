@@ -42,7 +42,7 @@ export const useKeycodeRecorder = (
   );
   const downHandler = useCallback(
     (evt: KeyboardEvent) => {
-      if (!heldKeys[evt.code]) {
+      if (!evt.repeat) {
         heldKeys[evt.code] = true;
         addToSequence(evt, RawKeycodeSequenceAction.Down);
       }
