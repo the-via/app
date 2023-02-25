@@ -6,7 +6,11 @@ import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
 import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
-import {getExpressions, saveMacros} from '../../../store/macrosSlice';
+import {
+  getExpressions,
+  getMacroCount,
+  saveMacros,
+} from '../../../store/macrosSlice';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -29,6 +33,7 @@ export const Pane: FC = () => {
   const dispatch = useAppDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const macroExpressions = useAppSelector(getExpressions);
+  const macroCount = useAppSelector(getMacroCount);
 
   const [selectedMacro, setSelectedMacro] = useState(0);
 
@@ -49,7 +54,7 @@ export const Pane: FC = () => {
 
   const macroMenus = useMemo(
     () =>
-      Array(16)
+      Array(macroCount)
         .fill(0)
         .map((_, idx) => idx)
         .map((idx) => (
@@ -62,7 +67,7 @@ export const Pane: FC = () => {
             {`M${idx}`}
           </SubmenuRow>
         )),
-    [selectedMacro],
+    [selectedMacro, macroCount],
   );
 
   if (!selectedDevice) {
