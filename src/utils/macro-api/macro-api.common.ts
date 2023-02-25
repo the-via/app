@@ -64,6 +64,11 @@ export function optimizedSequenceToRawSequence(
   });
 }
 
+// "Optimize away" sequence items by converting to optimized and then immediately converting back to raw
+export function rawOptRaw(seq: RawKeycodeSequence) {
+  return optimizedSequenceToRawSequence(rawSequenceToOptimizedSequence(seq));
+}
+
 export function filterSmallOverlaps(
   sequence: RawKeycodeSequence,
 ): RawKeycodeSequence {
@@ -276,6 +281,33 @@ export function convertCharacterTaps(
     }
   }, [] as RawKeycodeSequenceItem[]);
   return result;
+}
+
+export function trimLastWait(sequence: RawKeycodeSequence): RawKeycodeSequence {
+  if (
+    sequence[sequence.length - 1] &&
+    sequence[sequence.length - 1][0] === RawKeycodeSequenceAction.Delay
+  ) {
+    return sequence.slice(0, -1);
+  }
+  return sequence;
+}
+
+export function mergeConsecutiveWaits(
+  sequence: RawKeycodeSequence,
+): RawKeycodeSequence {
+  return sequence.reduce((p, n) => {
+    if (
+      p[p.length - 1] &&
+      p[p.length - 1][0] === RawKeycodeSequenceAction.Delay &&
+      n[0] === RawKeycodeSequenceAction.Delay
+    ) {
+      p[p.length - 1][1] = Number(p[p.length - 1][1]) + Number(n[1]);
+    } else {
+      p.push(n);
+    }
+    return p;
+  }, [] as RawKeycodeSequence);
 }
 
 export function convertToCharacterStreams(

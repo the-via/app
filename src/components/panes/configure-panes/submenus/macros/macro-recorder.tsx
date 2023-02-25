@@ -11,10 +11,10 @@ import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
   convertCharacterTaps,
-  filterAllDelays,
-  optimizedSequenceToRawSequence,
-  rawSequenceToOptimizedSequence,
+  mergeConsecutiveWaits,
+  rawOptRaw,
   sequenceToExpression,
+  trimLastWait,
 } from 'src/utils/macro-api/macro-api.common';
 import {getKeycodes, IKeycode} from 'src/utils/key';
 import {
@@ -113,6 +113,16 @@ const KeycodeMap = getKeycodes()
   .flatMap((menu) => menu.keycodes)
   .reduce((p, n) => ({...p, [n.code]: n}), {} as Record<string, IKeycode>);
 
+const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
+  return pipeline(
+    sequence,
+    convertCharacterTaps,
+    trimLastWait,
+    mergeConsecutiveWaits,
+    rawOptRaw,
+  );
+};
+
 export const MacroRecorder: React.FC<{
   selectedMacro?: OptimizedKeycodeSequence;
   undoMacro(): void;
@@ -131,11 +141,6 @@ export const MacroRecorder: React.FC<{
     isRecording,
     recordWaitTimes,
   );
-  const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
-    return pipeline(sequence, convertCharacterTaps, (a) =>
-      optimizedSequenceToRawSequence(rawSequenceToOptimizedSequence(a)),
-    );
-  };
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
     async (isRecording: boolean) => {
@@ -147,9 +152,6 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
-        if (!showVerboseKeyState) {
-          setKeycodeSequence(optimizeKeycodeSequence(keycodeSequence));
-        }
       }
     },
     [keycodeSequence, setIsRecording],
@@ -181,19 +183,10 @@ export const MacroRecorder: React.FC<{
     return sliceableSequence;
   };
 
-  const initialReduceState = [
-    [],
-    [[RawKeycodeSequenceAction.Delay, 0], -1],
-    0,
-  ] as SmartTransformAcc;
   const displayedSequence = useMemo(() => {
     let partialSequence;
     let taggedSliceSequence = getSliceableSequence().map(tagWithID);
     if (!(showOriginalMacro || !useRecordingSettings || showVerboseKeyState)) {
-      //partialSequence = taggedSliceSequence.reduce(
-      //smartTransform,
-      //initialReduceState,
-      //)[0];
       partialSequence = optimizeKeycodeSequence(
         taggedSliceSequence.map(unwrapTagWithID),
       ).map(tagWithID);
@@ -238,7 +231,7 @@ export const MacroRecorder: React.FC<{
     (id: number) => {
       const newSequence = getSliceableSequence();
       newSequence.splice(id, getDeleteCount(id));
-      setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
+      setKeycodeSequence(optimizeKeycodeSequence(newSequence));
       switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
@@ -251,7 +244,7 @@ export const MacroRecorder: React.FC<{
         RawKeycodeSequenceAction.Delay,
         val,
       ]);
-      setKeycodeSequence(optimizedSequenceToRawSequence(newSequence));
+      setKeycodeSequence(optimizeKeycodeSequence(newSequence));
       switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],

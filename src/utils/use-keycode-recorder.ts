@@ -62,7 +62,6 @@ export const useKeycodeRecorder = (
   useEffect(() => {
     heldKeys = {};
     if (enableRecording) {
-      lastEvtTime = Date.now();
       window.addEventListener('keydown', downHandler);
       window.addEventListener('keyup', upHandler);
     }
