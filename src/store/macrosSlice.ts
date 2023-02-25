@@ -74,13 +74,9 @@ export const loadMacros =
           const sequences = await macroApi.readRawKeycodeSequences();
           const macroBufferSize = await api.getMacroBufferSize();
           const macroCount = await api.getMacroCount();
-          if (macroBufferSize === 0 || macroCount === 0) {
-            dispatch(setMacrosNotSupported());
-          } else {
-            dispatch(
-              loadMacrosSuccess({ast: sequences, macroBufferSize, macroCount}),
-            );
-          }
+          dispatch(
+            loadMacrosSuccess({ast: sequences, macroBufferSize, macroCount}),
+          );
         }
       } catch (err) {
         dispatch(setMacrosNotSupported());
