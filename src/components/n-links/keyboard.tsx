@@ -431,7 +431,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
         containerDimensions={props.dimensions}
         nDimension={props.nDimension}
       />
-      {testPressedKeys && testKeyboardSoundsSettings.enabled && (
+      {testPressedKeys && testKeyboardSoundsSettings.isEnabled && (
         <TestKeyboardSounds
           pressedKeys={
             testPressedKeys as unknown as Record<string, TestKeyState>

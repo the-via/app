@@ -73,7 +73,7 @@ export type Key = Pick<
 };
 
 export type TestKeyboardSoundsSettings = {
-  enabled: boolean;
+  isEnabled: boolean;
   volume: number;
   waveform: OscillatorType;
 };

@@ -144,11 +144,11 @@ export const Test: FC = () => {
               <Label>Key Sounds</Label>
               <Detail>
                 <AccentSlider
-                  isChecked={testKeyboardSoundsSettings.enabled}
+                  isChecked={testKeyboardSoundsSettings.isEnabled}
                   onChange={(val) => {
                     dispatch(
                       setTestKeyboardSoundsSettings({
-                        enabled: val,
+                        isEnabled: val,
                       }),
                     );
                   }}

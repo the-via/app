@@ -35,7 +35,7 @@ const defaultStoreData = {
     themeMode: 'dark' as const,
     themeName: 'OLIVIA_DARK',
     testKeyboardSoundsSettings: {
-      enabled: true,
+      isEnabled: true,
       volume: 100,
       waveform: 'sine' as const,
     },
