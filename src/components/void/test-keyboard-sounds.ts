@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 import {getTestKeyboardSoundsSettings} from 'src/store/settingsSlice';
 import {TestKeyState} from 'src/types/types';
-import {Note, setAmpGain} from '../../utils/note';
+import {Note, setGlobalAmpGain} from '../../utils/note';
 import {useAppSelector} from 'src/store/hooks';
 
 let lastPressedKeys: Record<string, TestKeyState> = {};
@@ -17,7 +17,7 @@ export const TestKeyboardSounds: React.FC<{
   const {waveform, volume} = useAppSelector(getTestKeyboardSoundsSettings);
 
   useEffect(() => {
-    setAmpGain(volume / 100);
+    setGlobalAmpGain(volume / 100);
   }, [volume]);
 
   useEffect(() => {

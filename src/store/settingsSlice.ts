@@ -70,7 +70,6 @@ export const settingsSlice = createSlice({
         ...action.payload,
       };
       setSettings(state);
-      return state;
     },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
