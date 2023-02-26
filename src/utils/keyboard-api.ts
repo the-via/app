@@ -8,7 +8,7 @@ const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11];
 export const isValidProtocolVersion = (version: number) =>
   VALID_PROTOCOL_VERSIONS.includes(version);
 
-// Zeal60 API Command IDs
+// VIA Command IDs
 const COMMAND_START = 0x00; // This is really a HID Report ID
 const GET_PROTOCOL_VERSION = 0x01;
 const GET_KEYBOARD_VALUE = 0x02;
@@ -43,6 +43,8 @@ export enum KeyboardValue {
   UPTIME = 0x01,
   LAYOUT_OPTIONS = 0x02,
   SWITCH_MATRIX_STATE = 0x03,
+  FIRMWARE_VERSION = 0x04,
+  DEVICE_INDICATION = 0x05,
 }
 
 // RGB Backlight Value IDs

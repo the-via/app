@@ -5,6 +5,7 @@ import {startMonitoring, usbDetect} from '../utils/usb-hid';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
+  isVIADefinitionV3,
   LightingValue,
 } from '@the-via/reader';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
@@ -31,6 +32,7 @@ import {
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {mapEvtToKeycode} from 'src/utils/key-event';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
+import {KeyboardValue} from 'src/utils/keyboard-api';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -153,35 +155,33 @@ export const Home: React.VFC<HomeProps> = (props) => {
   };
 
   const toggleLights = async () => {
-    if (!api) {
+    if (!api || !selectedDefinition) {
       return;
     }
 
-    // TODO: Some sort of toggling lights on v3 firmware
-    if (!isVIADefinitionV2(selectedDefinition)) {
-      return;
-    }
+    const delay = 200;
 
     if (
-      api &&
-      selectedDefinition &&
+      isVIADefinitionV2(selectedDefinition) &&
       getLightingDefinition(
         selectedDefinition.lighting,
       ).supportedLightingValues.includes(LightingValue.BACKLIGHT_EFFECT)
     ) {
       const val = await api.getRGBMode();
-      const newVal =
-        val !== 0
-          ? 0
-          : getLightingDefinition(selectedDefinition.lighting).effects.length -
-            1;
-      api.setRGBMode(newVal);
-      api.timeout(200);
-      api.setRGBMode(val);
-      api.timeout(200);
-      api.setRGBMode(newVal);
-      api.timeout(200);
-      await api.setRGBMode(val);
+      const newVal = val !== 0 ? 0 : 1;
+      for (let i = 0; i < 3; i++) {
+        api.timeout(i === 0 ? 0 : delay);
+        api.setRGBMode(newVal);
+        api.timeout(delay);
+        await api.setRGBMode(val);
+      }
+    }
+
+    if (isVIADefinitionV3(selectedDefinition)) {
+      for (let i = 0; i < 6; i++) {
+        api.timeout(i === 0 ? 0 : delay);
+        await api.setKeyboardValue(KeyboardValue.DEVICE_INDICATION, i);
+      }
     }
   };
 
