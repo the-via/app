@@ -379,9 +379,11 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
 
   const testContext = useContext(TestContext);
   //// Hack to share setting a local state to avoid causing cascade of rerender
-  if (testContext[0].clearTestKeys !== clearTestKeys) {
-    testContext[1]({clearTestKeys});
-  }
+  useEffect(() => {
+    if (testContext[0].clearTestKeys !== clearTestKeys) {
+      testContext[1]({clearTestKeys});
+    }
+  }, [testContext, clearTestKeys]);
 
   useEffect(() => {
     // Remove event listeners on cleanup
