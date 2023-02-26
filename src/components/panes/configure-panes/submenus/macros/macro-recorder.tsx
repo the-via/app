@@ -117,9 +117,9 @@ const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
     sequence,
     convertCharacterTaps,
     trimLastWait,
+    rawOptRaw,
     mergeConsecutiveWaits,
     foldKeydownKeyupKeys,
-    rawOptRaw,
   );
 };
 const cleanKeycodeSequence = (sequence: RawKeycodeSequence) => {
