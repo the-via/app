@@ -176,14 +176,14 @@ export const Home: React.VFC<HomeProps> = (props) => {
         api.timeout(i === 0 ? 0 : delay);
         api.setRGBMode(newVal);
         api.timeout(delay);
-        api.setRGBMode(val);
+        await api.setRGBMode(val);
       }
     }
 
     if (isVIADefinitionV3(selectedDefinition)) {
       for (let i = 0; i < 6; i++) {
         api.timeout(i === 0 ? 0 : delay);
-        api.setKeyboardValue(KeyboardValue.DEVICE_INDICATION, i);
+        await api.setKeyboardValue(KeyboardValue.DEVICE_INDICATION, i);
       }
     }
   };
