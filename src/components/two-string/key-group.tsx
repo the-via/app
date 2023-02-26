@@ -80,7 +80,11 @@ export const KeyGroup: React.VFC<KeyGroupProps<React.MouseEvent>> = (props) => {
     props.definition.vendorProductId,
   ]);
   return (
-    <KeyGroupContainer height={height} width={width}>
+    <KeyGroupContainer
+      height={height}
+      width={width}
+      style={{pointerEvents: props.selectable ? 'all' : 'none'}}
+    >
       {elems}
     </KeyGroupContainer>
   );
