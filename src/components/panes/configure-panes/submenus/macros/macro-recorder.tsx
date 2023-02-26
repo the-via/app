@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import {
   convertCharacterTaps,
   foldKeydownKeyupKeys,
+  convertToCharacterStreams,
   mergeConsecutiveWaits,
   rawOptRaw,
   sequenceToExpression,
@@ -116,9 +117,9 @@ const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
     sequence,
     convertCharacterTaps,
     trimLastWait,
-    rawOptRaw,
     mergeConsecutiveWaits,
     foldKeydownKeyupKeys,
+    convertToCharacterStreams,
   );
 };
 const cleanKeycodeSequence = (sequence: RawKeycodeSequence) => {
