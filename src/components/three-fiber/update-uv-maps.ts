@@ -4,11 +4,11 @@ import {Box3, BufferAttribute, BufferGeometry} from 'three';
 import glbSrc from 'assets/models/keyboard_components.glb';
 
 export const UpdateUVMaps = () => {
-  const keycapNodes = useGLTF(glbSrc, true).nodes;
+  const keycapScene = useGLTF(glbSrc, true).scene;
   useEffect(() => {
     // updating uv maps
     // let's assume of now we want to contain uvs in the bottom 1/3
-    Object.values(keycapNodes).forEach((mesh) => {
+    Object.values(keycapScene.children).forEach((mesh) => {
       if ((mesh as THREE.Group).isGroup) {
         return;
       }
@@ -50,6 +50,6 @@ export const UpdateUVMaps = () => {
       geometry100u.center();
       uv100u.needsUpdate = true;
     });
-  }, [keycapNodes]);
+  }, [keycapScene]);
   return null;
 };

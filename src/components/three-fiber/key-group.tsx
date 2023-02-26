@@ -45,7 +45,7 @@ export const KeyGroup: React.VFC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
   props,
 ) => {
   const dispatch = useAppDispatch();
-  const keycapNodes = useGLTF(glbSrc, true).nodes;
+  const keycapScene = useGLTF(glbSrc, true).scene;
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
   const macroExpressions = useAppSelector(getExpressions);
@@ -75,7 +75,10 @@ export const KeyGroup: React.VFC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
       return (
         <Keycap
           keycapGeometry={
-            ((keycapNodes[meshKey] as any) || keycapNodes['K-R1-100']).geometry
+            (
+              (keycapScene.getObjectByName(meshKey) as any) ||
+              keycapScene.getObjectByName('K-R1-100')
+            ).geometry
           }
           {...getKeycapSharedProps(
             k,
