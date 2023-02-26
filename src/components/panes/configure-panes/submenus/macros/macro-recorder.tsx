@@ -259,6 +259,7 @@ export const MacroRecorder: React.FC<{
             key={`${id}-${action}`}
             index={id}
             deleteItem={deleteSequenceItem}
+            disabled={isRecording}
           >
             {RawKeycodeSequenceAction.Delay !== action ? (
               <Label>

@@ -25,10 +25,16 @@ const DeletableContainer = styled.div`
 `;
 
 export const Deletable: React.FC<
-  PropsWithChildren<{index: number; deleteItem: (index: number) => void}>
+  PropsWithChildren<{
+    index: number;
+    disabled: boolean;
+    deleteItem: (index: number) => void;
+  }>
 > = (props) => {
   return (
-    <DeletableContainer>
+    <DeletableContainer
+      style={{pointerEvents: !props.disabled ? 'all' : 'none'}}
+    >
       {props.children}
       <FontAwesomeIcon
         icon={faXmarkCircle}
