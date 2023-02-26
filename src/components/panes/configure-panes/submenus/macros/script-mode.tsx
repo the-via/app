@@ -73,16 +73,8 @@ export const ScriptMode: React.FC<{
   setUnsavedMacro: (macro: string) => void;
   saveMacros: (val: string) => void;
 }> = ({macro, protocol, setUnsavedMacro, saveMacros, macroIndex}) => {
-  const enterToken = '{KC_ENT}';
-  const trimmedMacro = macro.trimRight();
-  const textareaInitialValue = trimmedMacro.replace(
-    new RegExp(`${enterToken}$`),
-    '',
-  );
-  const [currentValue, setCurrentValue] = React.useState(textareaInitialValue);
-  const [appendEnter, setAppendEnter] = React.useState(
-    trimmedMacro.endsWith(enterToken),
-  );
+  const trimmedMacro = macro.trimEnd();
+  const [currentValue, setCurrentValue] = React.useState(trimmedMacro);
   const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
     undefined,
   );
@@ -92,11 +84,10 @@ export const ScriptMode: React.FC<{
   }, [currentValue]);
 
   const saveMacro = () => {
-    const value = appendEnter ? currentValue + enterToken : currentValue;
     const validate = getMacroValidator(protocol);
-    const validationResult = validate(value);
+    const validationResult = validate(currentValue);
     if (validationResult.isValid) {
-      saveMacros(value);
+      saveMacros(currentValue);
       setErrorMessage(undefined);
     } else {
       setErrorMessage(validationResult.errorMessage);
@@ -192,22 +183,11 @@ export const ScriptMode: React.FC<{
           <Message>Type ? to search for keycodes</Message>
         </DescriptionLabel>
         <Detail>
-          <AccentButton
-            disabled={
-              macro === (appendEnter ? currentValue + enterToken : currentValue)
-            }
-            onClick={saveMacro}
-          >
+          <AccentButton disabled={macro === currentValue} onClick={saveMacro}>
             Save
           </AccentButton>
         </Detail>
       </AutoHeightRow>
-      <ControlRow>
-        <Label>Tap 'Enter' at end of macro</Label>
-        <Detail>
-          <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
-        </Detail>
-      </ControlRow>
     </>
   );
 };
