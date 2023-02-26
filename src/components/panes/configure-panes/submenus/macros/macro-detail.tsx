@@ -92,6 +92,19 @@ type Props = {
   protocol: number;
 };
 
+const printBytesUsed = (bytesUsed: number, bufferSize: number) => {
+  const units = ['Bytes', 'kB', 'MB', 'GB'];
+  const scale = Math.floor(Math.log10(bufferSize) / 3);
+  const suffix = units[scale];
+  const denominator = scale === 0 ? 1 : Math.pow(1000, scale);
+  const convertedBytesUsed = bytesUsed / denominator;
+  const convertedBufferSize = bufferSize / denominator;
+
+  return `${convertedBytesUsed.toFixed(scale)} / ${convertedBufferSize.toFixed(
+    0,
+  )} ${suffix}`;
+};
+
 const BufferSizeUsage = () => {
   const ast = useAppSelector((state) => state.macros.ast);
   const bufferSize = useAppSelector(getMacroBufferSize);
@@ -109,7 +122,7 @@ const BufferSizeUsage = () => {
         <span style={{transform: `scaleX(${bytesUsed / bufferSize})`}} />
       </ProgressBar>
       <ProgressBarTooltip>
-        {100 - Math.round((100 * bytesUsed) / bufferSize)}% memory remaining
+        {printBytesUsed(bytesUsed, bufferSize)}
       </ProgressBarTooltip>
     </ProgressBarContainer>
   );
