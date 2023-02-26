@@ -7,6 +7,8 @@ import {getShowDesignTab} from 'src/store/settingsSlice';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
+import {VIALogo} from '../icons/via';
+import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
 
 const Container = styled.div`
   width: 100vw;
@@ -24,6 +26,13 @@ const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 const GlobalContainer = styled(Container)`
   background: var(--bg_outside-accent);
   column-gap: 20px;
+`;
+
+const ExternalLinkContainer = styled.span`
+  position: absolute;
+  right: 1em;
+  display: flex;
+  gap: 1em;
 `;
 
 export const UnconnectedGlobalMenu = () => {
@@ -46,9 +55,35 @@ export const UnconnectedGlobalMenu = () => {
     });
   }, [location, showDesignTab]);
 
+  const ExternalLinks = () => (
+    <ExternalLinkContainer>
+      <a href="https://caniusevia.com/" target="_blank">
+        <CategoryIconContainer>
+          <VIALogo height="25px" fill="currentColor"></VIALogo>
+          <CategoryMenuTooltip>Can I use VIA?</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+      <a href="https://discord.gg/NStTR5YaPB" target="_blank">
+        <CategoryIconContainer>
+          <FontAwesomeIcon size={'xl'} icon={faDiscord} />
+          <CategoryMenuTooltip>Discord</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+      <a href="https://github.com/the-via/app" target="_blank">
+        <CategoryIconContainer>
+          <FontAwesomeIcon size={'xl'} icon={faGithub} />
+          <CategoryMenuTooltip>Github</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+    </ExternalLinkContainer>
+  );
+
   return (
     <React.Fragment>
-      <GlobalContainer>{Panes}</GlobalContainer>
+      <GlobalContainer>
+        {Panes}
+        <ExternalLinks />
+      </GlobalContainer>
     </React.Fragment>
   );
 };
