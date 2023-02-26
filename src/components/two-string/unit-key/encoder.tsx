@@ -145,11 +145,11 @@ const EncoderKeyContent2 = styled.div<{$innerPadding: number; size: number}>`
     calc(var(--inner-padding) / 2) calc(var(--inner-padding) / 2);
   background-repeat: repeat;
 
-  transition: transform 0.2s ease-out;
-  transform: translateZ(0px);
+  transition: transform 0.5s ease-out;
+  transform: rotate(0);
   box-sizing: border-box;
   &:hover {
-    transform: perspective(100px) translateZ(-5px);
+    transform: rotate(450deg);
   }
 `;
 
