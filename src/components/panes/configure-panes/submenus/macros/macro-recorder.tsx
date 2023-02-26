@@ -1,6 +1,4 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {AccentSlider} from 'src/components/inputs/accent-slider';
-import {ControlRow, Detail, Label} from 'src/components/panes/grid';
 import {
   OptimizedKeycodeSequence,
   OptimizedKeycodeSequenceItem,
@@ -11,6 +9,7 @@ import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
   convertCharacterTaps,
+  foldKeydownKeyupKeys,
   mergeConsecutiveWaits,
   rawOptRaw,
   sequenceToExpression,
@@ -119,8 +118,12 @@ const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
     convertCharacterTaps,
     trimLastWait,
     mergeConsecutiveWaits,
+    foldKeydownKeyupKeys,
     rawOptRaw,
   );
+};
+const cleanKeycodeSequence = (sequence: RawKeycodeSequence) => {
+  return pipeline(sequence, mergeConsecutiveWaits);
 };
 
 export const MacroRecorder: React.FC<{
@@ -152,6 +155,11 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
+        if (!showVerboseKeyState) {
+          setKeycodeSequence(optimizeKeycodeSequence(keycodeSequence));
+        } else {
+        }
+        setUseRecordingSettings(false);
       }
     },
     [keycodeSequence, setIsRecording],
@@ -231,7 +239,7 @@ export const MacroRecorder: React.FC<{
     (id: number) => {
       const newSequence = getSliceableSequence();
       newSequence.splice(id, getDeleteCount(id));
-      setKeycodeSequence(optimizeKeycodeSequence(newSequence));
+      setKeycodeSequence(cleanKeycodeSequence(newSequence));
       switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],
@@ -244,7 +252,7 @@ export const MacroRecorder: React.FC<{
         RawKeycodeSequenceAction.Delay,
         val,
       ]);
-      setKeycodeSequence(optimizeKeycodeSequence(newSequence));
+      setKeycodeSequence(cleanKeycodeSequence(newSequence));
       switchToEditMode();
     },
     [displayedSequence, selectedMacro, keycodeSequence, showOriginalMacro],

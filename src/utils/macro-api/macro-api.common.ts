@@ -313,6 +313,24 @@ export function mergeConsecutiveWaits(
   }, [] as RawKeycodeSequence);
 }
 
+export function foldKeydownKeyupKeys(
+  sequence: RawKeycodeSequence,
+): RawKeycodeSequence {
+  return sequence.reduce((p, n) => {
+    if (
+      p[p.length - 1] &&
+      p[p.length - 1][0] === RawKeycodeSequenceAction.Down &&
+      n[0] === RawKeycodeSequenceAction.Up &&
+      p[p.length - 1][1] === n[1]
+    ) {
+      p.splice(-1, 1, [RawKeycodeSequenceAction.Tap, n[1]]);
+    } else {
+      p.push(n);
+    }
+    return p;
+  }, [] as RawKeycodeSequence);
+}
+
 export function convertToCharacterStreams(
   sequence: OptimizedKeycodeSequence,
 ): OptimizedKeycodeSequence {
