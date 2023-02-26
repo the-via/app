@@ -1,5 +1,9 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {Settings, TestKeyboardSoundsSettings} from '../types/types';
+import type {
+  MacroEditorSettings,
+  Settings,
+  TestKeyboardSoundsSettings,
+} from '../types/types';
 import type {PropertiesOfType} from '../types/generic-types';
 import {getSettings, setSettings} from '../utils/device-store';
 import type {RootState} from '.';
@@ -61,16 +65,27 @@ export const settingsSlice = createSlice({
     setTestMatrixEnabled: (state, action: PayloadAction<boolean>) => {
       state.isTestMatrixEnabled = action.payload;
     },
+    setMacroEditorSettings: (
+      state,
+      action: PayloadAction<Partial<MacroEditorSettings>>,
+    ) => {
+      const macroEditor = {
+        ...state.macroEditor,
+        ...action.payload,
+      };
+      state.macroEditor = macroEditor;
+      setSettings(state);
+    },
     setTestKeyboardSoundsSettings: (
       state,
       action: PayloadAction<Partial<TestKeyboardSoundsSettings>>,
     ) => {
-      state.testKeyboardSoundsSettings = {
+      const testKeyboardSoundsSettings = {
         ...state.testKeyboardSoundsSettings,
         ...action.payload,
       };
+      state.testKeyboardSoundsSettings = testKeyboardSoundsSettings;
       setSettings(state);
-      return state;
     },
     disableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = false;
@@ -87,6 +102,7 @@ export const {
   toggleCreatorMode,
   setTestMatrixEnabled,
   setTestKeyboardSoundsSettings,
+  setMacroEditorSettings,
   toggleThemeMode,
   disableGlobalHotKeys,
   enableGlobalHotKeys,
@@ -108,6 +124,8 @@ export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
   state.settings.isTestMatrixEnabled;
+export const getMacroEditorSettings = (state: RootState) =>
+  state.settings.macroEditor;
 export const getTestKeyboardSoundsSettings = (state: RootState) =>
   state.settings.testKeyboardSoundsSettings;
 export const getRenderMode = (state: RootState) =>

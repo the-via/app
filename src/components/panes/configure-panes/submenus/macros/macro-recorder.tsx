@@ -25,6 +25,12 @@ import {
 import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
 import {pipeline} from 'src/utils/pipeline';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getMacroEditorSettings,
+  setMacroEditorSettings,
+} from 'src/store/settingsSlice';
+import {useDispatch} from 'react-redux';
 
 declare global {
   interface Navigator {
@@ -131,17 +137,19 @@ export const MacroRecorder: React.FC<{
   saveMacro(macro?: string): void;
   setUnsavedMacro: (a: any) => void;
 }> = ({selectedMacro, setUnsavedMacro, saveMacro, undoMacro}) => {
-  const [showVerboseKeyState, setShowVerboseKeyState] = useState(false);
-  const [recordWaitTimes, setRecordWaitTimes] = useState(false);
   const [showOriginalMacro, setShowOriginalMacro] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [useRecordingSettings, setUseRecordingSettings] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(
     !!document.fullscreenElement,
   );
+  const {smartOptimizeEnabled, recordDelaysEnabled} = useAppSelector(
+    getMacroEditorSettings,
+  );
+  const dispatch = useDispatch();
   const [keycodeSequence, setKeycodeSequence] = useKeycodeRecorder(
     isRecording,
-    recordWaitTimes,
+    recordDelaysEnabled,
   );
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
@@ -154,7 +162,7 @@ export const MacroRecorder: React.FC<{
         setUseRecordingSettings(true);
       } else {
         navigator.keyboard.unlock();
-        if (!showVerboseKeyState) {
+        if (smartOptimizeEnabled) {
           setKeycodeSequence(optimizeKeycodeSequence(keycodeSequence));
         } else {
         }
@@ -193,7 +201,9 @@ export const MacroRecorder: React.FC<{
   const displayedSequence = useMemo(() => {
     let partialSequence;
     let sliceSequence = getSliceableSequence();
-    if (!(showOriginalMacro || !useRecordingSettings || showVerboseKeyState)) {
+    if (
+      !(showOriginalMacro || !useRecordingSettings || !smartOptimizeEnabled)
+    ) {
       partialSequence = optimizeKeycodeSequence(sliceSequence);
     } else {
       partialSequence = sliceSequence;
@@ -202,7 +212,7 @@ export const MacroRecorder: React.FC<{
   }, [
     keycodeSequence,
     showOriginalMacro,
-    showVerboseKeyState,
+    smartOptimizeEnabled,
     useRecordingSettings,
     selectedMacro,
   ]);
@@ -335,18 +345,24 @@ export const MacroRecorder: React.FC<{
         <MacroEditControls
           isFullscreen={isFullscreen}
           isEmpty={!selectedMacro || !selectedMacro.length}
-          optimizeRecording={!showVerboseKeyState}
-          recordDelays={recordWaitTimes}
+          optimizeRecording={smartOptimizeEnabled}
+          recordDelays={recordDelaysEnabled}
           isRecording={isRecording}
           addText={() => {}}
           deleteMacro={deleteMacro}
           toggleOptimizeRecording={() => {
-            console.log(showVerboseKeyState);
-            setShowVerboseKeyState(!showVerboseKeyState);
+            dispatch(
+              setMacroEditorSettings({
+                smartOptimizeEnabled: !smartOptimizeEnabled,
+              }),
+            );
           }}
           toggleRecordDelays={() => {
-            console.log(recordWaitTimes);
-            setRecordWaitTimes(!recordWaitTimes);
+            dispatch(
+              setMacroEditorSettings({
+                recordDelaysEnabled: !recordDelaysEnabled,
+              }),
+            );
           }}
           toggleFullscreen={toggleFullscreen}
           undoChanges={undoChanges}
