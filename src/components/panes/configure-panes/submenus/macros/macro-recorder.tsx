@@ -11,7 +11,6 @@ import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
 import {
   convertCharacterTaps,
-  convertToCharacterStreams,
   mergeConsecutiveWaits,
   rawOptRaw,
   sequenceToExpression,
@@ -120,7 +119,7 @@ const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
     convertCharacterTaps,
     trimLastWait,
     mergeConsecutiveWaits,
-    convertToCharacterStreams,
+    rawOptRaw,
   );
 };
 

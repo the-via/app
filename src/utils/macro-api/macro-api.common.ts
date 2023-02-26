@@ -104,6 +104,7 @@ export function rawSequenceToOptimizedSequence(
 ): OptimizedKeycodeSequence {
   let result: OptimizedKeycodeSequence = [];
   result = convertToTapsAndChords(sequence);
+  result = convertToCharacterStreams(result);
   return result;
 }
 
@@ -310,27 +311,48 @@ export function mergeConsecutiveWaits(
 }
 
 export function convertToCharacterStreams(
-  sequence: RawKeycodeSequence,
-): RawKeycodeSequence {
+  sequence: OptimizedKeycodeSequence,
+): OptimizedKeycodeSequence {
   // Convert "{KC_A}{KC_B}{KC_C}" to "abc"
   // Convert "{KC_LSFT,KC_A}" to "A"
-  let seq: RawKeycodeSequence = sequence.reduce((p, n) => {
+  let seq: OptimizedKeycodeSequence = sequence.reduce((p, n) => {
+    let newChars = '';
     if (
       n[0] == RawKeycodeSequenceAction.Tap &&
       n[1] in mapKeycodeToCharacterStream
     ) {
-      const newChars = mapKeycodeToCharacterStream[n[1]][0];
+      newChars = mapKeycodeToCharacterStream[n[1]][0];
+    } else if (
+      n[0] == GroupedKeycodeSequenceAction.Chord &&
+      n[1].every(
+        (keycode) =>
+          keycode in mapKeycodeToCharacterStream ||
+          keycode === 'KC_LSFT' ||
+          keycode === 'KC_RSFT',
+      )
+    ) {
+      let shift = false;
+      newChars = n[1]
+        .reduce((p, n) => {
+          if (n === 'KC_LSFT' || n === 'KC_RSFT') {
+            shift = true;
+            return [...p];
+          }
+          return [...p, mapKeycodeToCharacterStream[n][shift ? 1 : 0]];
+        }, [] as string[])
+        .join('');
+    }
+
+    if (newChars.length > 0) {
       if (
         p[p.length - 1] !== undefined &&
         p[p.length - 1][0] === RawKeycodeSequenceAction.CharacterStream
       ) {
         // append case
+        newChars = (p[p.length - 1][1] as string) + newChars;
         return [
           ...p.slice(0, -1),
-          [
-            RawKeycodeSequenceAction.CharacterStream,
-            (p[p.length - 1][1] as string) + newChars,
-          ],
+          [RawKeycodeSequenceAction.CharacterStream, newChars],
         ];
       } else {
         return [...p, [RawKeycodeSequenceAction.CharacterStream, newChars]];
@@ -338,7 +360,7 @@ export function convertToCharacterStreams(
     } else {
       return [...p, n];
     }
-  }, [] as RawKeycodeSequenceItem[]);
+  }, [] as OptimizedKeycodeSequenceItem[]);
 
   // convert "{+KC_LSFT}abc{-KC_LSFT}" into "ABC"
   let seq2: OptimizedKeycodeSequence = [];
