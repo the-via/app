@@ -1,3 +1,4 @@
+import {current} from '@reduxjs/toolkit';
 import {
   DefinitionVersionMap,
   getTheme,
@@ -34,6 +35,11 @@ const defaultStoreData = {
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
     themeName: 'OLIVIA_DARK',
+    macroEditor: {
+      smartOptimizeEnabled: true,
+      recordDelaysEnabled: false,
+      tapEnterAtEOMEnabled: false,
+    },
     testKeyboardSoundsSettings: {
       isEnabled: true,
       volume: 100,
@@ -166,5 +172,6 @@ export const getThemeNameFromStore = () => {
 
 export const getSettings = (): Settings => deviceStore.get('settings');
 
-export const setSettings = (settings: Settings) =>
-  deviceStore.set('settings', settings);
+export const setSettings = (settings: Settings) => {
+  deviceStore.set('settings', current(settings));
+};

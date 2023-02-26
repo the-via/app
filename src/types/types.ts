@@ -72,6 +72,12 @@ export type Key = Pick<
   onClick?: (id: number) => void;
 };
 
+export type MacroEditorSettings = {
+  recordDelaysEnabled: boolean;
+  smartOptimizeEnabled: boolean;
+  tapEnterAtEOMEnabled: boolean;
+};
+
 export type TestKeyboardSoundsSettings = {
   isEnabled: boolean;
   volume: number;
@@ -85,6 +91,7 @@ export type Settings = {
   renderMode: '3D' | '2D';
   themeMode: 'light' | 'dark';
   themeName: string;
+  macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
 };
 
