@@ -24,7 +24,6 @@ import {
 } from './keycode-sequence-components';
 import {MacroEditControls} from './macro-controls';
 import {Deletable} from './deletable';
-import {tagWithID, unwrapTagWithID} from './tagging';
 import {pipeline} from 'src/utils/pipeline';
 
 declare global {
@@ -188,18 +187,16 @@ export const MacroRecorder: React.FC<{
     let sliceableSequence = showOriginalMacro
       ? ((selectedMacro ?? []) as RawKeycodeSequence)
       : keycodeSequence;
-    return sliceableSequence;
+    return [...sliceableSequence];
   };
 
   const displayedSequence = useMemo(() => {
     let partialSequence;
-    let taggedSliceSequence = getSliceableSequence().map(tagWithID);
+    let sliceSequence = getSliceableSequence();
     if (!(showOriginalMacro || !useRecordingSettings || showVerboseKeyState)) {
-      partialSequence = optimizeKeycodeSequence(
-        taggedSliceSequence.map(unwrapTagWithID),
-      ).map(tagWithID);
+      partialSequence = optimizeKeycodeSequence(sliceSequence);
     } else {
-      partialSequence = taggedSliceSequence;
+      partialSequence = sliceSequence;
     }
     return partialSequence;
   }, [
@@ -212,22 +209,9 @@ export const MacroRecorder: React.FC<{
 
   useEffect(() => {
     if (displayedSequence) {
-      setUnsavedMacro(
-        sequenceToExpression(displayedSequence.map(unwrapTagWithID)),
-      );
+      setUnsavedMacro(sequenceToExpression(displayedSequence));
     }
   }, [displayedSequence]);
-
-  const getDeleteCount = (id: number) => {
-    const sequenceItemIndex = displayedSequence.findIndex(
-      (item) => id === item[1],
-    );
-    const endIndex =
-      displayedSequence.length - 1 === sequenceItemIndex
-        ? id + 1
-        : displayedSequence[sequenceItemIndex + 1][1];
-    return endIndex - id;
-  };
 
   const switchToEditMode = useCallback(() => {
     if (showOriginalMacro) {
@@ -238,7 +222,7 @@ export const MacroRecorder: React.FC<{
   const deleteSequenceItem = useCallback(
     (id: number) => {
       const newSequence = getSliceableSequence();
-      newSequence.splice(id, getDeleteCount(id));
+      newSequence.splice(id, 1);
       setKeycodeSequence(cleanKeycodeSequence(newSequence));
       switchToEditMode();
     },
@@ -248,10 +232,7 @@ export const MacroRecorder: React.FC<{
   const editSequenceItem = useCallback(
     (id: number, val: number) => {
       const newSequence = getSliceableSequence();
-      newSequence.splice(id, getDeleteCount(id), [
-        RawKeycodeSequenceAction.Delay,
-        val,
-      ]);
+      newSequence.splice(id, 1, [RawKeycodeSequenceAction.Delay, val]);
       setKeycodeSequence(cleanKeycodeSequence(newSequence));
       switchToEditMode();
     },
@@ -260,7 +241,7 @@ export const MacroRecorder: React.FC<{
 
   const sequence = useMemo(() => {
     return componentJoin(
-      displayedSequence.map(([[action, actionArg], id]) => {
+      displayedSequence.map(([action, actionArg], id) => {
         const Label = getSequenceItemComponent(action);
         return (
           <Deletable
