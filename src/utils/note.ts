@@ -1,5 +1,6 @@
 let globalAudioContext: AudioContext;
 let globalAmp: GainNode;
+let globalAmpGain: number = 1.0;
 
 const ampGain = 0.25;
 const ampAttack = 0.05;
@@ -14,27 +15,31 @@ function getAudioContext(): AudioContext {
   return globalAudioContext;
 }
 
-function getAmp(): GainNode {
+function getGlobalAmp(): GainNode {
   if (globalAmp === undefined) {
     const audioContext = getAudioContext();
     globalAmp = audioContext.createGain();
-    globalAmp.gain.value = 1;
+    globalAmp.gain.value = globalAmpGain;
     globalAmp.connect(audioContext.destination);
   }
   return globalAmp;
 }
 
-export function getAmpGain(): number {
-  return getAmp().gain.value;
-}
-
-export function setAmpGain(ampGain: number) {
-  getAmp().gain.setValueAtTime(
-    getAmp().gain.value,
+export function setGlobalAmpGain(ampGain: number) {
+  // Cache the value in case we don't have an AudioContext yet
+  // See https://goo.gl/7K7WLu
+  globalAmpGain = ampGain;
+  if (globalAmp === undefined) {
+    return;
+  }
+  // This fixes a crackle sound when changing volume slider quickly
+  // while playing a note.
+  globalAmp.gain.setValueAtTime(
+    globalAmp.gain.value,
     getAudioContext().currentTime,
   );
-  getAmp().gain.linearRampToValueAtTime(
-    ampGain,
+  globalAmp.gain.linearRampToValueAtTime(
+    globalAmpGain,
     getAudioContext().currentTime + 0.2,
   );
 }
@@ -60,7 +65,7 @@ export class Note {
     this.ampSustainTime = 0;
     this.amp = this.audioContext.createGain();
     this.amp.gain.value = 0;
-    this.amp.connect(getAmp());
+    this.amp.connect(getGlobalAmp());
     this.osc.connect(this.amp);
   }
 
