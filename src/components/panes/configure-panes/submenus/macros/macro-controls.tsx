@@ -53,6 +53,7 @@ export const MacroEditControls: React.FC<{
   isEmpty?: boolean;
   recordingToggleChange: (a: boolean) => void;
   addText: () => void;
+  canUseDelays: boolean;
 }> = ({
   isFullscreen,
   isRecording,
@@ -67,6 +68,7 @@ export const MacroEditControls: React.FC<{
   isEmpty,
   deleteMacro,
   toggleFullscreen,
+  canUseDelays,
 }) => {
   const recordComponent = (
     <IconButtonContainer
@@ -174,6 +176,7 @@ export const MacroEditControls: React.FC<{
               </IconButtonTooltip>
             </IconToggleContainer>
             <IconToggleContainer
+              disabled={!canUseDelays}
               $selected={recordDelays}
               onClick={toggleRecordDelays}
             >
@@ -183,7 +186,11 @@ export const MacroEditControls: React.FC<{
                 className={'fa-stack-1x'}
               />
               <IconButtonTooltip>
-                {!recordDelays ? 'Record Delays' : 'Skip Recording Delays'}
+                {!canUseDelays
+                  ? 'Upgrade firmware to use delays'
+                  : !recordDelays
+                  ? 'Record Delays'
+                  : 'Skip Recording Delays'}
               </IconButtonTooltip>
             </IconToggleContainer>
           </MacroControlGroupContainer>

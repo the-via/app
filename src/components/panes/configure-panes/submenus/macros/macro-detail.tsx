@@ -1,15 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {ControlRow, Label, Detail} from '../../../grid';
-import {AccentSlider} from '../../../../inputs/accent-slider';
 import {MacroRecorder} from './macro-recorder';
 import {useAppSelector} from 'src/store/hooks';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-  faClapperboard,
-  faCode,
-  faGear,
-} from '@fortawesome/free-solid-svg-icons';
+import {faClapperboard, faCode} from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
 import {getMacroBufferSize} from 'src/store/macrosSlice';
@@ -148,6 +142,8 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
     [unsavedMacro],
   );
 
+  const canUseDelays = false;
+
   return (
     <>
       <CenterTabContainer>
@@ -172,6 +168,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           macro={currentMacro}
           macroIndex={props.selectedMacro}
           protocol={props.protocol}
+          canUseDelays={canUseDelays}
           setUnsavedMacro={setUnsavedMacro}
           saveMacros={props.saveMacros}
           key={props.selectedMacro}
@@ -182,6 +179,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           setUnsavedMacro={setUnsavedMacro}
           undoMacro={undoChanges}
           saveMacro={saveMacro}
+          canUseDelays={canUseDelays}
         />
       )}
     </>

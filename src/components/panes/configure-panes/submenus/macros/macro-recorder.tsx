@@ -12,7 +12,6 @@ import {
   foldKeydownKeyupKeys,
   convertToCharacterStreams,
   mergeConsecutiveWaits,
-  rawOptRaw,
   sequenceToExpression,
   trimLastWait,
 } from 'src/utils/macro-api/macro-api.common';
@@ -137,7 +136,8 @@ export const MacroRecorder: React.FC<{
   undoMacro(): void;
   saveMacro(macro?: string): void;
   setUnsavedMacro: (a: any) => void;
-}> = ({selectedMacro, setUnsavedMacro, saveMacro, undoMacro}) => {
+  canUseDelays: boolean;
+}> = ({selectedMacro, setUnsavedMacro, saveMacro, undoMacro, canUseDelays}) => {
   const [showOriginalMacro, setShowOriginalMacro] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [useRecordingSettings, setUseRecordingSettings] = useState(false);
@@ -371,6 +371,7 @@ export const MacroRecorder: React.FC<{
           saveChanges={() => saveMacro()}
           hasUnsavedChanges={!showOriginalMacro}
           recordingToggleChange={recordingToggleChange}
+          canUseDelays={canUseDelays}
         />
       </div>
     </>

@@ -209,11 +209,13 @@ const TestControls = () => {
         setUnsavedMacro={(_) => _}
         undoMacro={() => null}
         saveMacro={() => null}
+        canUseDelays={true}
       />
       <MacroRecorder
         setUnsavedMacro={(_) => _}
         undoMacro={() => null}
         saveMacro={() => null}
+        canUseDelays={true}
       />
     </ControlGroup>
   );

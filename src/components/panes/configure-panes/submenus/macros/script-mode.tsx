@@ -69,10 +69,18 @@ const AutoHeightRow = styled(ControlRow)`
 export const ScriptMode: React.FC<{
   macro: string;
   protocol: number;
-  macroIndex: number;
   setUnsavedMacro: (macro: string) => void;
   saveMacros: (val: string) => void;
-}> = ({macro, protocol, setUnsavedMacro, saveMacros, macroIndex}) => {
+  macroIndex: number;
+  canUseDelays: boolean;
+}> = ({
+  macro,
+  protocol,
+  setUnsavedMacro,
+  saveMacros,
+  macroIndex,
+  canUseDelays,
+}) => {
   const trimmedMacro = macro.trimEnd();
   const [currentValue, setCurrentValue] = React.useState(trimmedMacro);
   const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
@@ -179,7 +187,11 @@ export const ScriptMode: React.FC<{
           <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
           <Message>Keydown: {`{+KC_XXX}`}</Message>
           <Message>Keyup: {`{-KC_XXX}`}</Message>
-          {protocol >= 11 ? <Message>Delay (ms): {'{NNNN}'} </Message> : ''}
+          {canUseDelays ? (
+            <Message>Delay (ms): {'{NNNN}'} </Message>
+          ) : (
+            'Upgrade firmware to use delays'
+          )}
           <Message>Type ? to search for keycodes</Message>
         </DescriptionLabel>
         <Detail>
