@@ -101,7 +101,7 @@ const printBytesUsed = (bytesUsed: number, bufferSize: number) => {
   const convertedBufferSize = bufferSize / denominator;
 
   return `${convertedBytesUsed.toFixed(scale)} / ${convertedBufferSize.toFixed(
-    0,
+    scale,
   )} ${suffix}`;
 };
 
