@@ -362,7 +362,7 @@ export function convertToCharacterStreams(
   }, [] as RawKeycodeSequenceItem[]);
 
   // convert "{+KC_LSFT}abc{-KC_LSFT}" into "ABC"
-  let seq2: OptimizedKeycodeSequence = [];
+  let seq2: RawKeycodeSequence = [];
   for (let index = 0; index < seq.length; index++) {
     if (
       index + 2 < seq.length &&
@@ -384,7 +384,7 @@ export function convertToCharacterStreams(
   }
 
   // concatenate adjacent character streams
-  const seq3: OptimizedKeycodeSequence = seq2.reduce((p, n) => {
+  const seq3: RawKeycodeSequence = seq2.reduce((p, n) => {
     if (
       n[0] === RawKeycodeSequenceAction.CharacterStream &&
       p[p.length - 1] !== undefined &&
@@ -396,7 +396,7 @@ export function convertToCharacterStreams(
       return p;
     }
     return [...p, n];
-  }, [] as OptimizedKeycodeSequenceItem[]);
+  }, [] as RawKeycodeSequenceItem[]);
 
   return seq3;
 }
