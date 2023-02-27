@@ -1,4 +1,4 @@
-import {useState, VFC} from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
 import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
@@ -132,7 +132,7 @@ const getInputItems = (arr: IKeycode[]) =>
   }));
 
 // Connect component with redux here:
-export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
+export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
