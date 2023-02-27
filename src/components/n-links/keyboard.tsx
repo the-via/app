@@ -39,14 +39,7 @@ import {
   getShowKeyPainter,
 } from 'src/store/menusSlice';
 import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
-import {NDimension} from './types';
-
-enum DisplayMode {
-  Test = 1,
-  Configure = 2,
-  Design = 3,
-  ConfigureColors = 4,
-}
+import {DisplayMode, NDimension} from 'src/types/keyboard-rendering';
 
 const getKeyboardCanvas = (dimension: '2D' | '3D') =>
   dimension === '2D' ? StringKeyboardCanvas : FiberKeyboardCanvas;

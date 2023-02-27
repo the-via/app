@@ -8,6 +8,7 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
+import {KeyColorPair} from 'src/types/keyboard-rendering';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
 import {
@@ -23,11 +24,6 @@ import {
   isCustomKeycodeByte,
   isArrowKey,
 } from './key';
-
-export type KeyColorPair = {
-  c: string;
-  t: string;
-};
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -420,7 +416,10 @@ export const getGeometry = (k: VIAKey) => {
   }
 };
 
-export const getScale = (k: VIAKey, scale: number[]) => {
+export const getScale = (
+  k: VIAKey,
+  scale: [number, number, number],
+): [number, number, number] => {
   if (k['ei'] !== undefined) {
     return scale;
   } else if (k.h === 2 && k.w === 1) {

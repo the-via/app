@@ -1,10 +1,4 @@
 import styled from 'styled-components';
-export enum DisplayMode {
-  Test = 1,
-  Configure = 2,
-  Design = 3,
-  ConfigureColors = 4,
-}
 
 export const KeycapContainer = styled.div`
   position: absolute;

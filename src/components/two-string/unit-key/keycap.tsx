@@ -9,16 +9,15 @@ import {ComboKeycap} from './combo-keycap';
 import {EncoderKey} from './encoder';
 import {
   CanvasContainer,
-  DisplayMode,
   KeycapContainer,
   TestOverlay,
   TooltipContainer,
 } from './keycap-base';
-
-export enum KeycapState {
-  Pressed = 1,
-  Unpressed = 2,
-}
+import {
+  KeycapState,
+  TwoStringKeycapProps,
+  DisplayMode,
+} from 'src/types/keyboard-rendering';
 
 const getMacroData = ({
   macroExpression,
@@ -166,13 +165,10 @@ const paintKeycapLabel = (
 
 const paintKeycap = (
   canvas: HTMLCanvasElement,
-  [widthMultiplier, heightMultiplier]: [number, number],
   textureWidth: number,
   textureHeight: number,
-  bgColor: string,
   legendColor: string,
   label: any,
-  textureOffsetX: number,
 ) => {
   const [canvasWidth, canvasHeight] = [
     CSSVarObject.keyWidth,
@@ -205,175 +201,189 @@ const paintKeycap = (
   return paintKeycapLabel(canvas, legendColor, label);
 };
 
-export const Keycap = React.memo(
-  (props: any & {mode: DisplayMode; idx: number}) => {
-    const {
-      label,
-      scale,
-      color,
-      selected,
-      disabled,
-      mode,
-      rotation,
-      keyState,
-      shouldRotate,
-      textureOffsetX,
-      textureWidth,
-      textureHeight,
-      idx,
-    } = props;
-    const macroData = label && getMacroData(label);
-    const [overflowsTexture, setOverflowsTexture] = useState(false);
-    // Hold state for hovered and clicked events
-    const [hovered, hover] = useState(false);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-    const redraw = React.useCallback(() => {
-      if (canvasRef.current && color) {
-        if (shouldRotate) {
-          paintEncoder(canvasRef.current, scale, color.c, color.t);
-        } else if (
-          label &&
-          document.fonts.check('bold 16px "Fira Sans"', label.label)
-        ) {
-          // Only render label if it is available
-          const doesOverflow = paintKeycap(
-            canvasRef.current,
-            scale,
-            textureWidth,
-            textureHeight,
-            color.c,
-            color.t,
-            label,
-            textureOffsetX,
-          );
-          setOverflowsTexture(!!doesOverflow);
-        }
+export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
+  const {
+    label,
+    scale,
+    color,
+    selected,
+    disabled,
+    mode,
+    rotation,
+    keyState,
+    shouldRotate,
+    textureWidth,
+    textureHeight,
+    idx,
+  } = props;
+  const macroData = label && getMacroData({label});
+  const [overflowsTexture, setOverflowsTexture] = useState(false);
+  // Hold state for hovered and clicked events
+  const [hovered, hover] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const redraw = React.useCallback(() => {
+    if (canvasRef.current && color) {
+      if (shouldRotate) {
+        paintEncoder(canvasRef.current, [scale[0], scale[1]], color.c, color.t);
+      } else if (
+        label &&
+        document.fonts.check('bold 16px "Fira Sans"', label.label)
+      ) {
+        // Only render label if it is available
+        const doesOverflow = paintKeycap(
+          canvasRef.current,
+          textureWidth,
+          textureHeight,
+          color.t,
+          label,
+        );
+        setOverflowsTexture(!!doesOverflow);
       }
-    }, [
-      canvasRef.current,
-      textureWidth,
-      label && label.key,
-      scale[0],
-      scale[1],
-      color && color.t,
-      color && color.c,
-      shouldRotate,
-    ]);
-    useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
+    }
+  }, [
+    canvasRef.current,
+    textureWidth,
+    label && label.key,
+    scale[0],
+    scale[1],
+    color && color.t,
+    color && color.c,
+    shouldRotate,
+  ]);
+  useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
 
-    useEffect(() => {
-      document.fonts.addEventListener('loadingdone', redraw);
-      return () => {
-        document.fonts.removeEventListener('loadingdone', redraw);
-      };
-    }, []);
+  useEffect(() => {
+    document.fonts.addEventListener('loadingdone', redraw);
+    return () => {
+      document.fonts.removeEventListener('loadingdone', redraw);
+    };
+  }, []);
 
-    // Set Z to half the total height so that keycaps are at the same level since the center
-    // is in the middle and each row has a different height
-    const [zDown, zUp] = [-8, 0];
-    const pressedState =
-      DisplayMode.Test === mode
-        ? TestKeyState.KeyDown === keyState
-          ? KeycapState.Pressed
-          : KeycapState.Unpressed
-        : hovered || selected
+  // Set Z to half the total height so that keycaps are at the same level since the center
+  // is in the middle and each row has a different height
+  const [zDown, zUp] = [-8, 0];
+  const pressedState =
+    DisplayMode.Test === mode
+      ? TestKeyState.KeyDown === keyState
         ? KeycapState.Pressed
-        : KeycapState.Unpressed;
-    const [keycapZ] =
-      pressedState === KeycapState.Pressed
-        ? [zDown, rotation[2]]
-        : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];
-    const wasPressed = keyState === TestKeyState.KeyUp;
-    const keycapColor =
-      DisplayMode.Test === mode
-        ? pressedState === KeycapState.Unpressed
-          ? wasPressed
-            ? 'mediumvioletred'
-            : 'lightgrey'
-          : 'mediumvioletred'
-        : pressedState === KeycapState.Unpressed
-        ? 'lightgrey'
-        : 'lightgrey';
-    const keycapOpacity =
-      pressedState === KeycapState.Unpressed ? (wasPressed ? 0.4 : 0) : 0.6;
+        : KeycapState.Unpressed
+      : hovered || selected
+      ? KeycapState.Pressed
+      : KeycapState.Unpressed;
+  const [keycapZ] =
+    pressedState === KeycapState.Pressed
+      ? [zDown, rotation[2]]
+      : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];
+  const wasPressed = keyState === TestKeyState.KeyUp;
+  const keycapColor =
+    DisplayMode.Test === mode
+      ? pressedState === KeycapState.Unpressed
+        ? wasPressed
+          ? 'mediumvioletred'
+          : 'lightgrey'
+        : 'mediumvioletred'
+      : pressedState === KeycapState.Unpressed
+      ? 'lightgrey'
+      : 'lightgrey';
+  const keycapOpacity =
+    pressedState === KeycapState.Unpressed ? (wasPressed ? 0.4 : 0) : 0.6;
 
-    const [onClick, onPointerOver, onPointerOut, onPointerDown] =
-      useMemo(() => {
-        const noop = () => {};
-        return disabled
-          ? [noop, noop, noop, noop]
-          : props.mode === DisplayMode.ConfigureColors
-          ? [
-              noop,
-              (evt: React.MouseEvent) => {
-                if (props.onPointerOver) {
-                  props.onPointerOver(evt, idx);
-                }
-              },
-              noop,
-              (evt: React.MouseEvent) => {
-                if (props.onPointerDown) {
-                  props.onPointerDown(evt, idx);
-                }
-              },
-            ]
-          : [
-              (evt: React.MouseEvent) => props.onClick(evt, idx),
-              (evt: React.MouseEvent) => {
-                if (props.onPointerOver) {
-                  props.onPointerOver(evt, idx);
-                }
-                hover(true);
-              },
-              () => hover(false),
-              (evt: React.MouseEvent) => {
-                if (props.onPointerDown) {
-                  props.onPointerDown(evt, idx);
-                }
-              },
-            ];
-      }, [
-        disabled,
-        props.onClick,
-        props.onPointerDown,
-        props.onPointerOver,
-        hover,
-        idx,
-        mode,
-      ]);
-    return shouldRotate ? (
-      <EncoderKey
-        {...props}
-        style={{
-          transform: `translate(${
-            props.position[0] -
-            (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
-          }px,${
-            (textureWidth * (CSSVarObject.keyHeight - CSSVarObject.keyWidth)) /
-              2 +
-            props.position[1] -
-            (CSSVarObject.keyHeight * textureHeight - CSSVarObject.keyHeight) /
-              2
-          }px) rotate(${-props.rotation[2]}rad)`,
-          borderRadius: 3,
-          width: textureWidth * CSSVarObject.keyWidth,
-          height: textureHeight * CSSVarObject.keyWidth,
-          color: props.color.c,
-        }}
-      />
-    ) : props.clipPath ? (
-      <ComboKeycap
-        {...props}
+  const [onClick, onPointerOver, onPointerOut, onPointerDown] = useMemo(() => {
+    const noop = () => {};
+    return disabled
+      ? [noop, noop, noop, noop]
+      : props.mode === DisplayMode.ConfigureColors
+      ? [
+          noop,
+          (evt: React.MouseEvent) => {
+            if (props.onPointerOver) {
+              props.onPointerOver(evt, idx);
+            }
+          },
+          noop,
+          (evt: React.MouseEvent) => {
+            if (props.onPointerDown) {
+              props.onPointerDown(evt, idx);
+            }
+          },
+        ]
+      : [
+          (evt: React.MouseEvent) => props.onClick(evt, idx),
+          (evt: React.MouseEvent) => {
+            if (props.onPointerOver) {
+              props.onPointerOver(evt, idx);
+            }
+            hover(true);
+          },
+          () => hover(false),
+          (evt: React.MouseEvent) => {
+            if (props.onPointerDown) {
+              props.onPointerDown(evt, idx);
+            }
+          },
+        ];
+  }, [
+    disabled,
+    props.onClick,
+    props.onPointerDown,
+    props.onPointerOver,
+    hover,
+    idx,
+    mode,
+  ]);
+  return shouldRotate ? (
+    <EncoderKey
+      {...props}
+      style={{
+        transform: `translate(${
+          props.position[0] -
+          (CSSVarObject.keyWidth * textureWidth - CSSVarObject.keyWidth) / 2
+        }px,${
+          (textureWidth * (CSSVarObject.keyHeight - CSSVarObject.keyWidth)) /
+            2 +
+          props.position[1] -
+          (CSSVarObject.keyHeight * textureHeight - CSSVarObject.keyHeight) / 2
+        }px) rotate(${-props.rotation[2]}rad)`,
+        borderRadius: 3,
+        width: textureWidth * CSSVarObject.keyWidth,
+        height: textureHeight * CSSVarObject.keyWidth,
+        color: props.color.c,
+      }}
+    />
+  ) : props.clipPath ? (
+    <ComboKeycap
+      {...props}
+      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerOver={onPointerOver}
+      onPointerOut={onPointerOut}
+      keycapZ={keycapZ}
+      keycapOpacity={keycapOpacity}
+      keycapColor={keycapColor}
+      canvasRef={canvasRef}
+      macroData={macroData}
+      overflowsTexture={overflowsTexture}
+      style={{
+        transform: `translate(${
+          CSSVarObject.keyWidth / 2 +
+          props.position[0] -
+          (CSSVarObject.keyXPos * textureWidth - CSSVarObject.keyXSpacing) / 2
+        }px,${
+          CSSVarObject.keyHeight / 2 +
+          props.position[1] -
+          (CSSVarObject.keyYPos * textureHeight - CSSVarObject.keyYSpacing) / 2
+        }px) rotate(${-props.rotation[2]}rad)`,
+        width: textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
+        height: textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
+      }}
+    />
+  ) : (
+    <>
+      <KeycapContainer
         onClick={onClick}
         onPointerDown={onPointerDown}
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
-        keycapZ={keycapZ}
-        keycapOpacity={keycapOpacity}
-        keycapColor={keycapColor}
-        canvasRef={canvasRef}
-        macroData={macroData}
-        overflowsTexture={overflowsTexture}
         style={{
           transform: `translate(${
             CSSVarObject.keyWidth / 2 +
@@ -388,83 +398,55 @@ export const Keycap = React.memo(
           width: textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
           height:
             textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
+          cursor: !disabled ? 'pointer' : 'initial',
         }}
-      />
-    ) : (
-      <>
-        <KeycapContainer
-          onClick={onClick}
-          onPointerDown={onPointerDown}
-          onPointerOver={onPointerOver}
-          onPointerOut={onPointerOut}
+      >
+        <GlowContainer
+          $selected={selected}
           style={{
-            transform: `translate(${
-              CSSVarObject.keyWidth / 2 +
-              props.position[0] -
-              (CSSVarObject.keyXPos * textureWidth - CSSVarObject.keyXSpacing) /
-                2
-            }px,${
-              CSSVarObject.keyHeight / 2 +
-              props.position[1] -
-              (CSSVarObject.keyYPos * textureHeight -
-                CSSVarObject.keyYSpacing) /
-                2
-            }px) rotate(${-props.rotation[2]}rad)`,
+            animation: disabled
+              ? 'initial' // This prevents the hover animation from firing when the keycap can't be interacted with
+              : selected
+              ? '.75s infinite alternate select-glow'
+              : '',
+            background: getDarkenedColor(props.color.c, 0.8),
+            transform: `perspective(100px) translateZ(${keycapZ}px)`,
+            borderRadius: 3,
             width:
               textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
             height:
               textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
-            cursor: !disabled ? 'pointer' : 'initial',
           }}
         >
-          <GlowContainer
-            $selected={selected}
+          {DisplayMode.Test === mode ? (
+            <TestOverlay
+              style={{
+                background: keycapColor,
+                opacity: keycapOpacity,
+              }}
+            ></TestOverlay>
+          ) : null}
+          <CanvasContainer
             style={{
-              animation: disabled
-                ? 'initial' // This prevents the hover animation from firing when the keycap can't be interacted with
-                : selected
-                ? '.75s infinite alternate select-glow'
-                : '',
-              background: getDarkenedColor(props.color.c, 0.8),
-              transform: `perspective(100px) translateZ(${keycapZ}px)`,
-              borderRadius: 3,
-              width:
-                textureWidth * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing,
-              height:
-                textureHeight * CSSVarObject.keyYPos - CSSVarObject.keyYSpacing,
+              borderRadius: 4,
+              background: props.color.c,
+              height: '100%',
             }}
           >
-            {DisplayMode.Test === mode ? (
-              <TestOverlay
-                style={{
-                  background: keycapColor,
-                  opacity: keycapOpacity,
-                }}
-              ></TestOverlay>
-            ) : null}
-            <CanvasContainer
-              style={{
-                borderRadius: 4,
-                background: props.color.c,
-                height: '100%',
-              }}
-            >
-              <canvas ref={canvasRef} style={{}} />
-            </CanvasContainer>
-          </GlowContainer>
-          {(macroData || overflowsTexture) && (
-            <TooltipContainer $rotate={rotation[2]}>
-              <Keycap2DTooltip>
-                {macroData || (label && label.tooltipLabel)}
-              </Keycap2DTooltip>
-            </TooltipContainer>
-          )}
-        </KeycapContainer>
-      </>
-    );
-  },
-  shallowEqual,
-);
+            <canvas ref={canvasRef} style={{}} />
+          </CanvasContainer>
+        </GlowContainer>
+        {(macroData || overflowsTexture) && (
+          <TooltipContainer $rotate={rotation[2]}>
+            <Keycap2DTooltip>
+              {macroData || (label && label.tooltipLabel)}
+            </Keycap2DTooltip>
+          </TooltipContainer>
+        )}
+      </KeycapContainer>
+    </>
+  );
+}, shallowEqual);
 
 const GlowContainer = styled.div<{$selected: boolean}>`
   box-sizing: border-box;
@@ -479,4 +461,3 @@ const GlowContainer = styled.div<{$selected: boolean}>`
     animation: 0.5s 1 forwards select-glow;
   }
 `;
-export {DisplayMode};

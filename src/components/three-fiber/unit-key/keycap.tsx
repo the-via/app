@@ -3,21 +3,14 @@ import {Html} from '@react-three/drei';
 import {ThreeEvent} from '@react-three/fiber';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
+import {
+  DisplayMode,
+  KeycapState,
+  ThreeFiberKeycapProps,
+} from 'src/types/keyboard-rendering';
 import {TestKeyState} from 'src/types/types';
 import * as THREE from 'three';
 import {KeycapTooltip} from '../../inputs/tooltip';
-
-export enum DisplayMode {
-  Test = 1,
-  Configure = 2,
-  Design = 3,
-  ConfigureColors = 4,
-}
-
-export enum KeycapState {
-  Pressed = 1,
-  Unpressed = 2,
-}
 
 const getMacroData = ({
   macroExpression,
@@ -309,113 +302,108 @@ const paintKeycap = (
   return paintKeycapLabel(canvas, textureRects.faceRect, legendColor, label);
 };
 
-export const Keycap = React.memo(
-  (props: any & {mode: DisplayMode; idx: number}) => {
-    const {
-      label,
-      scale,
-      color,
-      onClick,
-      selected,
-      disabled,
-      mode,
-      rotation,
-      keyState,
-      shouldRotate,
-      keycapGeometry,
-      textureOffsetX,
-      textureWidth,
-      textureHeight,
-      onPointerOver,
-      onPointerDown,
-      idx,
-    } = props;
-    const ref = useRef<any>();
-    const macroData = label && getMacroData(label);
-    const [overflowsTexture, setOverflowsTexture] = useState(false);
-    // Hold state for hovered and clicked events
-    const [hovered, hover] = useState(false);
-    const textureRef = useRef<THREE.CanvasTexture>();
-    const canvasRef = useRef(document.createElement('canvas'));
-    const redraw = React.useCallback(() => {
-      if (canvasRef.current && color) {
-        if (shouldRotate) {
-          paintEncoder(canvasRef.current, scale, color.c, color.t);
-        } else {
-          const doesOverflow = paintKeycap(
-            canvasRef.current,
-            scale,
-            textureWidth,
-            textureHeight,
-            color.c,
-            color.t,
-            label,
-            textureOffsetX,
-          );
-          setOverflowsTexture(!!doesOverflow);
-          textureRef.current!.needsUpdate = true;
-        }
+export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
+  const {
+    label,
+    scale,
+    color,
+    onClick,
+    selected,
+    disabled,
+    mode,
+    rotation,
+    keyState,
+    shouldRotate,
+    keycapGeometry,
+    textureOffsetX,
+    textureWidth,
+    textureHeight,
+    onPointerOver,
+    onPointerDown,
+    idx,
+  } = props;
+  const ref = useRef<any>();
+  const macroData = label && getMacroData(label);
+  const [overflowsTexture, setOverflowsTexture] = useState(false);
+  // Hold state for hovered and clicked events
+  const [hovered, hover] = useState(false);
+  const textureRef = useRef<THREE.CanvasTexture>();
+  const canvasRef = useRef(document.createElement('canvas'));
+  const redraw = React.useCallback(() => {
+    if (canvasRef.current && color) {
+      if (shouldRotate) {
+        paintEncoder(canvasRef.current, [scale[0], scale[1]], color.c, color.t);
+      } else {
+        const doesOverflow = paintKeycap(
+          canvasRef.current,
+          [scale[0], scale[1]],
+          textureWidth,
+          textureHeight,
+          color.c,
+          color.t,
+          label,
+          textureOffsetX,
+        );
+        setOverflowsTexture(!!doesOverflow);
+        textureRef.current!.needsUpdate = true;
       }
-    }, [
-      canvasRef.current,
-      textureWidth,
-      label && label.key,
-      scale[0],
-      scale[1],
-      color && color.t,
-      color && color.c,
-      shouldRotate,
-    ]);
-    useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
+    }
+  }, [
+    canvasRef.current,
+    textureWidth,
+    label && label.key,
+    scale[0],
+    scale[1],
+    color && color.t,
+    color && color.c,
+    shouldRotate,
+  ]);
+  useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
 
-    const glow = useSpring({
-      config: {duration: 800},
-      from: {x: 0, y: '#f4a0a0'},
-      loop: selected ? {reverse: true} : false,
-      to: {x: 100, y: '#b49999'},
-    });
-    // Set Z to half the total height so that keycaps are at the same level since the center
-    // is in the middle and each row has a different height
-    let maxZ = keycapGeometry.boundingBox.max.z;
-    const [zDown, zUp] = [maxZ, maxZ + 8];
-    const pressedState =
-      DisplayMode.Test === mode
-        ? TestKeyState.KeyDown === keyState
-          ? KeycapState.Pressed
-          : KeycapState.Unpressed
-        : hovered || selected
-        ? KeycapState.Unpressed
-        : KeycapState.Pressed;
-    const [keycapZ, rotationZ] =
-      pressedState === KeycapState.Pressed
-        ? [zDown, rotation[2]]
-        : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];
-    const wasPressed = keyState === TestKeyState.KeyUp;
-    const keycapColor =
-      DisplayMode.Test === mode
-        ? pressedState === KeycapState.Unpressed
-          ? wasPressed
-            ? 'palevioletred'
-            : 'lightgrey'
-          : 'pink'
-        : pressedState === KeycapState.Unpressed
-        ? 'lightgrey'
-        : 'lightgrey';
+  const glow = useSpring({
+    config: {duration: 800},
+    from: {x: 0, y: '#f4a0a0'},
+    loop: selected ? {reverse: true} : false,
+    to: {x: 100, y: '#b49999'},
+  });
+  // Set Z to half the total height so that keycaps are at the same level since the center
+  // is in the middle and each row has a different height
+  let maxZ = keycapGeometry.boundingBox!.max.z;
+  const [zDown, zUp] = [maxZ, maxZ + 8];
+  const pressedState =
+    DisplayMode.Test === mode
+      ? TestKeyState.KeyDown === keyState
+        ? KeycapState.Pressed
+        : KeycapState.Unpressed
+      : hovered || selected
+      ? KeycapState.Unpressed
+      : KeycapState.Pressed;
+  const [keycapZ, rotationZ] =
+    pressedState === KeycapState.Pressed
+      ? [zDown, rotation[2]]
+      : [zUp, rotation[2] + Math.PI * Number(shouldRotate)];
+  const wasPressed = keyState === TestKeyState.KeyUp;
+  const keycapColor =
+    DisplayMode.Test === mode
+      ? pressedState === KeycapState.Unpressed
+        ? wasPressed
+          ? 'palevioletred'
+          : 'lightgrey'
+        : 'pink'
+      : pressedState === KeycapState.Unpressed
+      ? 'lightgrey'
+      : 'lightgrey';
 
-    const {z, b, rotateZ, tooltipScale} = useSpring({
-      config: {duration: 100},
-      z: keycapZ,
-      b: keycapColor,
-      rotateZ: rotationZ,
-      tooltipScale: !hovered ? 0 : 1,
-    });
+  const {z, b, rotateZ, tooltipScale} = useSpring({
+    config: {duration: 100},
+    z: keycapZ,
+    b: keycapColor,
+    rotateZ: rotationZ,
+    tooltipScale: !hovered ? 0 : 1,
+  });
 
-    const [
-      meshOnClick,
-      meshOnPointerOver,
-      meshOnPointerOut,
-      meshOnPointerDown,
-    ] = useMemo(() => {
+  const [meshOnClick, meshOnPointerOver, meshOnPointerOut, meshOnPointerDown] =
+    useMemo(() => {
       const noop = () => {};
       return disabled
         ? [noop, noop, noop, noop]
@@ -451,51 +439,49 @@ export const Keycap = React.memo(
           ];
     }, [disabled, onClick, onPointerDown, onPointerOver, hover, idx, mode]);
 
-    const AniMeshMaterial = animated.meshPhongMaterial as any;
+  const AniMeshMaterial = animated.meshPhongMaterial as any;
 
-    return (
-      <>
-        <animated.mesh
-          {...props}
-          ref={ref}
-          position-z={z}
-          rotation-z={rotateZ}
-          onClick={meshOnClick}
-          onPointerDown={meshOnPointerDown}
-          onPointerOver={meshOnPointerOver}
-          onPointerOut={meshOnPointerOut}
-          geometry={keycapGeometry}
-        >
-          <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
-            <canvasTexture
-              ref={textureRef as any}
-              attach="map"
-              image={canvasRef.current}
-            />
-          </AniMeshMaterial>
-        </animated.mesh>
-        {(macroData || overflowsTexture) && (
-          <React.Suspense fallback={null}>
-            <animated.group
-              position={props.position}
-              position-z={20}
-              scale={tooltipScale}
+  return (
+    <>
+      <animated.mesh
+        {...props}
+        ref={ref}
+        position-z={z}
+        rotation-z={rotateZ}
+        onClick={meshOnClick}
+        onPointerDown={meshOnPointerDown}
+        onPointerOver={meshOnPointerOver}
+        onPointerOut={meshOnPointerOut}
+        geometry={keycapGeometry}
+      >
+        <AniMeshMaterial attach="material" color={selected ? glow.y : b}>
+          <canvasTexture
+            ref={textureRef as any}
+            attach="map"
+            image={canvasRef.current}
+          />
+        </AniMeshMaterial>
+      </animated.mesh>
+      {(macroData || overflowsTexture) && (
+        <React.Suspense fallback={null}>
+          <animated.group
+            position={props.position}
+            position-z={20}
+            scale={tooltipScale}
+          >
+            <Html
+              transform
+              style={{
+                pointerEvents: 'none',
+              }}
             >
-              <Html
-                transform
-                style={{
-                  pointerEvents: 'none',
-                }}
-              >
-                <KeycapTooltip>
-                  {macroData || (label && label.tooltipLabel)}
-                </KeycapTooltip>
-              </Html>
-            </animated.group>
-          </React.Suspense>
-        )}
-      </>
-    );
-  },
-  shallowEqual,
-);
+              <KeycapTooltip>
+                {macroData || (label && label.tooltipLabel)}
+              </KeycapTooltip>
+            </Html>
+          </animated.group>
+        </React.Suspense>
+      )}
+    </>
+  );
+}, shallowEqual);
