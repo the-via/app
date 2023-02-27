@@ -21,7 +21,7 @@ import {
   RowDiv,
 } from './dialog-base';
 
-const AutocompleteContainer = styled.li`
+const AutocompleteContainer = styled.ul`
   position: fixed;
   background-color: var(--bg_menu);
   max-height: 210px;
@@ -150,7 +150,6 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
 
   const {
     getMenuProps,
-    getComboboxProps,
     getInputProps,
     highlightedIndex,
     inputValue,
@@ -181,7 +180,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           Please enter your desired QMK keycode or hex code:
         </PromptText>
         <div>
-          <div {...getComboboxProps()}>
+          <div>
             <TextInput
               {...getInputProps()}
               type="text"
@@ -196,7 +195,10 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           >
             {isOpen &&
               inputItems.map((item, index) => (
-                <AutocompleteItemRow {...getItemProps({item, index})}>
+                <AutocompleteItemRow
+                  {...getItemProps({item, index})}
+                  key={item.code}
+                >
                   <AutocompleteItem
                     selected={highlightedIndex === index}
                     entity={item}

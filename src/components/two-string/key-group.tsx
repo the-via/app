@@ -72,6 +72,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
     return props.keys.map((k, i) => {
       return (
         <Keycap
+          key={i}
           {...getComboKeyProps(k)}
           {...getKeycapSharedProps(
             k,

@@ -73,6 +73,7 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
       const {meshKey} = keysKeys.coords[i];
       return (
         <Keycap
+          key={i}
           keycapGeometry={
             (
               (keycapScene.getObjectByName(meshKey) as any) ||
