@@ -273,7 +273,7 @@ export const MacroRecorder: React.FC<{
                   ? componentJoin(
                       String(actionArg)
                         .split(' ')
-                        .map((a) => <span>{a}</span>),
+                        .map((a, i) => <span key={i}>{a}</span>),
                       <span
                         style={{
                           fontFamily: 'fantasy, cursive, monospace',
