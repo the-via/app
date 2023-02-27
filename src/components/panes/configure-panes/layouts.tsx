@@ -14,7 +14,7 @@ import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import type {LayoutLabel} from '@the-via/reader';
 import type {FC} from 'react';
 
-const LayoutControl: React.VFC<{
+const LayoutControl: React.FC<{
   onChange: (val: any) => void;
   meta: {labels: LayoutLabel; selectedOption: number};
 }> = (props) => {

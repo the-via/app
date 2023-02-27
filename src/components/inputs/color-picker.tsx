@@ -309,7 +309,7 @@ export class ColorPicker extends Component<Props, State> {
   }
 }
 
-export const ArrayColorPicker: React.VFC<{
+export const ArrayColorPicker: React.FC<{
   color: [number, number];
   setColor: Props['setColor'];
 }> = (props) => {

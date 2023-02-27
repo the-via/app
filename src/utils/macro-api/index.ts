@@ -15,4 +15,4 @@ export const getMacroAPI = (protocol: number, keyboardApi: KeyboardAPI) => {
 export const getMacroValidator = (protocol: number) =>
   protocol >= 11 ? validateMacroExpressionV11 : validateMacroExpression;
 
-export const canUseDelays = (protocol: number) => protocol >= 11;
+export const isDelaySupported = (protocol: number) => protocol >= 11;

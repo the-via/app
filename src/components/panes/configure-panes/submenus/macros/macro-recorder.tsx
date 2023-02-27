@@ -136,8 +136,14 @@ export const MacroRecorder: React.FC<{
   undoMacro(): void;
   saveMacro(macro?: string): void;
   setUnsavedMacro: (a: any) => void;
-  canUseDelays: boolean;
-}> = ({selectedMacro, setUnsavedMacro, saveMacro, undoMacro, canUseDelays}) => {
+  isDelaySupported: boolean;
+}> = ({
+  selectedMacro,
+  setUnsavedMacro,
+  saveMacro,
+  undoMacro,
+  isDelaySupported,
+}) => {
   const [showOriginalMacro, setShowOriginalMacro] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
   const [useRecordingSettings, setUseRecordingSettings] = useState(false);
@@ -371,7 +377,7 @@ export const MacroRecorder: React.FC<{
           saveChanges={() => saveMacro()}
           hasUnsavedChanges={!showOriginalMacro}
           recordingToggleChange={recordingToggleChange}
-          canUseDelays={canUseDelays}
+          isDelaySupported={isDelaySupported}
         />
       </div>
     </>

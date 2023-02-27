@@ -40,7 +40,7 @@ const getPosition = (x: number, y: number): [number, number, number] => [
   (-y * KeycapMetric.keyYPos) / CSSVarObject.keyYPos,
   0,
 ];
-export const KeyGroup: React.VFC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
+export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
   props,
 ) => {
   const dispatch = useAppDispatch();

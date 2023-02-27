@@ -72,14 +72,14 @@ export const ScriptMode: React.FC<{
   setUnsavedMacro: (macro: string) => void;
   saveMacros: (val: string) => void;
   macroIndex: number;
-  canUseDelays: boolean;
+  isDelaySupported: boolean;
 }> = ({
   macro,
   protocol,
   setUnsavedMacro,
   saveMacros,
   macroIndex,
-  canUseDelays,
+  isDelaySupported,
 }) => {
   const trimmedMacro = macro.trimEnd();
   const [currentValue, setCurrentValue] = React.useState(trimmedMacro);
@@ -187,7 +187,7 @@ export const ScriptMode: React.FC<{
           <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
           <Message>Keydown: {`{+KC_XXX}`}</Message>
           <Message>Keyup: {`{-KC_XXX}`}</Message>
-          {canUseDelays ? (
+          {isDelaySupported ? (
             <Message>Delay (ms): {'{NNNN}'} </Message>
           ) : (
             'Upgrade firmware to use delays'

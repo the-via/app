@@ -6,13 +6,12 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faClapperboard, faCode} from '@fortawesome/free-solid-svg-icons';
 import {ScriptMode} from './script-mode';
 import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
-import {getMacroBufferSize} from 'src/store/macrosSlice';
+import {getIsDelaySupported, getMacroBufferSize} from 'src/store/macrosSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
-import {canUseDelays, getMacroAPI} from 'src/utils/macro-api';
-import {ConnectedDevice} from 'src/types/types';
+import {getMacroAPI} from 'src/utils/macro-api';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -129,13 +128,11 @@ const BufferSizeUsage = () => {
   );
 };
 
-export const MacroDetailPane: React.VFC<Props> = (props) => {
+export const MacroDetailPane: React.FC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const [showAdvancedView, setShowAdvancedView] = React.useState(false);
   const ast = useAppSelector((state) => state.macros.ast);
-  const {protocol} = useAppSelector(
-    getSelectedConnectedDevice,
-  ) as ConnectedDevice;
+  const isDelaySupported = useAppSelector(getIsDelaySupported);
   const [unsavedMacro, setUnsavedMacro] = useState(currentMacro);
 
   useEffect(() => {
@@ -183,7 +180,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           macro={currentMacro}
           macroIndex={props.selectedMacro}
           protocol={props.protocol}
-          canUseDelays={canUseDelays(protocol)}
+          isDelaySupported={isDelaySupported}
           setUnsavedMacro={setUnsavedMacro}
           saveMacros={props.saveMacros}
           key={props.selectedMacro}
@@ -194,7 +191,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           setUnsavedMacro={setUnsavedMacro}
           undoMacro={undoChanges}
           saveMacro={saveMacro}
-          canUseDelays={canUseDelays(protocol)}
+          isDelaySupported={isDelaySupported}
         />
       )}
     </>
