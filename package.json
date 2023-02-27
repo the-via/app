@@ -44,7 +44,7 @@
     "redux-logger": "^3.0.6",
     "styled-components": "^6.0.0-beta.5",
     "three": "^0.150.1",
-    "use-resize-observer": "^8.0.0",
+    "use-resize-observer": "^9.1.0",
     "via-keyboards": "github:the-via/keyboards",
     "wouter": "^2.10.0"
   },
