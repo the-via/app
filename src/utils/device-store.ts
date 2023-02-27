@@ -45,7 +45,7 @@ const defaultStoreData = {
       isEnabled: true,
       volume: 100,
       waveform: 'sine' as const,
-      mode: TestKeyboardSoundsMode.Random,
+      mode: TestKeyboardSoundsMode.WickiHayden,
       transpose: 0,
     },
   },

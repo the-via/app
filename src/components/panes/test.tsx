@@ -106,16 +106,16 @@ export const Test: FC = () => {
 
   const modeOptions = [
     {
-      label: 'Random',
-      value: TestKeyboardSoundsMode.Random,
-    },
-    {
       label: 'Wicki-Hayden',
       value: TestKeyboardSoundsMode.WickiHayden,
     },
     {
       label: 'Chromatic',
       value: TestKeyboardSoundsMode.Chromatic,
+    },
+    {
+      label: 'Random',
+      value: TestKeyboardSoundsMode.Random,
     },
   ];
   const modeDefaultValue = modeOptions.find(
