@@ -19,9 +19,8 @@ import {
   getKeycapSharedProps,
   getKeysKeys,
   getLabels,
-  KeyGroupProps,
-  KeysKeys,
 } from '../n-links/key-group';
+import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
 
 const getSRGBArray = (keyColors: number[][]) => {
   return keyColors.map(([hue, sat]) => {

@@ -1,7 +1,11 @@
-import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
+import {VIAKey} from '@the-via/reader';
 import {useAppDispatch} from 'src/store/hooks';
 import {updateSelectedKey} from 'src/store/keymapSlice';
-import {TestKeyState} from 'src/types/types';
+import {
+  KeycapSharedProps,
+  KeyGroupProps,
+  KeysKeys,
+} from 'src/types/keyboard-rendering';
 import {getByteToKey} from 'src/utils/key';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {
@@ -13,35 +17,6 @@ import {
   getScale,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
-import {DisplayMode} from './types';
-
-export type KeyGroupProps<T> = {
-  selectable?: boolean;
-  keys: VIAKey[];
-  matrixKeycodes: number[];
-  definition: VIADefinitionV2 | VIADefinitionV3;
-  mode: DisplayMode;
-  pressedKeys?: TestKeyState[];
-  keyColors?: number[][];
-  selectedKey?: number;
-  onKeycapPointerDown?: (e: T, idx: number) => void;
-  onKeycapPointerOver?: (e: T, idx: number) => void;
-};
-
-export type KeysKeys<T> = {
-  indices: string[];
-  coords: {
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-    color: {c: string; t: string};
-    meshKey: string;
-    idx: number;
-    onClick: (e: T, idx: number) => void;
-    onPointerDown?: (e: T, idx: number) => void;
-    onPointerOver?: (e: T, idx: number) => void;
-  }[];
-};
 
 export function getKeycapSharedProps<T>(
   k: VIAKey,
@@ -50,7 +25,7 @@ export function getKeycapSharedProps<T>(
   keysKeys: KeysKeys<T>,
   selectedKeyIndex: number | null,
   labels: any[],
-) {
+): KeycapSharedProps<T> {
   const {
     position,
     rotation,
@@ -61,11 +36,9 @@ export function getKeycapSharedProps<T>(
     onPointerDown,
     onPointerOver,
   } = keysKeys.coords[i];
-  const key = keysKeys.indices[i];
   const isEncoder = k['ei'] !== undefined;
   return {
     mode: props.mode,
-    key: key,
     position: position,
     rotation: rotation,
     scale: getScale(k, scale),

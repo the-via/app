@@ -1,7 +1,5 @@
-import {VIADefinitionV2, VIADefinitionV3, VIAKey} from '@the-via/reader';
 import React, {useMemo} from 'react';
 import {shallowEqual} from 'react-redux';
-import {TestKeyState} from 'src/types/types';
 import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,
@@ -10,7 +8,7 @@ import styled from 'styled-components';
 import {
   KeyboardCanvasProps,
   KeyboardCanvasContentProps,
-} from '../n-links/types';
+} from 'src/types/keyboard-rendering';
 import {Case} from './case';
 import {KeyGroup} from './key-group';
 import {MatrixLines} from './matrix-lines';
@@ -45,6 +43,8 @@ export const KeyboardCanvas: React.FC<KeyboardCanvasProps<React.MouseEvent>> = (
       style={{
         transform: `scale(${ratio}, ${ratio})`,
         opacity: shouldHide ? 0 : 1,
+        position: 'absolute',
+        pointerEvents: shouldHide ? 'none' : 'all',
       }}
     >
       <KeyboardCanvasContent {...otherProps} width={width} height={height} />
