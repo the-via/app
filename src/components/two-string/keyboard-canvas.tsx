@@ -43,6 +43,8 @@ export const KeyboardCanvas: React.FC<KeyboardCanvasProps<React.MouseEvent>> = (
       style={{
         transform: `scale(${ratio}, ${ratio})`,
         opacity: shouldHide ? 0 : 1,
+        position: 'absolute',
+        pointerEvents: shouldHide ? 'none' : 'all',
       }}
     >
       <KeyboardCanvasContent {...otherProps} width={width} height={height} />

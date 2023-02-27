@@ -32,42 +32,6 @@ const getMacroData = ({
     ? macroExpression
     : null;
 
-const paintEncoder = (
-  canvas: HTMLCanvasElement,
-  [widthMultiplier, heightMultiplier]: [number, number],
-  bgColor: string,
-  fgColor: string,
-) => {
-  const dpi = 1;
-  const canvasSize = 512 * dpi;
-  const [canvasWidth, canvasHeight] = [
-    canvasSize * widthMultiplier,
-    canvasSize * heightMultiplier,
-  ];
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-  const context = canvas.getContext('2d');
-  const workingAreaDivider = 2.6;
-  if (context) {
-    context.fillStyle = bgColor;
-    context.fillRect(0, 0, canvasWidth, canvasHeight);
-    context.fill();
-
-    context.fillStyle = fgColor;
-    const rad = (0.4 * canvasWidth) / workingAreaDivider;
-    context.ellipse(
-      (0.5 * canvasWidth) / workingAreaDivider,
-      (2.1 * canvasHeight) / workingAreaDivider,
-      rad,
-      rad,
-      Math.PI / 4,
-      0,
-      2 * Math.PI,
-    );
-    context.fill();
-  }
-};
-
 const paintDebugLines = (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext('2d');
   if (context == null) {
@@ -216,29 +180,27 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     textureHeight,
     idx,
   } = props;
-  const macroData = label && getMacroData({label});
+  const macroData = label && getMacroData(label);
   const [overflowsTexture, setOverflowsTexture] = useState(false);
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const redraw = React.useCallback(() => {
-    if (canvasRef.current && color) {
-      if (shouldRotate) {
-        paintEncoder(canvasRef.current, [scale[0], scale[1]], color.c, color.t);
-      } else if (
-        label &&
-        document.fonts.check('bold 16px "Fira Sans"', label.label)
-      ) {
-        // Only render label if it is available
-        const doesOverflow = paintKeycap(
-          canvasRef.current,
-          textureWidth,
-          textureHeight,
-          color.t,
-          label,
-        );
-        setOverflowsTexture(!!doesOverflow);
-      }
+    if (
+      canvasRef.current &&
+      color &&
+      label &&
+      document.fonts.check('bold 16px "Fira Sans"', label.label)
+    ) {
+      // Only render label if it is available
+      const doesOverflow = paintKeycap(
+        canvasRef.current,
+        textureWidth,
+        textureHeight,
+        color.t,
+        label,
+      );
+      setOverflowsTexture(!!doesOverflow);
     }
   }, [
     canvasRef.current,
