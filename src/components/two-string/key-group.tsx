@@ -19,6 +19,8 @@ import {
   KeyGroupProps,
   KeysKeys,
 } from '../n-links/key-group';
+import {getRGB} from 'src/utils/color-math';
+import {Color} from 'three';
 
 const KeyGroupContainer = styled.div<{height: number; width: number}>`
   position: absolute;
@@ -31,12 +33,25 @@ const getPosition = (x: number, y: number): [number, number, number] => [
   y - CSSVarObject.keyHeight / 2,
   0,
 ];
+const getRGBArray = (keyColors: number[][]) => {
+  return keyColors.map(([hue, sat]) => {
+    const rgbStr = getRGB({
+      hue: Math.round((255 * hue) / 360),
+      sat: Math.round(255 * sat),
+    });
+    const srgbStr = `#${new Color(rgbStr).getHexString()}`;
+    const keyColor = {c: srgbStr, t: srgbStr};
+    return keyColor;
+  });
+};
 export const KeyGroup: React.VFC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const dispatch = useAppDispatch();
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedTheme = useAppSelector(getSelectedTheme);
   const macroExpressions = useAppSelector(getExpressions);
-  const keyColorPalette = props.keyColors ? props.keyColors : selectedTheme;
+  const keyColorPalette = props.keyColors
+    ? getRGBArray(props.keyColors)
+    : selectedTheme;
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;
