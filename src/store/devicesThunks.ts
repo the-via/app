@@ -38,7 +38,7 @@ const selectConnectedDeviceRetry = createRetry(8, 100);
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
   async (dispatch, getState) => {
-    await dispatch(reloadConnectedDevices());
+    dispatch(reloadConnectedDevices());
     const connectedDevice = getConnectedDevices(getState())[path];
     if (connectedDevice) {
       dispatch(selectConnectedDevice(connectedDevice));
@@ -70,18 +70,18 @@ const selectConnectedDevice =
         getDefinitions(getState()),
       );
       dispatch(selectDevice(connectedDevice));
-      await dispatch(loadMacros(connectedDevice));
-      await dispatch(loadLayoutOptions());
+      dispatch(loadMacros(connectedDevice));
+      dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
       if (protocol < 11) {
-        await dispatch(updateLightingData(connectedDevice));
+        dispatch(updateLightingData(connectedDevice));
       }
       if (protocol >= 11) {
-        await dispatch(updateV3MenuData(connectedDevice));
+        dispatch(updateV3MenuData(connectedDevice));
       }
 
-      await dispatch(loadKeymapFromDevice(connectedDevice));
+      dispatch(loadKeymapFromDevice(connectedDevice));
       selectConnectedDeviceRetry.clear();
     } catch (e) {
       console.log('Loading keyboard failed:', e);
@@ -141,7 +141,7 @@ export const reloadConnectedDevices =
     });
     dispatch(updateConnectedDevices(connectedDevices));
     const validDevicesArr = Object.entries(connectedDevices);
-    await dispatch(reloadDefinitions(connectedDevices));
+    dispatch(reloadDefinitions(connectedDevices));
     // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
       (!selectedDevicePath || !connectedDevices[selectedDevicePath]) &&
@@ -158,6 +158,6 @@ export const loadSupportedIds = (): AppThunk => async (dispatch) => {
   await syncStore();
   dispatch(updateSupportedIds(getSupportedIdsFromStore()));
   dispatch(updateDefinitions(getDefinitionsFromStore()));
-  await dispatch(loadStoredCustomDefinitions());
+  dispatch(loadStoredCustomDefinitions());
   dispatch(reloadConnectedDevices());
 };
