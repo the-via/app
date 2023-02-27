@@ -4,7 +4,6 @@
     "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && vite",
     "build": "npm run build:kbs && tsc && vite build",
-    "test": "web-test-runner \"src/**/*.test.tsx\"",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "refresh-kbs": "npm uninstall --force via-keyboards && npm install --force github:the-via/keyboards",
