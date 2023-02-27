@@ -32,7 +32,7 @@
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^7.2.1",
     "idb-keyval": "^6.2.0",
-    "json-stringify-pretty-compact": "^3.0.0",
+    "json-stringify-pretty-compact": "^4.0.0",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.partition": "^4.6.0",
     "react": "^18.2.0",
