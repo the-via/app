@@ -25,34 +25,33 @@ const calculateMidiNote = (
   row: number,
   col: number,
 ) => {
+  // Adjust for more or less than 5 rows
+  // Map to 0..4 = bottom row to top row
+  // eg. a 2 row macropad maps to the same as
+  // the top two rows of a 60%
+  const adjustedRow =
+    Math.min(4, rowCount - row - 1) + Math.max(0, 5 - rowCount);
+
   switch (mode) {
     case TestKeyboardSoundsMode.WickiHayden: {
       // This is bottom row relative
-      // J is middle C = 60
-      // Home row starts on 60 - (7*2) = 46
-      const rowStartMidiNote = [-18, -19, -14, -9, -4]; //[42, 41, 46, 51, 56];
-      return (
-        (rowStartMidiNote[rowCount - row - 1] ?? rowStartMidiNote[4]) +
-        60 +
-        transpose +
-        col * 2
-      );
+      // J is C4 = 72
+      // Home row starts on 72 - 14
+      const rowStartMidiNote = [-18, -19, -14, -9, -4];
+      return rowStartMidiNote[adjustedRow] + 72 + transpose + col * 2;
     }
     case TestKeyboardSoundsMode.Chromatic: {
       // This is bottom row relative
-      // J is middle C = 60
-      // Home row starts on 60 - 7 = 53
-      const rowStartMidiNote = [-15, -12, -7, -1, +4]; //[45, 48, 53, 59, 64];
-      return (
-        (rowStartMidiNote[rowCount - row - 1] ?? rowStartMidiNote[4]) +
-        60 +
-        transpose +
-        col
-      );
+      // J is C4 = 72
+      // Home row starts on 72 - 7
+      const rowStartMidiNote = [-15, -12, -7, -1, +4];
+      return rowStartMidiNote[adjustedRow] + 72 + transpose + col;
     }
     case TestKeyboardSoundsMode.Random:
     default: {
-      return 60 + transpose + Math.floor(seededRandom(row * 1000 + col) * 24);
+      return (
+        72 + transpose + Math.floor(seededRandom(row * 1000 + col) * 24) - 12
+      );
     }
   }
 };
