@@ -10,7 +10,6 @@ import {Camera} from './camera';
 import {ConfigureKeyboard, Design, Test} from '../n-links/keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
-  Float,
   Html,
   OrbitControls,
   SpotLight,
@@ -180,18 +179,11 @@ export const CanvasRouter = () => {
             ) : null}
           </Html>
           {fontLoaded ? (
-            <Float
-              speed={1} // Animation speed, defaults to 1
-              rotationIntensity={0.0} // XYZ rotation intensity, defaults to 1
-              floatIntensity={0.8} // Up/down float intensity, works like a multiplier with floatingRange,defaults to 1
-              floatingRange={[0, 0.1]} // Range of y-axis values the object will float within, defaults to [-0.1,0.1]
-            >
-              <KeyboardGroup
-                containerRef={containerRef}
-                configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-                loadProgress={loadProgress}
-              />
-            </Float>
+            <KeyboardGroup
+              containerRef={containerRef}
+              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+              loadProgress={loadProgress}
+            />
           ) : null}
         </Canvas>
       </div>
