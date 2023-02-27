@@ -1,5 +1,3 @@
-export const OVERRIDE_DETECT = false;
-
 const overrideParam = new URL(window.location.href).searchParams.get(
   'override_hid_check',
 );

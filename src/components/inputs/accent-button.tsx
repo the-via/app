@@ -5,7 +5,7 @@ type AccentButtonProps = {
   onClick?: (...a: any[]) => void;
 };
 
-export const AccentButtonBase = styled.button<AccentButtonProps>`
+const AccentButtonBase = styled.button<AccentButtonProps>`
   height: 40px;
   padding: 0 15px;
   line-height: 40px;

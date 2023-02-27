@@ -147,36 +147,6 @@ export const NumberInput = styled.input.attrs({
   }
 `;
 
-export const KeycodeSequenceWaitNumber = styled.span`
-  display: inline-flex;
-  border: 2px solid transparent;
-  padding: 5px 2px;
-  font-weight: initial;
-  border-bottom: 1px solid;
-`;
-
-export const CharacterStreamInput: React.FC<PropsWithChildren> = (props) => (
-  <CharacterStreamContainer>
-    <TextareaAutosize
-      style={{
-        background: 'transparent',
-        color: 'var(--color_label-highlighted)',
-        padding: '8px',
-        borderRadius: 4,
-        border: 'none',
-        fontFamily: '"Fira Sans"',
-        verticalAlign: 'middle',
-        resize: 'none',
-        fontSize: 16,
-      }}
-      minRows={1}
-      maxRows={3}
-    >
-      {props.children}
-    </TextareaAutosize>
-  </CharacterStreamContainer>
-);
-
 export const WaitInput: React.FC<{
   value: number | string;
   index: number;
@@ -227,11 +197,3 @@ export const getSequenceLabel = (keycode: IKeycode) => {
   const label = keycode?.keys ?? keycode?.shortName ?? keycode?.name ?? '';
   return label.length > 1 ? capitalize(label) : label;
 };
-
-export const PlusIcon = () => (
-  <FontAwesomeIcon
-    style={{marginLeft: 10, marginRight: 10}}
-    icon={faPlus}
-    color={'var(--color_accent)'}
-  />
-);

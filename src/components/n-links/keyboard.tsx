@@ -34,10 +34,7 @@ import {useMatrixTest} from 'src/utils/use-matrix-test';
 import {TestContext} from '../panes/test';
 import {TestKeyState} from 'src/types/types';
 import {useColorPainter} from 'src/utils/use-color-painter';
-import {
-  getSelectedCustomMenuData,
-  getShowKeyPainter,
-} from 'src/store/menusSlice';
+import {getShowKeyPainter} from 'src/store/menusSlice';
 import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
 import {DisplayMode, NDimension} from 'src/types/keyboard-rendering';
 import {getKeyboardRowPartitions} from 'src/utils/keyboard-rendering';
@@ -45,75 +42,6 @@ import {getKeyboardRowPartitions} from 'src/utils/keyboard-rendering';
 const getKeyboardCanvas = (dimension: '2D' | '3D') =>
   dimension === '2D' ? StringKeyboardCanvas : FiberKeyboardCanvas;
 
-export const ConfigureRGBKeyboard = (props: {
-  dimensions?: DOMRect;
-  nDimension: NDimension;
-}) => {
-  const customMenuData = useAppSelector(getSelectedCustomMenuData);
-  if (customMenuData && customMenuData.__perKeyRGB) {
-    return (
-      <ConfigureRGBKeyboardWithData
-        dimensions={props.dimensions}
-        nDimension={props.nDimension}
-      />
-    );
-  }
-  return null;
-};
-export const ConfigureRGBKeyboardWithData = (props: {
-  dimensions?: DOMRect;
-  nDimension: NDimension;
-}) => {
-  const {dimensions, nDimension} = props;
-  const matrixKeycodes = useAppSelector(
-    (state) => getSelectedKeymap(state) || [],
-  );
-  const keys: (VIAKey & {ei?: number})[] = useAppSelector(
-    getSelectedKeyDefinitions,
-  );
-  const selectedPaletteColor = useAppSelector(getSelectedPaletteColor);
-  const definition = useAppSelector(getSelectedDefinition);
-  const {keyColors, onKeycapPointerDown, onKeycapPointerOver} = useColorPainter(
-    keys,
-    selectedPaletteColor,
-  );
-
-  const [normalizedKeys, normalizedColors] = useMemo(() => {
-    // skip keys without colors on it
-    return keyColors && keys
-      ? [
-          keys.filter((_, i) => keyColors[i] && keyColors[i].length),
-          keyColors.filter((i) => i && i.length),
-        ]
-      : [null, null];
-  }, [keys, keyColors]);
-
-  if (
-    !definition ||
-    !dimensions ||
-    !normalizedKeys ||
-    !normalizedColors ||
-    !normalizedColors.length ||
-    !normalizedKeys.length
-  ) {
-    return null;
-  }
-
-  const KeyboardCanvas = getKeyboardCanvas(nDimension);
-  return (
-    <KeyboardCanvas
-      matrixKeycodes={matrixKeycodes}
-      keys={keys}
-      selectable={true}
-      definition={definition}
-      containerDimensions={dimensions}
-      mode={DisplayMode.ConfigureColors}
-      keyColors={keyColors}
-      onKeycapPointerDown={onKeycapPointerDown}
-      onKeycapPointerOver={onKeycapPointerOver}
-    />
-  );
-};
 export const ConfigureKeyboard = (props: {
   selectable?: boolean;
   dimensions?: DOMRect;
@@ -180,7 +108,7 @@ export const ConfigureKeyboard = (props: {
   );
 };
 
-export const TestKeyboard = (props: {
+const TestKeyboard = (props: {
   selectable?: boolean;
   containerDimensions?: DOMRect;
   pressedKeys?: TestKeyState[];
@@ -215,7 +143,7 @@ export const TestKeyboard = (props: {
     />
   );
 };
-export const DesignKeyboard = (props: {
+const DesignKeyboard = (props: {
   containerDimensions?: DOMRect;
   definition: VIADefinitionV2 | VIADefinitionV3;
   showMatrix?: boolean;
@@ -257,52 +185,6 @@ export const DesignKeyboard = (props: {
       containerDimensions={containerDimensions}
       mode={DisplayMode.Design}
       showMatrix={showMatrix}
-    />
-  );
-};
-
-export const DebugKeyboard = (props: {
-  containerDimensions?: DOMRect;
-  definition: VIADefinitionV2 | VIADefinitionV3;
-  showMatrix?: boolean;
-  selectedOptionKeys: number[];
-  selectedKey?: number;
-  nDimension: NDimension;
-}) => {
-  const {
-    containerDimensions,
-    showMatrix,
-    definition,
-    selectedOptionKeys,
-    selectedKey,
-  } = props;
-  if (!containerDimensions) {
-    return null;
-  }
-  const {keys, optionKeys} = definition.layouts;
-  const displayedOptionKeys = optionKeys
-    ? Object.entries(optionKeys).flatMap(([key, options]) => {
-        const optionKey = parseInt(key);
-
-        // If a selection option has been set for this optionKey, use that
-        return selectedOptionKeys[optionKey]
-          ? options[selectedOptionKeys[optionKey]]
-          : options[0];
-      })
-    : [];
-
-  const displayedKeys = [...keys, ...displayedOptionKeys];
-  const KeyboardCanvas = getKeyboardCanvas(props.nDimension);
-  return (
-    <KeyboardCanvas
-      matrixKeycodes={[]}
-      keys={displayedKeys}
-      selectable={false}
-      definition={definition}
-      containerDimensions={containerDimensions}
-      mode={DisplayMode.Design}
-      showMatrix={showMatrix}
-      selectedKey={selectedKey}
     />
   );
 };

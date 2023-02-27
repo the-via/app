@@ -194,7 +194,7 @@ const getTraversalOrder = (arr: VIAKey[]): VIAKey[] => {
     return [...chain.sort(sortByX), ...getTraversalOrder(rest)];
   }
 };
-export const widthProfiles: {[a: number]: number[]} = {
+const widthProfiles: {[a: number]: number[]} = {
   1: [1, 2, 3, 4],
   1.25: [4],
   1.5: [2, 4],
@@ -220,7 +220,7 @@ const getRowForKey = (k: VIAKey, suggestedRow: number) => {
     : 4;
 };
 
-export const getRowProfiles = (partitionedKeys: VIAKey[][]) => {
+const getRowProfiles = (partitionedKeys: VIAKey[][]) => {
   const allUniformR1 = !partitionedKeys.some((kArr) =>
     kArr.some((k) => k.w !== 1 || k.h !== 1),
   );
@@ -305,24 +305,12 @@ const srgbTheme = Object.entries(theme).reduce((p, [key, colorPair]) => {
   return {...p, [key]: {c, t}};
 }, {}) as ReturnType<typeof getThemeFromStore>;
 
-export const getColors = ({color}: {color: KeyColorType}): KeyColorPair => {
-  return theme[color];
-};
-
 export const makeSRGBTheme = (theme: ThemeDefinition) =>
   Object.entries(theme).reduce((p, [key, colorPair]) => {
     const c = `#${new Color(colorPair.c).convertSRGBToLinear().getHexString()}`;
     const t = `#${new Color(colorPair.t).convertSRGBToLinear().getHexString()}`;
     return {...p, [key]: {c, t}};
   }, {}) as ReturnType<typeof getThemeFromStore>;
-
-export const getTextureColors = ({
-  color,
-}: {
-  color: KeyColorType;
-}): KeyColorPair => {
-  return srgbTheme[color];
-};
 
 export const calculateKeyboardFrameDimensions = (keys: Partial<Result>[]) => {
   const boundingBoxes = keys.map(getBoundingBox as any) as any[];
@@ -394,24 +382,6 @@ export const getMeshName = (k: VIAKey, profile: number, isLastRow: boolean) => {
     default: {
       // Spacebars
       return 'K-R4C-100';
-    }
-  }
-};
-export const getGeometry = (k: VIAKey) => {
-  switch (k.w) {
-    case 1:
-    case 1.25:
-    case 1.5:
-    case 1.75:
-    case 2:
-    case 2.25:
-    case 2.75:
-    case 6.25:
-    case 7: {
-      return `Vex${k.w * 100}U`;
-    }
-    default: {
-      return 'Vex100U';
     }
   }
 };

@@ -13,7 +13,7 @@ import {updateCSSVariables} from 'src/utils/color-math';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
-export type SettingsState = Settings & {
+type SettingsState = Settings & {
   isTestMatrixEnabled: boolean;
   restartRequired: boolean;
   allowGlobalHotKeys: boolean;
@@ -34,7 +34,7 @@ const toggleBool = (
   setSettings(state);
 };
 
-export const settingsSlice = createSlice({
+const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {

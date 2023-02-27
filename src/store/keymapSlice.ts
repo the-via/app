@@ -19,7 +19,7 @@ import {
 } from './devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
 
-export type KeymapState = {
+type KeymapState = {
   rawDeviceMap: DeviceLayerMap;
   numberOfLayers: number;
   selectedLayerIndex: number;
@@ -37,7 +37,7 @@ const initialState: KeymapState = {
   selectedPaletteColor: [0, 0],
 };
 
-export const keymapSlice = createSlice({
+const keymapSlice = createSlice({
   name: 'keymap',
   initialState,
   reducers: {

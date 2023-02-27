@@ -23,9 +23,3 @@ const TextInput = styled.input`
 `;
 
 export default TextInput;
-
-export const ErrorInput = styled(TextInput)`
-  // FIXME: Use standard colors
-  border-color: #d15e5e;
-  color: #d15e5e;
-`;

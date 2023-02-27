@@ -307,21 +307,6 @@ export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   return name;
 }
 
-export function getKeycodeForByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
-) {
-  const keycode = byteToKey[byte];
-  const basicKeycode = keycodesList.find(({code}) => code === keycode);
-  const advancedString = advancedKeycodeToString(
-    byte,
-    basicKeyToByte,
-    byteToKey,
-  );
-  return (basicKeycode && basicKeycode.code) || advancedString || keycode;
-}
-
 export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
@@ -339,7 +324,7 @@ export function getOtherMenu(
   };
 }
 
-export function buildLayerMenu(): IKeycodeMenu {
+function buildLayerMenu(): IKeycodeMenu {
   const hardCodedKeycodes: IKeycode[] = [
     {
       name: 'Fn1\n(Fn3)',

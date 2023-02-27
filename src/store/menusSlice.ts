@@ -25,7 +25,7 @@ type CustomMenuData = {
 };
 type CustomMenuDataMap = {[devicePath: string]: CustomMenuData};
 
-export type MenusState = {
+type MenusState = {
   customMenuDataMap: CustomMenuDataMap;
   commonMenusMap: CommonMenusMap;
   showKeyPainter: boolean;
@@ -103,9 +103,7 @@ export const updateCustomMenuValue =
   };
 
 // COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
-export const tryResolveCommonMenu = (
-  id: VIAMenu | string,
-): VIAMenu | VIAMenu[] => {
+const tryResolveCommonMenu = (id: VIAMenu | string): VIAMenu | VIAMenu[] => {
   // Only convert to menu object if it is found in common menus, else return
   if (typeof id === 'string') {
     return commonMenus[id as keyof typeof commonMenus];

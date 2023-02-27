@@ -15,21 +15,21 @@ import {
 } from './devicesSlice';
 import type {AppThunk, RootState} from './index';
 
-export type MacrosState = {
+type MacrosState = {
   ast: RawKeycodeSequence[];
   macroBufferSize: number;
   macroCount: number;
   isFeatureSupported: boolean;
 };
 
-export const macrosInitialState: MacrosState = {
+const macrosInitialState: MacrosState = {
   ast: [],
   macroBufferSize: 0,
   macroCount: 0,
   isFeatureSupported: true,
 };
 
-export const macrosSlice = createSlice({
+const macrosSlice = createSlice({
   name: 'macros',
   initialState: macrosInitialState,
   reducers: {

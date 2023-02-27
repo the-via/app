@@ -17,13 +17,13 @@ import {
 import {IconButtonTooltip} from 'src/components/inputs/tooltip';
 import styled from 'styled-components';
 
-export const MacroEditControlsContainer = styled.div`
+const MacroEditControlsContainer = styled.div`
   background: var(--bg_menu);
   display: inline-flex;
   align-items: center;
   padding: 0 10px;
 `;
-export const MacroControlGroupContainer = styled.div`
+const MacroControlGroupContainer = styled.div`
   border-radius: 2px;
   border: 1px solid var(--border_color_icon);
   display: inline-flex;
@@ -31,7 +31,7 @@ export const MacroControlGroupContainer = styled.div`
     border: none;
   }
 `;
-export const MacroControlGroupDivider = styled.div`
+const MacroControlGroupDivider = styled.div`
   background: var(--border_color_icon);
   width: 1px;
   height: 80%;

@@ -4,9 +4,6 @@ type NumChoices = number;
 type LayoutOption = [Choice, NumChoices];
 const maxBitSize = 5;
 
-export const sizeOfChoices = (numChoices: number[]) =>
-  numChoices.map(minBitSize).reduce((p, n) => n + p, 0);
-
 export const packBits = (nums: LayoutOption[]) =>
   nums.reduce(
     (p, [choice, numChoices]) => (p << minBitSize(numChoices)) | choice,
@@ -32,7 +29,7 @@ export const unpackBits = (choiceBits: number, nums: NumChoices[]): number[] =>
     {bits: choiceBits, res: []} as {bits: number; res: number[]},
   ).res;
 
-export const minBitSize = (num: number) =>
+const minBitSize = (num: number) =>
   1 +
   Array(maxBitSize)
     .fill(0)

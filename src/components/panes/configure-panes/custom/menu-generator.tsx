@@ -60,7 +60,7 @@ function isSlice(
   return !('label' in elem);
 }
 
-export function categoryGenerator(props: any): Category[] {
+function categoryGenerator(props: any): Category[] {
   return props.viaMenu.content.flatMap((menu: any) =>
     submenuGenerator(menu, props),
   );
@@ -193,11 +193,6 @@ export type LabelProps = {
   _renderIf?: (props: any) => boolean;
   content: any;
 };
-
-export function sliceLabeler(elem: any) {
-  //TODO
-  return elem;
-}
 
 export function elemLabeler(elem: any, prefix: string = ''): any {
   if (isItem(elem)) {
