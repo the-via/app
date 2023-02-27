@@ -1,29 +1,15 @@
 import type {StoreData} from '../types/types';
+import defaultsDeep from 'lodash.defaultsdeep';
 
 export default function isObject(val: unknown): val is Object {
   return val != null && typeof val === 'object' && Array.isArray(val) === false;
 }
 
-const mergeSettings = (defaults: StoreData, storedSettings: StoreData) => {
-  let settings = {...defaults};
-  // Merge with 1 level deep
-  Object.entries(settings).forEach(([key, val]) => {
-    // Top level keys are namespaces
-    if (isObject(val) && isObject(storedSettings)) {
-      settings[key as keyof StoreData] = {
-        ...val,
-        ...storedSettings[key as keyof StoreData],
-      } as any;
-    }
-  });
-  return settings;
-};
-
 export class Store {
   store: StoreData;
   constructor(defaults: StoreData) {
     const store = localStorage.getItem('via-app-store');
-    this.store = store ? mergeSettings(defaults, JSON.parse(store)) : defaults;
+    this.store = store ? defaultsDeep(JSON.parse(store), defaults) : defaults;
   }
   get<K extends keyof StoreData>(key: K): StoreData[K] {
     return this.store[key];

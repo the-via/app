@@ -11,7 +11,8 @@ import {
   getSelectedConnectedDevice,
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
-import {getMacroAPI} from 'src/utils/macro-api';
+import {canUseDelays, getMacroAPI} from 'src/utils/macro-api';
+import {ConnectedDevice} from 'src/types/types';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -132,6 +133,9 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const [showAdvancedView, setShowAdvancedView] = React.useState(false);
   const ast = useAppSelector((state) => state.macros.ast);
+  const {protocol} = useAppSelector(
+    getSelectedConnectedDevice,
+  ) as ConnectedDevice;
   const [unsavedMacro, setUnsavedMacro] = useState(currentMacro);
 
   useEffect(() => {
@@ -154,8 +158,6 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
     },
     [unsavedMacro],
   );
-
-  const canUseDelays = false;
 
   return (
     <>
@@ -181,7 +183,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           macro={currentMacro}
           macroIndex={props.selectedMacro}
           protocol={props.protocol}
-          canUseDelays={canUseDelays}
+          canUseDelays={canUseDelays(protocol)}
           setUnsavedMacro={setUnsavedMacro}
           saveMacros={props.saveMacros}
           key={props.selectedMacro}
@@ -192,7 +194,7 @@ export const MacroDetailPane: React.VFC<Props> = (props) => {
           setUnsavedMacro={setUnsavedMacro}
           undoMacro={undoChanges}
           saveMacro={saveMacro}
-          canUseDelays={canUseDelays}
+          canUseDelays={canUseDelays(protocol)}
         />
       )}
     </>

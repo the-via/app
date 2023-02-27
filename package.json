@@ -33,6 +33,7 @@
     "downshift": "^6.1.7",
     "idb-keyval": "^6.2.0",
     "json-stringify-pretty-compact": "^3.0.0",
+    "lodash.defaultsdeep": "^4.6.1",
     "lodash.partition": "^4.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -48,6 +49,7 @@
     "wouter": "^2.10.0"
   },
   "devDependencies": {
+    "@types/lodash.defaultsdeep": "^4.6.7",
     "@types/lodash.partition": "^4.6.7",
     "@types/raf-schd": "^4.0.1",
     "@types/react": "^18.0.28",
