@@ -1,7 +1,7 @@
 {
   "license": "GPL-3.0",
   "scripts": {
-    "start": "concurrently --names \"snowpack-dev,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
+    "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && vite",
     "build": "npm run build:kbs && tsc && vite build",
     "test": "web-test-runner \"src/**/*.test.tsx\"",
