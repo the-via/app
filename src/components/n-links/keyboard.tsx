@@ -417,7 +417,10 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
     ? (matrixPressedKeysMapped as TestKeyState[])
     : (globalPressedKeys as TestKeyState[]);
 
-  const {partitionedKeys} = getKeyboardRowPartitions(testKeys as VIAKey[]);
+  const {partitionedKeys} = useMemo(
+    () => getKeyboardRowPartitions(testKeys as VIAKey[]),
+    [testKeys],
+  );
   const testPressedKeys2 = isTestMatrixEnabled
     ? (matrixPressedKeys as TestKeyState[])
     : (globalPressedKeys as TestKeyState[]);
