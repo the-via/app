@@ -6,6 +6,7 @@ import {
   KeyboardDictionary,
   ThemeDefinition,
 } from '@the-via/reader';
+import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
 import {THEMES} from 'src/utils/themes';
 import {Store} from '../shims/via-app-store';
 import type {
@@ -44,6 +45,8 @@ const defaultStoreData = {
       isEnabled: true,
       volume: 100,
       waveform: 'sine' as const,
+      mode: TestKeyboardSoundsMode.Random,
+      transpose: 0,
     },
   },
 };

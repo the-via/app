@@ -35,6 +35,7 @@ import {faCircleQuestion} from '@fortawesome/free-solid-svg-icons';
 import {useProgress} from '@react-three/drei';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentRange} from '../inputs/accent-range';
+import {TestKeyboardSoundsMode} from '../void/test-keyboard-sounds';
 
 const Container = styled.div`
   display: flex;
@@ -101,6 +102,24 @@ export const Test: FC = () => {
   ];
   const waveformDefaultValue = waveformOptions.find(
     (opt) => opt.value === testKeyboardSoundsSettings.waveform,
+  );
+
+  const modeOptions = [
+    {
+      label: 'Random',
+      value: TestKeyboardSoundsMode.Random,
+    },
+    {
+      label: 'Wicki-Hayden',
+      value: TestKeyboardSoundsMode.WickiHayden,
+    },
+    {
+      label: 'Chromatic',
+      value: TestKeyboardSoundsMode.Chromatic,
+    },
+  ];
+  const modeDefaultValue = modeOptions.find(
+    (opt) => opt.value === testKeyboardSoundsSettings.mode,
   );
 
   return progress !== 100 ? null : (
@@ -173,9 +192,27 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
+              <Label>Transpose</Label>
+              <Detail>
+                <AccentRange
+                  max={24}
+                  min={-24}
+                  defaultValue={testKeyboardSoundsSettings.transpose}
+                  onChange={(value: number) => {
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        transpose: value,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
               <Label>Waveform</Label>
               <Detail>
                 <AccentSelect
+                  isSearchable={false}
                   defaultValue={waveformDefaultValue}
                   options={waveformOptions}
                   onChange={(option: any) => {
@@ -183,6 +220,24 @@ export const Test: FC = () => {
                       dispatch(
                         setTestKeyboardSoundsSettings({
                           waveform: option.value,
+                        }),
+                      );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Mode</Label>
+              <Detail>
+                <AccentSelect
+                  isSearchable={false}
+                  defaultValue={modeDefaultValue}
+                  options={modeOptions}
+                  onChange={(option: any) => {
+                    option &&
+                      dispatch(
+                        setTestKeyboardSoundsSettings({
+                          mode: option.value,
                         }),
                       );
                   }}

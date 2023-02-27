@@ -40,6 +40,7 @@ import {
 } from 'src/store/menusSlice';
 import {TestKeyboardSounds} from 'src/components/void/test-keyboard-sounds';
 import {NDimension} from './types';
+import {getKeyboardRowPartitions} from 'src/utils/keyboard-rendering';
 
 enum DisplayMode {
   Test = 1,
@@ -396,30 +397,48 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
     }
   }, [path]); // Empty array ensures that effect is only run on mount and unmount
 
-  const pressedKeys =
-    !isTestMatrixEnabled || !keyDefinitions
-      ? matrixPressedKeys
-      : keyDefinitions.map(
+  const matrixPressedKeysMapped =
+    isTestMatrixEnabled && keyDefinitions
+      ? keyDefinitions.map(
           ({row, col}: {row: number; col: number}) =>
             selectedDefinition &&
             matrixPressedKeys[
               (row * selectedDefinition.matrix.cols +
                 col) as keyof typeof matrixPressedKeys
             ],
-        );
+        )
+      : [];
+
   const testDefinition = isTestMatrixEnabled
     ? selectedDefinition
     : fullKeyboardDefinition;
   const testKeys = isTestMatrixEnabled
     ? keyDefinitions
     : fullKeyboardDefinition.layouts.keys;
+
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
   }
 
   const testPressedKeys = isTestMatrixEnabled
-    ? (pressedKeys as TestKeyState[])
+    ? (matrixPressedKeysMapped as TestKeyState[])
     : (globalPressedKeys as TestKeyState[]);
+
+  const {partitionedKeys} = getKeyboardRowPartitions(testKeys as VIAKey[]);
+  const testPressedKeys2 = isTestMatrixEnabled
+    ? (matrixPressedKeys as TestKeyState[])
+    : (globalPressedKeys as TestKeyState[]);
+  const partitionedPressedKeys: TestKeyState[][] = partitionedKeys.map(
+    (rowArray) => {
+      return rowArray.map(
+        ({row, col}: {row: number; col: number}) =>
+          testPressedKeys2[
+            (row * testDefinition.matrix.cols +
+              col) as keyof typeof testPressedKeys2
+          ],
+      ) as TestKeyState[];
+    },
+  );
 
   return (
     <>
@@ -433,12 +452,8 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
         containerDimensions={props.dimensions}
         nDimension={props.nDimension}
       />
-      {testPressedKeys && testKeyboardSoundsSettings.isEnabled && (
-        <TestKeyboardSounds
-          pressedKeys={
-            testPressedKeys as unknown as Record<string, TestKeyState>
-          }
-        />
+      {partitionedPressedKeys && testKeyboardSoundsSettings.isEnabled && (
+        <TestKeyboardSounds pressedKeys={partitionedPressedKeys} />
       )}
     </>
   );

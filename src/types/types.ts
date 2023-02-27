@@ -6,6 +6,7 @@ import type {
   VIAKey,
   VIAMenu,
 } from '@the-via/reader';
+import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
 
 export enum TestKeyState {
   Initial,
@@ -82,6 +83,8 @@ export type TestKeyboardSoundsSettings = {
   isEnabled: boolean;
   volume: number;
   waveform: OscillatorType;
+  mode: TestKeyboardSoundsMode;
+  transpose: number;
 };
 
 export type Settings = {
