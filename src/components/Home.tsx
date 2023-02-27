@@ -8,7 +8,10 @@ import {
   isVIADefinitionV3,
   LightingValue,
 } from '@the-via/reader';
-import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
+import {
+  getConnectedDevices,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
   reloadConnectedDevices,
@@ -99,6 +102,7 @@ export const Home: React.VFC<HomeProps> = (props) => {
   );
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const connectedDevices = useAppSelector(getConnectedDevices);
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
@@ -210,7 +214,11 @@ export const Home: React.VFC<HomeProps> = (props) => {
 
   useEffect(() => {
     dispatch(updateSelectedKeyAction(null));
-    toggleLights();
+
+    // Only trigger flashing lights when multiple devices are connected
+    if (Object.values(connectedDevices).length > 1) {
+      toggleLights();
+    }
   }, [api]);
 
   return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
