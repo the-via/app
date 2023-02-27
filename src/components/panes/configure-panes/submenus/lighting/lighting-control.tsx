@@ -19,7 +19,7 @@ import {useAppDispatch} from 'src/store/hooks';
 
 export type ControlMeta = [
   LightingValue,
-  string | React.VFC<AdvancedControlProps>,
+  string | React.FC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;

@@ -49,7 +49,7 @@ export const KeyboardCanvas: React.FC<
   );
 };
 
-export const KeyboardCanvasContent: React.VFC<
+export const KeyboardCanvasContent: React.FC<
   KeyboardCanvasContentProps<ThreeEvent<MouseEvent>>
 > = React.memo((props) => {
   const {

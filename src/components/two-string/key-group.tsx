@@ -43,7 +43,7 @@ const getRGBArray = (keyColors: number[][]) => {
     return keyColor;
   });
 };
-export const KeyGroup: React.VFC<KeyGroupProps<React.MouseEvent>> = (props) => {
+export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const dispatch = useAppDispatch();
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedTheme = useAppSelector(getSelectedTheme);

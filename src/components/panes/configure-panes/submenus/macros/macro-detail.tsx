@@ -128,7 +128,7 @@ const BufferSizeUsage = () => {
   );
 };
 
-export const MacroDetailPane: React.VFC<Props> = (props) => {
+export const MacroDetailPane: React.FC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
   const [showAdvancedView, setShowAdvancedView] = React.useState(false);
   const ast = useAppSelector((state) => state.macros.ast);

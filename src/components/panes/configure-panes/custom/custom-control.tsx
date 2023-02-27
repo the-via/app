@@ -4,11 +4,7 @@ import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
-import type {
-  VIADefinitionV2,
-  VIADefinitionV3,
-  VIAItem
-} from '@the-via/reader';
+import type {VIADefinitionV2, VIADefinitionV3, VIAItem} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
@@ -20,7 +16,7 @@ type Props = {
 };
 
 export type ControlMeta = [
-  string | React.VFC<AdvancedControlProps>,
+  string | React.FC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;
@@ -31,7 +27,7 @@ export type ControlMeta = [
 type AdvancedControlProps = Props & {meta: ControlMeta};
 
 export const VIACustomItem = React.memo(
-  (props: VIACustomControlProps & { _id: string}) => (
+  (props: VIACustomControlProps & {_id: string}) => (
     <ControlRow id={props._id}>
       <Label>{props.label}</Label>
       <Detail>

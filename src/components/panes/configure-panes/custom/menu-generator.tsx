@@ -124,7 +124,7 @@ function submenuGenerator(
   }
 }
 
-export const Pane: React.VFC<Props> = (props: any) => {
+export const Pane: React.FC<Props> = (props: any) => {
   const dispatch = useAppDispatch();
   const menus = categoryGenerator(props);
   const [selectedCategory, setSelectedCategory] = useState(

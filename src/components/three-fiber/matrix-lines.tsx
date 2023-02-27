@@ -3,7 +3,7 @@ import {VIAKey} from '@the-via/reader';
 import {KeycapMetric} from 'src/utils/keyboard-rendering';
 import {generateRowColArray} from '../n-links/matrix-lines';
 
-export const MatrixLines: React.VFC<{
+export const MatrixLines: React.FC<{
   keys: VIAKey[];
   rows: number;
   cols: number;
