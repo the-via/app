@@ -38,11 +38,9 @@ export const useMatrixTest = (
             bytesPerRow * rows,
           )) as number[];
 
-          const keysChanges =
-            0 !==
-            newFlat.reduce<number>((prev, val, byteIdx) => {
-              return (prev + val) ^ (prevFlat[byteIdx] || 0);
-            }, 0);
+          const keysChanges = newFlat.some(
+            (val, byteIdx) => val ^ (prevFlat[byteIdx] || 0),
+          );
           if (!keysChanges) {
             await api.timeout(20);
             if (shouldContinueRef.current) {
