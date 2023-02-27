@@ -1,6 +1,6 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
-import {getMacroAPI} from 'src/utils/macro-api';
+import {getMacroAPI, isDelaySupported} from 'src/utils/macro-api';
 import {
   expressionToSequence,
   optimizedSequenceToRawSequence,
@@ -9,7 +9,10 @@ import {
 } from 'src/utils/macro-api/macro-api.common';
 import {RawKeycodeSequence} from 'src/utils/macro-api/types';
 import type {ConnectedDevice} from '../types/types';
-import {getSelectedKeyboardAPI} from './devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from './devicesSlice';
 import type {AppThunk, RootState} from './index';
 
 export type MacrosState = {
@@ -116,4 +119,9 @@ export const getExpressions = createSelector(getAST, (sequences) =>
     const expression = sequenceToExpression(optimizedSequence);
     return expression;
   }),
+);
+
+export const getIsDelaySupported = createSelector(
+  getSelectedConnectedDevice,
+  (device) => !!device && isDelaySupported(device.protocol),
 );
