@@ -48,17 +48,3 @@ export const getRecognisedDevices = async (vpidMap: VendorProductIdMap) => {
     return validVendorProduct && validInterface && canConnect(device);
   });
 };
-
-// TODO: is there a meaningful difference between getRecognisedDevices and getDevicesUsingDefinitions?
-// Is it useful to keep getDevicesUsingDefinitions in the event that a definition can't be downloaded?
-export async function getDevicesUsingDefinitions(
-  definitions: KeyboardDictionary,
-): Promise<Device[]> {
-  const usbDevices = await scanDevices();
-  return usbDevices.filter((device: Device) => {
-    const validVendorProduct = definitionExists(device, definitions);
-    const validInterface = isValidInterface(device);
-    // attempt connection
-    return validVendorProduct && validInterface && canConnect(device);
-  });
-}

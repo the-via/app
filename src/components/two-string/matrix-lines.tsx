@@ -7,7 +7,7 @@ type MatrixProps = {
   colKeys: number[][][];
 };
 
-export const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
+const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
   <SVG style={{position: 'absolute', top: 0}}>
     {rowKeys.map((arr, index) => (
       <RowLine

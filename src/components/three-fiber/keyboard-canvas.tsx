@@ -76,7 +76,7 @@ export const KeyboardCanvas: React.FC<
   );
 };
 
-export const KeyboardCanvasContent: React.FC<
+const KeyboardCanvasContent: React.FC<
   KeyboardCanvasContentProps<ThreeEvent<MouseEvent>> & {
     verticalPostion: SpringValue<number>;
     tilt: SpringValue<number>;

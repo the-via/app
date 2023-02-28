@@ -31,7 +31,7 @@ type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
 
 // TODO: should we use some redux local storage action instead of our custom via-app-store/device-store caching for definitions?
-export type DefinitionsState = {
+type DefinitionsState = {
   definitions: KeyboardDictionary;
   customDefinitions: KeyboardDictionary;
   layoutOptionsMap: LayoutOptionsMap;

@@ -1,10 +1,6 @@
 import type {StoreData} from '../types/types';
 import defaultsDeep from 'lodash.defaultsdeep';
 
-export default function isObject(val: unknown): val is Object {
-  return val != null && typeof val === 'object' && Array.isArray(val) === false;
-}
-
 export class Store {
   store: StoreData;
   constructor(defaults: StoreData) {

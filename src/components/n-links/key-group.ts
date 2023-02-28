@@ -58,7 +58,7 @@ export function getKeycapSharedProps<T>(
   };
 }
 
-export const getKeysKeysIndices =
+const getKeysKeysIndices =
   (vendorProductId: number) => (k: VIAKey, i: number) => {
     const isEncoder = k['ei'] !== undefined;
     return `${vendorProductId}-${i}-${k.w}-${k.h}-${isEncoder}`;

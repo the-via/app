@@ -66,7 +66,7 @@ const ColorOuter = styled.div`
   );
 `;
 
-export const ColorThumbnail = styled.div`
+const ColorThumbnail = styled.div`
   display: inline-block;
   height: 25px;
   width: 25px;

@@ -1,11 +1,6 @@
 import getIconColor from '../icons/get-icon-color';
 import styled from 'styled-components';
-export const Grid1Col = styled.div`
-  height: 100%;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 100vw;
-`;
+
 export const Grid = styled.div`
   height: 100%;
   width: 100%;
@@ -110,8 +105,6 @@ export const ControlRow = styled.div`
   padding-left: 5px;
   padding-right: 5px;
 `;
-
-export const SubControlRow = styled(ControlRow)``;
 
 export const IndentedControlRow = styled(ControlRow)`
   padding-left: 17px;

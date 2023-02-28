@@ -17,13 +17,14 @@ const ColorPalettePickerContainer = styled.div`
   align-items: center;
   column-gap: 10px;
 `;
-export const PreviousColorContainer = styled.div`
+
+const PreviousColorContainer = styled.div`
   display: flex;
   background: var(--bg_control);
   border-radius: 15px;
 `;
 
-export const PreviousColorOption = styled.div<{$selected: boolean}>`
+const PreviousColorOption = styled.div<{$selected: boolean}>`
   display: inline-block;
   height: 25px;
   width: 25px;

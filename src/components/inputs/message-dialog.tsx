@@ -21,7 +21,7 @@ const MessageDialogContainer = styled.dialog`
     transform: translateY(0px);
   }
 `;
-export const Controls = styled.div`
+const Controls = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;

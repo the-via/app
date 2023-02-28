@@ -141,7 +141,7 @@ const getRowsForKeyboardV2 = (
   );
 };
 
-export const Loader: React.FC<{
+const Loader: React.FC<{
   loadProgress: number;
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
 }> = (props) => {

@@ -3,11 +3,6 @@ import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 
-const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11];
-
-export const isValidProtocolVersion = (version: number) =>
-  VALID_PROTOCOL_VERSIONS.includes(version);
-
 // VIA Command IDs
 const COMMAND_START = 0x00; // This is really a HID Report ID
 const GET_PROTOCOL_VERSION = 0x01;
@@ -75,9 +70,6 @@ const BACKLIGHT_CUSTOM_COLOR = 0x17;
 export const PROTOCOL_ALPHA = 7;
 export const PROTOCOL_BETA = 8;
 export const PROTOCOL_GAMMA = 9;
-
-export const BACKLIGHT_PROTOCOL_NONE = 0;
-export const BACKLIGHT_PROTOCOL_WILBA = 1;
 
 const cache: {[addr: string]: {hid: any}} = {};
 
@@ -173,15 +165,6 @@ export class KeyboardAPI {
       col,
     ]);
     return shiftTo16Bit([buffer[4], buffer[5]]);
-  }
-
-  async isCorrectProtocol(): Promise<boolean> {
-    // https://github.com/olivia/via-config/wiki/Protocol-Versions
-    const res = await this.getProtocolVersion();
-    if (VALID_PROTOCOL_VERSIONS.includes(res)) {
-      return true;
-    }
-    return false;
   }
 
   async getLayerCount() {

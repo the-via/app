@@ -61,7 +61,7 @@ const validateDefinitionAvailable = async (
 
 // TODO: should we change these other thunks to use the selected device state instead of params?
 // Maybe not? the nice this about this is we don't have to null check the device
-export const selectConnectedDevice =
+const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     try {

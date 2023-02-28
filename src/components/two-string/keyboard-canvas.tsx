@@ -55,7 +55,7 @@ const KeyboardGroup = styled.div`
   position: relative;
 `;
 
-export const KeyboardCanvasContent: React.FC<
+const KeyboardCanvasContent: React.FC<
   KeyboardCanvasContentProps<React.MouseEvent>
 > = React.memo((props) => {
   const {

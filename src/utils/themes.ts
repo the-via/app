@@ -1,13 +1,10 @@
 import {THEMES as REMOTETHEMES} from '@the-via/reader';
-export type KeyColor = {
-  c: string;
-  t: string;
-};
+import {KeyColorPair} from 'src/types/keyboard-rendering';
 
 export type Theme = {
-  alpha: KeyColor;
-  mod: KeyColor;
-  accent: KeyColor;
+  alpha: KeyColorPair;
+  mod: KeyColorPair;
+  accent: KeyColorPair;
 };
 
 export const THEMES = {

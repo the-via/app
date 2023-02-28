@@ -9,7 +9,8 @@
     "refresh-kbs": "npm uninstall --force via-keyboards && npm install --force github:the-via/keyboards",
     "build:azure": "npm run refresh-kbs && npm run build",
     "preview": "vite preview",
-    "build:kbs": "via-keyboards public/definitions"
+    "build:kbs": "via-keyboards public/definitions",
+    "find-deadcode": "ts-prune"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -61,6 +62,7 @@
     "concurrently": "^7.6.0",
     "husky": "^8.0.3",
     "ts-node": "^10.9.1",
+    "ts-prune": "^0.10.3",
     "typescript": "^4.9.5",
     "vite": "^4.1.4",
     "vite-plugin-html": "^3.2.0"

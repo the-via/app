@@ -1,5 +1,5 @@
 import {keycodesList} from './key';
-export const autocompleteKeycodes = {
+const autocompleteKeycodes = {
   KC_NO: true,
   KC_A: true,
   KC_B: true,

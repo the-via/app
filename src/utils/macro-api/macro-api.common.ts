@@ -32,7 +32,7 @@ export const MacroTerminator = 0;
 
 // split "{KC_A}bcd{KC_E}" into "{KC_A}","bcd","{KC_E}",
 // handles escaped braces e.g. "\{"
-export function splitExpression(expression: string): string[] {
+function splitExpression(expression: string): string[] {
   let regex;
   try {
     regex = eval('/(?<!\\\\)({.*?})/g');
@@ -64,41 +64,6 @@ export function optimizedSequenceToRawSequence(
   });
 }
 
-// "Optimize away" sequence items by converting to optimized and then immediately converting back to raw
-export function rawOptRaw(seq: RawKeycodeSequence) {
-  return optimizedSequenceToRawSequence(rawSequenceToOptimizedSequence(seq));
-}
-
-export function filterSmallOverlaps(
-  sequence: RawKeycodeSequence,
-): RawKeycodeSequence {
-  const mods: Record<string, boolean> = {KC_LSFT: true, KC_RSFT: true};
-  let seq = [...sequence];
-  for (let index = 0; index + 2 < sequence.length; index++) {
-    if (
-      seq[index][0] === RawKeycodeSequenceAction.Down &&
-      seq[index + 1][0] === RawKeycodeSequenceAction.Delay &&
-      seq[index + 2][0] === RawKeycodeSequenceAction.Up &&
-      seq[index][1] != seq[index + 2][1] &&
-      seq[index + 1][1] < 2000 &&
-      seq[index][1] != 'KC_RSFT'
-    ) {
-      const temp = seq[index];
-      seq[index] = seq[index + 2];
-      seq[index + 2] = temp;
-    }
-  }
-  return seq;
-}
-
-export function filterAllDelays(
-  sequence: RawKeycodeSequence,
-): RawKeycodeSequence {
-  return sequence.filter(
-    ([action]) => action !== RawKeycodeSequenceAction.Delay,
-  );
-}
-
 export function rawSequenceToOptimizedSequence(
   sequence: RawKeycodeSequence,
 ): OptimizedKeycodeSequence {
@@ -107,7 +72,7 @@ export function rawSequenceToOptimizedSequence(
   return result;
 }
 
-export function convertToTapsAndChords(
+function convertToTapsAndChords(
   sequence: OptimizedKeycodeSequence,
 ): OptimizedKeycodeSequence {
   let cat: OptimizedKeycodeSequence = [];

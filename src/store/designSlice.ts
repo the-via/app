@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import type {DefinitionVersion} from '@the-via/reader';
 import type {RootState} from './index';
 
-export type DesignState = {
+type DesignState = {
   selectedVersion: DefinitionVersion;
   selectedDefinitionIndex: number;
   selectedOptionKeys: number[];

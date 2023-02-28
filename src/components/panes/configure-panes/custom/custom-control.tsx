@@ -15,7 +15,7 @@ type Props = {
   definition: VIADefinitionV2 | VIADefinitionV3;
 };
 
-export type ControlMeta = [
+type ControlMeta = [
   string | React.FC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
@@ -74,7 +74,7 @@ const getRangeBytes = (value: number, max: number) => {
   }
 };
 
-export const VIACustomControl = (props: VIACustomControlProps) => {
+const VIACustomControl = (props: VIACustomControlProps) => {
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {

@@ -9,7 +9,7 @@ import type {
 
 import type {RootState} from './index';
 
-export type DevicesState = {
+type DevicesState = {
   selectedDevicePath: string | null;
   connectedDevicePaths: ConnectedDevices;
   supportedIds: VendorProductIdMap;
@@ -21,7 +21,7 @@ const initialState: DevicesState = {
   supportedIds: {},
 };
 
-export const deviceSlice = createSlice({
+const deviceSlice = createSlice({
   name: 'devices',
   initialState,
   reducers: {
