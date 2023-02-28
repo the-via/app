@@ -109,11 +109,9 @@ export const Test: FC = () => {
             )) as number[]),
           );
         }
-        const keysChanges =
-          0 !==
-          newFlat.reduce<number>((prev, val, byteIdx) => {
-            return (prev + val) ^ (flat[byteIdx] || 0);
-          }, 0);
+        const keysChanges = newFlat.some(
+          (val, byteIdx) => val ^ (flat[byteIdx] || 0),
+        );
         if (!keysChanges) {
           await api.timeout(20);
           useMatrixTest(protocol);
