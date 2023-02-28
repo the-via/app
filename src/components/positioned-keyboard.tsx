@@ -9,7 +9,8 @@ import {
   isAlpha,
   isNumericSymbol,
   isNumericOrShiftedSymbol,
-  isMacro,
+  isMacroKeycodeByte,
+  getMacroKeycodeIndex,
   getShortNameForKeycode,
 } from '../utils/key';
 import type {IKeycode} from '../utils/key';
@@ -421,8 +422,9 @@ export const getLabel = (
       '';
   }
   let macroExpression: string | undefined;
-  if (isMacro(label)) {
-    macroExpression = macros.expressions[label.substring(1) as any];
+  if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
+    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, basicKeyToByte);
+    macroExpression = macros.expressions[macroKeycodeIdx];
   }
 
   if (isAlpha(label) || isNumericOrShiftedSymbol(label)) {

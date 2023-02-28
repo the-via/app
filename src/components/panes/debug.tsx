@@ -372,6 +372,7 @@ export const Debug: FC = () => {
                         .map((_) =>
                           api.getKeyboardValue(
                             KeyboardValue.SWITCH_MATRIX_STATE,
+                            [],
                             20,
                           ),
                         );

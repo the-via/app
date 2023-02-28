@@ -27,6 +27,7 @@ import {
   setTestMatrixEnabled,
 } from 'src/store/settingsSlice';
 import {useSize} from 'src/utils/use-size';
+import type {ConnectedDevice} from 'src/types/types';
 
 const Container = styled.div`
   display: flex;
@@ -88,24 +89,32 @@ export const Test: FC = () => {
     }
   };
 
-  const useMatrixTest = async () => {
+  const useMatrixTest = async (protocol: number) => {
     if (startTest && api && selectedDefinition) {
       const {cols, rows} = selectedDefinition.matrix;
       const bytesPerRow = Math.ceil(cols / 8);
+      const rowsPerQuery = Math.floor(28 / bytesPerRow);
       try {
-        const newFlat = (await api.getKeyboardValue(
-          KeyboardValue.SWITCH_MATRIX_STATE,
-          bytesPerRow * rows,
-        )) as number[];
-
-        const keysChanges =
-          0 !==
-          newFlat.reduce<number>((prev, val, byteIdx) => {
-            return (prev + val) ^ (flat[byteIdx] || 0);
-          }, 0);
+        let newFlat: number[] = [];
+        for (let offset = 0; offset < rows; offset += rowsPerQuery) {
+          const querySize = Math.min(
+            rows * bytesPerRow - newFlat.length, // bytes remaining
+            bytesPerRow * rowsPerQuery, // max bytes per query
+          );
+          newFlat.push(
+            ...((await api.getKeyboardValue(
+              KeyboardValue.SWITCH_MATRIX_STATE,
+              protocol >= 12 ? [offset] : [],
+              querySize,
+            )) as number[]),
+          );
+        }
+        const keysChanges = newFlat.some(
+          (val, byteIdx) => val ^ (flat[byteIdx] || 0),
+        );
         if (!keysChanges) {
           await api.timeout(20);
-          useMatrixTest();
+          useMatrixTest(protocol);
           return;
         }
         setSelectedKeys((selectedKeys) => {
@@ -137,7 +146,7 @@ export const Test: FC = () => {
         });
         flat = newFlat;
         await api.timeout(20);
-        useMatrixTest();
+        useMatrixTest(protocol);
       } catch (e) {
         startTest = false;
         dispatch(setTestMatrixEnabled(false));
@@ -222,7 +231,9 @@ export const Test: FC = () => {
 
                       if (val) {
                         setSelectedKeys({});
-                        useMatrixTest();
+                        useMatrixTest(
+                          (selectedDevice as ConnectedDevice).protocol,
+                        );
                       } else {
                         setSelectedKeys({});
                       }
