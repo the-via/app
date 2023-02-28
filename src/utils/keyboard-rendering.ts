@@ -1,6 +1,5 @@
 import {
   getBoundingBox,
-  KeyColorType,
   Result,
   ThemeDefinition,
   VIADefinitionV2,
@@ -20,9 +19,10 @@ import {
   isNumpadNumber,
   isNumpadSymbol,
   isMultiLegend,
-  isMacro,
   isCustomKeycodeByte,
   isArrowKey,
+  isMacroKeycodeByte,
+  getMacroKeycodeIndex,
 } from './key';
 
 export const CSSVarObject = {
@@ -489,8 +489,9 @@ export const getLabel = (
       getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
   }
   let macroExpression: string | undefined;
-  if (isMacro(label)) {
-    macroExpression = macroExpressions[label.substring(1) as any];
+  if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
+    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, basicKeyToByte);
+    macroExpression = macroExpressions[macroKeycodeIdx];
     tooltipLabel = macroExpression || '';
   }
 

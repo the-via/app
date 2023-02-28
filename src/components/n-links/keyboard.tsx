@@ -17,7 +17,10 @@ import {
 import {KeyboardCanvas as StringKeyboardCanvas} from '../two-string/keyboard-canvas';
 import {KeyboardCanvas as FiberKeyboardCanvas} from '../three-fiber/keyboard-canvas';
 import {useLocation} from 'wouter';
-import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
 import {
   getIsTestMatrixEnabled,
   getTestKeyboardSoundsSettings,
@@ -229,6 +232,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const [path] = useLocation();
   const isShowingTest = path === '/test';
   const api = useAppSelector(getSelectedKeyboardAPI);
+  const device = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
@@ -245,6 +249,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
     isTestMatrixEnabled && isShowingTest,
     api as any,
+    device as any,
     selectedDefinition as any,
   );
 

@@ -3,7 +3,7 @@ import {useDispatch} from 'react-redux';
 import {KeyboardAPI, KeyboardValue} from './keyboard-api';
 import {useEffect, useRef, useState} from 'react';
 import {setTestMatrixEnabled} from 'src/store/settingsSlice';
-import {TestKeyState} from 'src/types/types';
+import {ConnectedDevice, TestKeyState} from 'src/types/types';
 
 const invertTestKeyState = (s: TestKeyState) =>
   s === TestKeyState.KeyDown ? TestKeyState.KeyUp : TestKeyState.KeyDown;
@@ -11,6 +11,7 @@ const invertTestKeyState = (s: TestKeyState) =>
 export const useMatrixTest = (
   startTest: boolean,
   api?: KeyboardAPI,
+  device?: ConnectedDevice,
   selectedDefinition?: VIADefinitionV2 | VIADefinitionV3,
 ) => {
   const selectedKeyArr = useState<any>([]);
@@ -26,17 +27,30 @@ export const useMatrixTest = (
 
     const startTicking = async (
       api: KeyboardAPI,
+      protocol: number,
       selectedDefinition: VIADefinitionV2 | VIADefinitionV3,
       prevFlat: number[],
     ) => {
       if (startTest && api && selectedDefinition) {
         const {cols, rows} = selectedDefinition.matrix;
         const bytesPerRow = Math.ceil(cols / 8);
+        const rowsPerQuery = Math.floor(28 / bytesPerRow);
         try {
-          const newFlat = (await api.getKeyboardValue(
-            KeyboardValue.SWITCH_MATRIX_STATE,
-            bytesPerRow * rows,
-          )) as number[];
+          let newFlat: number[] = [];
+
+          for (let offset = 0; offset < rows; offset += rowsPerQuery) {
+            const querySize = Math.min(
+              rows * bytesPerRow - newFlat.length, // bytes remaining
+              bytesPerRow * rowsPerQuery, // max bytes per query
+            );
+            newFlat.push(
+              ...((await api.getKeyboardValue(
+                KeyboardValue.SWITCH_MATRIX_STATE,
+                protocol >= 12 ? [offset] : [],
+                querySize,
+              )) as number[]),
+            );
+          }
 
           const keysChanges = newFlat.some(
             (val, byteIdx) => val ^ (prevFlat[byteIdx] || 0),
@@ -44,7 +58,7 @@ export const useMatrixTest = (
           if (!keysChanges) {
             await api.timeout(20);
             if (shouldContinueRef.current) {
-              startTicking(api, selectedDefinition, prevFlat);
+              startTicking(api, protocol, selectedDefinition, prevFlat);
             }
             return;
           }
@@ -77,7 +91,7 @@ export const useMatrixTest = (
           );
           await api.timeout(20);
           if (shouldContinueRef.current) {
-            startTicking(api, selectedDefinition, newFlat);
+            startTicking(api, protocol, selectedDefinition, newFlat);
           }
         } catch (e) {
           shouldContinueRef.current = false;
@@ -86,9 +100,9 @@ export const useMatrixTest = (
       }
     };
 
-    if (startTest && api && selectedDefinition) {
+    if (startTest && api && device && selectedDefinition) {
       shouldContinueRef.current = true;
-      startTicking(api, selectedDefinition, flat);
+      startTicking(api, device.protocol, selectedDefinition, flat);
     }
 
     return () => {
