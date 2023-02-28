@@ -202,7 +202,7 @@ export const Pane: FC = () => {
         ),
       );
 
-      await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+      dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
 
       if (saveFile.encoders) {
         await Promise.all(

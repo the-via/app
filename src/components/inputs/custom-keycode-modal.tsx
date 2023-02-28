@@ -1,4 +1,4 @@
-import {useState, VFC} from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
 import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
@@ -21,7 +21,7 @@ import {
   RowDiv,
 } from './dialog-base';
 
-const AutocompleteContainer = styled.li`
+const AutocompleteContainer = styled.ul`
   position: fixed;
   background-color: var(--bg_menu);
   max-height: 210px;
@@ -132,7 +132,7 @@ const getInputItems = (arr: IKeycode[]) =>
   }));
 
 // Connect component with redux here:
-export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
+export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
@@ -150,7 +150,6 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
 
   const {
     getMenuProps,
-    getComboboxProps,
     getInputProps,
     highlightedIndex,
     inputValue,
@@ -181,7 +180,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           Please enter your desired QMK keycode or hex code:
         </PromptText>
         <div>
-          <div {...getComboboxProps()}>
+          <div>
             <TextInput
               {...getInputProps()}
               type="text"
@@ -196,7 +195,10 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           >
             {isOpen &&
               inputItems.map((item, index) => (
-                <AutocompleteItemRow {...getItemProps({item, index})}>
+                <AutocompleteItemRow
+                  {...getItemProps({item, index})}
+                  key={item.code}
+                >
                   <AutocompleteItem
                     selected={highlightedIndex === index}
                     entity={item}
