@@ -65,11 +65,6 @@ export function isNumericSymbol(label: string) {
   return label.length !== 1 && numbersTop.includes(label[0]);
 }
 
-// Tests if label is a macro
-export function isMacro(label: string) {
-  return /^M\d+$/.test(label);
-}
-
 // Maps the byte value to the keycode
 export function getByteForCode(
   code: string,
@@ -141,6 +136,12 @@ function getByteForLayerCode(
           basicKeyToByte._QK_KB_MAX,
         );
       }
+      case 'MACRO': {
+        return Math.min(
+          basicKeyToByte._QK_MACRO + numLayer,
+          basicKeyToByte._QK_MACRO_MAX,
+        );
+      }
       default: {
         throw new Error('Incorrect code');
       }
@@ -192,6 +193,12 @@ function getCodeForLayerByte(
   ) {
     const n = byte - basicKeyToByte._QK_KB;
     return `CUSTOM(${n})`;
+  } else if (
+    basicKeyToByte._QK_MACRO <= byte &&
+    basicKeyToByte._QK_MACRO_MAX >= byte
+  ) {
+    const n = byte - basicKeyToByte._QK_MACRO;
+    return `MACRO(${n})`;
   }
 }
 
@@ -225,6 +232,7 @@ function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
       basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
     ],
     [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
+    [basicKeyToByte._QK_MACRO, basicKeyToByte._QK_MACRO_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
@@ -251,7 +259,11 @@ export function keycodeInMaster(
   keycode: string,
   basicKeyToByte: Record<string, number>,
 ) {
-  return keycode in basicKeyToByte || isLayerCode(keycode);
+  return (
+    keycode in basicKeyToByte ||
+    isLayerCode(keycode) ||
+    advancedStringToKeycode(keycode, basicKeyToByte) !== null
+  );
 }
 
 function shorten(str: string) {
@@ -273,6 +285,22 @@ export function getCustomKeycodeIndex(
   basicKeyToByte: Record<string, number>,
 ) {
   return byte - basicKeyToByte._QK_KB;
+}
+
+export function isMacroKeycodeByte(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
+  return (
+    byte >= basicKeyToByte._QK_MACRO && byte <= basicKeyToByte._QK_MACRO_MAX
+  );
+}
+
+export function getMacroKeycodeIndex(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+) {
+  return byte - basicKeyToByte._QK_MACRO;
 }
 
 export function getLabelForByte(
@@ -340,19 +368,19 @@ function buildLayerMenu(): IKeycodeMenu {
     },
     {
       name: 'Space Fn1',
-      code: 'SPC_FN1',
+      code: 'LT(1,KC_SPC)',
       title: 'Hold = Layer 1, Tap = Space',
       shortName: 'Spc Fn1',
     },
     {
       name: 'Space Fn2',
-      code: 'SPC_FN2',
+      code: 'LT(2,KC_SPC)',
       title: 'Hold = Layer 2, Tap = Space',
       shortName: 'Spc Fn2',
     },
     {
       name: 'Space Fn3',
-      code: 'SPC_FN3',
+      code: 'LT(3,KC_SPC)',
       title: 'Hold = Layer 3, Tap = Space',
       shortName: 'Spc Fn3',
     },
@@ -630,22 +658,22 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Macro',
       width: 'label',
       keycodes: [
-        {name: 'M0', code: 'MACRO00', title: 'Macro 0'},
-        {name: 'M1', code: 'MACRO01', title: 'Macro 1'},
-        {name: 'M2', code: 'MACRO02', title: 'Macro 2'},
-        {name: 'M3', code: 'MACRO03', title: 'Macro 3'},
-        {name: 'M4', code: 'MACRO04', title: 'Macro 4'},
-        {name: 'M5', code: 'MACRO05', title: 'Macro 5'},
-        {name: 'M6', code: 'MACRO06', title: 'Macro 6'},
-        {name: 'M7', code: 'MACRO07', title: 'Macro 7'},
-        {name: 'M8', code: 'MACRO08', title: 'Macro 8'},
-        {name: 'M9', code: 'MACRO09', title: 'Macro 9'},
-        {name: 'M10', code: 'MACRO10', title: 'Macro 10'},
-        {name: 'M11', code: 'MACRO11', title: 'Macro 11'},
-        {name: 'M12', code: 'MACRO12', title: 'Macro 12'},
-        {name: 'M13', code: 'MACRO13', title: 'Macro 13'},
-        {name: 'M14', code: 'MACRO14', title: 'Macro 14'},
-        {name: 'M15', code: 'MACRO15', title: 'Macro 15'},
+        {name: 'M0', code: 'MACRO(0)', title: 'Macro 0'},
+        {name: 'M1', code: 'MACRO(1)', title: 'Macro 1'},
+        {name: 'M2', code: 'MACRO(2)', title: 'Macro 2'},
+        {name: 'M3', code: 'MACRO(3)', title: 'Macro 3'},
+        {name: 'M4', code: 'MACRO(4)', title: 'Macro 4'},
+        {name: 'M5', code: 'MACRO(5)', title: 'Macro 5'},
+        {name: 'M6', code: 'MACRO(6)', title: 'Macro 6'},
+        {name: 'M7', code: 'MACRO(7)', title: 'Macro 7'},
+        {name: 'M8', code: 'MACRO(8)', title: 'Macro 8'},
+        {name: 'M9', code: 'MACRO(9)', title: 'Macro 9'},
+        {name: 'M10', code: 'MACRO(10)', title: 'Macro 10'},
+        {name: 'M11', code: 'MACRO(11)', title: 'Macro 11'},
+        {name: 'M12', code: 'MACRO(12)', title: 'Macro 12'},
+        {name: 'M13', code: 'MACRO(13)', title: 'Macro 13'},
+        {name: 'M14', code: 'MACRO(14)', title: 'Macro 14'},
+        {name: 'M15', code: 'MACRO(15)', title: 'Macro 15'},
       ],
     },
     buildLayerMenu(),
@@ -789,27 +817,27 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Special',
       width: 'label',
       keycodes: [
-        {name: '~', code: 'KC_TILD', keys: '`'},
-        {name: '!', code: 'KC_EXLM', keys: '!'},
-        {name: '@', code: 'KC_AT', keys: '@'},
-        {name: '#', code: 'KC_HASH', keys: '#'},
-        {name: '$', code: 'KC_DLR', keys: '$'},
-        {name: '%', code: 'KC_PERC', keys: '%'},
-        {name: '^', code: 'KC_CIRC', keys: '^'},
-        {name: '&', code: 'KC_AMPR', keys: '&'},
-        {name: '*', code: 'KC_ASTR', keys: '*'},
-        {name: '(', code: 'KC_LPRN', keys: '('},
-        {name: ')', code: 'KC_RPRN', keys: ')'},
-        {name: '_', code: 'KC_UNDS', keys: '_'},
-        {name: '+', code: 'KC_PLUS', keys: '+'},
-        {name: '{', code: 'KC_LCBR', keys: '{'},
-        {name: '}', code: 'KC_RCBR', keys: '}'},
-        {name: '<', code: 'KC_LT', keys: '<'},
-        {name: '>', code: 'KC_GT', keys: '>'},
-        {name: ':', code: 'KC_COLN', keys: ':'},
-        {name: '|', code: 'KC_PIPE', keys: '|'},
-        {name: '?', code: 'KC_QUES', keys: '?'},
-        {name: '"', code: 'KC_DQUO', keys: '"'},
+        {name: '~', code: 'S(KC_GRV)', keys: '`', title: 'Shift + `'},
+        {name: '!', code: 'S(KC_1)', keys: '!', title: 'Shift + 1'},
+        {name: '@', code: 'S(KC_2)', keys: '@', title: 'Shift + 2'},
+        {name: '#', code: 'S(KC_3)', keys: '#', title: 'Shift + 3'},
+        {name: '$', code: 'S(KC_4)', keys: '$', title: 'Shift + 4'},
+        {name: '%', code: 'S(KC_5)', keys: '%', title: 'Shift + 5'},
+        {name: '^', code: 'S(KC_6)', keys: '^', title: 'Shift + 6'},
+        {name: '&', code: 'S(KC_7)', keys: '&', title: 'Shift + 7'},
+        {name: '*', code: 'S(KC_8)', keys: '*', title: 'Shift + 8'},
+        {name: '(', code: 'S(KC_9)', keys: '(', title: 'Shift + 9'},
+        {name: ')', code: 'S(KC_0)', keys: ')', title: 'Shift + 0'},
+        {name: '_', code: 'S(KC_MINS)', keys: '_', title: 'Shift + -'},
+        {name: '+', code: 'S(KC_EQL)', keys: '+', title: 'Shift + ='},
+        {name: '{', code: 'S(KC_LBRC)', keys: '{', title: 'Shift + ['},
+        {name: '}', code: 'S(KC_RBRC)', keys: '}', title: 'Shift + ]'},
+        {name: '|', code: 'S(KC_BSLS)', keys: '|', title: 'Shift + \\'},
+        {name: ':', code: 'S(KC_SCLN)', keys: ':', title: 'Shift + /'},
+        {name: '"', code: 'S(KC_QUOT)', keys: '"', title: "Shift + '"},
+        {name: '<', code: 'S(KC_COMM)', keys: '<', title: 'Shift + ,'},
+        {name: '>', code: 'S(KC_DOT)', keys: '>', title: 'Shift + .'},
+        {name: '?', code: 'S(KC_SLSH)', keys: '?', title: 'Shift + /'},
         {name: 'NUHS', code: 'KC_NUHS', title: 'Non-US # and ~'},
         {name: 'NUBS', code: 'KC_NUBS', title: 'Non-US \\ and |'},
         {name: 'Ro', code: 'KC_RO', title: 'JIS \\ and |'},
