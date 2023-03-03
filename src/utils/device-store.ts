@@ -33,7 +33,7 @@ const defaultStoreData = {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
     disableFastRemap: false,
-    renderMode: '3D' as const,
+    renderMode: '2D' as const,
     themeMode: 'dark' as const,
     themeName: 'OLIVIA_DARK',
     macroEditor: {
