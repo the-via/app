@@ -13,14 +13,14 @@ const EncoderKeyContainer = styled.div`
   }
 `;
 
-const EncoderKeyContent2 = styled.div<{$innerPadding: number; size: number}>`
+const EncoderKeyContent2 = styled.div<{$innerPadding: number; $size: number}>`
   --inner-padding: ${(p) => p.$innerPadding}px;
-  --size: ${(p) => p.size}px;
-  --inner-size: ${(p) => p.size - p.$innerPadding * 2}px;
-  --half-size: ${(p) => (p.size - p.$innerPadding * 2) / 2}px;
-  --half-size-p1: ${(p) => 1 + (p.size - p.$innerPadding * 2) / 2}px;
+  --size: ${(p) => p.$size}px;
+  --inner-size: ${(p) => p.$size - p.$innerPadding * 2}px;
+  --half-size: ${(p) => (p.$size - p.$innerPadding * 2) / 2}px;
+  --half-size-p1: ${(p) => 1 + (p.$size - p.$innerPadding * 2) / 2}px;
   --half-size-p05p: ${(p) =>
-    p.$innerPadding / 2 + (p.size - p.$innerPadding * 2) / 2}px;
+    p.$innerPadding / 2 + (p.$size - p.$innerPadding * 2) / 2}px;
   background-color: currentColor;
   padding: var(--inner-padding);
   min-width: var(--size);
@@ -153,12 +153,16 @@ const EncoderKeyContent2 = styled.div<{$innerPadding: number; size: number}>`
   }
 `;
 
-export const EncoderKey = (props: any) => {
+export const EncoderKey = (props: {
+  size: number;
+  style: React.CSSProperties;
+  onClick: (evt: React.MouseEvent) => void;
+}) => {
   return (
-    <EncoderKeyContainer {...props}>
+    <EncoderKeyContainer onClick={props.onClick} style={props.style}>
       <EncoderKeyContent2
-        size={props.style.width}
-        $innerPadding={(5 * props.style.width) / 52}
+        $size={props.size && +props.size}
+        $innerPadding={(5 * props.size) / 52}
       />
     </EncoderKeyContainer>
   );

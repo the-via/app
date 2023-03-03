@@ -295,7 +295,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
   ]);
   return shouldRotate ? (
     <EncoderKey
-      {...props}
+      onClick={onClick}
+      size={textureWidth * CSSVarObject.keyWidth}
       style={{
         transform: `translate(${
           props.position[0] -
@@ -307,8 +308,6 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
           (CSSVarObject.keyHeight * textureHeight - CSSVarObject.keyHeight) / 2
         }px) rotate(${-props.rotation[2]}rad)`,
         borderRadius: 3,
-        width: textureWidth * CSSVarObject.keyWidth,
-        height: textureHeight * CSSVarObject.keyWidth,
         color: props.color.c,
       }}
     />
