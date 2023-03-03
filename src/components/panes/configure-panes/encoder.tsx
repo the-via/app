@@ -1,5 +1,5 @@
 import {FC, useState, useEffect} from 'react';
-import {Detail, Label, OverflowCell, ControlRow} from '../grid';
+import {Detail, Label, ControlRow, SpanOverflowCell} from '../grid';
 import {CenterPane} from '../pane';
 import styled from 'styled-components';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
@@ -93,7 +93,7 @@ export const Pane: FC = () => {
     return null;
   }
   return (
-    <OverflowCell>
+    <SpanOverflowCell>
       <Encoder>
         <Container>
           <ControlRow>
@@ -130,6 +130,6 @@ export const Pane: FC = () => {
           )}
         </Container>
       </Encoder>
-    </OverflowCell>
+    </SpanOverflowCell>
   );
 };

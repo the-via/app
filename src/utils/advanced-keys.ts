@@ -179,14 +179,16 @@ export const advancedKeycodeToString = (
   /* Find the range we are in first */
   let lastRange = null;
   let lastValue: number = -1;
-  const btk = byteToKey;
-  for (let [value, rangeName] of valueToRange) {
-    if (inputKeycode < value) {
-      break;
+  for (let i = 0; i < valueToRange.length; i += 2) {
+    if (
+      inputKeycode >= valueToRange[i][0] &&
+      inputKeycode <= valueToRange[i + 1][0]
+    ) {
+      lastRange = valueToRange[i][1];
+      lastValue = +valueToRange[i][0];
     }
-    lastRange = rangeName;
-    lastValue = +value;
   }
+
   const topLevelModKeys = ['_QK_MODS'];
   if (topLevelModKeys.includes(lastRange as string)) {
     return topLevelModToString(inputKeycode, byteToKey);
@@ -198,19 +200,21 @@ export const advancedKeycodeToString = (
   let keycode = '';
   let modValue = 0;
   switch (lastRange) {
+    case '_QK_KB':
+    case '_QK_MACRO':
+      humanReadable += inputKeycode - lastValue + ')';
+      break;
     case '_QK_MOMENTARY':
     case '_QK_DEF_LAYER':
     case '_QK_TOGGLE_LAYER':
     case '_QK_ONE_SHOT_LAYER':
     case '_QK_LAYER_TAP_TOGGLE':
     case '_QK_TO':
-    case '_QK_KB':
-    case '_QK_MACRO':
       humanReadable += remainder + ')';
       break;
     case '_QK_LAYER_TAP':
       layer = remainder >> 8;
-      keycode = btk[remainder & 0xff];
+      keycode = byteToKey[remainder & 0xff];
       humanReadable += layer + ',' + keycode + ')';
       break;
     case '_QK_ONE_SHOT_MOD':
