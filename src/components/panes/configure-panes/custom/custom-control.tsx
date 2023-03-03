@@ -4,13 +4,10 @@ import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
-import type {
-  VIADefinitionV2,
-  VIADefinitionV3,
-  VIAItem
-} from '@the-via/reader';
+import type {VIADefinitionV2, VIADefinitionV3, VIAItem} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
+import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
 
 type Props = {
@@ -18,8 +15,8 @@ type Props = {
   definition: VIADefinitionV2 | VIADefinitionV3;
 };
 
-export type ControlMeta = [
-  string | React.VFC<AdvancedControlProps>,
+type ControlMeta = [
+  string | React.FC<AdvancedControlProps>,
   {type: string} & Partial<{
     min: number;
     max: number;
@@ -30,12 +27,15 @@ export type ControlMeta = [
 type AdvancedControlProps = Props & {meta: ControlMeta};
 
 export const VIACustomItem = React.memo(
-  (props: VIACustomControlProps & { _id: string}) => (
+  (props: VIACustomControlProps & {_id: string}) => (
     <ControlRow id={props._id}>
       <Label>{props.label}</Label>
       <Detail>
         {'type' in props ? (
-          <VIACustomControl {...props} value={Array.from(props.value)} />
+          <VIACustomControl
+            {...props}
+            value={props.value && Array.from(props.value)}
+          />
         ) : (
           props.content
         )}
@@ -74,7 +74,7 @@ const getRangeBytes = (value: number, max: number) => {
   }
 };
 
-export const VIACustomControl = (props: VIACustomControlProps) => {
+const VIACustomControl = (props: VIACustomControlProps) => {
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {
@@ -149,6 +149,9 @@ export const VIACustomControl = (props: VIACustomControlProps) => {
           setColor={(hue, sat) => props.updateValue(name, ...command, hue, sat)}
         />
       );
+    }
+    case 'color-palette': {
+      return <ConnectedColorPalettePicker />;
     }
   }
   return null;

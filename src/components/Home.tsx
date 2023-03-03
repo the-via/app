@@ -1,28 +1,26 @@
-import React, {createRef, FC, ReactNode, useEffect, useState} from 'react';
+import React, {createRef, useEffect} from 'react';
 import styled from 'styled-components';
-import {mapEvtToKeycode, getByteForCode} from '../utils/key';
+import {getByteForCode} from '../utils/key';
 import {startMonitoring, usbDetect} from '../utils/usb-hid';
-import {Title} from './title-bar';
 import {
   getLightingDefinition,
   isVIADefinitionV2,
+  isVIADefinitionV3,
   LightingValue,
 } from '@the-via/reader';
-import {getNextKey} from './positioned-keyboard';
-import {useDispatch} from 'react-redux';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {
+  getConnectedDevices,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
   reloadConnectedDevices,
 } from 'src/store/devicesThunks';
 import {
-  disableGlobalHotKeys,
-  enableGlobalHotKeys,
-  getAllowGlobalHotKeys,
   getAllowKeyboardKeyRemapping,
   getDisableFastRemap,
 } from '../store/settingsSlice';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedKey,
   getSelectedLayerIndex,
@@ -34,19 +32,31 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import {getNextKey} from 'src/utils/keyboard-rendering';
+import {mapEvtToKeycode} from 'src/utils/key-event';
+import {OVERRIDE_HID_CHECK} from 'src/utils/override';
+import {KeyboardValue} from 'src/utils/keyboard-api';
 
 const ErrorHome = styled.div`
-  background: var(--color_jet);
+  background: var(--bg_gradient);
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   height: 100%;
   overflow: hidden;
+  height: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 24px;
+  position: absolute;
+  border-top: 1px solid var(--border_color_cell);
 `;
 
 const UsbError = styled.div`
   align-items: center;
   display: flex;
+  color: var(--color_label);
   flex-direction: column;
   height: 100%;
   justify-content: center;
@@ -65,6 +75,7 @@ const UsbErrorHeading = styled.h1`
 
 const UsbErrorWebHIDLink = styled.a`
   text-decoration: underline;
+  color: var(--color_label-highlighted);
 `;
 
 const timeoutRepeater =
@@ -82,21 +93,21 @@ interface HomeProps {
   hasHIDSupport: boolean;
 }
 
-export const Home = (props: HomeProps) => {
+export const Home: React.FC<HomeProps> = (props) => {
   const {hasHIDSupport} = props;
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const allowKeyRemappingViaKeyboard = useAppSelector(
     getAllowKeyboardKeyRemapping,
   );
-  const globalHotKeysAllowed = useAppSelector(getAllowGlobalHotKeys);
   const selectedKey = useAppSelector(getSelectedKey);
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const connectedDevices = useAppSelector(getConnectedDevices);
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const api = useAppSelector(getSelectedKeyboardAPI);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(
     () => {
@@ -125,11 +136,7 @@ export const Home = (props: HomeProps) => {
   };
 
   const handleKeys = (evt: KeyboardEvent): void => {
-    if (
-      allowKeyRemappingViaKeyboard &&
-      globalHotKeysAllowed &&
-      selectedKey !== null
-    ) {
+    if (allowKeyRemappingViaKeyboard && selectedKey !== null) {
       const keycode = mapEvtToKeycode(evt);
       if (keycode) {
         updateSelectedKey(getByteForCode(keycode, basicKeyToByte));
@@ -152,40 +159,35 @@ export const Home = (props: HomeProps) => {
   };
 
   const toggleLights = async () => {
-    if (!selectedDevice) {
+    if (!api || !selectedDefinition) {
       return;
     }
-    const {api} = selectedDevice;
 
-    // TODO: Some sort of toggling lights on v3 firmware
-    if (!isVIADefinitionV2(selectedDefinition)) {
-      return;
-    }
+    const delay = 200;
 
     if (
-      api &&
-      selectedDefinition &&
+      isVIADefinitionV2(selectedDefinition) &&
       getLightingDefinition(
         selectedDefinition.lighting,
       ).supportedLightingValues.includes(LightingValue.BACKLIGHT_EFFECT)
     ) {
       const val = await api.getRGBMode();
-      const newVal =
-        val !== 0
-          ? 0
-          : getLightingDefinition(selectedDefinition.lighting).effects.length -
-            1;
-      api.setRGBMode(newVal);
-      api.timeout(200);
-      api.setRGBMode(val);
-      api.timeout(200);
-      api.setRGBMode(newVal);
-      api.timeout(200);
-      await api.setRGBMode(val);
+      const newVal = val !== 0 ? 0 : 1;
+      for (let i = 0; i < 3; i++) {
+        api.timeout(i === 0 ? 0 : delay);
+        api.setRGBMode(newVal);
+        api.timeout(delay);
+        await api.setRGBMode(val);
+      }
+    }
+
+    if (isVIADefinitionV3(selectedDefinition)) {
+      for (let i = 0; i < 6; i++) {
+        api.timeout(i === 0 ? 0 : delay);
+        await api.setKeyboardValue(KeyboardValue.DEVICE_INDICATION, i);
+      }
     }
   };
-
-  const [, setSelectedTitle] = useState<string | null>(null);
 
   const homeElem = createRef<HTMLDivElement>();
 
@@ -199,7 +201,6 @@ export const Home = (props: HomeProps) => {
     }
 
     startMonitoring();
-    dispatch(enableGlobalHotKeys());
     usbDetect.on('change', updateDevicesRepeat);
     dispatch(loadSupportedIds());
     enableKeyPressListener();
@@ -207,38 +208,38 @@ export const Home = (props: HomeProps) => {
     return () => {
       // Cleanup function equiv to componentWillUnmount
       usbDetect.off('change', updateDevicesRepeat);
-      dispatch(disableGlobalHotKeys());
       disableKeyPressListener();
     };
   }, []); // Passing an empty array as the second arg makes the body of the function equiv to componentDidMount (not including the cleanup func)
 
   useEffect(() => {
-    setSelectedTitle(selectedDevice ? Title.KEYS : null);
     dispatch(updateSelectedKeyAction(null));
-    toggleLights();
-  }, [selectedDevice]);
 
-  return (
-    <ErrorHome ref={homeElem} tabIndex={0} style={{flex: 1}}>
-      {!hasHIDSupport ? (
-        <UsbError>
-          <UsbErrorIcon>❌</UsbErrorIcon>
-          <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
-          <p>
-            Looks like there was a problem getting USB detection working. Right
-            now, we only support{' '}
-            <UsbErrorWebHIDLink
-              href="https://caniuse.com/?search=webhid"
-              target="_blank"
-            >
-              browsers that have WebHID enabled
-            </UsbErrorWebHIDLink>
-            , so make sure yours is compatible before trying again.
-          </p>
-        </UsbError>
-      ) : (
-        props.children
-      )}
+    // Only trigger flashing lights when multiple devices are connected
+    if (Object.values(connectedDevices).length > 1) {
+      toggleLights();
+    }
+  }, [api]);
+
+  return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
+    <ErrorHome ref={homeElem} tabIndex={0}>
+      <UsbError>
+        <UsbErrorIcon>❌</UsbErrorIcon>
+        <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
+        <p>
+          Looks like there was a problem getting USB detection working. Right
+          now, we only support{' '}
+          <UsbErrorWebHIDLink
+            href="https://caniuse.com/?search=webhid"
+            target="_blank"
+          >
+            browsers that have WebHID enabled
+          </UsbErrorWebHIDLink>
+          , so make sure yours is compatible before trying again.
+        </p>
+      </UsbError>
     </ErrorHome>
+  ) : (
+    <>{props.children}</>
   );
 };

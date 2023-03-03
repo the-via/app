@@ -3,12 +3,7 @@ import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 
-const VALID_PROTOCOL_VERSIONS = [1, 7, 8, 9, 10, 11, 12];
-
-export const isValidProtocolVersion = (version: number) =>
-  VALID_PROTOCOL_VERSIONS.includes(version);
-
-// Zeal60 API Command IDs
+// VIA Command IDs
 const COMMAND_START = 0x00; // This is really a HID Report ID
 const GET_PROTOCOL_VERSION = 0x01;
 const GET_KEYBOARD_VALUE = 0x02;
@@ -19,6 +14,7 @@ const DYNAMIC_KEYMAP_SET_KEYCODE = 0x05;
 const CUSTOM_MENU_SET_VALUE = 0x07;
 const CUSTOM_MENU_GET_VALUE = 0x08;
 const CUSTOM_MENU_SAVE = 0x09;
+const PER_KEY_RGB_CHANNEL_COMMAND = [0, 1];
 
 const EEPROM_RESET = 0x0a;
 const BOOTLOADER_JUMP = 0x0b;
@@ -42,6 +38,8 @@ export enum KeyboardValue {
   UPTIME = 0x01,
   LAYOUT_OPTIONS = 0x02,
   SWITCH_MATRIX_STATE = 0x03,
+  FIRMWARE_VERSION = 0x04,
+  DEVICE_INDICATION = 0x05,
 }
 
 // RGB Backlight Value IDs
@@ -73,10 +71,7 @@ export const PROTOCOL_ALPHA = 7;
 export const PROTOCOL_BETA = 8;
 export const PROTOCOL_GAMMA = 9;
 
-export const BACKLIGHT_PROTOCOL_NONE = 0;
-export const BACKLIGHT_PROTOCOL_WILBA = 1;
-
-const cache: {[addr: string]: {device: Device; hid: any}} = {};
+const cache: {[addr: string]: {hid: any}} = {};
 
 const eqArr = <T>(arr1: T[], arr2: T[]) => {
   if (arr1.length !== arr2.length) {
@@ -85,7 +80,8 @@ const eqArr = <T>(arr1: T[], arr2: T[]) => {
   return arr1.every((val, idx) => arr2[idx] === val);
 };
 
-export const shiftTo16Bit = ([hi, lo]: [number, number]): number => (hi << 8) | lo;
+export const shiftTo16Bit = ([hi, lo]: [number, number]): number =>
+  (hi << 8) | lo;
 
 export const shiftFrom16Bit = (value: number): [number, number] => [
   value >> 8,
@@ -122,7 +118,7 @@ const globalCommandQueue: {
 
 export const canConnect = (device: Device) => {
   try {
-    initKeyboardAPI(device);
+    new KeyboardAPI(device.path);
     return true;
   } catch (e) {
     console.error('Skipped ', device, e);
@@ -130,25 +126,15 @@ export const canConnect = (device: Device) => {
   }
 };
 
-const initKeyboardAPI = (device: Device) => {
-  return new KeyboardAPI(device);
-};
-
 export class KeyboardAPI {
   kbAddr: HIDAddress;
 
-  constructor(device: Device) {
-    const {path} = device;
+  constructor(path: string) {
     this.kbAddr = path;
     if (!cache[path]) {
-      cache[path] = {device, hid: initAndConnectDevice(device)};
-    } else {
-      cache[path] = {...cache[path], device};
+      const device = initAndConnectDevice({path});
+      cache[path] = {hid: device};
     }
-  }
-
-  getDevice() {
-    return cache[this.kbAddr].device;
   }
 
   refresh(kbAddr: HIDAddress) {
@@ -159,7 +145,7 @@ export class KeyboardAPI {
     };
   }
 
-  async getByteBuffer(): Promise<number[]> {
+  async getByteBuffer(): Promise<Uint8Array> {
     return this.getHID().readP();
   }
 
@@ -181,24 +167,14 @@ export class KeyboardAPI {
     return shiftTo16Bit([buffer[4], buffer[5]]);
   }
 
-  async isCorrectProtocol(): Promise<boolean> {
-    // https://github.com/olivia/via-config/wiki/Protocol-Versions
-    const res = await this.getProtocolVersion();
-    if (VALID_PROTOCOL_VERSIONS.includes(res)) {
-      return true;
-    }
-    return false;
-  }
-
   async getLayerCount() {
     const version = await this.getProtocolVersion();
     if (version >= PROTOCOL_BETA) {
       const [, count] = await this.hidCommand(DYNAMIC_KEYMAP_GET_LAYER_COUNT);
       return count;
     }
-    if (version === PROTOCOL_ALPHA) {
-      return 4;
-    }
+
+    return 4;
   }
 
   async readRawMatrix(matrix: MatrixInfo, layer: number): Promise<Keymap> {
@@ -333,10 +309,7 @@ export class KeyboardAPI {
     isClockwise: boolean,
   ): Promise<number> {
     const bytes = [layer, id, +isClockwise];
-    const res: number[] = await this.hidCommand(
-      DYNAMIC_KEYMAP_GET_ENCODER,
-      bytes,
-    );
+    const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_ENCODER, bytes);
     return shiftTo16Bit([res[4], res[5]]);
   }
 
@@ -357,6 +330,33 @@ export class KeyboardAPI {
 
   async setCustomMenuValue(...args: number[]): Promise<void> {
     await this.hidCommand(CUSTOM_MENU_SET_VALUE, args);
+  }
+
+  async getPerKeyRGBMatrix(ledIndexMapping: number[]): Promise<number[][]> {
+    const res = await Promise.all(
+      ledIndexMapping.map((ledIndex) =>
+        this.hidCommand(CUSTOM_MENU_GET_VALUE, [
+          ...PER_KEY_RGB_CHANNEL_COMMAND,
+          ledIndex,
+          1, // count
+        ]),
+      ),
+    );
+    return res.map((r) => [...r.slice(5, 7)]);
+  }
+
+  async setPerKeyRGBMatrix(
+    index: number,
+    hue: number,
+    sat: number,
+  ): Promise<void> {
+    await this.hidCommand(CUSTOM_MENU_SET_VALUE, [
+      ...PER_KEY_RGB_CHANNEL_COMMAND,
+      index,
+      1, // count
+      hue,
+      sat,
+    ]);
   }
 
   async getBacklightValue(
@@ -471,7 +471,6 @@ export class KeyboardAPI {
     // Can only get 28 bytes at a time
     const size = 28;
     const bytesP = [];
-    const bytes = [];
     for (let offset = 0; offset < macroBufferSize; offset += 28) {
       bytesP.push(
         this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [
@@ -481,7 +480,7 @@ export class KeyboardAPI {
       );
     }
     const allBytes = await Promise.all(bytesP);
-    return allBytes.flatMap((bytes) => Array.from(bytes.slice(4)));
+    return allBytes.flatMap((bytes) => bytes.slice(4));
   }
 
   // From protocol: id_dynamic_keymap_macro_set_buffer <offset> <size> <data>
@@ -560,7 +559,10 @@ export class KeyboardAPI {
     });
   }
 
-  async hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
+  async hidCommand(
+    command: Command,
+    bytes: Array<number> = [],
+  ): Promise<number[]> {
     return new Promise((res, rej) => {
       this.commandQueueWrapper.commandQueue.push({
         res,
@@ -618,7 +620,7 @@ export class KeyboardAPI {
       this.refresh(kbAddr);
       this.getHID().write(paddedArray);
     }
-    const buffer = await this.getByteBuffer();
+    const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
@@ -630,7 +632,7 @@ export class KeyboardAPI {
       );
       throw new Error('Receiving incorrect response for command');
     }
-    console.info(
+    console.debug(
       `Command for ${this.kbAddr}`,
       commandBytes,
       'Correct Resp:',

@@ -10,7 +10,9 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type LightingMap = {[devicePath: string]: LightingData};
 
@@ -80,13 +82,15 @@ export const updateBacklightValue =
       ...selectedLightingData,
       [command]: [...rest],
     };
-    const {api, device} = connectedDevice;
+    const {path} = connectedDevice;
     dispatch(
       updateSelectedLightingData({
         lightingData,
-        devicePath: device.path,
+        devicePath: path,
       }),
     );
+
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     await api.setBacklightValue(command, ...rest);
     await api.saveLighting();
   };
@@ -96,8 +100,9 @@ export const updateCustomColor =
   async (dispatch, getState) => {
     const state = getState();
     const connectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardAPI(state);
     const oldLightingData = getSelectedLightingData(state);
-    if (!connectedDevice || !oldLightingData) {
+    if (!connectedDevice || !oldLightingData || !api) {
       // TODO: shoud we be throwing instead of returning whenever we do these device checks in thunks?
       return;
     }
@@ -108,10 +113,9 @@ export const updateCustomColor =
       ...oldLightingData,
       customColors,
     };
-    const {api, device} = connectedDevice;
-    dispatch(
-      updateSelectedLightingData({lightingData, devicePath: device.path}),
-    );
+    const {path} = connectedDevice;
+    dispatch(updateSelectedLightingData({lightingData, devicePath: path}));
+
     api.setCustomColor(idx, hue, sat);
     await api.saveLighting();
   };
@@ -121,11 +125,12 @@ export const updateLightingData =
   async (dispatch, getState) => {
     const state = getState();
     const selectedDefinition = getSelectedDefinition(state);
-    if (!selectedDefinition) {
+    const api = getSelectedKeyboardAPI(state);
+    if (!selectedDefinition || !api) {
       return;
     }
 
-    const {api, device} = connectedDevice;
+    const {path} = connectedDevice;
     if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error('This method is only compatible with v2 definitions');
     }
@@ -166,7 +171,7 @@ export const updateLightingData =
 
       dispatch(
         updateLighting({
-          [device.path]: {
+          [path]: {
             ...props,
           },
         }),

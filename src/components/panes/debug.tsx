@@ -1,16 +1,14 @@
-import React, {useRef, useState, FC, useEffect, useCallback} from 'react';
+import {useState, FC, useEffect, useCallback} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
 import {anyKeycodeToString} from '../../utils/advanced-keys';
-import {MusicalKeySlider} from '../inputs/musical-key-slider';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {BlankPositionedKeyboard, getNextKey} from '../positioned-keyboard';
-import {getKLEFiles, authGithub, getUser} from '../../utils/github';
+import {authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
   Label,
@@ -18,7 +16,6 @@ import {
   Detail,
   IndentedControlRow,
   OverflowCell,
-  FlexCell,
 } from './grid';
 import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
@@ -26,7 +23,7 @@ import {AccentRange} from '../inputs/accent-range';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getConnectedDevices,
-  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {
   getBaseDefinitions,
@@ -35,7 +32,15 @@ import {
   getBasicKeyToByte,
 } from 'src/store/definitionsSlice';
 import TextInput from '../inputs/text-input';
-import {useSize} from 'src/utils/use-size';
+import {getNextKey} from 'src/utils/keyboard-rendering';
+import {ColorPalettePicker} from '../inputs/color-palette-picker';
+import {useDispatch} from 'react-redux';
+import {
+  getSelected256PaletteColor,
+  setSelectedPaletteColor,
+} from 'src/store/keymapSlice';
+import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
+import {RawKeycodeSequenceAction} from 'src/utils/macro-api/types';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -45,37 +50,6 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
   padding: 0 12px;
-`;
-
-const DebugPane = styled(Pane)`
-  height: 100%;
-  max-width: 100vw;
-
-  @media (min-width: 1200px) {
-    flex-direction: row;
-  }
-`;
-
-const MenuPanel = styled(OverflowCell)`
-  flex: 1;
-  padding: 1rem;
-
-  @media (min-width: 1200px) {
-    border: 0 none;
-    border-left: 1px solid var(--color_dark-grey);
-    max-width: 33rem;
-    padding: 1.5rem;
-  }
-`;
-
-const KeyboardPanel = styled(FlexCell)`
-  flex: 1;
-
-  @media (min-width: 1200px) {
-    border: 0 none;
-    box-sizing: border-box;
-    height: 100%;
-  }
 `;
 
 const ControlGroup = styled.div`
@@ -142,14 +116,27 @@ const TestControls = () => {
   const [selectionVal, setSelectionVal] = useState(0);
   const [keycode, setKeycode] = useState(0);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const selectedPaletteColor = useAppSelector(getSelected256PaletteColor);
+  const dispatch = useDispatch();
   const selectOptions = [
     {label: 'Option 1', value: '0'},
     {label: 'Option 2', value: '1'},
   ];
-
   return (
     <ControlGroup>
       <ControlGroupHeader>Controls</ControlGroupHeader>
+      <ControlRow>
+        <Label>Button</Label>
+        <Detail>
+          <AccentButton>Click</AccentButton>
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>Disabled Button</Label>
+        <Detail>
+          <AccentButton disabled>Disabled</AccentButton>
+        </Detail>
+      </ControlRow>
       <ControlRow>
         <Label>Text Input</Label>
         <Detail>
@@ -172,6 +159,19 @@ const TestControls = () => {
           <ArrayColorPicker
             color={colorVal}
             setColor={(hue, sat) => setColorVal([hue, sat])}
+          />
+        </Detail>
+      </ControlRow>
+      <ControlRow>
+        <Label>
+          {selectedPaletteColor[0]}, {selectedPaletteColor[1]}
+        </Label>
+        <Detail>
+          <ColorPalettePicker
+            color={selectedPaletteColor}
+            setColor={(hue, sat) =>
+              dispatch(setSelectedPaletteColor([hue, sat]))
+            }
           />
         </Detail>
       </ControlRow>
@@ -204,13 +204,25 @@ const TestControls = () => {
           />
         </Detail>
       </ControlRow>
+      <MacroRecorder
+        selectedMacro={[[RawKeycodeSequenceAction.Delay, 4]]}
+        setUnsavedMacro={(_) => _}
+        undoMacro={() => null}
+        saveMacro={() => null}
+        isDelaySupported={true}
+      />
+      <MacroRecorder
+        setUnsavedMacro={(_) => _}
+        undoMacro={() => null}
+        saveMacro={() => null}
+        isDelaySupported={true}
+      />
     </ControlGroup>
   );
 };
 
 export const Debug: FC = () => {
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const api = selectedDevice ? selectedDevice.api : null;
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const connectedDevices = useAppSelector(getConnectedDevices);
 
   // Temporary patch that gets the page to load
@@ -247,33 +259,13 @@ export const Debug: FC = () => {
   }));
   const entry = allDefinitions[selectedDefinitionIndex];
 
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
-
   return (
-    <DebugPane>
-      <KeyboardPanel ref={flexRef}>
-        {entry && (
-          <BlankPositionedKeyboard
-            containerDimensions={dimensions}
-            selectedDefinition={entry[1]}
-            showMatrix={showMatrix}
-            selectedOptionKeys={selectedOptionKeys}
-            selectedKey={selectedKey}
-          />
-        )}
-      </KeyboardPanel>
-      <MenuPanel>
+    <Pane>
+      <OverflowCell>
         <Container>
           <GithubUserData />
           <ControlGroup>
             <ControlGroupHeader>Key Testing</ControlGroupHeader>
-            <ControlRow>
-              <Label>Key sounds</Label>
-              <Detail>
-                <MusicalKeySlider />
-              </Detail>
-            </ControlRow>
             <ControlRow>
               <Label>Show Matrix</Label>
               <Detail>
@@ -297,7 +289,7 @@ export const Debug: FC = () => {
                     const displayedKeys = [...keys, ...selectedOptionKeys];
                     if (selectedKey !== undefined) {
                       setSelectedKey(
-                        getNextKey(selectedKey, displayedKeys) ?? undefined,
+                        getNextKey(selectedKey, displayedKeys) || 0,
                       );
                     }
                   }}
@@ -395,32 +387,38 @@ export const Debug: FC = () => {
               <Label>Connected Devices</Label>
               <Detail>{Object.values(connectedDevices).length} Devices</Detail>
             </ControlRow>
-            {Object.values(connectedDevices).map((device) => (
-              <IndentedControlRow key={device.device.path}>
-                <SubLabel>
-                  {
-                    (
-                      (
-                        allDefinitions.find(
-                          ([id]) => id === device.vendorProductId.toString(),
-                        ) as KeyboardDefinitionEntry
-                      )[1] as VIADefinitionV2 | VIADefinitionV3
-                    ).name
-                  }
-                </SubLabel>
-                <Detail>
-                  0x{device.vendorProductId.toString(16).toUpperCase()}
-                </Detail>
-              </IndentedControlRow>
-            ))}
+            {Object.values(connectedDevices).map((device) => {
+              const definitionEntry = allDefinitions.find(
+                ([id]) => id === device.vendorProductId.toString(),
+              ) as KeyboardDefinitionEntry;
+              if (definitionEntry) {
+                return (
+                  <IndentedControlRow key={device.path}>
+                    <SubLabel>
+                      {
+                        (
+                          definitionEntry[1] as
+                            | VIADefinitionV2
+                            | VIADefinitionV3
+                        ).name
+                      }
+                    </SubLabel>
+                    <Detail>
+                      0x{device.vendorProductId.toString(16).toUpperCase()}
+                    </Detail>
+                  </IndentedControlRow>
+                );
+              }
+              return null;
+            })}
             <ControlRow>
               <Label>Local definitions</Label>
               <Detail>
                 {Object.values(localDefinitions).length} Definitions
               </Detail>
             </ControlRow>
-            {Object.values(localDefinitions).map(([id, definition]) => (
-              <IndentedControlRow key={id}>
+            {Object.values(localDefinitions).map(([id, definition], idx) => (
+              <IndentedControlRow key={idx}>
                 <SubLabel>{definition.name}</SubLabel>
                 <Detail>
                   0x
@@ -436,21 +434,23 @@ export const Debug: FC = () => {
                     {Object.values(remoteDefinitions).length} Definitions
                   </Detail>
                 </summary>
-                {Object.values(remoteDefinitions).map(([id, definition]) => (
-                  <IndentedControlRow>
-                    <SubLabel>{definition.name}</SubLabel>
-                    <Detail>
-                      0x
-                      {parseInt(id).toString(16).toUpperCase()}
-                    </Detail>
-                  </IndentedControlRow>
-                ))}
+                {Object.values(remoteDefinitions).map(
+                  ([id, definition], idx) => (
+                    <IndentedControlRow key={idx}>
+                      <SubLabel>{definition.name}</SubLabel>
+                      <Detail>
+                        0x
+                        {parseInt(id).toString(16).toUpperCase()}
+                      </Detail>
+                    </IndentedControlRow>
+                  ),
+                )}
               </details>
             </ControlRow>
           </ControlGroup>
           <TestControls />
         </Container>
-      </MenuPanel>
-    </DebugPane>
+      </OverflowCell>
+    </Pane>
   );
 };

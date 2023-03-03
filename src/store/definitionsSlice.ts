@@ -9,24 +9,29 @@ import {
 import {KeyboardValue} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
+  DefinitionVersionMap,
   KeyboardDictionary,
   VIADefinitionV2,
   VIADefinitionV3,
+  VIAKey,
 } from '@the-via/reader';
 import type {AppThunk, RootState} from './index';
 import {
   getSelectedDevicePath,
   getSelectedConnectedDevice,
+  ensureSupportedIds,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
+import {del, entries, setMany, update} from 'idb-keyval';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
 
 // TODO: should we use some redux local storage action instead of our custom via-app-store/device-store caching for definitions?
-export type DefinitionsState = {
+type DefinitionsState = {
   definitions: KeyboardDictionary;
   customDefinitions: KeyboardDictionary;
   layoutOptionsMap: LayoutOptionsMap;
@@ -45,22 +50,51 @@ const definitionsSlice = createSlice({
     updateDefinitions: (state, action: PayloadAction<KeyboardDictionary>) => {
       state.definitions = {...state.definitions, ...action.payload};
     },
-    loadDefinition: (
+    loadInitialCustomDefinitions: (
+      state,
+      action: PayloadAction<KeyboardDictionary>,
+    ) => {
+      state.customDefinitions = action.payload;
+    },
+    unloadCustomDefinition: (
       state,
       action: PayloadAction<{
-        definition: VIADefinitionV2 | VIADefinitionV3;
+        id: number;
         version: DefinitionVersion;
       }>,
     ) => {
-      const {version, definition} = action.payload;
-      const definitionEntry =
-        state.customDefinitions[definition.vendorProductId] ?? {};
-      if (version === 'v2') {
-        definitionEntry[version] = definition as VIADefinitionV2;
+      const {version, id} = action.payload;
+      const definitionEntry = state.customDefinitions[id];
+      if (Object.keys(definitionEntry).length === 1) {
+        delete state.customDefinitions[id];
+        del(id);
       } else {
-        definitionEntry[version] = definition as VIADefinitionV3;
+        delete definitionEntry[version];
+        update(id, (d) => {
+          delete d[version];
+          return d;
+        });
       }
-      state.customDefinitions[definition.vendorProductId] = definitionEntry;
+      state.customDefinitions = {...state.customDefinitions};
+    },
+    loadCustomDefinitions: (
+      state,
+      action: PayloadAction<{
+        definitions: (VIADefinitionV2 | VIADefinitionV3)[];
+        version: DefinitionVersion;
+      }>,
+    ) => {
+      const {version, definitions} = action.payload;
+      definitions.forEach((definition) => {
+        const definitionEntry =
+          state.customDefinitions[definition.vendorProductId] ?? {};
+        if (version === 'v2') {
+          definitionEntry[version] = definition as VIADefinitionV2;
+        } else {
+          definitionEntry[version] = definition as VIADefinitionV3;
+        }
+        state.customDefinitions[definition.vendorProductId] = definitionEntry;
+      });
     },
     updateLayoutOptions: (state, action: PayloadAction<LayoutOptionsMap>) => {
       state.layoutOptionsMap = {...state.layoutOptionsMap, ...action.payload};
@@ -68,8 +102,13 @@ const definitionsSlice = createSlice({
   },
 });
 
-export const {loadDefinition, updateDefinitions, updateLayoutOptions} =
-  definitionsSlice.actions;
+export const {
+  loadCustomDefinitions,
+  loadInitialCustomDefinitions,
+  updateDefinitions,
+  unloadCustomDefinition,
+  updateLayoutOptions,
+} = definitionsSlice.actions;
 
 export default definitionsSlice.reducer;
 
@@ -83,8 +122,14 @@ export const getLayoutOptionsMap = (state: RootState) =>
 export const getDefinitions = createSelector(
   getBaseDefinitions,
   getCustomDefinitions,
-  (definitions, customDefinitions) =>
-    ({...definitions, ...customDefinitions} as KeyboardDictionary),
+  (definitions, customDefinitions) => {
+    return Object.entries(customDefinitions).reduce(
+      (p, [id, definitionMap]) => {
+        return {...p, [id]: {...p[id], ...definitionMap}};
+      },
+      definitions,
+    );
+  },
 );
 
 export const getSelectedDefinition = createSelector(
@@ -125,13 +170,14 @@ export const getSelectedOptionKeys = createSelector(
   getSelectedLayoutOptions,
   getSelectedDefinition,
   (layoutOptions, definition) =>
-    definition &&
-    layoutOptions.flatMap(
-      (option, idx) =>
-        (definition.layouts.optionKeys[idx] &&
-          definition.layouts.optionKeys[idx][option]) ||
-        [],
-    ),
+    (definition
+      ? layoutOptions.flatMap(
+          (option, idx) =>
+            (definition.layouts.optionKeys[idx] &&
+              definition.layouts.optionKeys[idx][option]) ||
+            [],
+        )
+      : []) as VIAKey[],
 );
 
 export const getSelectedKeyDefinitions = createSelector(
@@ -150,17 +196,16 @@ export const updateLayoutOption =
   async (dispatch, getState) => {
     const state = getState();
     const definition = getSelectedDefinition(state);
-    const device = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardAPI(state);
     const path = getSelectedDevicePath(state);
 
-    if (!definition || !device || !path || !definition.layouts.labels) {
+    if (!definition || !api || !path || !definition.layouts.labels) {
       return;
     }
 
     const optionsNums = definition.layouts.labels.map((layoutLabel) =>
       Array.isArray(layoutLabel) ? layoutLabel.slice(1).length : 2,
     );
-    const {api} = device;
 
     // Clone the existing options into a new array so it can be modified with
     // the new layout index
@@ -184,19 +229,78 @@ export const updateLayoutOption =
     );
   };
 
+export const storeCustomDefinitions =
+  ({
+    definitions,
+    version,
+  }: {
+    definitions: (VIADefinitionV2 | VIADefinitionV3)[];
+    version: DefinitionVersion;
+  }): AppThunk =>
+  async (dispatch, getState) => {
+    try {
+      const allCustomDefinitions = getCustomDefinitions(getState());
+      const entries = definitions.map((definition) => {
+        return [
+          definition.vendorProductId,
+          {
+            ...allCustomDefinitions[definition.vendorProductId],
+            [version]: definition,
+          },
+        ] as [IDBValidKey, DefinitionVersionMap];
+      });
+      return setMany(entries);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  };
+
+export const loadStoredCustomDefinitions =
+  (): AppThunk => async (dispatch, getState) => {
+    try {
+      const dictionaryEntries: [string, DefinitionVersionMap][] =
+        await entries();
+      const keyboardDictionary = dictionaryEntries
+        .filter(([key]) => {
+          return ['string', 'number'].includes(typeof key);
+        })
+        .reduce((p, n) => {
+          return {...p, [n[0]]: n[1]};
+        }, {} as KeyboardDictionary);
+      // Each entry should be in the form of [id, {v2:..., v3:...}]
+      dispatch(loadInitialCustomDefinitions(keyboardDictionary));
+
+      const [v2Ids, v3Ids] = dictionaryEntries.reduce(
+        ([v2Ids, v3Ids], [entryId, definitionVersionMap]) => [
+          definitionVersionMap.v2 ? [...v2Ids, Number(entryId)] : v2Ids,
+          definitionVersionMap.v3 ? [...v3Ids, Number(entryId)] : v3Ids,
+        ],
+
+        [[] as number[], [] as number[]],
+      );
+
+      dispatch(ensureSupportedIds({productIds: v2Ids, version: 'v2'}));
+      dispatch(ensureSupportedIds({productIds: v3Ids, version: 'v3'}));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   const state = getState();
   const selectedDefinition = getSelectedDefinition(state);
   const connectedDevice = getSelectedConnectedDevice(state);
+  const api = getSelectedKeyboardAPI(state);
   if (
     !connectedDevice ||
     !selectedDefinition ||
-    !selectedDefinition.layouts.labels
+    !selectedDefinition.layouts.labels ||
+    !api
   ) {
     return;
   }
 
-  const {api, device} = connectedDevice;
+  const {path} = connectedDevice;
   try {
     const res = await api.getKeyboardValue(KeyboardValue.LAYOUT_OPTIONS, [], 4);
     const options = unpackBits(
@@ -207,7 +311,7 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     );
     dispatch(
       updateLayoutOptions({
-        [device.path]: options,
+        [path]: options,
       }),
     );
   } catch {
@@ -231,8 +335,8 @@ export const reloadDefinitions =
           );
         })
         // Go and get it if we don't
-        .map(({device, requiredDefinitionVersion}) =>
-          getMissingDefinition(device, requiredDefinitionVersion),
+        .map((device) =>
+          getMissingDefinition(device, device.requiredDefinitionVersion),
         ),
     );
     if (!missingDefinitions.length) {

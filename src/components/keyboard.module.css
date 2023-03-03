@@ -25,7 +25,6 @@ data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAG0lEQVQYV2
   user-select: none; /* Likely future */
   transform: scale(0.8);
   opacity: 0;
-  pointer-events: none;
   filter: blur(2px);
 }
 

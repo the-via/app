@@ -1,4 +1,3 @@
-import React from 'react';
 import type {FC} from 'react';
 import {ColorPicker} from '../../../../inputs/color-picker';
 import {ControlRow, Label, Detail} from '../../../grid';
@@ -10,8 +9,7 @@ import {
   VIADefinitionV3,
 } from '@the-via/reader';
 import {LightingControl} from './lighting-control';
-import {useDispatch} from 'react-redux';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedLightingData,
   updateBacklightValue,
@@ -78,7 +76,7 @@ const UnderglowControls: [
 ];
 
 export const GeneralPane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 

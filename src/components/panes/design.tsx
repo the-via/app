@@ -1,4 +1,4 @@
-import React, {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
+import {useState, FC, useRef, Dispatch, DragEvent, useMemo} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {ErrorMessage} from '../styled';
@@ -7,7 +7,7 @@ import {AccentSlider} from '../inputs/accent-slider';
 import {AccentUploadButton} from '../inputs/accent-upload-button';
 import Layouts from '../Layouts';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faUpload} from '@fortawesome/free-solid-svg-icons';
+import {faBook, faUpload, faXmark} from '@fortawesome/free-solid-svg-icons';
 import {
   keyboardDefinitionV2ToVIADefinitionV2,
   isVIADefinitionV2,
@@ -16,26 +16,48 @@ import {
   isVIADefinitionV3,
   isKeyboardDefinitionV3,
   DefinitionVersionMap,
-  commonMenus,
+  VIADefinitionV2,
+  VIADefinitionV3,
 } from '@the-via/reader';
 import type {DefinitionVersion} from '@the-via/reader';
-import {BlankPositionedKeyboard} from '../positioned-keyboard';
 import {
   ControlRow,
   Label,
   SubLabel,
   Detail,
   IndentedControlRow,
-  OverflowCell,
-  FlexCell,
+  SinglePaneFlexCell,
+  Grid,
+  SpanOverflowCell,
+  MenuCell,
+  Row,
+  IconContainer,
 } from './grid';
 import {useDispatch} from 'react-redux';
-import {selectDevice, ensureSupportedId} from 'src/store/devicesSlice';
+import {selectDevice, ensureSupportedIds} from 'src/store/devicesSlice';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
 import {useAppSelector} from 'src/store/hooks';
-import {getCustomDefinitions, loadDefinition} from 'src/store/definitionsSlice';
-import {getSelectedVersion, selectVersion} from 'src/store/designSlice';
-import {useSize} from 'src/utils/use-size';
+import {
+  getCustomDefinitions,
+  loadCustomDefinitions,
+  storeCustomDefinitions,
+  unloadCustomDefinition,
+} from 'src/store/definitionsSlice';
+import {
+  getSelectedDefinitionIndex,
+  getSelectedVersion,
+  getShowMatrix,
+  selectVersion,
+  updateSelectedDefinitionIndex,
+  updateSelectedOptionKeys,
+  updateShowMatrix,
+} from 'src/store/designSlice';
+import {MenuContainer} from './configure-panes/custom/menu-generator';
+import {MenuTooltip} from '../inputs/tooltip';
+import {MessageDialog} from '../inputs/message-dialog';
+import {IconButtonUnfilledContainer} from '../inputs/icon-button';
+
+let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -59,8 +81,10 @@ const DesignPane = styled(Pane)`
 const UploadIcon = styled.div`
   height: 200px;
   width: 50%;
+  cursor: pointer;
   max-width: 560px;
   border-radius: 6px;
+  margin: 50px 10px;
   animation-duration: 1.5s;
   animation-name: border-glow;
   animation-iteration-count: infinite;
@@ -82,76 +106,97 @@ const UploadIcon = styled.div`
   }
 `;
 
+const makeReaderPromise = (file: File): Promise<[string, string]> => {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (!reader.result) return rej();
+      res([file.name, reader.result.toString()]);
+    };
+    reader.onerror = rej;
+    reader.onabort = rej;
+    reader.readAsBinaryString(file);
+  });
+};
+
+const isVIADefinition = (
+  definition: VIADefinitionV2 | VIADefinitionV3 | null | undefined,
+): definition is VIADefinitionV2 | VIADefinitionV3 => {
+  return isVIADefinitionV2(definition) || isVIADefinitionV3(definition);
+};
+
 // TODO: move this inside function component and then use the closured dispatch?
-function importDefinition(
-  file: File,
+function importDefinitions(
+  files: File[],
   version: DefinitionVersion,
   dispatch: Dispatch<any>,
   setErrors: (errors: string[]) => void,
 ) {
-  const reader = new FileReader();
-  reader.onload = async () => {
-    try {
-      if (!reader.result) return;
-      const res = JSON.parse(reader.result.toString());
-      const isValid =
-        version === 'v2'
-          ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
-          : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
-      if (isValid) {
-        setErrors([]);
-        const definition =
-          version === 'v2'
-            ? isVIADefinitionV2(res)
-              ? res
-              : keyboardDefinitionV2ToVIADefinitionV2(res)
-            : isVIADefinitionV3(res)
-            ? res
-            : keyboardDefinitionV3ToVIADefinitionV3(res);
-
-        if (isVIADefinitionV3(res) || isKeyboardDefinitionV3(res)) {
-          const commonMenuKeys = Object.keys(commonMenus);
-          const lookupFailedKeys = (res.menus || []).filter((menu) => {
-            if (typeof menu === 'string') {
-              return !commonMenuKeys.includes(menu);
-            }
-            return false;
-          });
-          if (lookupFailedKeys.length) {
-            throw Error(
-              `Menu key lookup failed for: ${lookupFailedKeys.join(', ')}`,
+  Promise.all(files.map(makeReaderPromise)).then((results) => {
+    let errors: string[] = [];
+    setErrors([]);
+    const definitions = results
+      .map(([fileName, result]) => {
+        if (errors.length > 0) {
+          return null;
+        }
+        try {
+          const res = JSON.parse(result.toString());
+          const isValid =
+            version === 'v2'
+              ? isKeyboardDefinitionV2(res) || isVIADefinitionV2(res)
+              : isKeyboardDefinitionV3(res) || isVIADefinitionV3(res);
+          if (isValid) {
+            const definition =
+              version === 'v2'
+                ? isVIADefinitionV2(res)
+                  ? res
+                  : keyboardDefinitionV2ToVIADefinitionV2(res)
+                : isVIADefinitionV3(res)
+                ? res
+                : keyboardDefinitionV3ToVIADefinitionV3(res);
+            return definition;
+          } else {
+            errors = (
+              version === 'v2'
+                ? isKeyboardDefinitionV2.errors ||
+                  isVIADefinitionV2.errors ||
+                  []
+                : isKeyboardDefinitionV3.errors ||
+                  isVIADefinitionV3.errors ||
+                  []
+            ).map(
+              (e) =>
+                `${fileName} ${e.dataPath ? e.dataPath + ': ' : 'Object: '}${
+                  e.message
+                }`,
             );
           }
+        } catch (err: any) {
+          if (err.name) {
+            errors.push(`${err.name}: ${err.message}`);
+          } else {
+            errors.push(`${err}`);
+          }
         }
-        dispatch(loadDefinition({definition, version}));
+      })
+      .filter(isVIADefinition);
 
-        dispatch(
-          ensureSupportedId({
-            productId: definition.vendorProductId as number,
-            version,
-          }),
-        );
-        dispatch(selectDevice(null));
-        dispatch(reloadConnectedDevices());
-      } else {
-        setErrors(
-          (version === 'v2'
-            ? isKeyboardDefinitionV2.errors || isVIADefinitionV2.errors || []
-            : isKeyboardDefinitionV3.errors || isVIADefinitionV3.errors || []
-          ).map(
-            (e) => `${e.dataPath ? e.dataPath + ': ' : 'Object: '}${e.message}`,
-          ),
-        );
-      }
-    } catch (err: any) {
-      if (err.name) {
-        setErrors([`${err.name}: ${err.message}`]);
-      } else {
-        setErrors([`${err}`]);
-      }
+    if (errors.length) {
+      setErrors(errors);
+    } else {
+      dispatch(loadCustomDefinitions({definitions, version}));
+      dispatch(storeCustomDefinitions({definitions, version}));
+      dispatch(
+        ensureSupportedIds({
+          productIds: definitions.map((d) => d.vendorProductId),
+          version,
+        }),
+      );
+      dispatch(selectDevice(null));
+      dispatch(reloadConnectedDevices());
     }
-  };
-  reader.readAsBinaryString(file);
+  });
 }
 
 function onDrop(
@@ -163,18 +208,14 @@ function onDrop(
   evt.preventDefault();
   const {dataTransfer} = evt;
   if (dataTransfer?.items) {
-    // Use DataTransferItemList interface to access the file(s)
-    for (var i = 0; i < dataTransfer.items.length; i++) {
-      // If dropped items aren't files, reject them
-      if (
-        dataTransfer.items[i].kind === 'file' &&
-        dataTransfer.items[i].type === 'application/json'
-      ) {
-        var file = dataTransfer.items[i].getAsFile();
-        if (file) {
-          importDefinition(file, version, dispatch, setErrors);
-        }
-      }
+    const items = Array.from(dataTransfer.items)
+      .filter((item) => {
+        return item.kind === 'file' && item.type === 'application/json';
+      })
+      .map((item) => item.getAsFile()) // Use DataTransferItemList interface to access the file(s)
+      .filter((item) => item !== null);
+    if (items.length) {
+      importDefinitions(items as File[], version, dispatch, setErrors);
     }
   }
 }
@@ -183,10 +224,8 @@ export const DesignTab: FC = () => {
   const dispatch = useDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getSelectedVersion);
-
-  const [selectedDefinitionIndex, setSelectedDefinition] = useState(0);
-  const [selectedOptionKeys, setSelectedOptionKeys] = useState<number[]>([]);
-  const [showMatrix, setShowMatrix] = useState(false);
+  const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
+  const showMatrix = useAppSelector(getShowMatrix);
   const [errors, setErrors] = useState<string[]>([]);
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
@@ -202,11 +241,10 @@ export const DesignTab: FC = () => {
   }));
 
   const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
   const definition =
     versionDefinitions[selectedDefinitionIndex] &&
     versionDefinitions[selectedDefinitionIndex][definitionVersion];
-
+  const uploadButton = useRef<HTMLInputElement>();
   return (
     <DesignPane
       onDragOver={(evt: DragEvent) => {
@@ -216,16 +254,23 @@ export const DesignTab: FC = () => {
         evt.stopPropagation();
       }}
     >
-      <FlexCell ref={flexRef}>
-        {definition ? (
-          <BlankPositionedKeyboard
-            containerDimensions={dimensions}
-            selectedDefinition={definition}
-            selectedOptionKeys={selectedOptionKeys}
-            showMatrix={showMatrix}
-          />
-        ) : (
+      <MessageDialog
+        isOpen={!hideDesignWarning}
+        onClose={() => {
+          sessionStorage.setItem('hideDesignWarning', '1');
+          hideDesignWarning = '1';
+        }}
+      >
+        This feature is intended for development purposes. If your keyboard is
+        not recognized automatically by VIA, please contact your keyboard's
+        manufacturer or vendor.
+      </MessageDialog>
+      <SinglePaneFlexCell ref={flexRef}>
+        {!definition && (
           <UploadIcon
+            onClick={() => {
+              uploadButton.current && uploadButton.current.click();
+            }}
             onDrop={(evt) =>
               onDrop(evt, definitionVersion, dispatch, setErrors)
             }
@@ -239,92 +284,132 @@ export const DesignTab: FC = () => {
             <FontAwesomeIcon icon={faUpload} />
           </UploadIcon>
         )}
-      </FlexCell>
-      <OverflowCell>
-        <Container>
-          <ControlRow>
-            <Label>Load Draft Definition</Label>
-            <Detail>
-              <AccentUploadButton
-                onLoad={(file) =>
-                  importDefinition(file, definitionVersion, dispatch, setErrors)
-                }
-              >
-                Load
-              </AccentUploadButton>
-            </Detail>
-          </ControlRow>
-          <ControlRow>
-            <Label>Use V2 definitions (deprecated)</Label>
-            <Detail>
-              <AccentSlider
-                isChecked={definitionVersion === 'v2'}
-                onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
-              />
-            </Detail>
-          </ControlRow>
-          {definition && (
+      </SinglePaneFlexCell>
+      <Grid style={{overflow: 'hidden'}}>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            <Row $selected={true}>
+              <IconContainer>
+                <FontAwesomeIcon icon={faBook} />
+                <MenuTooltip>Add Definition</MenuTooltip>
+              </IconContainer>
+            </Row>
+          </MenuContainer>
+        </MenuCell>
+        <SpanOverflowCell>
+          <Container>
             <ControlRow>
-              <Label>Shown Keyboard Definition</Label>
+              <Label>Load Draft Definition</Label>
               <Detail>
-                <AccentSelect
-                  onChange={(option: any) => {
-                    // Reset selected layouts when choosing a different
-                    // definition
-                    setSelectedOptionKeys(() => []);
-
-                    if (option) {
-                      setSelectedDefinition(+option.value);
-                    }
+                <AccentUploadButton
+                  multiple
+                  inputRef={uploadButton}
+                  onLoad={(files) => {
+                    importDefinitions(
+                      Array.from(files),
+                      definitionVersion,
+                      dispatch,
+                      setErrors,
+                    );
                   }}
-                  value={options[selectedDefinitionIndex]}
-                  options={options}
+                >
+                  Load
+                </AccentUploadButton>
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Use V2 definitions (deprecated)</Label>
+              <Detail>
+                <AccentSlider
+                  isChecked={definitionVersion === 'v2'}
+                  onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
                 />
               </Detail>
             </ControlRow>
-          )}
-          {definition && (
-            <Layouts
-              definition={definition}
-              onLayoutChange={(newSelectedOptionKeys) => {
-                setSelectedOptionKeys(newSelectedOptionKeys);
-              }}
-            />
-          )}
-          {definition && (
+            {definition && (
+              <ControlRow>
+                <Label>Shown Keyboard Definition</Label>
+                <Detail>
+                  <AccentSelect
+                    onChange={(option: any) => {
+                      // Reset selected layouts when choosing a different
+                      // definition
+                      dispatch(updateSelectedOptionKeys([]));
+
+                      if (option) {
+                        dispatch(updateSelectedDefinitionIndex(+option.value));
+                      }
+                    }}
+                    value={options[selectedDefinitionIndex]}
+                    options={options}
+                  />
+                </Detail>
+              </ControlRow>
+            )}
+            {definition && (
+              <Layouts
+                definition={definition}
+                onLayoutChange={(newSelectedOptionKeys) => {
+                  dispatch(updateSelectedOptionKeys(newSelectedOptionKeys));
+                }}
+              />
+            )}
+            {definition && (
+              <ControlRow>
+                <Label>Show Matrix</Label>
+                <Detail>
+                  <AccentSlider
+                    isChecked={showMatrix}
+                    onChange={(val) => {
+                      dispatch(updateShowMatrix(val));
+                    }}
+                  />
+                </Detail>
+              </ControlRow>
+            )}
+            {errors.map((error: string) => (
+              <IndentedControlRow>
+                <DesignErrorMessage>{error}</DesignErrorMessage>
+              </IndentedControlRow>
+            ))}
             <ControlRow>
-              <Label>Show Matrix</Label>
+              <Label>Draft Definitions</Label>
               <Detail>
-                <AccentSlider isChecked={showMatrix} onChange={setShowMatrix} />
+                {Object.values(versionDefinitions).length} Definitions
               </Detail>
             </ControlRow>
-          )}
-          {errors.map((error: string) => (
-            <IndentedControlRow>
-              <DesignErrorMessage>{error}</DesignErrorMessage>
-            </IndentedControlRow>
-          ))}
-          <ControlRow>
-            <Label>Draft Definitions</Label>
-            <Detail>
-              {Object.values(versionDefinitions).length} Definitions
-            </Detail>
-          </ControlRow>
-          {versionDefinitions.map((definition) => {
-            return (
-              <IndentedControlRow>
-                <SubLabel>{definition[definitionVersion].name}</SubLabel>
-                <Detail>
-                  0x
-                  {definition[definitionVersion].vendorProductId
-                    .toString(16)
-                    .toUpperCase()}
-                </Detail>
-              </IndentedControlRow>
-            );
-          })}
-        </Container>
-      </OverflowCell>
+            {versionDefinitions.map((definition) => {
+              return (
+                <IndentedControlRow
+                  key={`${definitionVersion}-${definition[definitionVersion].vendorProductId}`}
+                >
+                  <SubLabel>{definition[definitionVersion].name}</SubLabel>
+                  <Detail>
+                    0x
+                    {definition[definitionVersion].vendorProductId
+                      .toString(16)
+                      .padStart(8, '0')
+                      .toUpperCase()}
+                    <IconButtonUnfilledContainer
+                      onClick={() => {
+                        dispatch(
+                          unloadCustomDefinition({
+                            id: definition[definitionVersion].vendorProductId,
+                            version: definitionVersion,
+                          }),
+                        );
+                      }}
+                      style={{marginLeft: 10, borderRadius: 4}}
+                    >
+                      <FontAwesomeIcon icon={faXmark} size={'lg'} />
+                    </IconButtonUnfilledContainer>
+                  </Detail>
+                </IndentedControlRow>
+              );
+            })}
+          </Container>
+        </SpanOverflowCell>
+      </Grid>
     </DesignPane>
   );
 };

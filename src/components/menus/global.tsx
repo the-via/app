@@ -1,46 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
-import {useLocation} from 'react-router';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'wouter';
 import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowDesignTab} from 'src/store/settingsSlice';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {CategoryMenuTooltip} from '../inputs/tooltip';
+import {CategoryIconContainer} from '../panes/grid';
+import {VIALogo} from '../icons/via';
+import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
 
 const Container = styled.div`
   width: 100vw;
   height: 25px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--color_dark-grey);
-  background-color: var(--color_light-jet);
-  text-align: center;
+  border-bottom: 1px solid var(--border_color_cell);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-const MenuItem = styled.button<{selected?: boolean}>`
-  background: none;
-  border: none;
-  font-family: inherit;
-  outline: none;
-  padding: 0;
+const {DEBUG_PROD, MODE, DEV} = import.meta.env;
+const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 
-  margin: 0 15px;
-  font-size: 18px;
-  text-transform: uppercase;
-  cursor: pointer;
-  color: ${(props) =>
-    props.selected ? 'var(--color_light-grey)' : 'var(--color_medium-grey)'};
-  &:hover {
-    color: ${(props) =>
-      props.selected ? 'var(--color_light-grey)' : 'var(--color_light-grey)'};
-  }
+const GlobalContainer = styled(Container)`
+  background: var(--bg_outside-accent);
+  column-gap: 20px;
 `;
 
-const {DEBUG_PROD, NODE_ENV} = import.meta.env;
-const showDebugPane = NODE_ENV === 'development' || DEBUG_PROD === 'true';
+const ExternalLinkContainer = styled.span`
+  position: absolute;
+  right: 1em;
+  display: flex;
+  gap: 1em;
+`;
 
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
 
-  const location = useLocation();
+  const [location] = useLocation();
 
   const Panes = React.useMemo(() => {
     return PANES.map((pane) => {
@@ -48,17 +46,44 @@ export const UnconnectedGlobalMenu = () => {
       if (pane.key === 'debug' && !showDebugPane) return null;
       return (
         <Link key={pane.key} to={pane.path}>
-          <MenuItem selected={pane.path === location.pathname}>
-            {pane.title}
-          </MenuItem>
+          <CategoryIconContainer $selected={pane.path === location}>
+            <FontAwesomeIcon size={'xl'} icon={pane.icon} />
+            <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
+          </CategoryIconContainer>
         </Link>
       );
     });
   }, [location, showDesignTab]);
 
+  const ExternalLinks = () => (
+    <ExternalLinkContainer>
+      <a href="https://caniusevia.com/" target="_blank">
+        <CategoryIconContainer>
+          <VIALogo height="25px" fill="currentColor"></VIALogo>
+          <CategoryMenuTooltip>Firmware + Docs</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+      <a href="https://discord.gg/NStTR5YaPB" target="_blank">
+        <CategoryIconContainer>
+          <FontAwesomeIcon size={'xl'} icon={faDiscord} />
+          <CategoryMenuTooltip>Discord</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+      <a href="https://github.com/the-via/app" target="_blank">
+        <CategoryIconContainer>
+          <FontAwesomeIcon size={'xl'} icon={faGithub} />
+          <CategoryMenuTooltip>Github</CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </a>
+    </ExternalLinkContainer>
+  );
+
   return (
     <React.Fragment>
-      <Container>{Panes}</Container>
+      <GlobalContainer>
+        {Panes}
+        <ExternalLinks />
+      </GlobalContainer>
     </React.Fragment>
   );
 };

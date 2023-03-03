@@ -1,12 +1,10 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import React, {useState, useEffect} from 'react';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
-import {useSize} from '../../utils/use-size';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
 import LoadingText from '../loading-text';
-import {ConfigureBasePane} from './pane';
-import ReactTooltip from 'react-tooltip';
+import {CenterPane, ConfigureBasePane} from './pane';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   CustomFeaturesV2,
   getLightingDefinition,
@@ -15,8 +13,7 @@ import {
   VIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {PositionedKeyboard} from '../positioned-keyboard';
-import {Grid, Row, FlexCell, IconContainer, MenuCell} from './grid';
+import {Grid, Row, IconContainer, MenuCell, ConfigureFlexCell} from './grid';
 import * as Keycode from './configure-panes/keycode';
 import * as Lighting from './configure-panes/lighting';
 import * as Macros from './configure-panes/macros';
@@ -33,6 +30,7 @@ import {
   clearSelectedKey,
   getLoadProgress,
   getNumberOfLayers,
+  setConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
 import {useDispatch} from 'react-redux';
 import {reloadConnectedDevices} from 'src/store/devicesThunks';
@@ -40,9 +38,12 @@ import {getV3MenuComponents} from 'src/store/menusSlice';
 import {getIsMacroFeatureSupported} from 'src/store/macrosSlice';
 import {getConnectedDevices, getSupportedIds} from 'src/store/devicesSlice';
 import {isElectron} from 'src/utils/running-context';
+import {useAppDispatch} from 'src/store/hooks';
+import {MenuTooltip} from '../inputs/tooltip';
+import {getRenderMode, getSelectedTheme} from 'src/store/settingsSlice';
 
 const MenuContainer = styled.div`
-  padding: 15px 30px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 const Rows = [
@@ -140,18 +141,20 @@ const getRowsForKeyboardV2 = (
   );
 };
 
-function Loader(props: {
+const Loader: React.FC<{
   loadProgress: number;
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null;
-}) {
+}> = (props) => {
   const {loadProgress, selectedDefinition} = props;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const theme = useAppSelector(getSelectedTheme);
 
   const connectedDevices = useAppSelector(getConnectedDevices);
   const supportedIds = useAppSelector(getSupportedIds);
   const noSupportedIds = !Object.values(supportedIds).length;
   const noConnectedDevices = !Object.values(connectedDevices).length;
   const [showButton, setShowButton] = useState<boolean>(false);
+
   useEffect(() => {
     // TODO: Remove the timeout because it is funky
     const timeout = setTimeout(() => {
@@ -162,8 +165,8 @@ function Loader(props: {
     return () => clearTimeout(timeout);
   }, [selectedDefinition]);
   return (
-    <>
-      <ChippyLoader progress={loadProgress || null} />
+    <LoaderPane>
+      {<ChippyLoader theme={theme} progress={loadProgress || null} />}
       {(showButton || noConnectedDevices) && !noSupportedIds && !isElectron ? (
         <AccentButtonLarge onClick={() => dispatch(reloadConnectedDevices())}>
           Authorize device
@@ -172,27 +175,39 @@ function Loader(props: {
       ) : (
         <LoadingText isSearching={!selectedDefinition} />
       )}
-    </>
+    </LoaderPane>
   );
-}
+};
+
+const LoaderPane = styled(CenterPane)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  row-gap: 50px;
+  position: absolute;
+  bottom: 50px;
+  top: 50px;
+  left: 0;
+  right: 0;
+  z-index: 4;
+`;
 
 export const ConfigurePane = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const loadProgress = useAppSelector(getLoadProgress);
+  const renderMode = useAppSelector(getRenderMode);
 
   const showLoader = !selectedDefinition || loadProgress !== 1;
-  return (
+  return showLoader ? (
+    renderMode === '2D' ? (
+      <Loader
+        selectedDefinition={selectedDefinition || null}
+        loadProgress={loadProgress}
+      />
+    ) : null
+  ) : (
     <ConfigureBasePane>
-      {showLoader ? (
-        <Loader
-          {...{
-            loadProgress,
-            selectedDefinition: selectedDefinition ? selectedDefinition : null,
-          }}
-        />
-      ) : (
-        <ConfigureGrid />
-      )}
+      <ConfigureGrid />
     </ConfigureBasePane>
   );
 };
@@ -201,45 +216,60 @@ const ConfigureGrid = () => {
   const dispatch = useDispatch();
 
   const [selectedRow, setRow] = useState(0);
-
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
-
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const selectedTitle = KeyboardRows[selectedRow]?.Title;
 
-  return (
-    <Grid>
-      <MenuCell>
-        <MenuContainer>
-          {(KeyboardRows || []).map(
-            ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
-              <Row
-                key={idx}
-                onClick={(_) => setRow(idx)}
-                selected={selectedRow === idx}
-              >
-                <IconContainer>
-                  <Icon />
-                </IconContainer>
-                {Title}
-              </Row>
-            ),
-          )}
-        </MenuContainer>
-      </MenuCell>
+  useEffect(() => {
+    if (selectedTitle !== 'Keymap') {
+      dispatch(setConfigureKeyboardIsSelectable(false));
+    } else {
+      dispatch(setConfigureKeyboardIsSelectable(true));
+    }
+  }, [selectedTitle]);
 
-      <FlexCell ref={flexRef} onClick={() => dispatch(clearSelectedKey())}>
-        <PositionedKeyboard
-          containerDimensions={dimensions}
-          selectable={selectedTitle === 'Keymap'}
-        />
-        <ReactTooltip />
-        <LayerControl />
-        <Badge />
-      </FlexCell>
-      {SelectedPane && <SelectedPane />}
-    </Grid>
+  return (
+    <>
+      <ConfigureFlexCell
+        onClick={(evt) => {
+          if ((evt.target as any).nodeName !== 'CANVAS')
+            dispatch(clearSelectedKey());
+        }}
+        style={{
+          pointerEvents: 'none',
+          position: 'absolute',
+          top: 50,
+          left: 0,
+          right: 0,
+        }}
+      >
+        <div style={{pointerEvents: 'all'}}>
+          <LayerControl />
+          <Badge />
+        </div>
+      </ConfigureFlexCell>
+      <Grid style={{pointerEvents: 'none'}}>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            {(KeyboardRows || []).map(
+              ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
+                <Row
+                  key={idx}
+                  onClick={(_) => setRow(idx)}
+                  $selected={selectedRow === idx}
+                >
+                  <IconContainer>
+                    <Icon />
+                    <MenuTooltip>{Title}</MenuTooltip>
+                  </IconContainer>
+                </Row>
+              ),
+            )}
+          </MenuContainer>
+        </MenuCell>
+
+        {SelectedPane && <SelectedPane />}
+      </Grid>
+    </>
   );
 };

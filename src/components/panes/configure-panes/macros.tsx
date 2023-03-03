@@ -1,13 +1,16 @@
-import React, {useState, useMemo, FC} from 'react';
+import {useState, useMemo, FC, useCallback} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
 import {title, component} from '../../icons/adjust';
 import {MacroDetailPane} from './submenus/macros/macro-detail';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../store/hooks';
 import {getSelectedConnectedDevice} from '../../../store/devicesSlice';
-import {saveMacros} from '../../../store/macrosSlice';
-import {useDispatch} from 'react-redux';
+import {
+  getExpressions,
+  getMacroCount,
+  saveMacros,
+} from '../../../store/macrosSlice';
 
 const MacroPane = styled(CenterPane)`
   height: 100%;
@@ -19,46 +22,52 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
   padding: 12px;
+  padding-top: 0;
 `;
 
 const MenuContainer = styled.div`
-  padding: 15px 20px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  const macroExpressions = useAppSelector((state) => state.macros.expressions);
+  const macroExpressions = useAppSelector(getExpressions);
+  const macroCount = useAppSelector(getMacroCount);
 
   const [selectedMacro, setSelectedMacro] = useState(0);
 
-  const saveMacro = async (macro: string) => {
-    if (!selectedDevice) {
-      return;
-    }
+  const saveMacro = useCallback(
+    async (macro: string) => {
+      if (!selectedDevice) {
+        return;
+      }
 
-    const newMacros = macroExpressions.map((oldMacro, i) =>
-      i === selectedMacro ? macro : oldMacro,
-    );
+      const newMacros = macroExpressions.map((oldMacro, i) =>
+        i === selectedMacro ? macro : oldMacro,
+      );
 
-    dispatch(saveMacros(selectedDevice, newMacros));
-  };
+      dispatch(saveMacros(selectedDevice, newMacros));
+    },
+    [macroExpressions, saveMacros, dispatch, selectedDevice, selectedMacro],
+  );
 
   const macroMenus = useMemo(
     () =>
-      Array(16)
+      Array(macroCount)
         .fill(0)
         .map((_, idx) => idx)
         .map((idx) => (
           <SubmenuRow
-            selected={selectedMacro === idx}
+            $selected={selectedMacro === idx}
             onClick={() => setSelectedMacro(idx)}
             key={idx}
+            style={{borderWidth: 0, textAlign: 'center'}}
           >
-            {`Macro ${idx}`}
+            {`M${idx}`}
           </SubmenuRow>
         )),
-    [selectedMacro],
+    [selectedMacro, macroCount],
   );
 
   if (!selectedDevice) {
@@ -77,7 +86,6 @@ export const Pane: FC = () => {
               selectedMacro={selectedMacro}
               saveMacros={saveMacro}
               protocol={selectedDevice ? selectedDevice.protocol : -1}
-              key={selectedMacro}
             />
           </Container>
         </MacroPane>

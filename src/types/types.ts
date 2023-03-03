@@ -1,4 +1,3 @@
-import type {KeyboardAPI} from '../utils/keyboard-api';
 import type {
   DefinitionVersion,
   KeyboardDefinitionIndex,
@@ -7,6 +6,13 @@ import type {
   VIAKey,
   VIAMenu,
 } from '@the-via/reader';
+import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
+
+export enum TestKeyState {
+  Initial,
+  KeyDown,
+  KeyUp,
+}
 
 export type HIDColor = {
   hue: number;
@@ -39,8 +45,9 @@ export type WebVIADevice = Device & {
 };
 
 export type ConnectedDevice = {
-  api: KeyboardAPI;
-  device: Device;
+  path: string;
+  productId: number;
+  vendorId: number;
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
@@ -49,28 +56,29 @@ export type ConnectedDevices = {
   [devicePath: string]: ConnectedDevice;
 };
 
-export type Key = Pick<
-  VIAKey,
-  'x' | 'x2' | 'y' | 'y2' | 'w' | 'w2' | 'h' | 'h2' | 'r' | 'rx' | 'ry'
-> & {
-  c: string;
-  t: string;
-  selected: boolean;
-  macroExpression?: string;
-  centerLabel?: string;
-  topLabel?: string;
-  bottomLabel?: string;
-  label?: string;
-  id: number;
-  ei?: number;
-  onClick?: (id: number) => void;
+export type MacroEditorSettings = {
+  recordDelaysEnabled: boolean;
+  smartOptimizeEnabled: boolean;
+  tapEnterAtEOMEnabled: boolean;
+};
+
+export type TestKeyboardSoundsSettings = {
+  isEnabled: boolean;
+  volume: number;
+  waveform: OscillatorType;
+  mode: TestKeyboardSoundsMode;
+  transpose: number;
 };
 
 export type Settings = {
   allowKeyboardKeyRemapping: boolean;
   showDesignTab: boolean;
   disableFastRemap: boolean;
-  disableHardwareAcceleration: boolean;
+  renderMode: '3D' | '2D';
+  themeMode: 'light' | 'dark';
+  themeName: string;
+  macroEditor: MacroEditorSettings;
+  testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
 };
 
 export type CommonMenusMap = {
@@ -92,3 +100,5 @@ export type DefinitionIndex = Pick<
   supportedVendorProductIdMap: VendorProductIdMap;
   hash: string;
 };
+
+export type EncoderBehavior = [number, number, number];

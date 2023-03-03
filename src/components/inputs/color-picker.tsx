@@ -14,14 +14,24 @@ type Color = {
 };
 
 type Props = {
+  isSelected?: boolean;
   color: Color;
   setColor: (hue: number, sat: number) => void;
+  onOpen?: () => void;
+  onMouseUp?: (hue: number, sat: number) => void;
+  onClose?: (hue: number, sat: number) => void;
 };
 
 type State = {
   lensTransform: string;
   showPicker: boolean;
+  offset: [number, number];
 };
+
+const ColorPickerContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 const ColorLens = styled.div`
   position: absolute;
@@ -56,12 +66,12 @@ const ColorOuter = styled.div`
   );
 `;
 
-export const ColorThumbnail = styled.div`
+const ColorThumbnail = styled.div`
   display: inline-block;
-  height: 20px;
-  width: 30px;
-  border-radius: 2px;
-  border: 2px solid var(--color_dark-grey);
+  height: 25px;
+  width: 25px;
+  border-radius: 50%;
+  border: 4px solid var(--border_color_cell);
   cursor: pointer;
   &:hover {
     opacity: 0.8;
@@ -69,7 +79,7 @@ export const ColorThumbnail = styled.div`
 `;
 
 const Container = styled.div`
-  border: 4px solid var(--color_dark-grey);
+  border: 4px solid var(--border_color_cell);
   width: 180px;
   height: 180px;
   position: relative;
@@ -84,14 +94,14 @@ const PickerContainer = styled.div`
   z-index: 1;
   box-shadow: rgba(0, 0, 0, 0.11) 0 1px 1px 1px;
   position: absolute;
-  transform: translate3d(-205px, 47px, 0);
+  transform: translate3d(-205px, 50px, 0);
 
   &::after {
     content: '';
     position: absolute;
     width: 0px;
     height: 0px;
-    border: 11px solid var(--color_dark-grey);
+    border: 11px solid var(--border_color_cell);
     border-top-color: transparent;
     border-bottom-color: transparent;
     border-right-color: transparent;
@@ -103,7 +113,7 @@ const PickerContainer = styled.div`
 const ColorPreview = styled.div`
   width: 180px;
   height: 24px;
-  border: 4px solid var(--color_dark-grey);
+  border: 4px solid var(--border_color_cell);
   border-bottom: none;
 `;
 
@@ -116,9 +126,11 @@ export class ColorPicker extends Component<Props, State> {
   state = {
     lensTransform: '',
     showPicker: false,
+    offset: [5, 5] as [number, number],
   };
 
   componentWillUnmount() {
+    document.removeEventListener('mousedown', this.onDocumentClick);
     document.removeEventListener('click', this.onDocumentClick);
   }
 
@@ -137,11 +149,12 @@ export class ColorPicker extends Component<Props, State> {
       const lensTransform = `translate3d(${offsetX - 5}px, ${
         offsetY - 5
       }px, 0)`;
-      this.setState({lensTransform});
+      this.setState({lensTransform, offset: [offsetX, offsetY]});
     }
   }
   componentDidMount() {
     document.addEventListener('click', this.onDocumentClick);
+    document.addEventListener('mousedown', this.onDocumentClick);
   }
 
   // For the color picker uses a conical gradient
@@ -153,11 +166,10 @@ export class ColorPicker extends Component<Props, State> {
   }
 
   // For standard color picker uses a conical gradient
-  getLinearHueSat(evt: React.MouseEvent<Element>) {
+  getLinearHueSat([offsetX, offsetY]: [number, number]) {
     // calculate later
     const width = this.refWidth;
     const height = this.refHeight;
-    const {offsetX, offsetY} = evt.nativeEvent;
     const [x, y] = [Math.max(0, offsetX), Math.max(0, offsetY)];
     const hue = 360 * Math.min(1, x / width);
     const sat = 1 - Math.min(1, y / height);
@@ -171,10 +183,12 @@ export class ColorPicker extends Component<Props, State> {
         offsetY - 5
       }px, 0)`;
 
-      const {hue, sat} = this.getLinearHueSat(evt);
+      const offset = [offsetX, offsetY] as [number, number];
+      const {hue, sat} = this.getLinearHueSat(offset);
       this.props.setColor(Math.round(255 * (hue / 360)), Math.round(255 * sat));
       this.setState({
         lensTransform,
+        offset,
       });
     }
   };
@@ -187,10 +201,14 @@ export class ColorPicker extends Component<Props, State> {
     }
   };
 
-  onMouseUp: React.MouseEventHandler = (evt) => {
+  onMouseUp = () => {
     this.mouseDown = false;
     if (this.ref) {
       this.ref.style.cursor = 'auto';
+    }
+    if (this.props.onMouseUp) {
+      const {hue, sat} = this.getLinearHueSat(this.state.offset);
+      this.props.onMouseUp(hue, sat);
     }
   };
 
@@ -207,6 +225,9 @@ export class ColorPicker extends Component<Props, State> {
   }
 
   onThumbnailClick = () => {
+    if (this.props.onOpen) {
+      this.props.onOpen();
+    }
     this.setState({showPicker: true});
   };
 
@@ -219,46 +240,76 @@ export class ColorPicker extends Component<Props, State> {
       this.pickerContainer.current &&
       !this.pickerContainer.current.contains(evt.target as HTMLDivElement) &&
       this.colorThumbnail.current &&
+      !this.colorThumbnail.current.contains(evt.target as HTMLDivElement) &&
+      !this.mouseDown
+    ) {
+      if (this.props.onClose) {
+        const {hue, sat} = this.getLinearHueSat(this.state.offset);
+        this.props.onClose(hue, sat);
+      }
+      this.mouseDown = false;
+      this.setState({showPicker: false});
+    } else if (
+      this.mouseDown &&
+      this.state.showPicker &&
+      this.pickerContainer.current &&
+      !this.pickerContainer.current.contains(evt.target as HTMLDivElement) &&
+      this.colorThumbnail.current &&
       !this.colorThumbnail.current.contains(evt.target as HTMLDivElement)
     ) {
-      this.setState({showPicker: false});
+      this.onMouseUp();
     }
   };
 
   render() {
     const color = this.getRGB(this.props.color);
+    const {isSelected = false} = this.props;
+    const {offset} = this.state;
+
+    const lensTransform = `translate3d(${offset[0] - 5}px, ${
+      offset[1] - 5
+    }px, 0)`;
     return (
       <>
-        <ColorThumbnail
-          ref={this.colorThumbnail}
-          onClick={this.onThumbnailClick}
-          style={{background: color}}
-        />
-        {this.state.showPicker && (
-          <PickerContainer
-            ref={this.pickerContainer}
-            onMouseUp={this.onMouseUp}
-          >
-            <ColorPreview style={{background: this.getRGB(this.props.color)}} />
-            <Container>
-              <ColorOuter
-                onMouseDown={this.onMouseDown}
-                onMouseMove={this.onMouseMove}
-                ref={(ref) => (this.ref = ref)}
-              >
-                <ColorInner>
-                  <ColorLens style={{transform: this.state.lensTransform}} />
-                </ColorInner>
-              </ColorOuter>
-            </Container>
-          </PickerContainer>
-        )}
+        <ColorPickerContainer>
+          <ColorThumbnail
+            ref={this.colorThumbnail}
+            onClick={this.onThumbnailClick}
+            style={{
+              background: color,
+              borderColor: !isSelected
+                ? 'var(--border_color_cell)'
+                : 'var(--color_accent)',
+            }}
+          />
+          {this.state.showPicker && (
+            <PickerContainer
+              ref={this.pickerContainer}
+              onMouseUp={this.onMouseUp}
+            >
+              <ColorPreview
+                style={{background: this.getRGB(this.props.color)}}
+              />
+              <Container>
+                <ColorOuter
+                  onMouseDown={this.onMouseDown}
+                  onMouseMove={this.onMouseMove}
+                  ref={(ref) => (this.ref = ref)}
+                >
+                  <ColorInner>
+                    <ColorLens style={{transform: lensTransform}} />
+                  </ColorInner>
+                </ColorOuter>
+              </Container>
+            </PickerContainer>
+          )}
+        </ColorPickerContainer>
       </>
     );
   }
 }
 
-export const ArrayColorPicker: React.VFC<{
+export const ArrayColorPicker: React.FC<{
   color: [number, number];
   setColor: Props['setColor'];
 }> = (props) => {

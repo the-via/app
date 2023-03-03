@@ -189,7 +189,7 @@ export const advancedKeycodeToString = (
   }
   const topLevelModKeys = ['_QK_MODS'];
   if (topLevelModKeys.includes(lastRange as string)) {
-    return topLevelModToString(inputKeycode, basicKeyToByte, byteToKey);
+    return topLevelModToString(inputKeycode, byteToKey);
   }
   let humanReadable: string | null =
     (topLevelValueToMacro(basicKeyToByte) as any)[lastValue] + '(';
@@ -246,7 +246,6 @@ const modValueToString = (modMask: number): string => {
 
 const topLevelModToString = (
   keycode: number,
-  basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string => {
   const containedKeycode = byteToKey[keycode & 0x00ff];

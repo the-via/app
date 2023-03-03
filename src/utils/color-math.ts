@@ -1,3 +1,26 @@
+import {THEMES} from 'src/utils/themes';
+
+export const updateCSSVariables = (themeName: keyof typeof THEMES) => {
+  const selectedTheme = THEMES[themeName] || THEMES['OLIVIA_DARK'];
+
+  document.documentElement.style.setProperty(
+    '--color_accent',
+    selectedTheme.accent.c,
+  );
+  document.documentElement.style.setProperty(
+    '--color_inside-accent',
+    selectedTheme.accent.t,
+  );
+};
+
+export const getRandomColor = () =>
+  Array(3)
+    .fill(0)
+    .reduce(
+      (a) => `${a}${(~~(Math.random() * 255)).toString(16).padStart(2, '0')}`,
+      '#',
+    );
+
 export function getRGBPrime(
   hue: number,
   c: number,
@@ -20,6 +43,77 @@ export function getRGBPrime(
   }
   throw new Error('Invalid hue');
 }
+
+export const getBrightenedColor = (color: string, multiplier = 0.8) => {
+  const cleanedColor = color.replace('#', '');
+  const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
+  const g = parseInt(cleanedColor[2], 16) * 16 + parseInt(cleanedColor[3], 16);
+  const b = parseInt(cleanedColor[4], 16) * 16 + parseInt(cleanedColor[5], 16);
+  const hr = Math.min(Math.round(r / multiplier), 256).toString(16);
+  const hg = Math.min(Math.round(g / multiplier), 256).toString(16);
+  const hb = Math.min(Math.round(b / multiplier), 256).toString(16);
+  const res = `#${hr.padStart(2, '0')}${hg.padStart(2, '0')}${hb.padStart(
+    2,
+    '0',
+  )}`;
+  return res;
+};
+
+export const getColorByte = (color: string) => {
+  const cleanedColor = color.replace('#', '');
+  const r = parseInt(cleanedColor[0], 16) * 16 + parseInt(cleanedColor[1], 16);
+  const g = parseInt(cleanedColor[2], 16) * 16 + parseInt(cleanedColor[3], 16);
+  const b = parseInt(cleanedColor[4], 16) * 16 + parseInt(cleanedColor[5], 16);
+  return [r, g, b];
+};
+
+export const getDarkenedColor = (color: string, multiplier = 0.8) => {
+  const [r, g, b] = getColorByte(color);
+  const hr = Math.round(r * multiplier).toString(16);
+  const hg = Math.round(g * multiplier).toString(16);
+  const hb = Math.round(b * multiplier).toString(16);
+  const res = `#${hr.padStart(2, '0')}${hg.padStart(2, '0')}${hb.padStart(
+    2,
+    '0',
+  )}`;
+  return res;
+};
+
+export const get256HSV = (color: string) => {
+  const [h, s, v] = getHSV(color);
+  return [
+    Math.round((255 * h) / 360),
+    Math.round(255 * s),
+    Math.round(255 * v),
+  ];
+};
+export const getHSV = (color: string) => {
+  const [rPrime, gPrime, bPrime] = getColorByte(color).map((c) => c / 255);
+  const [cmax, cmin] = [
+    Math.max(rPrime, gPrime, bPrime),
+    Math.min(rPrime, gPrime, bPrime),
+  ];
+  const delta = cmax - cmin;
+  let h = 60;
+  let s = 0;
+  let v = cmax;
+  if (delta === 0) {
+    h = h * 0;
+  } else if (cmax === rPrime) {
+    h = h * (((gPrime - bPrime) / delta) % 6);
+  } else if (cmax === gPrime) {
+    h = h * ((bPrime - rPrime) / delta + 2);
+  } else if (cmax === bPrime) {
+    h = h * ((rPrime - gPrime) / delta + 4);
+  }
+  if (cmax !== 0) {
+    s = delta / cmax;
+  }
+  return [(h + 360) % 360, s, v];
+};
+export const getHSVFrom256 = (color: number[]) => {
+  return [Math.round((360 * color[0]) / 255), Math.round(color[1] / 255), 1];
+};
 
 export function getRGB({hue, sat}: {hue: number; sat: number}): string {
   sat = sat / 255;

@@ -1,67 +1,88 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {ControlRow, Label, Detail} from '../../../grid';
-import {AccentSlider} from '../../../../inputs/accent-slider';
-import {ErrorMessage} from '../../../../styled';
-import {AccentButton} from '../../../../inputs/accent-button';
-import ReactTextareaAutocomplete from '@webscopeio/react-textarea-autocomplete';
+import {MacroRecorder} from './macro-recorder';
+import {useAppSelector} from 'src/store/hooks';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faClapperboard, faCode} from '@fortawesome/free-solid-svg-icons';
+import {ScriptMode} from './script-mode';
+import {ProgressBarTooltip} from 'src/components/inputs/tooltip';
+import {getIsDelaySupported, getMacroBufferSize} from 'src/store/macrosSlice';
 import {
-  AutocompleteItem,
-  AutocompleteLoading,
-  findKeycodes,
-} from '../../../../../components/inputs/autocomplete-keycode';
-import {getMacroValidator} from 'src/utils/macro-api';
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
+import {getMacroAPI} from 'src/utils/macro-api';
 
-const ToastErrorMessage = styled(ErrorMessage)`
-  margin: 0;
-  width: 100%;
-  font-size: 14px;
-  display: block;
-  &:empty {
-    display: none;
+const ProgressBarContainer = styled.div`
+  position: relative;
+  margin-top: 10px;
+  &:hover {
+    & .tooltip {
+      transform: scale(1) translateY(0px);
+      opacity: 1;
+    }
+  }
+  .tooltip {
+    transform: translateY(5px) scale(0.6);
+    opacity: 0;
   }
 `;
-const Message = styled.div`
-  color: var(--color_accent);
-`;
-const Link = styled.a`
-  font-size: 18x !important;
-  color: var(--color_accent);
-  text-decoration: underline;
-`;
+const ProgressBar = styled.div`
+  background: var(--bg_control);
+  position: relative;
+  padding: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  cursor: pointer;
+  width: 250px;
 
-const DescriptionLabel = styled(Label)`
-  font-size: 14px;
-  line-height: 18px;
-  font-style: oblique;
-  color: var(--color_dark-grey);
-  padding-left: 5px;
+  > span {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--color_accent);
+    height: 10px;
+    width: 100%;
+    transform: scaleX(0.1);
+    transform-origin: left;
+    transition: transform 0.4s ease-in-out;
+  }
 `;
-
-const AutoHeightRow = styled(ControlRow)`
-  height: auto;
-`;
-
-const TextArea = styled.textarea`
+const MacroTab = styled.span<{$selected: boolean}>`
+  display: inline-flex;
+  border: 1px solid;
+  line-height: initial;
+  border-top: none;
+  padding: 8px;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+  min-width: 38px;
+  justify-content: center;
   box-sizing: border-box;
-  background: var(--color_jet);
-  padding: 5px 10px;
-  border-color: var(--color_medium-grey);
-  color: var(--color_medium-grey);
+  color: ${(props) =>
+    props.$selected ? 'var(--color_accent)' : 'var(--bg_icon)'};
+  cursor: pointer;
+  &:hover {
+    color: ${(props) =>
+      props.$selected ? 'var(--color_accent)' : 'var(--bg_icon-highlighted)'};
+  }
+`;
+
+const TabBar = styled.div`
+  display: flex;
+  column-gap: 10px;
+`;
+
+const TabContainer = styled.div`
+  display: flex;
+  margin-bottom: 10px;
   width: 100%;
-  height: 200px;
-  font-size: 16px;
-  line-height: 18px;
-  resize: none;
-  font-family: 'Source Code Pro';
-  font-weight: 500;
-  &::placeholder {
-    color: var(--color_dark-grey);
-  }
-  &:focus {
-    color: var(--color_accent);
-    outline-color: var(--color_accent);
-  }
+  max-width: 960px;
+`;
+const CenterTabContainer = styled(TabContainer)`
+  justify-content: center;
 `;
 
 type Props = {
@@ -70,136 +91,109 @@ type Props = {
   saveMacros: (macro: string) => void;
   protocol: number;
 };
-export const MacroDetailPane: React.VFC<Props> = (props) => {
-  const enterToken = '{KC_ENT}';
+
+const printBytesUsed = (bytesUsed: number, bufferSize: number) => {
+  const units = ['Bytes', 'kB', 'MB', 'GB'];
+  const scale = Math.floor(Math.log10(bufferSize) / 3);
+  const suffix = units[scale];
+  const denominator = scale === 0 ? 1 : Math.pow(1000, scale);
+  const convertedBytesUsed = bytesUsed / denominator;
+  const convertedBufferSize = bufferSize / denominator;
+
+  return `${convertedBytesUsed.toFixed(scale)} / ${convertedBufferSize.toFixed(
+    scale,
+  )} ${suffix} space used`;
+};
+
+const BufferSizeUsage = () => {
+  const ast = useAppSelector((state) => state.macros.ast);
+  const bufferSize = useAppSelector(getMacroBufferSize);
+  const connectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardAPI);
+  if (!connectedDevice || !api) {
+    return null;
+  }
+  const {protocol} = connectedDevice;
+  const macroApi = getMacroAPI(protocol, api);
+  const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
+  return (
+    <ProgressBarContainer>
+      <ProgressBar>
+        <span style={{transform: `scaleX(${bytesUsed / bufferSize})`}} />
+      </ProgressBar>
+      <ProgressBarTooltip>
+        {printBytesUsed(bytesUsed, bufferSize)}
+      </ProgressBarTooltip>
+    </ProgressBarContainer>
+  );
+};
+
+export const MacroDetailPane: React.FC<Props> = (props) => {
   const currentMacro = props.macroExpressions[props.selectedMacro] || '';
-  const textareaInitialValue = currentMacro
-    .trimRight()
-    .replace(new RegExp(`${enterToken}$`), '');
-  const [currentValue, setCurrentValue] = React.useState(textareaInitialValue);
-  const [appendEnter, setAppendEnter] = React.useState(
-    currentMacro.trimRight().endsWith(enterToken),
+  const [showAdvancedView, setShowAdvancedView] = React.useState(false);
+  const ast = useAppSelector((state) => state.macros.ast);
+  const isDelaySupported = useAppSelector(getIsDelaySupported);
+  const [unsavedMacro, setUnsavedMacro] = useState(currentMacro);
+
+  useEffect(() => {
+    setUnsavedMacro(currentMacro);
+  }, [currentMacro]);
+
+  const undoChanges = useCallback(() => {
+    setUnsavedMacro(currentMacro);
+  }, [currentMacro]);
+
+  const saveMacro = useCallback(
+    (macro?: string) => {
+      if (macro !== undefined) {
+        props.saveMacros('');
+        setUnsavedMacro('');
+      } else if (unsavedMacro !== currentMacro) {
+        props.saveMacros(unsavedMacro);
+        setUnsavedMacro(unsavedMacro);
+      }
+    },
+    [unsavedMacro],
   );
-  const [errorMessage, setErrorMessage] = React.useState<string | undefined>(
-    undefined,
-  );
-  const saveMacro = () => {
-    const value = appendEnter ? currentValue + enterToken : currentValue;
-    const validate = getMacroValidator(props.protocol);
-    const validationResult = validate(value);
-    if (validationResult.isValid) {
-      props.saveMacros(value);
-      setErrorMessage(undefined);
-    } else {
-      setErrorMessage(validationResult.errorMessage);
-    }
-  };
-  const hasError = errorMessage !== undefined;
+
   return (
     <>
-      <AutoHeightRow>
-        <ReactTextareaAutocomplete
-          value={currentValue}
-          onChange={(e) => setCurrentValue(e.target.value)}
-          loadingComponent={AutocompleteLoading}
-          style={{
-            fontSize: '16px',
-            lineHeight: '18px',
-            width: '100%',
-            height: '140px',
-            resize: 'none',
-            borderColor: hasError ? '#d15e5e' : 'var(--color_medium-grey)',
-          }}
-          containerStyle={{
-            border: 'none',
-            lineHeight: '20px',
-          }}
-          itemStyle={{
-            borderColor: 'var(--color_dark-grey)',
-            backgroundColor: 'var(-color_light-jet)',
-          }}
-          dropdownStyle={{
-            zIndex: 999,
-            backgroundColor: 'var(--color_light-jet)',
-          }}
-          listStyle={{
-            position: 'fixed',
-            backgroundColor: 'var(--color_light-jet)',
-            maxHeight: '210px',
-            overflow: 'auto',
-            border: '1px solid var(--color_dark-grey)',
-          }}
-          minChar={0}
-          textAreaComponent={TextArea as any}
-          movePopupAsYouType={true}
-          placeholder={`Enter the macro you want M${props.selectedMacro} to execute...`}
-          trigger={{
-            '?': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => ({
-                text: item.code,
-                caretPosition: 'end',
-              }),
-            },
-            '{': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => ({
-                text: `{${item.code},`,
-                caretPosition: 'end',
-              }),
-            },
-            ',': {
-              dataProvider: findKeycodes,
-              component: AutocompleteItem,
-              output: (item: any) => {
-                return {
-                  text: `,${item.code},`,
-                  caretPosition: 'end',
-                };
-              },
-            },
-          }}
-        />
-      </AutoHeightRow>
-      <AutoHeightRow>
-        <DescriptionLabel>
-          <ToastErrorMessage>{errorMessage}</ToastErrorMessage>
-          <Message>
-            Enter text directly, or wrap{' '}
-            <Link href="https://docs.qmk.fm/#/keycodes_basic" target="_blank">
-              Basic Keycodes
-            </Link>{' '}
-            in {'{}'}
-          </Message>
-          <Message>Single tap: {'{KC_XXX}'}</Message>
-          <Message>Chord: {'{KC_XXX, KC_YYY, KC_ZZZ}'}</Message>
-          {props.protocol >= 11 ? (
-            <Message>Delay (ms): {'{NNNN}'} </Message>
-          ) : (
-            ''
-          )}
-          <Message>Type ? to search for keycodes</Message>
-        </DescriptionLabel>
-        <Detail>
-          <AccentButton
-            disabled={
-              currentMacro ===
-              (appendEnter ? currentValue + enterToken : currentValue)
-            }
-            onClick={saveMacro}
+      <CenterTabContainer>
+        <TabBar>
+          <MacroTab
+            $selected={!showAdvancedView}
+            onClick={() => setShowAdvancedView(false)}
           >
-            Save
-          </AccentButton>
-        </Detail>
-      </AutoHeightRow>
-      <ControlRow>
-        <Label>Tap 'Enter' at end of macro</Label>
-        <Detail>
-          <AccentSlider isChecked={appendEnter} onChange={setAppendEnter} />
-        </Detail>
-      </ControlRow>
+            <FontAwesomeIcon icon={faClapperboard} />
+          </MacroTab>
+          <MacroTab
+            $selected={showAdvancedView}
+            onClick={() => setShowAdvancedView(true)}
+          >
+            <FontAwesomeIcon icon={faCode} />
+          </MacroTab>
+        </TabBar>
+      </CenterTabContainer>
+      <BufferSizeUsage />
+      {showAdvancedView ? (
+        <ScriptMode
+          macro={currentMacro}
+          macroIndex={props.selectedMacro}
+          protocol={props.protocol}
+          isDelaySupported={isDelaySupported}
+          setUnsavedMacro={setUnsavedMacro}
+          saveMacros={props.saveMacros}
+          key={props.selectedMacro}
+        />
+      ) : (
+        <MacroRecorder
+          selectedMacro={ast[props.selectedMacro]}
+          setUnsavedMacro={setUnsavedMacro}
+          undoMacro={undoChanges}
+          saveMacro={saveMacro}
+          isDelaySupported={isDelaySupported}
+        />
+      )}
     </>
   );
 };

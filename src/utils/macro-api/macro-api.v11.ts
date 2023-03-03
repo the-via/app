@@ -6,12 +6,11 @@ import {
   MacroTerminator,
   KeyAction,
   ValidationResult,
-  buildKeyActionBytes,
   IMacroAPI,
 } from './macro-api.common';
+import {RawKeycodeSequence, RawKeycodeSequenceAction} from './types';
 
-// Only comma-separated valid keycodes should be allowed in unescaped action blocks: {KC_VALID_KEYCODE, KC_ANOTHER_ONE}
-// Empty action blocks can't be persisted, so should fail: {}
+// TODO: Move to IMacroAPI
 export function validateMacroExpressionV11(
   expression: string,
 ): ValidationResult {
@@ -24,8 +23,11 @@ export function validateMacroExpressionV11(
     unclosedBlockRegex = eval('/(?<!\\\\){(?![^{]*})/');
     keycodeBlockRegex = eval('/(?<!\\\\){(.*?)}/g');
   } catch (e) {
-    // TODO: Display a message to the user
-    console.error('Lookbehind support is not supported in this browser.');
+    console.error('Lookbehind is not supported in this browser.');
+    return {
+      isValid: false,
+      errorMessage: 'Lookbehind is not supported in this browser.',
+    };
   }
 
   // Check for unclosed action blocks
@@ -52,7 +54,7 @@ export function validateMacroExpressionV11(
     }
 
     // Test if it's a delay expression
-    if (/\d+/.test(csv)) {
+    if (/^\d+$/.test(csv)) {
       if (/\d{5,}/.test(csv)) {
         return {
           isValid: false,
@@ -61,7 +63,9 @@ export function validateMacroExpressionV11(
       }
     } else {
       // Otherwise test for keycode expressions
+      // TODO: validate {+KEYCODE} {-KEYCODE} is only single keycode not multiple
       const invalidKeycodes = csv
+        .replace(/^[-+]/, '')
         .split(',')
         .filter(
           (keycode) => keycode.trim().length && !isAutocompleteKeycode(keycode),
@@ -82,7 +86,6 @@ export function validateMacroExpressionV11(
     errorMessage: undefined,
   };
 }
-
 export class MacroAPIV11 implements IMacroAPI {
   constructor(
     private keyboardApi: KeyboardAPI,
@@ -90,15 +93,14 @@ export class MacroAPIV11 implements IMacroAPI {
     private byteToKey: Record<number, string>,
   ) {}
 
-  async readMacroExpressions(): Promise<string[]> {
+  async readRawKeycodeSequences(): Promise<RawKeycodeSequence[]> {
     const bytes = await this.keyboardApi.getMacroBytes();
     const macroCount = await this.keyboardApi.getMacroCount();
 
     let macroId = 0;
     let i = 0;
-    const expressions: string[] = [];
-    let currentExpression = [];
-    let currentChord = [];
+    const sequences: RawKeycodeSequence[] = [];
+    let currentSequence: RawKeycodeSequence = [];
 
     // If macroCount is 0, macros are disabled
     if (macroCount === 0) {
@@ -109,34 +111,33 @@ export class MacroAPIV11 implements IMacroAPI {
       let byte = bytes[i];
       switch (byte) {
         case MacroTerminator:
-          expressions[macroId] = currentExpression.join('');
+          sequences[macroId] = currentSequence;
           macroId++;
-          currentExpression = [];
+          currentSequence = [];
           break;
         case KeyActionPrefix:
-          byte = bytes[++i]; // select keyaction from next byte
+          byte = bytes[++i];
           switch (byte) {
-            case KeyAction.Tap: // Encode as {KEYCODE}
-              byte = bytes[++i]; // Skip the key action
-              currentExpression.push(`{${(this.byteToKey as any)[byte]}}`);
+            case KeyAction.Tap:
+              byte = bytes[++i];
+              currentSequence.push([
+                RawKeycodeSequenceAction.Tap,
+                (this.byteToKey as any)[byte],
+              ]);
               break;
-            case KeyAction.Down: // Encode sequential Keydowns as {KEYCODE,KEYCODE,KEYCODE}
-              byte = bytes[++i]; // Skip the key action
-              currentChord.push((this.byteToKey as any)[byte]);
+            case KeyAction.Down:
+              byte = bytes[++i];
+              currentSequence.push([
+                RawKeycodeSequenceAction.Down,
+                (this.byteToKey as any)[byte],
+              ]);
               break;
-            case KeyAction.Up: // Seek to the last keyup and write the keydown stack
-              while (
-                bytes[i + 2] === KeyActionPrefix &&
-                bytes[i + 3] === KeyAction.Up &&
-                i < bytes.length
-              ) {
-                // Peek ahead for another keyup
-                i += 3;
-              }
-              currentExpression.push(`{${currentChord.join(',')}}`);
-
-              currentChord = []; // reset chord
-              i++; // Skip the key action
+            case KeyAction.Up:
+              byte = bytes[++i];
+              currentSequence.push([
+                RawKeycodeSequenceAction.Up,
+                (this.byteToKey as any)[byte],
+              ]);
               break;
             case KeyAction.Delay:
               let delayBytes = [];
@@ -149,7 +150,10 @@ export class MacroAPIV11 implements IMacroAPI {
                 acc += String.fromCharCode(byte);
                 return acc;
               }, '');
-              currentExpression.push(`{${delayValue}}`);
+              currentSequence.push([
+                RawKeycodeSequenceAction.Delay,
+                parseInt(delayValue),
+              ]);
               break;
             default:
               throw `Expected a KeyAction to follow the KeyActionPrefix. Received ${byte} instead.`;
@@ -157,85 +161,80 @@ export class MacroAPIV11 implements IMacroAPI {
           break;
         default: {
           const char = String.fromCharCode(byte);
-          // Escape { with \
-          if (char === '{') {
-            currentExpression.push('\\');
+          if (
+            currentSequence.length &&
+            currentSequence[currentSequence.length - 1][0] ===
+              RawKeycodeSequenceAction.CharacterStream
+          ) {
+            currentSequence[currentSequence.length - 1] = [
+              RawKeycodeSequenceAction.CharacterStream,
+              (currentSequence[currentSequence.length - 1][1] as string) + char,
+            ];
+          } else {
+            currentSequence.push([
+              RawKeycodeSequenceAction.CharacterStream,
+              char,
+            ]);
           }
-          currentExpression.push(char);
           break;
         }
       }
       i++;
     }
 
-    return expressions;
+    return sequences;
   }
-
-  async writeMacroExpressions(expressions: string[]) {
-    const macroBytes = expressions.flatMap((expression) => {
-      const validationResult = validateMacroExpressionV11(expression);
-      if (!validationResult.isValid) {
-        throw validationResult.errorMessage;
-      }
+  rawKeycodeSequencesToMacroBytes(sequences: RawKeycodeSequence[]) {
+    return sequences.flatMap((sequence) => {
       const bytes: number[] = [];
-      let i = 0;
-      while (i < expression.length) {
-        const char = expression[i];
-        // Check for keycode block, peek behind to make sure there's no escape char \
-        if (char === '{' && expression[i - 1] !== '\\') {
-          const keyActionEnd = expression.indexOf('}', i + 1);
-          if (keyActionEnd < 0) {
-            throw new Error("Syntax error: KeyAction block must end with '}'");
-          }
-          const block = expression.substr(i + 1, keyActionEnd - i - 1);
-          // If it's a delay value
-          if (/^\d+$/.test(block)) {
+      sequence.forEach((element) => {
+        switch (element[0]) {
+          case RawKeycodeSequenceAction.Tap:
+            bytes.push(
+              KeyActionPrefix,
+              KeyAction.Tap,
+              this.basicKeyToByte[element[1]],
+            );
+            break;
+          case RawKeycodeSequenceAction.Down:
+            bytes.push(
+              KeyActionPrefix,
+              KeyAction.Down,
+              this.basicKeyToByte[element[1]],
+            );
+            break;
+          case RawKeycodeSequenceAction.Up:
+            bytes.push(
+              KeyActionPrefix,
+              KeyAction.Up,
+              this.basicKeyToByte[element[1]],
+            );
+            break;
+          case RawKeycodeSequenceAction.Delay:
+            let delay: string = `${element[1] as number}`;
             bytes.push(
               KeyActionPrefix,
               KeyAction.Delay,
-              ...block.split('').map((char) => char.charCodeAt(0)),
+              ...delay.split('').map((char) => char.charCodeAt(0)),
               DelayTerminator,
             );
-          } else {
-            // Otherwise handle as a keycode block
-            const keycodes = block
-              .split(',')
-              .map((keycode) => keycode.trim())
-              .filter((keycode) => keycode.length);
-            switch (keycodes.length) {
-              case 0:
-                throw new Error(
-                  'Syntax error: Keycodes expected within block. Use \\{} to define literal {}',
-                );
-              case 1:
-                bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Tap, keycodes[0]));
-                break;
-              default:
-                // Keydowns
-                keycodes.forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Down, keycode));
-                });
-                // Symmetrical Keyups
-                keycodes.reverse().forEach((keycode) => {
-                  bytes.push(...buildKeyActionBytes(this.basicKeyToByte, KeyAction.Up, keycode));
-                });
-                break;
-            }
-          }
-          i = keyActionEnd; // fastforward cursor to end of action block
-        } else if (char === '\\' && expression[i + 1] === '{') {
-          // Skip if this is an escape char for {
-        } else {
-          bytes.push(char.charCodeAt(0));
+            break;
+          case RawKeycodeSequenceAction.CharacterStream:
+            bytes.push(
+              ...(element[1] as string)
+                .split('')
+                .map((char) => char.charCodeAt(0)),
+            );
+            break;
         }
-
-        i++;
-      }
+      });
 
       bytes.push(MacroTerminator);
       return bytes;
     });
-
+  }
+  async writeRawKeycodeSequences(sequences: RawKeycodeSequence[]) {
+    const macroBytes = this.rawKeycodeSequencesToMacroBytes(sequences);
     await this.keyboardApi.setMacroBytes(macroBytes);
   }
 }

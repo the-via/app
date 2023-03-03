@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {title, component} from '../../icons/layouts';
-import {ControlRow, OverflowCell, Label, Detail} from '../grid';
+import {ControlRow, SpanOverflowCell, Label, Detail} from '../grid';
 import {AccentSlider} from '../../inputs/accent-slider';
 import {AccentSelect} from '../../inputs/accent-select';
 import {CenterPane} from '../pane';
@@ -10,12 +10,11 @@ import {
   getSelectedLayoutOptions,
   updateLayoutOption,
 } from 'src/store/definitionsSlice';
-import {useAppSelector} from 'src/store/hooks';
-import {useDispatch} from 'react-redux';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import type {LayoutLabel} from '@the-via/reader';
 import type {FC} from 'react';
 
-const LayoutControl: React.VFC<{
+const LayoutControl: React.FC<{
   onChange: (val: any) => void;
   meta: {labels: LayoutLabel; selectedOption: number};
 }> = (props) => {
@@ -72,7 +71,7 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedLayoutOptions = useAppSelector(getSelectedLayoutOptions);
@@ -85,7 +84,7 @@ export const Pane: FC = () => {
 
   const labels = layouts.labels || [];
   return (
-    <OverflowCell>
+    <SpanOverflowCell>
       <ContainerPane>
         <Container>
           {labels.map((label: LayoutLabel, idx: number) => (
@@ -100,7 +99,7 @@ export const Pane: FC = () => {
           ))}
         </Container>
       </ContainerPane>
-    </OverflowCell>
+    </SpanOverflowCell>
   );
 };
 export const Title = title;

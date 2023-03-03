@@ -19,4 +19,7 @@ export const ConfigureBasePane = styled(Pane)`
   flex-direction: column;
   align-items: center;
   justify-content: space-evenly;
+  background: transparent;
+  pointer-events: none;
+  z-index: 3;
 `;

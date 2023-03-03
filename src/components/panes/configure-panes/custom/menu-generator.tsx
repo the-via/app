@@ -19,13 +19,12 @@ import type {
   VIAItem,
   VIAItemSlice,
 } from '@the-via/reader';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedCustomMenuData,
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
-import {useDispatch} from 'react-redux';
 
 type Category = {
   label: string;
@@ -61,7 +60,7 @@ function isSlice(
   return !('label' in elem);
 }
 
-export function categoryGenerator(props: any): Category[] {
+function categoryGenerator(props: any): Category[] {
   return props.viaMenu.content.flatMap((menu: any) =>
     submenuGenerator(menu, props),
   );
@@ -125,8 +124,8 @@ function submenuGenerator(
   }
 }
 
-export const Pane: React.VFC<Props> = (props: any) => {
-  const dispatch = useDispatch();
+export const Pane: React.FC<Props> = (props: any) => {
+  const dispatch = useAppDispatch();
   const menus = categoryGenerator(props);
   const [selectedCategory, setSelectedCategory] = useState(
     menus[0] || {label: '', Menu: () => <div />},
@@ -154,7 +153,7 @@ export const Pane: React.VFC<Props> = (props: any) => {
         <MenuContainer>
           {menus.map((menu) => (
             <SubmenuRow
-              selected={selectedCategory.label === menu.label}
+              $selected={selectedCategory.label === menu.label}
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >
@@ -185,7 +184,7 @@ export type TagWithId<A, B extends {content: any}> =
   | IntersectKey<B, 'content', IdTag>;
 
 export const MenuContainer = styled.div`
-  padding: 15px 20px 20px 10px;
+  padding: 15px 10px 20px 10px;
 `;
 
 export type LabelProps = {
@@ -194,11 +193,6 @@ export type LabelProps = {
   _renderIf?: (props: any) => boolean;
   content: any;
 };
-
-export function sliceLabeler(elem: any) {
-  //TODO
-  return elem;
-}
 
 export function elemLabeler(elem: any, prefix: string = ''): any {
   if (isItem(elem)) {

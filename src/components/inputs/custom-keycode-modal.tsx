@@ -1,6 +1,6 @@
-import React, {useState, VFC} from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
-import {AccentButton} from './accent-button';
+import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
 import {
   anyKeycodeToString,
@@ -14,51 +14,19 @@ import {
   getBasicKeyToByte,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
+import {
+  ModalBackground,
+  ModalContainer,
+  PromptText,
+  RowDiv,
+} from './dialog-base';
 
-const ModalBackground = styled.div`
+const AutocompleteContainer = styled.ul`
   position: fixed;
-  top: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.75);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-`;
-
-const ModalContainer = styled.div`
-  width: 480px;
-  height: 200px;
-  background-color: var(--color_jet);
-  border-radius: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-`;
-
-const PromptText = styled.h4`
-  font-weight: 500;
-  color: var(--color_medium-grey);
-  font-size: 20px;
-  margin: 0 0 20px 0;
-`;
-
-const RowDiv = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 220px;
-`;
-
-const AutocompleteContainer = styled.li`
-  position: fixed;
-  background-color: var(--color_light-jet);
+  background-color: var(--bg_menu);
   max-height: 210px;
   overflow: auto;
-  border: 1px solid var(--color_dark-grey);
+  border: 1px solid var(--bg_control);
   margin: 0;
   padding: 0;
   width: auto;
@@ -68,7 +36,7 @@ const AutocompleteContainer = styled.li`
 
 const AutocompleteItemRow = styled.li`
   &:not(:last-child) {
-    border-bottom: 1px solid var(--color_dark-grey);
+    border-bottom: 1px solid var(--bg_control);
   }
 `;
 
@@ -164,7 +132,7 @@ const getInputItems = (arr: IKeycode[]) =>
   }));
 
 // Connect component with redux here:
-export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
+export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
@@ -182,7 +150,6 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
 
   const {
     getMenuProps,
-    getComboboxProps,
     getInputProps,
     highlightedIndex,
     inputValue,
@@ -213,7 +180,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           Please enter your desired QMK keycode or hex code:
         </PromptText>
         <div>
-          <div {...getComboboxProps()}>
+          <div>
             <TextInput
               {...getInputProps()}
               type="text"
@@ -228,7 +195,10 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           >
             {isOpen &&
               inputItems.map((item, index) => (
-                <AutocompleteItemRow {...getItemProps({item, index})}>
+                <AutocompleteItemRow
+                  {...getItemProps({item, index})}
+                  key={item.code}
+                >
                   <AutocompleteItem
                     selected={highlightedIndex === index}
                     entity={item}
@@ -239,7 +209,8 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
           </AutocompleteContainer>
         </div>
         <RowDiv>
-          <AccentButton
+          <AccentButton onClick={props.onExit}>Cancel</AccentButton>
+          <PrimaryAccentButton
             disabled={!isValid}
             onClick={() => {
               props.onConfirm(
@@ -248,8 +219,7 @@ export const KeycodeModal: VFC<KeycodeModalProps> = (props) => {
             }}
           >
             Confirm
-          </AccentButton>
-          <AccentButton onClick={props.onExit}>Cancel</AccentButton>
+          </PrimaryAccentButton>
         </RowDiv>
       </ModalContainer>
     </ModalBackground>

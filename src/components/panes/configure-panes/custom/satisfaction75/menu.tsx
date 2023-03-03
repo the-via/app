@@ -1,5 +1,4 @@
-// TODO: test this still works on a satisfaction75
-import React, {Component} from 'react';
+import {Component} from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import {
@@ -14,13 +13,13 @@ import {
 } from './api';
 import {EncoderModeToggle} from './encoder-mode-toggle';
 import {EncoderCustomConfig} from './encoder-custom-config';
-import type {KeyboardAPI} from '../../../../../utils/keyboard-api';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {KeyboardAPI} from '../../../../../utils/keyboard-api';
+import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
+import {EncoderBehavior} from 'src/types/types';
 
 type EnabledEncoderModes = number;
 type OLEDMode = number;
-type EncoderBehavior = [number, number, number];
 
 const MenuContainer = styled.div`
   display: flex;
@@ -75,10 +74,11 @@ type State = {
   encoderBehaviors: EncoderBehavior[];
 };
 
+// TODO: Can we get rid of SatisfactionMenu now that we have v3 definitions?
 export const SatisfactionMenu = () => {
-  const selectedDevice = useAppSelector(getSelectedConnectedDevice);
-  if (selectedDevice) {
-    return <BaseSatisfactionMenu api={selectedDevice.api} />;
+  const api = useAppSelector(getSelectedKeyboardAPI);
+  if (api) {
+    return <BaseSatisfactionMenu api={api} />;
   }
   return null;
 };
@@ -118,10 +118,14 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
       encoder2,
     ] = await Promise.all(promises);
     this.setState({
-      enabledModes,
-      defaultOLEDMode,
-      currOLEDMode,
-      encoderBehaviors: [encoder0, encoder1, encoder2],
+      enabledModes: enabledModes as number,
+      defaultOLEDMode: defaultOLEDMode as number,
+      currOLEDMode: currOLEDMode as number,
+      encoderBehaviors: [
+        encoder0 as EncoderBehavior,
+        encoder1 as EncoderBehavior,
+        encoder2 as EncoderBehavior,
+      ],
     });
   };
 

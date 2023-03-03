@@ -1,4 +1,4 @@
-import React, {FC, useState, useEffect, useMemo} from 'react';
+import {FC, useState, useEffect, useMemo} from 'react';
 import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
@@ -21,10 +21,8 @@ import {
   isVIADefinitionV2,
   VIADefinitionV3,
 } from '@the-via/reader';
-import {OverflowCell, SubmenuOverflowCell, Row} from '../grid';
-import {getNextKey} from '../../positioned-keyboard';
-import {useDispatch} from 'react-redux';
-import {useAppSelector} from 'src/store/hooks';
+import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getBasicKeyToByte,
   getSelectedDefinition,
@@ -32,7 +30,6 @@ import {
 } from 'src/store/definitionsSlice';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
-  getNumberOfLayers,
   getSelectedKey,
   getSelectedKeymap,
   updateKey as updateKeyAction,
@@ -43,10 +40,11 @@ import {
   enableGlobalHotKeys,
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
+import {getNextKey} from 'src/utils/keyboard-rendering';
 const KeycodeList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, 54px);
-  grid-auto-rows: 54px;
+  grid-template-columns: repeat(auto-fill, 64px);
+  grid-auto-rows: 64px;
   justify-content: center;
   grid-gap: 10px;
 `;
@@ -55,33 +53,41 @@ const MenuContainer = styled.div`
   padding: 15px 20px 20px 10px;
 `;
 
-const SubmenuRow = styled(Row)`
-  padding-left: 8px;
-`;
-
 const Keycode = styled(Button)<{disabled: boolean}>`
-  border-radius: 2px;
   width: 50px;
   height: 50px;
   line-height: 18px;
+  border-radius: 64px;
   font-size: 14px;
-  box-shadow: none;
-  background: var(--color_dark-grey);
-  color: var(--color_light_grey);
+  border: 4px solid var(--border_color_icon);
+  background: var(--bg_control);
+  color: var(--color_label-highlighted);
   margin: 0;
+  box-shadow: none;
+  position: relative;
+  border-radius: 10px;
+  &:hover {
+    border-color: var(--color_accent);
+    transform: translate3d(0, -2px, 0);
+  }
   ${(props: any) => props.disabled && `cursor:not-allowed;filter:opacity(50%);`}
 `;
 
+const KeycodeContent = styled.div`
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
+
 const CustomKeycode = styled(Button)`
-  border-radius: 2px;
   width: 50px;
   height: 50px;
   line-height: 18px;
+  border-radius: 10px;
   font-size: 14px;
-  box-shadow: none;
+  border: 4px solid var(--border_color_icon);
   background: var(--color_accent);
-  border-color: var(--color_light-grey);
-  color: var(--color_light_grey);
+  border-color: var(--color_inside_accent);
+  color: var(--color_inside_accent);
   margin: 0;
 `;
 
@@ -102,6 +108,7 @@ const KeycodeDesc = styled.div`
   padding: 5px;
   font-size: 14px;
   opacity: 1;
+  pointer-events: none;
   &:empty {
     opacity: 0;
   }
@@ -123,7 +130,7 @@ const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
 
 export const Pane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const keys = useAppSelector(getSelectedKeyDefinitions);
   useEffect(
     () => () => {
@@ -139,7 +146,7 @@ export const Pane: FC = () => {
 };
 
 export const KeycodePane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const macros = useAppSelector((state: any) => state.macros);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
@@ -147,7 +154,6 @@ export const KeycodePane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
-  const layerCount = useAppSelector(getNumberOfLayers);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const KeycodeCategories = useMemo(
     () => generateKeycodeCategories(basicKeyToByte),
@@ -165,9 +171,9 @@ export const KeycodePane: FC = () => {
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
-  const getEnabledMenus = (layerCount: number): IKeycodeMenu[] => {
+  const getEnabledMenus = (): IKeycodeMenu[] => {
     if (isVIADefinitionV3(selectedDefinition)) {
-      return getEnabledMenusV3(selectedDefinition, layerCount);
+      return getEnabledMenusV3(selectedDefinition);
     }
     const {lighting, customKeycodes} = selectedDefinition;
     const {keycodes} = getLightingDefinition(lighting);
@@ -190,13 +196,7 @@ export const KeycodePane: FC = () => {
         ),
       );
   };
-  const getEnabledMenusV3 = (
-    definition: VIADefinitionV3,
-    layerCount: number,
-  ): IKeycodeMenu[] => {
-    const defaultKeycodes = layerCount
-      ? KeycodeCategories.map((category) => category.label)
-      : [];
+  const getEnabledMenusV3 = (definition: VIADefinitionV3): IKeycodeMenu[] => {
     const keycodes = ['default' as const, ...(definition.keycodes || [])];
     const allowedKeycodes = keycodes.flatMap((keycodeName) =>
       categoriesForKeycodeModule(keycodeName),
@@ -220,12 +220,12 @@ export const KeycodePane: FC = () => {
     );
   };
 
-  const renderCategories = (layerCount: number) => {
+  const renderCategories = () => {
     return (
       <MenuContainer>
-        {getEnabledMenus(layerCount).map(({label}) => (
+        {getEnabledMenus().map(({label}) => (
           <SubmenuRow
-            selected={label === selectedCategory}
+            $selected={label === selectedCategory}
             onClick={() => setSelectedCategory(label)}
             key={label}
           >
@@ -291,7 +291,7 @@ export const KeycodePane: FC = () => {
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
       >
-        <div>{name}</div>
+        <KeycodeContent>{name}</KeycodeContent>
       </Keycode>
     );
   };
@@ -299,6 +299,7 @@ export const KeycodePane: FC = () => {
   const renderCustomKeycode = () => {
     return (
       <CustomKeycode
+        key="customKeycode"
         onClick={() => selectedKey !== null && handleClick('text', 0)}
         onMouseOver={() => setMouseOverDesc('Enter any QMK Keycode')}
         onMouseOut={() => setMouseOverDesc(null)}
@@ -364,7 +365,7 @@ export const KeycodePane: FC = () => {
 
   return (
     <>
-      <SubmenuOverflowCell>{renderCategories(layerCount)}</SubmenuOverflowCell>
+      <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}

@@ -1,4 +1,4 @@
-import React, {FC, useState, createRef} from 'react';
+import {FC, useState} from 'react';
 import styled from 'styled-components';
 import stringify from 'json-stringify-pretty-compact';
 import {ErrorMessage, SuccessMessage} from '../../styled';
@@ -8,7 +8,7 @@ import {getByteForCode, getCodeForByte} from '../../../utils/key';
 import deprecatedKeycodes from '../../../utils/key-to-byte/deprecated-keycodes';
 import {title, component} from '../../icons/save';
 import {CenterPane} from '../pane';
-import {Detail, Label, OverflowCell, ControlRow} from '../grid';
+import {Detail, Label, ControlRow, SpanOverflowCell} from '../grid';
 import {
   getBasicKeyToByte,
   getSelectedDefinition,
@@ -17,10 +17,12 @@ import {
   getSelectedRawLayers,
   saveRawKeymapToDevice,
 } from 'src/store/keymapSlice';
-import {useAppSelector} from 'src/store/hooks';
-import {useDispatch} from 'react-redux';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
-import {saveMacros} from 'src/store/macrosSlice';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
+import {
+  getSelectedConnectedDevice,
+  getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
+import {getExpressions, saveMacros} from 'src/store/macrosSlice';
 
 type ViaSaveFile = {
   name: string;
@@ -46,15 +48,17 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const api = useAppSelector(getSelectedKeyboardAPI);
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
+  const expressions = useAppSelector(getExpressions);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
 
   // TODO: improve typing so we can remove this
-  if (!selectedDefinition || !selectedDevice) {
+  if (!selectedDefinition || !selectedDevice || !api) {
     return null;
   }
 
@@ -62,7 +66,7 @@ export const Pane: FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const getEncoderValues = async () => {
-    const {name, vendorProductId, layouts} = selectedDefinition;
+    const {layouts} = selectedDefinition;
     const {keys, optionKeys} = layouts;
     const encoders = [
       ...keys,
@@ -84,8 +88,8 @@ export const Pane: FC = () => {
                 .fill(0)
                 .map((_, j) =>
                   Promise.all([
-                    selectedDevice.api.getEncoderValue(j, i, false),
-                    selectedDevice.api.getEncoderValue(j, i, true),
+                    api.getEncoderValue(j, i, false),
+                    api.getEncoderValue(j, i, true),
                   ]).then(
                     (a) =>
                       a.map(
@@ -105,25 +109,38 @@ export const Pane: FC = () => {
   };
 
   const saveLayout = async () => {
-    const {name, vendorProductId, layouts} = selectedDefinition;
-    const encoderValues = await getEncoderValues();
-    const saveFile: ViaSaveFile = {
-      name,
-      vendorProductId,
-      macros: [...macros.expressions],
-      layers: rawLayers.map(
-        (layer: {keymap: number[]}) =>
-          layer.keymap.map(
-            (keyByte: number) =>
-              getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
-          ), // TODO: should empty string be empty keycode instead?
-      ),
-      encoders: encoderValues,
-    };
+    const {name, vendorProductId} = selectedDefinition;
+    const suggestedName = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName,
+        types: [{accept: {'application/json': ['.layout.json']}}],
+      });
+      const encoderValues = await getEncoderValues();
+      const saveFile: ViaSaveFile = {
+        name,
+        vendorProductId,
+        macros: [...expressions],
+        layers: rawLayers.map(
+          (layer: {keymap: number[]}) =>
+            layer.keymap.map(
+              (keyByte: number) =>
+                getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+            ), // TODO: should empty string be empty keycode instead?
+        ),
+        encoders: encoderValues,
+      };
 
-    const content = stringify(saveFile);
-    const defaultFilename = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-    const blob = new Blob([content], {type: 'application/json'});
+      const content = stringify(saveFile);
+      const blob = new Blob([content], {type: 'application/json'});
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+    } catch (err) {
+      console.log('User cancelled save file request');
+    }
+
+    /*
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
@@ -132,9 +149,10 @@ export const Pane: FC = () => {
 
     link.click();
     URL.revokeObjectURL(url);
+*/
   };
 
-  const loadLayout = (file: Blob) => {
+  const loadLayout = ([file]: Blob[]) => {
     setErrorMessage(null);
     setSuccessMessage(null);
     const reader = new FileReader();
@@ -168,7 +186,7 @@ export const Pane: FC = () => {
       }
 
       if (macros.isFeatureSupported && saveFile.macros) {
-        if (saveFile.macros.length !== macros.expressions.length) {
+        if (saveFile.macros.length !== expressions.length) {
           setErrorMessage(
             'Could not import layout: incorrect number of macros.',
           );
@@ -184,14 +202,15 @@ export const Pane: FC = () => {
         ),
       );
 
-      await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+      dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+
       if (saveFile.encoders) {
         await Promise.all(
           saveFile.encoders.map((encoder, id) =>
             Promise.all(
               encoder.map((layer, layerId) =>
                 Promise.all([
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     false,
@@ -200,7 +219,7 @@ export const Pane: FC = () => {
                       basicKeyToByte,
                     ),
                   ),
-                  selectedDevice.api.setEncoderValue(
+                  api.setEncoderValue(
                     layerId,
                     id,
                     true,
@@ -223,7 +242,7 @@ export const Pane: FC = () => {
   };
 
   return (
-    <OverflowCell>
+    <SpanOverflowCell>
       <SaveLoadPane>
         <Container>
           <ControlRow>
@@ -244,7 +263,7 @@ export const Pane: FC = () => {
           ) : null}
         </Container>
       </SaveLoadPane>
-    </OverflowCell>
+    </SpanOverflowCell>
   );
 };
 

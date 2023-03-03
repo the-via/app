@@ -1,4 +1,3 @@
-import React from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';

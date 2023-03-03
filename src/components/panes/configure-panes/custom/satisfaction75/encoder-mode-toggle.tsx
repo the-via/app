@@ -45,17 +45,15 @@ export class EncoderModeToggle extends React.Component<Props> {
     const {
       target: {checked: value, name},
     } = event;
-    /* eslint-disable no-bitwise */
     const flagBit = 1 << MODES[name as keyof typeof MODES];
     const newEnabledModes = value
       ? enabledModes | flagBit
       : enabledModes & ~flagBit;
-    /* eslint-enable no-bitwise */
     onChange(newEnabledModes);
   };
 
   isChecked = (modeIdx: number): boolean =>
-    ((1 << modeIdx) & this.props.enabledModes) > 0; // eslint-disable-line no-bitwise
+    ((1 << modeIdx) & this.props.enabledModes) > 0;
 
   render() {
     return (

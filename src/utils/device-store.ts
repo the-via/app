@@ -1,3 +1,4 @@
+import {current} from '@reduxjs/toolkit';
 import {
   DefinitionVersionMap,
   getTheme,
@@ -5,13 +6,15 @@ import {
   KeyboardDictionary,
   ThemeDefinition,
 } from '@the-via/reader';
+import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
+import {THEMES} from 'src/utils/themes';
 import {Store} from '../shims/via-app-store';
 import type {
   DefinitionIndex,
   VendorProductIdMap,
   Settings,
   Device,
-  CommonMenusMap,
+  ConnectedDevice,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
@@ -22,6 +25,7 @@ const defaultStoreData = {
     hash: '',
     version: '2.0.0',
     theme: getTheme(),
+    accentColor: '#ad7070',
     supportedVendorProductIdMap: {},
   },
   definitions: {},
@@ -29,7 +33,21 @@ const defaultStoreData = {
     allowKeyboardKeyRemapping: false,
     showDesignTab: false,
     disableFastRemap: false,
-    disableHardwareAcceleration: false,
+    renderMode: '3D' as const,
+    themeMode: 'dark' as const,
+    themeName: 'OLIVIA_DARK',
+    macroEditor: {
+      smartOptimizeEnabled: true,
+      recordDelaysEnabled: false,
+      tapEnterAtEOMEnabled: false,
+    },
+    testKeyboardSoundsSettings: {
+      isEnabled: true,
+      volume: 100,
+      waveform: 'sine' as const,
+      mode: TestKeyboardSoundsMode.WickiHayden,
+      transpose: 0,
+    },
   },
 };
 
@@ -48,7 +66,8 @@ export async function syncStore(): Promise<DefinitionIndex> {
   // TODO: fall back to cache if can't hit endpoint, notify user
   try {
     // Get hash file
-    const hash = await (await fetch('/definitions/hash.json')).json();
+    //    const hash = await (await fetch('/definitions/hash.json')).json();
+    const hash = document.getElementById('definition_hash')?.dataset.hash || '';
 
     if (hash === currentDefinitionIndex.hash) {
       return currentDefinitionIndex;
@@ -98,7 +117,7 @@ export async function syncStore(): Promise<DefinitionIndex> {
 export const getMissingDefinition = async <
   K extends keyof DefinitionVersionMap,
 >(
-  device: Device,
+  device: ConnectedDevice,
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);
@@ -139,9 +158,23 @@ export const getDefinitionsFromStore = (): KeyboardDictionary =>
   deviceStore.get('definitions');
 
 export const getThemeFromStore = (): ThemeDefinition =>
+  THEMES[getThemeNameFromStore() as keyof typeof THEMES] ||
   deviceStore.get('definitionIndex')?.theme;
+
+export const getThemeModeFromStore = (): 'dark' | 'light' => {
+  return deviceStore.get('settings')?.themeMode;
+};
+
+export const getRenderModeFromStore = (): '3D' | '2D' => {
+  return deviceStore.get('settings')?.renderMode;
+};
+
+export const getThemeNameFromStore = () => {
+  return deviceStore.get('settings')?.themeName;
+};
 
 export const getSettings = (): Settings => deviceStore.get('settings');
 
-export const setSettings = (settings: Settings) =>
-  deviceStore.set('settings', settings);
+export const setSettings = (settings: Settings) => {
+  deviceStore.set('settings', current(settings));
+};

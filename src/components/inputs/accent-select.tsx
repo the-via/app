@@ -7,18 +7,18 @@ const customStyles = {
       '&:hover': {
         backgroundColor: state.isSelected
           ? 'var(--color_accent)'
-          : 'var(--color_dark-grey)',
+          : 'var(--bg_control)',
       },
       ':active': {
-        backgroundColor: 'var(--color_dark-grey)',
+        backgroundColor: 'var(--bg_control)',
       },
       background: state.isSelected
         ? 'var(--color_accent)'
         : state.isFocused
-        ? 'var(--color_dark-grey)'
-        : 'var(--color_light-jet)',
+        ? 'var(--bg_control)'
+        : 'var(--bg_menu)',
       color: state.isSelected
-        ? 'var(--color_light-jet)'
+        ? 'var(--color_inside-accent)'
         : state.isFocused
         ? 'var(--color_accent)'
         : 'var(--color_accent)',
@@ -49,7 +49,7 @@ const customStyles = {
   menuList: (provided: any) => ({
     ...provided,
     borderColor: 'var(--color_accent)',
-    backgroundColor: 'var(--color_light-jet)',
+    backgroundColor: 'var(--bg_menu)',
   }),
   placeholder: (provided: any) => ({
     ...provided,
@@ -58,14 +58,14 @@ const customStyles = {
   valueContainer: (provided: any) => ({
     ...provided,
     ':active': {
-      backgroundColor: 'var(--color_dark-grey)',
+      backgroundColor: 'var(--bg_control)',
       borderColor: 'var(--color_accent)',
     },
     '&:hover': {
       borderColor: 'var(--color_accent)',
     },
     color: 'var(--color_accent)',
-    background: 'var(--color_light-jet)',
+    background: 'var(--bg_menu)',
   }),
   control: (provided: any, state: any) => {
     const res = {
@@ -80,7 +80,7 @@ const customStyles = {
       },
       color: 'var(--color_accent)',
       borderColor: '1px solid var(--color_accent)',
-      background: 'var(--color_light-jet)',
+      background: 'var(--bg_menu)',
       overflow: 'hidden',
       width: state.selectProps.width || 250,
     };
@@ -88,6 +88,6 @@ const customStyles = {
   },
 };
 
-export const AccentSelect: React.VFC<Props> = (props) => (
+export const AccentSelect: React.FC<Props> = (props) => (
   <Select {...props} styles={customStyles} />
 );

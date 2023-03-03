@@ -14,14 +14,18 @@ import {
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardAPI,
   selectDevice,
 } from './devicesSlice';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
-export type KeymapState = {
+type KeymapState = {
   rawDeviceMap: DeviceLayerMap;
   numberOfLayers: number;
   selectedLayerIndex: number;
   selectedKey: number | null;
+  configureKeyboardIsSelectable: boolean;
+  selectedPaletteColor: [number, number];
 };
 
 const initialState: KeymapState = {
@@ -29,14 +33,28 @@ const initialState: KeymapState = {
   numberOfLayers: 4,
   selectedLayerIndex: 0,
   selectedKey: null,
+  configureKeyboardIsSelectable: false,
+  selectedPaletteColor: [0, 0],
 };
 
-export const keymapSlice = createSlice({
+const keymapSlice = createSlice({
   name: 'keymap',
   initialState,
   reducers: {
+    setSelectedPaletteColor: (
+      state,
+      action: PayloadAction<[number, number]>,
+    ) => {
+      state.selectedPaletteColor = action.payload;
+    },
     setNumberOfLayers: (state, action: PayloadAction<number>) => {
       state.numberOfLayers = action.payload;
+    },
+    setConfigureKeyboardIsSelectable: (
+      state,
+      action: PayloadAction<boolean>,
+    ) => {
+      state.configureKeyboardIsSelectable = action.payload;
     },
     // Writes a single layer to the device layer map
     loadLayerSuccess: (
@@ -105,6 +123,8 @@ export const {
   setKey,
   updateSelectedKey,
   saveKeymapSuccess,
+  setConfigureKeyboardIsSelectable,
+  setSelectedPaletteColor,
 } = keymapSlice.actions;
 
 export default keymapSlice.reducer;
@@ -118,8 +138,8 @@ export const loadKeymapFromDevice =
       return;
     }
 
-    const {api, device, vendorProductId, requiredDefinitionVersion} =
-      connectedDevice;
+    const {path, vendorProductId, requiredDefinitionVersion} = connectedDevice;
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
 
     const numberOfLayers = await api.getLayerCount();
     dispatch(setNumberOfLayers(numberOfLayers));
@@ -129,7 +149,7 @@ export const loadKeymapFromDevice =
 
     for (var layerIndex = 0; layerIndex < numberOfLayers; layerIndex++) {
       const keymap = await api.readRawMatrix(matrix, layerIndex);
-      dispatch(loadLayerSuccess({layerIndex, keymap, devicePath: device.path}));
+      dispatch(loadLayerSuccess({layerIndex, keymap, devicePath: path}));
     }
   };
 
@@ -139,9 +159,10 @@ export const saveRawKeymapToDevice =
   (keymap: number[][], connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {api} = connectedDevice;
+    const {path} = connectedDevice;
+    const api = getSelectedKeyboardAPI(state);
     const definition = getSelectedDefinition(state);
-    if (!api || !definition) {
+    if (!path || !definition || !api) {
       return;
     }
 
@@ -152,9 +173,7 @@ export const saveRawKeymapToDevice =
       keymap: layer,
       isLoaded: true,
     }));
-    dispatch(
-      saveKeymapSuccess({layers, devicePath: connectedDevice.device.path}),
-    );
+    dispatch(saveKeymapSuccess({layers, devicePath: path}));
   };
 
 export const updateKey =
@@ -163,28 +182,39 @@ export const updateKey =
     const state = getState();
     const keys = getSelectedKeyDefinitions(state);
     const connectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardAPI(state);
     const selectedDefinition = getSelectedDefinition(state);
-    if (!connectedDevice || !keys || !selectedDefinition) {
+    if (!connectedDevice || !keys || !selectedDefinition || !api) {
       return;
     }
 
     const selectedLayerIndex = getSelectedLayerIndex(state);
-    const {api, device} = connectedDevice;
+    const {path} = connectedDevice;
     const {row, col} = keys[keyIndex];
     await api.setKey(selectedLayerIndex, row, col, value);
 
     const {matrix} = selectedDefinition;
     const keymapIndex = row * matrix.cols + col;
 
-    dispatch(setKey({keymapIndex, value, devicePath: device.path}));
+    dispatch(setKey({keymapIndex, value, devicePath: path}));
   };
 
+export const getConfigureKeyboardIsSelectable = (state: RootState) =>
+  state.keymap.configureKeyboardIsSelectable;
 export const getSelectedKey = (state: RootState) => state.keymap.selectedKey;
 export const getRawDeviceMap = (state: RootState) => state.keymap.rawDeviceMap;
 export const getNumberOfLayers = (state: RootState) =>
   state.keymap.numberOfLayers;
 export const getSelectedLayerIndex = (state: RootState) =>
   state.keymap.selectedLayerIndex;
+export const getSelected256PaletteColor = (state: RootState) =>
+  state.keymap.selectedPaletteColor;
+export const getSelectedPaletteColor = createSelector(
+  getSelected256PaletteColor,
+  ([hue, sat]) => {
+    return [(360 * hue) / 255, sat / 255] as [number, number];
+  },
+);
 
 export const getSelectedRawLayers = createSelector(
   getRawDeviceMap,

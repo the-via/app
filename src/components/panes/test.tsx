@@ -1,17 +1,17 @@
-import React, {useState, useEffect, useRef, FC} from 'react';
+import React, {FC, useContext} from 'react';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {Pane} from './pane';
 import styled from 'styled-components';
-import {PROTOCOL_GAMMA, KeyboardValue} from '../../utils/keyboard-api';
-import {TestKeyboard, TestKeyState} from '../test-keyboard';
-import {matrixKeycodes, getIndexByEvent} from '../inputs/musical-key-slider';
+import {PROTOCOL_GAMMA} from '../../utils/keyboard-api';
 import {
   ControlRow,
   Label,
   Detail,
-  OverflowCell,
-  FlexCell,
-  Grid1Col,
+  MenuCell,
+  Row,
+  IconContainer,
+  Grid,
+  SpanOverflowCell,
 } from './grid';
 import {AccentSlider} from '../inputs/accent-slider';
 import {AccentButton} from '../inputs/accent-button';
@@ -25,9 +25,17 @@ import {
 import {
   getIsTestMatrixEnabled,
   setTestMatrixEnabled,
+  getTestKeyboardSoundsSettings,
+  setTestKeyboardSoundsSettings,
 } from 'src/store/settingsSlice';
-import {useSize} from 'src/utils/use-size';
-import type {ConnectedDevice} from 'src/types/types';
+import {MenuContainer} from './configure-panes/custom/menu-generator';
+import {MenuTooltip} from '../inputs/tooltip';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCircleQuestion} from '@fortawesome/free-solid-svg-icons';
+import {useProgress} from '@react-three/drei';
+import {AccentSelect} from '../inputs/accent-select';
+import {AccentRange} from '../inputs/accent-range';
+import {TestKeyboardSoundsMode} from '../void/test-keyboard-sounds';
 
 const Container = styled.div`
   display: flex;
@@ -43,10 +51,10 @@ const TestPane = styled(Pane)`
   flex-direction: column;
 `;
 
-let startTest = false;
-
-const invertTestKeyState = (s: TestKeyState) =>
-  s === TestKeyState.KeyDown ? TestKeyState.KeyUp : TestKeyState.KeyDown;
+export const TestContext = React.createContext([
+  {clearTestKeys: () => {}},
+  (...a: any[]) => {},
+] as const);
 
 export const Test: FC = () => {
   const dispatch = useDispatch();
@@ -54,168 +62,87 @@ export const Test: FC = () => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
-
-  const [selectedKeys, setSelectedKeys] = useState(
-    {} as {[key: string]: TestKeyState},
+  const testKeyboardSoundsSettings = useAppSelector(
+    getTestKeyboardSoundsSettings,
   );
 
-  let flat = [] as number[];
-
-  // If pressed key is our target key then set to true
-  function downHandler(evt: KeyboardEvent) {
-    evt.preventDefault();
-    if (
-      !startTest &&
-      selectedKeys[getIndexByEvent(evt) ?? -1] !== TestKeyState.KeyDown
-    ) {
-      setSelectedKeys((selectedKeys) => ({
-        ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyDown,
-      }));
-    }
-  }
-
-  // If released key is our target key then set to false
-  const upHandler = (evt: KeyboardEvent) => {
-    evt.preventDefault();
-    if (
-      !startTest &&
-      selectedKeys[getIndexByEvent(evt)] !== TestKeyState.KeyUp
-    ) {
-      setSelectedKeys((selectedKeys) => ({
-        ...selectedKeys,
-        [getIndexByEvent(evt)]: TestKeyState.KeyUp,
-      }));
-    }
-  };
-
-  const useMatrixTest = async (protocol: number) => {
-    if (startTest && api && selectedDefinition) {
-      const {cols, rows} = selectedDefinition.matrix;
-      const bytesPerRow = Math.ceil(cols / 8);
-      const rowsPerQuery = Math.floor(28 / bytesPerRow);
-      try {
-        let newFlat: number[] = [];
-        for (let offset = 0; offset < rows; offset += rowsPerQuery) {
-          const querySize = Math.min(
-            rows * bytesPerRow - newFlat.length, // bytes remaining
-            bytesPerRow * rowsPerQuery, // max bytes per query
-          );
-          newFlat.push(
-            ...((await api.getKeyboardValue(
-              KeyboardValue.SWITCH_MATRIX_STATE,
-              protocol >= 12 ? [offset] : [],
-              querySize,
-            )) as number[]),
-          );
-        }
-        const keysChanges = newFlat.some(
-          (val, byteIdx) => val ^ (flat[byteIdx] || 0),
-        );
-        if (!keysChanges) {
-          await api.timeout(20);
-          useMatrixTest(protocol);
-          return;
-        }
-        setSelectedKeys((selectedKeys) => {
-          const newPressedKeys = newFlat.reduce(
-            (res, val, byteIdx) => {
-              const xor = val ^ (flat[byteIdx] || 0);
-              if (xor === 0) {
-                return res;
-              }
-              const row = ~~(byteIdx / bytesPerRow);
-
-              const colOffset = 8 * (bytesPerRow - 1 - (byteIdx % bytesPerRow));
-              return Array(Math.max(0, Math.min(8, cols - colOffset)))
-                .fill(0)
-                .reduce((resres, _, idx) => {
-                  const matrixIdx = cols * row + idx + colOffset;
-                  resres[matrixIdx] =
-                    ((xor >> idx) & 1) === 1
-                      ? invertTestKeyState(resres[matrixIdx])
-                      : resres[matrixIdx];
-                  return resres;
-                }, res);
-            },
-            Array.isArray(selectedKeys) && selectedKeys.length === rows * cols
-              ? [...selectedKeys]
-              : Array(rows * cols).fill(TestKeyState.Initial),
-          );
-          return newPressedKeys as any as {[key: string]: TestKeyState};
-        });
-        flat = newFlat;
-        await api.timeout(20);
-        useMatrixTest(protocol);
-      } catch (e) {
-        startTest = false;
-        dispatch(setTestMatrixEnabled(false));
-      }
-    }
-  };
-
-  const onClickHandler = () => {
-    flat = [];
-    setSelectedKeys({});
-  };
-
-  // Add event listeners
-  useEffect(() => {
-    window.addEventListener('keydown', downHandler);
-    window.addEventListener('keyup', upHandler);
-    // Remove event listeners on cleanup
-    return () => {
-      startTest = false;
-      window.removeEventListener('keydown', downHandler);
-      window.removeEventListener('keyup', upHandler);
-      dispatch(setTestMatrixEnabled(false));
-    };
-  }, []); // Empty array ensures that effect is only run on mount and unmount
-
-  const flexRef = useRef(null);
-  const dimensions = useSize(flexRef);
+  const [testContextObj] = useContext(TestContext);
+  const {progress} = useProgress();
 
   const hasTestMatrixDevice =
     selectedDevice && selectedDefinition && keyDefinitions;
   const canUseMatrixState =
     hasTestMatrixDevice && PROTOCOL_GAMMA <= selectedDevice.protocol;
 
-  const api = selectedDevice && selectedDevice.api;
-  const pressedKeys =
-    !isTestMatrixEnabled || !keyDefinitions
-      ? selectedKeys
-      : keyDefinitions.map(
-          ({row, col}: {row: number; col: number}) =>
-            selectedDefinition &&
-            selectedKeys[
-              (row * selectedDefinition.matrix.cols +
-                col) as keyof typeof selectedKeys
-            ],
-        );
   const testDefinition = isTestMatrixEnabled
     ? selectedDefinition
     : fullKeyboardDefinition;
-  const testKeys = isTestMatrixEnabled
-    ? keyDefinitions
-    : fullKeyboardDefinition.layouts.keys;
-  return (
+
+  if (!testDefinition || typeof testDefinition === 'string') {
+    return null;
+  }
+
+  const waveformOptions = [
+    {
+      label: 'Sine',
+      value: 'sine',
+    },
+    {
+      label: 'Triangle',
+      value: 'triangle',
+    },
+    {
+      label: 'Sawtooth',
+      value: 'sawtooth',
+    },
+    {
+      label: 'Square',
+      value: 'square',
+    },
+  ];
+  const waveformDefaultValue = waveformOptions.find(
+    (opt) => opt.value === testKeyboardSoundsSettings.waveform,
+  );
+
+  const modeOptions = [
+    {
+      label: 'Wicki-Hayden',
+      value: TestKeyboardSoundsMode.WickiHayden,
+    },
+    {
+      label: 'Chromatic',
+      value: TestKeyboardSoundsMode.Chromatic,
+    },
+    {
+      label: 'Random',
+      value: TestKeyboardSoundsMode.Random,
+    },
+  ];
+  const modeDefaultValue = modeOptions.find(
+    (opt) => opt.value === testKeyboardSoundsSettings.mode,
+  );
+
+  return progress !== 100 ? null : (
     <TestPane>
-      <Grid1Col>
-        <FlexCell ref={flexRef}>
-          <TestKeyboard
-            definition={testDefinition}
-            keys={testKeys}
-            pressedKeys={pressedKeys}
-            matrixKeycodes={isTestMatrixEnabled ? [] : matrixKeycodes}
-            containerDimensions={dimensions}
-          />
-        </FlexCell>
-        <OverflowCell>
+      <Grid>
+        <MenuCell style={{pointerEvents: 'all'}}>
+          <MenuContainer>
+            <Row $selected={true}>
+              <IconContainer>
+                <FontAwesomeIcon icon={faCircleQuestion} />
+                <MenuTooltip>Check Key</MenuTooltip>
+              </IconContainer>
+            </Row>
+          </MenuContainer>
+        </MenuCell>
+        <SpanOverflowCell>
           <Container>
             <ControlRow>
               <Label>Reset Keyboard</Label>
               <Detail>
-                <AccentButton onClick={onClickHandler}>Reset</AccentButton>
+                <AccentButton onClick={testContextObj.clearTestKeys}>
+                  Reset
+                </AccentButton>
               </Detail>
             </ControlRow>
             {canUseMatrixState && selectedDefinition ? (
@@ -225,26 +152,101 @@ export const Test: FC = () => {
                   <AccentSlider
                     isChecked={isTestMatrixEnabled}
                     onChange={(val) => {
-                      startTest = val;
-
                       dispatch(setTestMatrixEnabled(val));
-
-                      if (val) {
-                        setSelectedKeys({});
-                        useMatrixTest(
-                          (selectedDevice as ConnectedDevice).protocol,
-                        );
-                      } else {
-                        setSelectedKeys({});
-                      }
+                      testContextObj.clearTestKeys();
                     }}
                   />
                 </Detail>
               </ControlRow>
             ) : null}
+            <ControlRow>
+              <Label>Key Sounds</Label>
+              <Detail>
+                <AccentSlider
+                  isChecked={testKeyboardSoundsSettings.isEnabled}
+                  onChange={(val) => {
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        isEnabled: val,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Volume</Label>
+              <Detail>
+                <AccentRange
+                  max={100}
+                  min={0}
+                  defaultValue={testKeyboardSoundsSettings.volume}
+                  onChange={(value: number) => {
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        volume: value,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Transpose</Label>
+              <Detail>
+                <AccentRange
+                  max={24}
+                  min={-24}
+                  defaultValue={testKeyboardSoundsSettings.transpose}
+                  onChange={(value: number) => {
+                    dispatch(
+                      setTestKeyboardSoundsSettings({
+                        transpose: value,
+                      }),
+                    );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Waveform</Label>
+              <Detail>
+                <AccentSelect
+                  isSearchable={false}
+                  defaultValue={waveformDefaultValue}
+                  options={waveformOptions}
+                  onChange={(option: any) => {
+                    option &&
+                      dispatch(
+                        setTestKeyboardSoundsSettings({
+                          waveform: option.value,
+                        }),
+                      );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Mode</Label>
+              <Detail>
+                <AccentSelect
+                  isSearchable={false}
+                  defaultValue={modeDefaultValue}
+                  options={modeOptions}
+                  onChange={(option: any) => {
+                    option &&
+                      dispatch(
+                        setTestKeyboardSoundsSettings({
+                          mode: option.value,
+                        }),
+                      );
+                  }}
+                />
+              </Detail>
+            </ControlRow>
           </Container>
-        </OverflowCell>
-      </Grid1Col>
+        </SpanOverflowCell>
+      </Grid>
     </TestPane>
   );
 };

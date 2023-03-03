@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../grid';
 import {CenterPane} from '../pane';
@@ -77,7 +77,7 @@ export const Pane: FC = () => {
         <MenuContainer>
           {getMenus().map((menu) => (
             <SubmenuRow
-              selected={selectedCategory === menu}
+              $selected={selectedCategory === menu}
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >

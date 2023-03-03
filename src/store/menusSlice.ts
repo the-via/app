@@ -12,31 +12,38 @@ import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
+  getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {
   makeCustomMenu,
   makeCustomMenus,
 } from 'src/components/panes/configure-panes/custom/menu-generator';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
 
 type CustomMenuData = {
-  [commandName: string]: number[];
+  [commandName: string]: number[] | number[][];
 };
 type CustomMenuDataMap = {[devicePath: string]: CustomMenuData};
 
-export type MenusState = {
+type MenusState = {
   customMenuDataMap: CustomMenuDataMap;
   commonMenusMap: CommonMenusMap;
+  showKeyPainter: boolean;
 };
 
 const initialState: MenusState = {
   customMenuDataMap: {},
   commonMenusMap: {},
+  showKeyPainter: false,
 };
 
 const menusSlice = createSlice({
   name: 'menus',
   initialState,
   reducers: {
+    updateShowKeyPainter: (state, action: PayloadAction<boolean>) => {
+      state.showKeyPainter = action.payload;
+    },
     updateSelectedCustomMenuData: (
       state,
       action: PayloadAction<{menuData: CustomMenuData; devicePath: string}>,
@@ -57,8 +64,11 @@ const menusSlice = createSlice({
   },
 });
 
-export const {updateSelectedCustomMenuData, updateCustomMenuData} =
-  menusSlice.actions;
+export const {
+  updateShowKeyPainter,
+  updateSelectedCustomMenuData,
+  updateCustomMenuData,
+} = menusSlice.actions;
 
 export default menusSlice.reducer;
 
@@ -77,13 +87,15 @@ export const updateCustomMenuValue =
       ...menuData,
       [command]: [...rest.slice(commands[command].length)],
     };
-    const {api, device} = connectedDevice;
+    const {path} = connectedDevice;
     dispatch(
       updateSelectedCustomMenuData({
         menuData: data,
-        devicePath: device.path,
+        devicePath: path,
       }),
     );
+
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
@@ -91,9 +103,7 @@ export const updateCustomMenuValue =
   };
 
 // COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
-export const tryResolveCommonMenu = (
-  id: VIAMenu | string,
-): VIAMenu | VIAMenu[] => {
+const tryResolveCommonMenu = (id: VIAMenu | string): VIAMenu | VIAMenu[] => {
   // Only convert to menu object if it is found in common menus, else return
   if (typeof id === 'string') {
     return commonMenus[id as keyof typeof commonMenus];
@@ -105,16 +115,18 @@ export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
-    const {api, protocol, device} = connectedDevice;
-
     const definition = getSelectedDefinition(state);
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
+
     if (!isVIADefinitionV3(definition)) {
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
     const menus = getV3Menus(state);
     const commands = menus.flatMap(extractCommands);
+    const {protocol, path} = connectedDevice;
+
     if (commands.length !== 0 && protocol >= 11) {
-      let props = {};
+      let props = {} as CustomMenuData;
       const commandPromises = commands.map(([name, channelId, ...command]) => ({
         command: name,
         promise: api.getCustomMenuValue([channelId].concat(command)),
@@ -130,9 +142,26 @@ export const updateV3MenuData =
         {res: props, ref: commandPromisesRes},
       ).res;
 
+      // Update to detect instance of color-palette control and an li on a key
+      const maxLedIndex = Math.max(
+        ...definition.layouts.keys.map((key) => key.li ?? -1),
+      );
+      console.debug(maxLedIndex, 'maxLedIndex');
+
+      if (maxLedIndex >= 0) {
+        // Ask for PerKeyRGBValues -- hardcoded to 62
+        const perKeyRGB = await api.getPerKeyRGBMatrix(
+          Array(maxLedIndex + 1)
+            .fill(0)
+            .map((_, i) => i),
+        );
+        props.__perKeyRGB = perKeyRGB;
+      }
+
       dispatch(
-        updateCustomMenuData({
-          [device.path]: {
+        updateSelectedCustomMenuData({
+          devicePath: path,
+          menuData: {
             ...props,
           },
         }),
@@ -147,13 +176,16 @@ const extractCommands = (menuOrControls: any) => {
   }
   return 'type' in menuOrControls
     ? [menuOrControls.content]
-    : 'content' in menuOrControls
+    : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
     ? menuOrControls.content.flatMap(extractCommands)
     : [];
 };
 
 export const getCommonMenusDataMap = (state: RootState) =>
   state.menus.commonMenusMap;
+
+export const getShowKeyPainter = (state: RootState) =>
+  state.menus.showKeyPainter;
 
 export const getCustomMenuDataMap = (state: RootState) =>
   state.menus.customMenuDataMap;
@@ -223,7 +255,6 @@ export const getCustomCommands = createSelector(
 );
 
 const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
-  console.log('compiling menu');
   return depth === 0
     ? val
     : {
@@ -231,14 +262,16 @@ const compileMenu = (partial: string, depth = 0, val: any, idx: number) => {
         _id: `${partial}_${idx}`,
         content:
           val.label !== undefined
-            ? val.content.map((contentVal: any, contentIdx: number) =>
-                compileMenu(
-                  `${partial}_${contentIdx}`,
-                  depth - 1,
-                  contentVal,
-                  idx,
-                ),
-              )
+            ? typeof val.content === 'string'
+              ? val.content
+              : val.content.map((contentVal: any, contentIdx: number) =>
+                  compileMenu(
+                    `${partial}_${contentIdx}`,
+                    depth - 1,
+                    contentVal,
+                    idx,
+                  ),
+                )
             : val.content.map((contentVal: any, contentIdx: number) =>
                 compileMenu(`${partial}_${contentIdx}`, depth, contentVal, idx),
               ),

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import styled from 'styled-components';
 
 export const HiddenInput = styled.input`
@@ -13,7 +13,7 @@ const Switch = styled.label`
   width: 60px;
   height: 34px;
 `;
-const Slider = styled.span<{isChecked?: boolean}>`
+const Slider = styled.span<{$ischecked?: boolean}>`
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -21,7 +21,7 @@ const Slider = styled.span<{isChecked?: boolean}>`
   right: 0;
   bottom: 0;
   background-color: ${(props) =>
-    props.isChecked ? 'var(--color_accent)' : 'var(--color_dark-grey)'};
+    props.$ischecked ? 'var(--color_accent)' : 'var(--bg_control)'};
   -webkit-transition: 0.4s;
   transition: 0.4s;
   border-radius: 4px;
@@ -34,12 +34,10 @@ const Slider = styled.span<{isChecked?: boolean}>`
     bottom: 4px;
     border-radius: 4px;
     background-color: ${(props) =>
-      !props.isChecked
-        ? 'var(--color_medium-grey)'
-        : 'var(--color_light-grey)'};
+      !props.$ischecked ? 'var(--bg_icon)' : 'var(--color_inside-accent)'};
     -webkit-transition: 0.4s;
     transition: 0.4s;
-    ${(props) => (props.isChecked ? 'transform: translateX(26px)' : '')};
+    ${(props) => (props.$ischecked ? 'transform: translateX(26px)' : '')};
   }
 `;
 
@@ -52,6 +50,7 @@ export function AccentSlider(props: Props) {
   const {isChecked, onChange} = props;
 
   const [isHiddenChecked, setIsHiddenChecked] = React.useState(isChecked);
+  const ref = useRef<HTMLInputElement>(null);
 
   // If the parent isChecked changes, update our local checked state
   React.useEffect(() => {
@@ -59,18 +58,23 @@ export function AccentSlider(props: Props) {
   }, [isChecked]);
 
   const hiddenOnChange = () => {
-    setIsHiddenChecked(!isChecked);
-    onChange(!isChecked);
+    const newIsChecked = !isChecked;
+    setIsHiddenChecked(newIsChecked);
+    onChange(newIsChecked);
+    if (ref.current) {
+      ref.current.blur();
+    }
   };
 
   return (
     <Switch>
       <HiddenInput
+        ref={ref}
         type="checkbox"
         checked={isHiddenChecked}
         onChange={hiddenOnChange}
       />
-      <Slider isChecked={isHiddenChecked} />
+      <Slider $ischecked={isHiddenChecked} />
     </Switch>
   );
 }

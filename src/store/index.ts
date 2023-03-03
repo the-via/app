@@ -19,6 +19,7 @@ export const store = configureStore({
     menus: menusReducer,
     design: designReducer,
   },
+  enhancers: [],
 });
 
 export type RootState = ReturnType<typeof store.getState>;

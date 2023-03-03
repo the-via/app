@@ -5,12 +5,11 @@ import {faAngleDown, faPlus} from '@fortawesome/free-solid-svg-icons';
 import {HID} from '../../../shims/node-hid';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import type {ConnectedDevice} from '../../../types/types';
-import {useAppSelector} from 'src/store/hooks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {useDispatch} from 'react-redux';
 import {
   getConnectedDevices,
   getSelectedDevicePath,
@@ -24,6 +23,7 @@ const Container = styled.div`
   top: 0px;
   font-size: 18px;
   pointer-events: none;
+  font-weight: 400;
 `;
 
 const KeyboardTitle = styled.label`
@@ -34,33 +34,35 @@ const KeyboardTitle = styled.label`
   border-bottom-right-radius: 6px;
   font-size: 18px;
   text-transform: uppercase;
-  color: var(--color_light-grey);
+  color: var(--color_inside-accent);
   padding: 1px 10px;
   margin-right: 10px;
-  border: solid 1px var(--color_dark-grey);
+  border: solid 1px var(--bg_control);
   border-top: none;
   cursor: pointer;
+  transition: all 0.1s ease-out;
   &:hover {
-    background: var(--color_dark-accent);
+    filter: brightness(0.7);
   }
 `;
-const KeyboardList = styled.ul<{show: boolean}>`
+const KeyboardList = styled.ul<{$show: boolean}>`
   padding: 0;
-  border: 1px solid var(--color_dark-grey);
+  border: 1px solid var(--bg_control);
   width: 160px;
   border-radius: 6px;
-  background-color: var(--color_light-jet);
+  background-color: var(--bg_menu);
   margin: 0;
   margin-top: 5px;
   right: 10px;
   position: absolute;
-  pointer-events: ${(props) => (props.show ? 'all' : 'none')};
+  pointer-events: ${(props) => (props.$show ? 'all' : 'none')};
   transition: all 0.2s ease-out;
-  opacity: ${(props) => (props.show ? 1 : 0)};
+  z-index: 11;
+  opacity: ${(props) => (props.$show ? 1 : 0)};
   overflow: hidden;
-  transform: ${(props) => (props.show ? 0 : `translateY(-5px)`)};
+  transform: ${(props) => (props.$show ? 0 : `translateY(-5px)`)};
 `;
-const KeyboardButton = styled.button<{selected?: boolean}>`
+const KeyboardButton = styled.button<{$selected?: boolean}>`
   display: block;
   text-align: center;
   outline: none;
@@ -71,9 +73,11 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   width: 100%;
   border: none;
   background: ${(props) =>
-    props.selected ? 'var(--color_light-grey)' : 'transparent'};
+    props.$selected ? 'var(--bg_icon-highlighted)' : 'transparent'};
   color: ${(props) =>
-    props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+    props.$selected
+      ? 'var(--color_icon_highlighted)'
+      : 'var(--color_label-highlighted)'};
   cursor: pointer;
   text-align: left;
   font-size: 14px;
@@ -82,26 +86,29 @@ const KeyboardButton = styled.button<{selected?: boolean}>`
   &:hover {
     border: none;
     background: ${(props) =>
-      props.selected ? 'var(--color_light-grey)' : 'var(--color_dark-grey)'};
+      props.$selected ? 'var(--bg_icon-highlighted)' : 'var(--bg_control)'};
     color: ${(props) =>
-      props.selected ? 'var(--color_jet)' : 'var(--color_light-grey)'};
+      props.$selected
+        ? 'var(--color_control-highlighted)'
+        : 'var(--color_label-highlighted)'};
   }
 `;
 
 const ClickCover = styled.div`
   position: fixed;
+  z-index: 10;
   pointer-events: all;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   opacity: 0.4;
-  background: var(--color_jet);
+  background: rgba(0, 0, 0, 0.75);
 `;
 
 type ConnectedKeyboardDefinition = [string, VIADefinitionV2 | VIADefinitionV3];
 
-const KeyboardSelectors: React.VFC<{
+const KeyboardSelectors: React.FC<{
   show: boolean;
   keyboards: ConnectedKeyboardDefinition[];
   selectedPath: string;
@@ -117,11 +124,11 @@ const KeyboardSelectors: React.VFC<{
   return (
     <>
       {props.show && <ClickCover onClick={props.onClickOut} />}
-      <KeyboardList show={props.show}>
+      <KeyboardList $show={props.show}>
         {props.keyboards.map(([path, keyboard]) => {
           return (
             <KeyboardButton
-              selected={path === props.selectedPath}
+              $selected={path === props.selectedPath}
               key={path}
               onClick={() => props.selectKeyboard(path as string)}
             >
@@ -141,7 +148,7 @@ const KeyboardSelectors: React.VFC<{
 };
 
 export const Badge = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const definitions = useAppSelector(getDefinitions);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const connectedDevices = useAppSelector(getConnectedDevices);

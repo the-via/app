@@ -1,5 +1,3 @@
-import React from 'react';
-
 const size = 16.187;
 const SvgIcMemory24Px = (props: typeof SVGElement) => (
   <svg width={size} height={size} {...props}>

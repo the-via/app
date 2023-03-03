@@ -8,7 +8,7 @@ export class usbDetect {
   static hasMonitored = false;
   static startMonitoring() {
     this.shouldMonitor = true;
-    if (!this.hasMonitored) {
+    if (!this.hasMonitored && navigator.hid) {
       navigator.hid.addEventListener('connect', usbDetect.onConnect);
       navigator.hid.addEventListener('disconnect', usbDetect.onDisconnect);
     }
