@@ -3,7 +3,7 @@
 # usevia.app
 [![Azure Static Web Apps CI/CD](https://github.com/the-via/app/actions/workflows/azure.yml/badge.svg)](https://github.com/the-via/app/actions/workflows/azure.yml)
 
-![android-chrome-512x512](https://user-images.githubusercontent.com/1714072/222621825-0b855f69-41f4-47aa-8179-0cbbb176a201.png)
+![mstile-310x310](https://user-images.githubusercontent.com/1714072/222621922-1e37b334-18d0-4eb2-994f-cd30e7eacebc.png)
 
 ## Useful commands
 ### `npm run start`
