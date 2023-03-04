@@ -65,6 +65,20 @@ export const THEMES = {
         c: '#cfa174',
       },
     },
+    GREG: {
+      alpha: {
+        c: '#f8c200',
+        t: '#393b3b',
+      },
+      mod: {
+        c: '#f7f2ea',
+        t: '#393b3b',
+      },
+      accent: {
+        c: '#171718',
+        t: '#393b3b',
+      },
+    },
   },
   ...REMOTETHEMES,
 };
