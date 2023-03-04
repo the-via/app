@@ -38,7 +38,8 @@ const selectConnectedDeviceRetry = createRetry(8, 100);
 export const selectConnectedDeviceByPath =
   (path: string): AppThunk =>
   async (dispatch, getState) => {
-    dispatch(reloadConnectedDevices());
+    // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+    await dispatch(reloadConnectedDevices());
     const connectedDevice = getConnectedDevices(getState())[path];
     if (connectedDevice) {
       dispatch(selectConnectedDevice(connectedDevice));
@@ -70,18 +71,23 @@ const selectConnectedDevice =
         getDefinitions(getState()),
       );
       dispatch(selectDevice(connectedDevice));
-      dispatch(loadMacros(connectedDevice));
-      dispatch(loadLayoutOptions());
+
+      // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+      await dispatch(loadMacros(connectedDevice));
+      await dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
       if (protocol < 11) {
-        dispatch(updateLightingData(connectedDevice));
+        // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+        await dispatch(updateLightingData(connectedDevice));
       }
       if (protocol >= 11) {
-        dispatch(updateV3MenuData(connectedDevice));
+        // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+        await dispatch(updateV3MenuData(connectedDevice));
       }
 
-      dispatch(loadKeymapFromDevice(connectedDevice));
+      // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+      await dispatch(loadKeymapFromDevice(connectedDevice));
       selectConnectedDeviceRetry.clear();
     } catch (e) {
       console.log('Loading keyboard failed:', e);
@@ -140,16 +146,22 @@ export const reloadConnectedDevices =
       console.info('Setting connected device:', d.protocol, path, d);
     });
     dispatch(updateConnectedDevices(connectedDevices));
+
     const validDevicesArr = Object.entries(connectedDevices);
-    dispatch(reloadDefinitions(connectedDevices));
+
+    // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+    await dispatch(reloadDefinitions(connectedDevices));
     // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
       (!selectedDevicePath || !connectedDevices[selectedDevicePath]) &&
       validDevicesArr.length > 0
     ) {
       const firstConnectedDevice = validDevicesArr[0][1];
+
+      console.log('3');
       dispatch(selectConnectedDevice(firstConnectedDevice));
     } else if (validDevicesArr.length === 0) {
+      console.log('4');
       dispatch(selectDevice(null));
     }
   };
@@ -157,7 +169,8 @@ export const reloadConnectedDevices =
 export const loadSupportedIds = (): AppThunk => async (dispatch) => {
   await syncStore();
   dispatch(updateSupportedIds(getSupportedIdsFromStore()));
-  dispatch(updateDefinitions(getDefinitionsFromStore()));
+  // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+  await dispatch(updateDefinitions(getDefinitionsFromStore()));
   dispatch(loadStoredCustomDefinitions());
   dispatch(reloadConnectedDevices());
 };

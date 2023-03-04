@@ -202,7 +202,8 @@ export const Pane: FC = () => {
         ),
       );
 
-      dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
+      // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+      await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
 
       if (saveFile.encoders) {
         await Promise.all(
