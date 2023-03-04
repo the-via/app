@@ -43,6 +43,7 @@ const paintEncoder = (
   const workingAreaDivider = 2.6;
   if (context) {
     context.fillStyle = bgColor;
+    context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fill();
 
@@ -345,8 +346,8 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
           textureOffsetX,
         );
         setOverflowsTexture(!!doesOverflow);
-        textureRef.current!.needsUpdate = true;
       }
+      textureRef.current!.needsUpdate = true;
     }
   }, [
     canvasRef.current,
