@@ -42,17 +42,20 @@ export const Pane: FC = () => {
     (state) => getSelectedKeymap(state) || [],
   );
   const layer = useAppSelector(getSelectedLayerIndex);
-  if (selectedKey === null || keys[selectedKey] === undefined) {
-    return null;
-  }
-  const val = matrixKeycodes[selectedKey];
-  const encoderKey = keys[selectedKey];
-  const canClick = encoderKey.col !== -1 && encoderKey.row !== -1;
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const api = useAppSelector(getSelectedKeyboardAPI);
+  const val = matrixKeycodes[selectedKey ?? -1];
+  const encoderKey = keys[selectedKey ?? -1];
+  const canClick =
+    !!encoderKey && encoderKey.col !== -1 && encoderKey.row !== -1;
 
   const setEncoderValue = (type: 'ccw' | 'cw' | 'click', val: number) => {
-    if (api && encoderKey.ei !== undefined) {
+    if (
+      api &&
+      selectedKey !== null &&
+      encoderKey &&
+      encoderKey.ei !== undefined
+    ) {
       const encoderId = +encoderKey.ei;
       switch (type) {
         case 'ccw': {
@@ -86,6 +89,7 @@ export const Pane: FC = () => {
   }, [encoderKey, selectedDevice, layer]);
 
   if (
+    encoderKey === undefined ||
     (selectedDevice && selectedDevice.protocol < 10) ||
     ccwValue === undefined ||
     cwValue === undefined
