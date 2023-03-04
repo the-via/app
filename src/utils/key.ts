@@ -22,6 +22,7 @@ export interface IKeycode {
 }
 
 export interface IKeycodeMenu {
+  category: string;
   label: string;
   keycodes: IKeycode[];
   width?: 'label';
@@ -347,6 +348,7 @@ export function getOtherMenu(
     }));
 
   return {
+    category: 'other',
     label: 'Other',
     keycodes,
   };
@@ -387,6 +389,7 @@ function buildLayerMenu(): IKeycodeMenu {
   ];
 
   const menu: IKeycodeMenu = {
+    category: 'layers',
     label: 'Layers',
     width: 'label',
     keycodes: [
@@ -464,6 +467,7 @@ function buildLayerMenu(): IKeycodeMenu {
 export function getKeycodes(): IKeycodeMenu[] {
   return [
     {
+      category: 'basic',
       label: 'Basic',
       keycodes: [
         {name: '', code: 'KC_NO', title: 'Nothing'},
@@ -618,26 +622,98 @@ export function getKeycodes(): IKeycodeMenu[] {
       ],
     },
     {
+      category: 'wt_lighting',
       label: 'Lighting',
       width: 'label',
       keycodes: [
-        {name: 'BR -', code: 'BR_DEC', title: 'Brightness -'},
-        {name: 'BR +', code: 'BR_INC', title: 'Brightness +'},
-        {name: 'EF -', code: 'EF_DEC', title: 'Effect -'},
-        {name: 'EF +', code: 'EF_INC', title: 'Effect +'},
-        {name: 'ES -', code: 'ES_DEC', title: 'Effect Speed -'},
-        {name: 'ES +', code: 'ES_INC', title: 'Effect Speed +'},
-        {name: 'H1 -', code: 'H1_DEC', title: 'Color1 Hue -'},
-        {name: 'H1 +', code: 'H1_INC', title: 'Color1 Hue +'},
-        {name: 'H2 -', code: 'H2_DEC', title: 'Color2 Hue -'},
-        {name: 'H2 +', code: 'H2_INC', title: 'Color2 Hue +'},
-        {name: 'S1 -', code: 'S1_DEC', title: 'Color1 Sat -'},
-        {name: 'S1 +', code: 'S1_INC', title: 'Color1 Sat +'},
-        {name: 'S2 -', code: 'S2_DEC', title: 'Color2 Sat -'},
-        {name: 'S2 +', code: 'S2_INC', title: 'Color2 Sat +'},
+        {
+          name: 'Bright -',
+          code: 'BR_DEC',
+          title: 'Brightness -',
+          shortName: 'BR -',
+        },
+        {
+          name: 'Bright +',
+          code: 'BR_INC',
+          title: 'Brightness +',
+          shortName: 'BR +',
+        },
+        {
+          name: 'Effect -',
+          code: 'EF_DEC',
+          title: 'Effect -',
+          shortName: 'EF -',
+        },
+        {
+          name: 'Effect +',
+          code: 'EF_INC',
+          title: 'Effect +',
+          shortName: 'EF +',
+        },
+        {
+          name: 'Effect Speed -',
+          code: 'ES_DEC',
+          title: 'Effect Speed -',
+          shortName: 'ES -',
+        },
+        {
+          name: 'Effect Speed +',
+          code: 'ES_INC',
+          title: 'Effect Speed +',
+          shortName: 'ES +',
+        },
+        {
+          name: 'Color1 Hue -',
+          code: 'H1_DEC',
+          title: 'Color1 Hue -',
+          shortName: 'H1 -',
+        },
+        {
+          name: 'Color1 Hue +',
+          code: 'H1_INC',
+          title: 'Color1 Hue +',
+          shortName: 'H1 +',
+        },
+        {
+          name: 'Color2 Hue -',
+          code: 'H2_DEC',
+          title: 'Color2 Hue -',
+          shortName: 'H2 -',
+        },
+        {
+          name: 'Color2 Hue +',
+          code: 'H2_INC',
+          title: 'Color2 Hue +',
+          shortName: 'H2 +',
+        },
+        {
+          name: 'Color1 Sat -',
+          code: 'S1_DEC',
+          title: 'Color1 Sat -',
+          shortName: 'S1 -',
+        },
+        {
+          name: 'Color1 Sat +',
+          code: 'S1_INC',
+          title: 'Color1 Sat +',
+          shortName: 'S1 +',
+        },
+        {
+          name: 'Color2 Sat -',
+          code: 'S2_DEC',
+          title: 'Color2 Sat -',
+          shortName: 'S2 -',
+        },
+        {
+          name: 'Color2 Sat +',
+          code: 'S2_INC',
+          title: 'Color2 Sat +',
+          shortName: 'S2 +',
+        },
       ],
     },
     {
+      category: 'media',
       label: 'Media',
       width: 'label',
       keycodes: [
@@ -655,6 +731,7 @@ export function getKeycodes(): IKeycodeMenu[] {
       ],
     },
     {
+      category: 'macro',
       label: 'Macro',
       width: 'label',
       keycodes: [
@@ -678,142 +755,7 @@ export function getKeycodes(): IKeycodeMenu[] {
     },
     buildLayerMenu(),
     {
-      label: 'Mod+_',
-      width: 'label',
-      detailed: '(A = Alt, C = Control, G = Windows/Command, S = Shift)',
-      keycodes: [
-        {name: 'LSft', code: 'LSFT(kc)', type: 'container'},
-        {name: 'LCtl', code: 'LCTL(kc)', type: 'container'},
-        {name: 'LAlt', code: 'LALT(kc)', type: 'container'},
-        {name: 'LGui', code: 'LGUI(kc)', type: 'container'},
-        {name: 'RSft', code: 'RSFT(kc)', type: 'container'},
-        {name: 'RCtl', code: 'RCTL(kc)', type: 'container'},
-        {name: 'RAlt', code: 'RALT(kc)', type: 'container'},
-        {name: 'RGui', code: 'RGUI(kc)', type: 'container'},
-        {
-          name: 'Hyper',
-          code: 'HYPR(kc)',
-          type: 'container',
-          title: 'LCTL + LSFT + LALT + LGUI',
-        },
-        {
-          name: 'Meh',
-          code: 'MEH(kc)',
-          type: 'container',
-          title: 'LCTL + LSFT + LALT',
-        },
-        {
-          name: 'LCAG',
-          code: 'LCAG(kc)',
-          type: 'container',
-          title: 'LCTL + LALT + LGUI',
-        },
-        {
-          name: 'ALTG',
-          code: 'ALTG(kc)',
-          type: 'container',
-          title: 'RCTL + RALT',
-        },
-        {
-          name: 'SGUI',
-          code: 'SCMD(kc)',
-          type: 'container',
-          title: 'LGUI + LSFT',
-        },
-        {name: 'LCA', code: 'LCA(kc)', type: 'container', title: 'LCTL + LALT'},
-        {
-          name: 'LSft_T',
-          code: 'LSFT_T(kc)',
-          type: 'container',
-          title: 'Shift when held, kc when tapped',
-        },
-        {
-          name: 'LCtl_T',
-          code: 'LCTL_T(kc)',
-          type: 'container',
-          title: 'Control when held, kc when tapped',
-        },
-        {
-          name: 'LAlt_T',
-          code: 'LALT_T(kc)',
-          type: 'container',
-          title: 'Alt when held, kc when tapped',
-        },
-        {
-          name: 'LGui_T',
-          code: 'LGUI_T(kc)',
-          type: 'container',
-          title: 'Gui when held, kc when tapped',
-        },
-        {
-          name: 'RSft_T',
-          code: 'RSFT_T(kc)',
-          type: 'container',
-          title: 'Shift when held, kc when tapped',
-        },
-        {
-          name: 'RCtl_T',
-          code: 'RCTL_T(kc)',
-          type: 'container',
-          title: 'Control when held, kc when tapped',
-        },
-        {
-          name: 'RAlt_T',
-          code: 'RALT_T(kc)',
-          type: 'container',
-          title: 'Alt when held, kc when tapped',
-        },
-        {
-          name: 'RGui_T',
-          code: 'RGUI_T(kc)',
-          type: 'container',
-          title: 'Gui when held, kc when tapped',
-        },
-        {
-          name: 'CS_T',
-          code: 'C_S_T(kc)',
-          type: 'container',
-          title: 'Control + Shift when held, kc when tapped',
-        },
-        {
-          name: 'All_T',
-          code: 'ALL_T(kc)',
-          type: 'container',
-          title: 'LCTL + LSFT + LALT + LGUI when held, kc when tapped',
-        },
-        {
-          name: 'Meh_T',
-          code: 'MEH_T(kc)',
-          type: 'container',
-          title: 'LCTL + LSFT + LALT when held, kc when tapped',
-        },
-        {
-          name: 'LCAG_T',
-          code: 'LCAG_T(kc)',
-          type: 'container',
-          title: 'LCTL + LALT + LGUI when held, kc when tapped',
-        },
-        {
-          name: 'RCAG_T',
-          code: 'RCAG_T(kc)',
-          type: 'container',
-          title: 'RCTL + RALT + RGUI when held, kc when tapped',
-        },
-        {
-          name: 'SGUI_T',
-          code: 'SCMD_T(kc)',
-          type: 'container',
-          title: 'LGUI + LSFT when held, kc when tapped',
-        },
-        {
-          name: 'LCA_T',
-          code: 'LCA_T(kc)',
-          type: 'container',
-          title: 'LCTL + LALT when held, kc when tapped',
-        },
-      ],
-    },
-    {
+      category: 'special',
       label: 'Special',
       width: 'label',
       keycodes: [
@@ -989,7 +931,8 @@ export function getKeycodes(): IKeycodeMenu[] {
     },
     /* These are for controlling the original backlighting and bottom RGB. */
     {
-      label: 'QMK Lighting',
+      category: 'qmk_lighting',
+      label: 'Lighting',
       width: 'label',
       keycodes: [
         {name: 'BL Toggle', code: 'BL_TOGG'},
@@ -1025,6 +968,7 @@ export function getKeycodes(): IKeycodeMenu[] {
      Name and Title should be replaced with the correct ones from the keyboard json
     */
     {
+      category: 'custom',
       label: 'Custom',
       width: 'label',
       keycodes: [
@@ -1053,9 +997,9 @@ export const categoriesForKeycodeModule = (
   keycodeModule: BuiltInKeycodeModule | 'default',
 ) =>
   ({
-    default: ['Basic', 'Media', 'Macro', 'Layers', 'Special'],
-    [BuiltInKeycodeModule.WTLighting]: ['Lighting'],
-    [BuiltInKeycodeModule.QMKLighting]: ['QMK Lighting'],
+    default: ['basic', 'media', 'macro', 'layers', 'special'],
+    [BuiltInKeycodeModule.WTLighting]: ['wt_lighting'],
+    [BuiltInKeycodeModule.QMKLighting]: ['qmk_lighting'],
   }[keycodeModule]);
 
 export const getKeycodesForKeyboard = (
@@ -1078,7 +1022,7 @@ export const getKeycodesForKeyboard = (
   }
   return getKeycodes()
     .flatMap((keycodeMenu) =>
-      includeList.includes(keycodeMenu.label) ? keycodeMenu.keycodes : [],
+      includeList.includes(keycodeMenu.category) ? keycodeMenu.keycodes : [],
     )
     .sort((a, b) => {
       if (a.code <= b.code) {
