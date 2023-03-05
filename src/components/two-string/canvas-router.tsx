@@ -46,7 +46,7 @@ const KeyboardRouteGroup = styled.div<{
   position: absolute;
   left: 0;
   transform: translateX(${(p) => p.$position * 100}vw);
-  height: 500px;
+  height: 100%;
   width: 100vw;
   display: inline-flex;
   flex-direction: column;
@@ -171,7 +171,7 @@ const KeyboardGroupContainer = styled.div`
   z-index: 2;
   display: block;
   white-space: nowrap;
-  height: 500px;
+  height: 100%;
   background: linear-gradient(90deg, red, blue);
   width: max-content;
   position: absolute;

@@ -20,7 +20,7 @@ export const KeyboardCanvas: React.FC<KeyboardCanvasProps<React.MouseEvent>> = (
     () => calculateKeyboardFrameDimensions(otherProps.keys),
     [otherProps.keys],
   );
-  const containerHeight = 500;
+  const containerHeight = containerDimensions.height;
   const minPadding = 35;
   const ratio =
     Math.min(
