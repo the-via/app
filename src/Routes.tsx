@@ -10,6 +10,7 @@ import {useMemo, useState} from 'react';
 import {OVERRIDE_HID_CHECK} from './utils/override';
 import {useAppSelector} from './store/hooks';
 import {getRenderMode} from './store/settingsSlice';
+import {Errors} from './components/panes/errors';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -39,7 +40,9 @@ export default () => {
         <GlobalStyle />
         {hasHIDSupport && <UnconnectedGlobalMenu />}
         <CanvasRouter />
-        <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+        <Home hasHIDSupport={hasHIDSupport}>
+          <Route component={Errors} path={'/errors'} /> {RouteComponents}
+        </Home>
       </TestContext.Provider>
     </>
   );

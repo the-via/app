@@ -2,6 +2,8 @@ import type {Device, Keymap} from '../types/types';
 import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
+import {store} from 'src/store/index';
+import {logKeyboardAPIError} from 'src/store/errorsSlice';
 
 // VIA Command IDs
 const COMMAND_START = 0x00; // This is really a HID Report ID
@@ -630,7 +632,27 @@ export class KeyboardAPI {
         'Bad Resp:',
         buffer,
       );
-      throw new Error('Receiving incorrect response for command');
+
+      const error = new Error('Receiving incorrect response for command');
+      const {message, stack} = error;
+      const {path, productId, vendorId, ...hid} = this.getHID();
+
+      store.dispatch(
+        logKeyboardAPIError({
+          message,
+          stack,
+          commandBytes: commandBytes.slice(1),
+          responseBytes: buffer,
+          device: {
+            interface: hid.interface,
+            path,
+            productId,
+            vendorId,
+          },
+        }),
+      );
+
+      throw error;
     }
     console.debug(
       `Command for ${this.kbAddr}`,

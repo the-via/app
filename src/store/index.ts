@@ -7,6 +7,7 @@ import definitionsReducer from './definitionsSlice';
 import lightingReducer from './lightingSlice';
 import menusReducer from './menusSlice';
 import designReducer from './designSlice';
+import errorsReducer from './errorsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     lighting: lightingReducer,
     menus: menusReducer,
     design: designReducer,
+    errors: errorsReducer,
   },
   enhancers: [],
 });

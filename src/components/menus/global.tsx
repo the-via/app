@@ -9,6 +9,8 @@ import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
 import {VIALogo} from '../icons/via';
 import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
+import {faWarning} from '@fortawesome/free-solid-svg-icons';
+import {getKeyboardAPIErrors} from 'src/store/errorsSlice';
 
 const Container = styled.div`
   width: 100vw;
@@ -37,6 +39,7 @@ const ExternalLinkContainer = styled.span`
 
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
+  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
 
   const [location] = useLocation();
 
@@ -81,6 +84,17 @@ export const UnconnectedGlobalMenu = () => {
   return (
     <React.Fragment>
       <GlobalContainer>
+        {keyboardAPIErrors.length ? (
+          <Link to="/errors">
+            <CategoryIconContainer>
+              <FontAwesomeIcon size={'xl'} icon={faWarning} color={'gold'} />
+              <CategoryMenuTooltip>
+                {keyboardAPIErrors.length} error
+                {keyboardAPIErrors.length ? 's' : ''}
+              </CategoryMenuTooltip>
+            </CategoryIconContainer>
+          </Link>
+        ) : null}
         {Panes}
         <ExternalLinks />
       </GlobalContainer>
