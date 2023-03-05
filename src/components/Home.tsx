@@ -216,9 +216,9 @@ export const Home: React.FC<HomeProps> = (props) => {
     dispatch(updateSelectedKeyAction(null));
 
     // Only trigger flashing lights when multiple devices are connected
-    if (Object.values(connectedDevices).length > 1) {
-      toggleLights();
-    }
+    // if (Object.values(connectedDevices).length > 1) {
+    //   toggleLights();
+    // }
   }, [api]);
 
   return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
