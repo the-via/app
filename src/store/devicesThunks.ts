@@ -158,10 +158,8 @@ export const reloadConnectedDevices =
     ) {
       const firstConnectedDevice = validDevicesArr[0][1];
 
-      console.log('3');
       dispatch(selectConnectedDevice(firstConnectedDevice));
     } else if (validDevicesArr.length === 0) {
-      console.log('4');
       dispatch(selectDevice(null));
     }
   };
