@@ -135,7 +135,7 @@ const ExtendedHID = {
       this.fastForwardGlobalBuffer(Date.now());
       if (globalBuffer[this.path].length > 0) {
         // this should be a noop normally
-        fn(undefined, globalBuffer[this.path].shift() as any);
+        fn(undefined, globalBuffer[this.path].shift()?.message as any);
       } else {
         eventWaitBuffer[this.path].push((data) => fn(undefined, data));
       }
