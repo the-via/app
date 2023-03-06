@@ -28,7 +28,7 @@ export default () => {
         return (
           <Route component={pane.component} key={pane.key} path={pane.path} />
         );
-      }),
+      }).concat(<Route component={Errors} path={'/errors'} />),
     [],
   );
 
@@ -40,9 +40,7 @@ export default () => {
         <GlobalStyle />
         {hasHIDSupport && <UnconnectedGlobalMenu />}
         <CanvasRouter />
-        <Home hasHIDSupport={hasHIDSupport}>
-          <Route component={Errors} path={'/errors'} /> {RouteComponents}
-        </Home>
+        <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
       </TestContext.Provider>
     </>
   );

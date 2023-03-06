@@ -81,20 +81,28 @@ export const UnconnectedGlobalMenu = () => {
     </ExternalLinkContainer>
   );
 
+  const ErrorLink = () => {
+    if (keyboardAPIErrors.length) {
+      return (
+        <Link to="/errors">
+          <CategoryIconContainer>
+            <FontAwesomeIcon size={'xl'} icon={faWarning} color={'gold'} />
+            <CategoryMenuTooltip>
+              {keyboardAPIErrors.length} error
+              {keyboardAPIErrors.length ? 's' : ''}
+            </CategoryMenuTooltip>
+          </CategoryIconContainer>
+        </Link>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <React.Fragment>
       <GlobalContainer>
-        {keyboardAPIErrors.length ? (
-          <Link to="/errors">
-            <CategoryIconContainer>
-              <FontAwesomeIcon size={'xl'} icon={faWarning} color={'gold'} />
-              <CategoryMenuTooltip>
-                {keyboardAPIErrors.length} error
-                {keyboardAPIErrors.length ? 's' : ''}
-              </CategoryMenuTooltip>
-            </CategoryIconContainer>
-          </Link>
-        ) : null}
+        <ErrorLink></ErrorLink>
         {Panes}
         <ExternalLinks />
       </GlobalContainer>

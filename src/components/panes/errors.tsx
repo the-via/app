@@ -17,6 +17,7 @@ const Container = styled.div`
   flex-direction: column;
   padding: 16px;
   border-bottom: 1px solid var(--color_accent);
+  user-select: text;
 `;
 
 const KeyboardAPIErrors = () => {
