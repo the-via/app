@@ -1,5 +1,6 @@
 import {faKeyboard} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {render} from 'react-dom';
 import {
   clearKeyboardAPIErrors,
   getKeyboardAPIErrors,
@@ -27,37 +28,40 @@ const ButtonContainer = styled.div`
   gap: 2rem;
 `;
 
+const printId = (id: number) =>
+  `0x${id.toString(16).padStart(4, '0').toUpperCase()}`;
+
+const printBytes = (bytes: number[]) => bytes.join(' ');
+
 const renderKeyboardAPIErrors = (errors: KeyboardAPIError[]) => {
-  return errors.map(({commandName, commandBytes, responseBytes, device}) => (
-    <Container>
-      <ul>
-        <li>
-          Vid: {device.vendorId.toString(16).padStart(4, '0').toUpperCase()}
-        </li>
-        <li>
-          Pid: 0x
-          {device.productId.toString(16).padStart(4, '0').toUpperCase()}
-        </li>
-        <li>Command name: {commandName}</li>
-        <li>Command: {commandBytes.join(' ')}</li>
-        <li>Response: {responseBytes.join(' ')}</li>
-      </ul>
-    </Container>
-  ));
+  return errors.map(
+    ({timestamp, commandName, commandBytes, responseBytes, device}) => (
+      <Container key={timestamp}>
+        {timestamp}
+        <ul>
+          <li>Vid: {printId(device.vendorId)}</li>
+          <li>Pid: {printId(device.productId)}</li>
+          <li>Command name: {commandName}</li>
+          <li>Command: {printBytes(commandBytes)}</li>
+          <li>Response: {printBytes(responseBytes)}</li>
+        </ul>
+      </Container>
+    ),
+  );
 };
 
 const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
   try {
     const handle = await window.showSaveFilePicker({
-      suggestedName: 'keyboard-API-errors.csv',
+      suggestedName: 'VIA-keyboard-API-errors.csv',
     });
-    const headers = [`vid, pid, commandName, command, response`];
+    const headers = [`timestamp, vid, pid, commandName, command, response`];
     const data = errors.map(
-      ({device, commandName, commandBytes, responseBytes}) =>
-        `${device.vendorId}, ${
-          device.productId
-        }, ${commandName}, ${commandBytes.join(' ')}, ${responseBytes.join(
-          ' ',
+      ({timestamp, commandName, commandBytes, responseBytes, device}) =>
+        `${timestamp}, ${printId(device.vendorId)}, ${printId(
+          device.productId,
+        )}, ${commandName}, ${printBytes(commandBytes)}, ${printBytes(
+          responseBytes,
         )}`,
     );
     const csv = headers.concat(...data).join('\n');

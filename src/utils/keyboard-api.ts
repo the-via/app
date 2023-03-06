@@ -662,9 +662,15 @@ export class KeyboardAPI {
 
       const {path, productId, vendorId, ...hid} = this.getHID();
       const commandName = APICommandValueToName[command];
+      const now = new Date();
+      const timestamp = `${now.toLocaleTimeString()}.${now
+        .getMilliseconds()
+        .toString()
+        .padStart(3, '0')}`;
 
       store.dispatch(
         logKeyboardAPIError({
+          timestamp,
           commandName,
           commandBytes: commandBytes.slice(1),
           responseBytes: buffer,
