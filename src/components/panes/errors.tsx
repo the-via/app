@@ -3,6 +3,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   clearKeyboardAPIErrors,
   getKeyboardAPIErrors,
+  KeyboardAPIError,
 } from 'src/store/errorsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
@@ -20,41 +21,59 @@ const Container = styled.div`
   user-select: text;
 `;
 
-const KeyboardAPIErrors = () => {
-  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
-  return keyboardAPIErrors.map(
-    ({message, stack, commandBytes, responseBytes, device}) => (
-      <Container>
-        <h3>{message}</h3>
-        <div>{stack}</div>
-        <dl>
-          <dt>Command bytes</dt>
-          <dd>{commandBytes.join(' ')}</dd>
-          <dt>Response bytes</dt>
-          <dd>{responseBytes.join(' ')}</dd>
-        </dl>
-        <h4>Device details</h4>
-        <dl>
-          <dt>Path</dt>
-          <dd>{device.path}</dd>
-          <dt>VendorId</dt>
-          <dd>
-            0x
-            {device.vendorId.toString(16).padStart(8, '0').toUpperCase()}
-          </dd>
-          <dt>ProductId</dt>
-          <dd>
-            0x
-            {device.productId.toString(16).padStart(8, '0').toUpperCase()}
-          </dd>
-        </dl>
-      </Container>
-    ),
-  );
+const ButtonContainer = styled.div`
+  display: flex;
+  padding: 1.5rem 3rem;
+  gap: 2rem;
+`;
+
+const renderKeyboardAPIErrors = (errors: KeyboardAPIError[]) => {
+  return errors.map(({commandName, commandBytes, responseBytes, device}) => (
+    <Container>
+      <ul>
+        <li>
+          Vid: {device.vendorId.toString(16).padStart(4, '0').toUpperCase()}
+        </li>
+        <li>
+          Pid: 0x
+          {device.productId.toString(16).padStart(4, '0').toUpperCase()}
+        </li>
+        <li>Command name: {commandName}</li>
+        <li>Command: {commandBytes.join(' ')}</li>
+        <li>Response: {responseBytes.join(' ')}</li>
+      </ul>
+    </Container>
+  ));
+};
+
+const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'keyboard-API-errors.csv',
+    });
+    const headers = [`vid, pid, commandName, command, response`];
+    const data = errors.map(
+      ({device, commandName, commandBytes, responseBytes}) =>
+        `${device.vendorId}, ${
+          device.productId
+        }, ${commandName}, ${commandBytes.join(' ')}, ${responseBytes.join(
+          ' ',
+        )}`,
+    );
+    const csv = headers.concat(...data).join('\n');
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const writeable = await handle.createWritable();
+    await writeable.write(blob);
+    await writeable.close();
+  } catch (err) {
+    console.log('User cancelled save errors request');
+  }
 };
 
 export const Errors = () => {
   const dispatch = useAppDispatch();
+  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
+
   return (
     <Pane>
       <Grid style={{overflow: 'hidden'}}>
@@ -69,10 +88,17 @@ export const Errors = () => {
           </MenuContainer>
         </MenuCell>
         <SpanOverflowCell style={{flex: 1, borderWidth: 0}}>
-          <AccentButton onClick={() => dispatch(clearKeyboardAPIErrors())}>
-            Clear errors
-          </AccentButton>
-          {KeyboardAPIErrors()}
+          <ButtonContainer>
+            <AccentButton onClick={() => dispatch(clearKeyboardAPIErrors())}>
+              Clear
+            </AccentButton>
+            <AccentButton
+              onClick={() => saveKeyboardAPIErrors(keyboardAPIErrors)}
+            >
+              Download
+            </AccentButton>
+          </ButtonContainer>
+          {renderKeyboardAPIErrors(keyboardAPIErrors)}
         </SpanOverflowCell>
       </Grid>
     </Pane>

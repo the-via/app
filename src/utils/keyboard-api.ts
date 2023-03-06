@@ -6,35 +6,47 @@ import {store} from 'src/store/index';
 import {logKeyboardAPIError} from 'src/store/errorsSlice';
 
 // VIA Command IDs
+
 const COMMAND_START = 0x00; // This is really a HID Report ID
-const GET_PROTOCOL_VERSION = 0x01;
-const GET_KEYBOARD_VALUE = 0x02;
-const SET_KEYBOARD_VALUE = 0x03;
-const DYNAMIC_KEYMAP_GET_KEYCODE = 0x04;
-const DYNAMIC_KEYMAP_SET_KEYCODE = 0x05;
-// const DYNAMIC_KEYMAP_CLEAR_ALL = 0x06;
-const CUSTOM_MENU_SET_VALUE = 0x07;
-const CUSTOM_MENU_GET_VALUE = 0x08;
-const CUSTOM_MENU_SAVE = 0x09;
 const PER_KEY_RGB_CHANNEL_COMMAND = [0, 1];
 
-const EEPROM_RESET = 0x0a;
-const BOOTLOADER_JUMP = 0x0b;
-const DYNAMIC_KEYMAP_MACRO_GET_COUNT = 0x0c;
-const DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE = 0x0d;
-const DYNAMIC_KEYMAP_MACRO_GET_BUFFER = 0x0e;
-const DYNAMIC_KEYMAP_MACRO_SET_BUFFER = 0x0f;
-const DYNAMIC_KEYMAP_MACRO_RESET = 0x10;
-const DYNAMIC_KEYMAP_GET_LAYER_COUNT = 0x11;
-const DYNAMIC_KEYMAP_GET_BUFFER = 0x12;
-const DYNAMIC_KEYMAP_SET_BUFFER = 0x13;
-const DYNAMIC_KEYMAP_GET_ENCODER = 0x14;
-const DYNAMIC_KEYMAP_SET_ENCODER = 0x15;
+enum APICommand {
+  GET_PROTOCOL_VERSION = 0x01,
+  GET_KEYBOARD_VALUE = 0x02,
+  SET_KEYBOARD_VALUE = 0x03,
+  DYNAMIC_KEYMAP_GET_KEYCODE = 0x04,
+  DYNAMIC_KEYMAP_SET_KEYCODE = 0x05,
+  //  DYNAMIC_KEYMAP_CLEAR_ALL = 0x06,
+  CUSTOM_MENU_SET_VALUE = 0x07,
+  CUSTOM_MENU_GET_VALUE = 0x08,
+  CUSTOM_MENU_SAVE = 0x09,
 
-// DEPRECATED:
-const BACKLIGHT_CONFIG_SET_VALUE = 0x07;
-const BACKLIGHT_CONFIG_GET_VALUE = 0x08;
-const BACKLIGHT_CONFIG_SAVE = 0x09;
+  EEPROM_RESET = 0x0a,
+  BOOTLOADER_JUMP = 0x0b,
+  DYNAMIC_KEYMAP_MACRO_GET_COUNT = 0x0c,
+  DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE = 0x0d,
+  DYNAMIC_KEYMAP_MACRO_GET_BUFFER = 0x0e,
+  DYNAMIC_KEYMAP_MACRO_SET_BUFFER = 0x0f,
+  DYNAMIC_KEYMAP_MACRO_RESET = 0x10,
+  DYNAMIC_KEYMAP_GET_LAYER_COUNT = 0x11,
+  DYNAMIC_KEYMAP_GET_BUFFER = 0x12,
+  DYNAMIC_KEYMAP_SET_BUFFER = 0x13,
+  DYNAMIC_KEYMAP_GET_ENCODER = 0x14,
+  DYNAMIC_KEYMAP_SET_ENCODER = 0x15,
+
+  // DEPRECATED:
+  BACKLIGHT_CONFIG_SET_VALUE = 0x07,
+  BACKLIGHT_CONFIG_GET_VALUE = 0x08,
+  BACKLIGHT_CONFIG_SAVE = 0x09,
+}
+
+const APICommandValueToName = Object.entries(APICommand).reduce(
+  (acc: any, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  },
+  {},
+);
 
 export enum KeyboardValue {
   UPTIME = 0x01,
@@ -153,7 +165,7 @@ export class KeyboardAPI {
 
   async getProtocolVersion() {
     try {
-      const [, hi, lo] = await this.hidCommand(GET_PROTOCOL_VERSION);
+      const [, hi, lo] = await this.hidCommand(APICommand.GET_PROTOCOL_VERSION);
       return shiftTo16Bit([hi, lo]);
     } catch (e) {
       return -1;
@@ -161,18 +173,19 @@ export class KeyboardAPI {
   }
 
   async getKey(layer: Layer, row: Row, col: Column) {
-    const buffer = await this.hidCommand(DYNAMIC_KEYMAP_GET_KEYCODE, [
-      layer,
-      row,
-      col,
-    ]);
+    const buffer = await this.hidCommand(
+      APICommand.DYNAMIC_KEYMAP_GET_KEYCODE,
+      [layer, row, col],
+    );
     return shiftTo16Bit([buffer[4], buffer[5]]);
   }
 
   async getLayerCount() {
     const version = await this.getProtocolVersion();
     if (version >= PROTOCOL_BETA) {
-      const [, count] = await this.hidCommand(DYNAMIC_KEYMAP_GET_LAYER_COUNT);
+      const [, count] = await this.hidCommand(
+        APICommand.DYNAMIC_KEYMAP_GET_LAYER_COUNT,
+      );
       return count;
     }
 
@@ -196,7 +209,7 @@ export class KeyboardAPI {
     }
     // id_dynamic_keymap_get_buffer <offset> <size> ^<data>
     // offset is 16bit. size is 8bit. data is 16bit keycode values, maximum 28 bytes.
-    const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_BUFFER, [
+    const res = await this.hidCommand(APICommand.DYNAMIC_KEYMAP_GET_BUFFER, [
       ...shiftFrom16Bit(offset),
       size,
     ]);
@@ -282,7 +295,7 @@ export class KeyboardAPI {
     const bufferSize = 28;
     for (let offset = 0; offset < shiftedData.length; offset += bufferSize) {
       const buffer = shiftedData.slice(offset, offset + bufferSize);
-      await this.hidCommand(DYNAMIC_KEYMAP_SET_BUFFER, [
+      await this.hidCommand(APICommand.DYNAMIC_KEYMAP_SET_BUFFER, [
         ...shiftFrom16Bit(offset),
         buffer.length,
         ...buffer,
@@ -296,13 +309,13 @@ export class KeyboardAPI {
     resultLength = 1,
   ): Promise<number[]> {
     const bytes = [command, ...parameters];
-    const res = await this.hidCommand(GET_KEYBOARD_VALUE, bytes);
+    const res = await this.hidCommand(APICommand.GET_KEYBOARD_VALUE, bytes);
     return res.slice(1 + bytes.length, 1 + bytes.length + resultLength);
   }
 
   async setKeyboardValue(command: KeyboardValue, ...rest: number[]) {
     const bytes = [command, ...rest];
-    await this.hidCommand(SET_KEYBOARD_VALUE, bytes);
+    await this.hidCommand(APICommand.SET_KEYBOARD_VALUE, bytes);
   }
 
   async getEncoderValue(
@@ -311,7 +324,10 @@ export class KeyboardAPI {
     isClockwise: boolean,
   ): Promise<number> {
     const bytes = [layer, id, +isClockwise];
-    const res = await this.hidCommand(DYNAMIC_KEYMAP_GET_ENCODER, bytes);
+    const res = await this.hidCommand(
+      APICommand.DYNAMIC_KEYMAP_GET_ENCODER,
+      bytes,
+    );
     return shiftTo16Bit([res[4], res[5]]);
   }
 
@@ -322,22 +338,25 @@ export class KeyboardAPI {
     keycode: number,
   ): Promise<void> {
     const bytes = [layer, id, +isClockwise, ...shiftFrom16Bit(keycode)];
-    await this.hidCommand(DYNAMIC_KEYMAP_SET_ENCODER, bytes);
+    await this.hidCommand(APICommand.DYNAMIC_KEYMAP_SET_ENCODER, bytes);
   }
 
   async getCustomMenuValue(commandBytes: number[]): Promise<number[]> {
-    const res = await this.hidCommand(CUSTOM_MENU_GET_VALUE, commandBytes);
+    const res = await this.hidCommand(
+      APICommand.CUSTOM_MENU_GET_VALUE,
+      commandBytes,
+    );
     return res.slice(0 + commandBytes.length);
   }
 
   async setCustomMenuValue(...args: number[]): Promise<void> {
-    await this.hidCommand(CUSTOM_MENU_SET_VALUE, args);
+    await this.hidCommand(APICommand.CUSTOM_MENU_SET_VALUE, args);
   }
 
   async getPerKeyRGBMatrix(ledIndexMapping: number[]): Promise<number[][]> {
     const res = await Promise.all(
       ledIndexMapping.map((ledIndex) =>
-        this.hidCommand(CUSTOM_MENU_GET_VALUE, [
+        this.hidCommand(APICommand.CUSTOM_MENU_GET_VALUE, [
           ...PER_KEY_RGB_CHANNEL_COMMAND,
           ledIndex,
           1, // count
@@ -352,7 +371,7 @@ export class KeyboardAPI {
     hue: number,
     sat: number,
   ): Promise<void> {
-    await this.hidCommand(CUSTOM_MENU_SET_VALUE, [
+    await this.hidCommand(APICommand.CUSTOM_MENU_SET_VALUE, [
       ...PER_KEY_RGB_CHANNEL_COMMAND,
       index,
       1, // count
@@ -366,25 +385,31 @@ export class KeyboardAPI {
     resultLength = 1,
   ): Promise<number[]> {
     const bytes = [command];
-    const res = await this.hidCommand(BACKLIGHT_CONFIG_GET_VALUE, bytes);
+    const res = await this.hidCommand(
+      APICommand.BACKLIGHT_CONFIG_GET_VALUE,
+      bytes,
+    );
     return res.slice(2, 2 + resultLength);
   }
 
   async setBacklightValue(command: LightingValue, ...rest: number[]) {
     const bytes = [command, ...rest];
-    await this.hidCommand(BACKLIGHT_CONFIG_SET_VALUE, bytes);
+    await this.hidCommand(APICommand.BACKLIGHT_CONFIG_SET_VALUE, bytes);
   }
 
   async getRGBMode() {
     const bytes = [BACKLIGHT_EFFECT];
-    const [, , val] = await this.hidCommand(BACKLIGHT_CONFIG_GET_VALUE, bytes);
+    const [, , val] = await this.hidCommand(
+      APICommand.BACKLIGHT_CONFIG_GET_VALUE,
+      bytes,
+    );
     return val;
   }
 
   async getBrightness() {
     const bytes = [BACKLIGHT_BRIGHTNESS];
     const [, , brightness] = await this.hidCommand(
-      BACKLIGHT_CONFIG_GET_VALUE,
+      APICommand.BACKLIGHT_CONFIG_GET_VALUE,
       bytes,
     );
     return brightness;
@@ -393,7 +418,7 @@ export class KeyboardAPI {
   async getColor(colorNumber: number) {
     const bytes = [colorNumber === 1 ? BACKLIGHT_COLOR_1 : BACKLIGHT_COLOR_2];
     const [, , hue, sat] = await this.hidCommand(
-      BACKLIGHT_CONFIG_GET_VALUE,
+      APICommand.BACKLIGHT_CONFIG_GET_VALUE,
       bytes,
     );
     return {hue, sat};
@@ -405,13 +430,13 @@ export class KeyboardAPI {
       hue,
       sat,
     ];
-    await this.hidCommand(BACKLIGHT_CONFIG_SET_VALUE, bytes);
+    await this.hidCommand(APICommand.BACKLIGHT_CONFIG_SET_VALUE, bytes);
   }
 
   async getCustomColor(colorNumber: number) {
     const bytes = [BACKLIGHT_CUSTOM_COLOR, colorNumber];
     const [, , , hue, sat] = await this.hidCommand(
-      BACKLIGHT_CONFIG_GET_VALUE,
+      APICommand.BACKLIGHT_CONFIG_GET_VALUE,
       bytes,
     );
     return {hue, sat};
@@ -419,32 +444,32 @@ export class KeyboardAPI {
 
   async setCustomColor(colorNumber: number, hue: number, sat: number) {
     const bytes = [BACKLIGHT_CUSTOM_COLOR, colorNumber, hue, sat];
-    await this.hidCommand(BACKLIGHT_CONFIG_SET_VALUE, bytes);
+    await this.hidCommand(APICommand.BACKLIGHT_CONFIG_SET_VALUE, bytes);
   }
 
   async setRGBMode(effect: number) {
     const bytes = [BACKLIGHT_EFFECT, effect];
-    await this.hidCommand(BACKLIGHT_CONFIG_SET_VALUE, bytes);
+    await this.hidCommand(APICommand.BACKLIGHT_CONFIG_SET_VALUE, bytes);
   }
 
   async commitCustomMenu(channel: number) {
-    await this.hidCommand(CUSTOM_MENU_SAVE, [channel]);
+    await this.hidCommand(APICommand.CUSTOM_MENU_SAVE, [channel]);
   }
 
   async saveLighting() {
-    await this.hidCommand(BACKLIGHT_CONFIG_SAVE);
+    await this.hidCommand(APICommand.BACKLIGHT_CONFIG_SAVE);
   }
 
   async resetEEPROM() {
-    await this.hidCommand(EEPROM_RESET);
+    await this.hidCommand(APICommand.EEPROM_RESET);
   }
 
   async jumpToBootloader() {
-    await this.hidCommand(BOOTLOADER_JUMP);
+    await this.hidCommand(APICommand.BOOTLOADER_JUMP);
   }
 
   async setKey(layer: Layer, row: Row, column: Column, val: number) {
-    const res = await this.hidCommand(DYNAMIC_KEYMAP_SET_KEYCODE, [
+    const res = await this.hidCommand(APICommand.DYNAMIC_KEYMAP_SET_KEYCODE, [
       layer,
       row,
       column,
@@ -454,14 +479,16 @@ export class KeyboardAPI {
   }
 
   async getMacroCount() {
-    const [, count] = await this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_COUNT);
+    const [, count] = await this.hidCommand(
+      APICommand.DYNAMIC_KEYMAP_MACRO_GET_COUNT,
+    );
     return count;
   }
 
   // size is 16 bit
   async getMacroBufferSize() {
     const [, hi, lo] = await this.hidCommand(
-      DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE,
+      APICommand.DYNAMIC_KEYMAP_MACRO_GET_BUFFER_SIZE,
     );
     return shiftTo16Bit([hi, lo]);
   }
@@ -475,7 +502,7 @@ export class KeyboardAPI {
     const bytesP = [];
     for (let offset = 0; offset < macroBufferSize; offset += 28) {
       bytesP.push(
-        this.hidCommand(DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [
+        this.hidCommand(APICommand.DYNAMIC_KEYMAP_MACRO_GET_BUFFER, [
           ...shiftFrom16Bit(offset),
           size,
         ]),
@@ -504,7 +531,7 @@ export class KeyboardAPI {
     await this.resetMacros();
     try {
       // set last byte in buffer to non-zero (0xFF) to indicate write-in-progress
-      await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
+      await this.hidCommand(APICommand.DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
         ...shiftFrom16Bit(lastOffset),
         1,
         0xff,
@@ -514,7 +541,7 @@ export class KeyboardAPI {
       const bufferSize = 28;
       for (let offset = 0; offset < data.length; offset += bufferSize) {
         const buffer = data.slice(offset, offset + bufferSize);
-        await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
+        await this.hidCommand(APICommand.DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
           ...shiftFrom16Bit(offset),
           buffer.length,
           ...buffer,
@@ -522,7 +549,7 @@ export class KeyboardAPI {
       }
     } finally {
       // set last byte in buffer to zero to indicate write finished
-      await this.hidCommand(DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
+      await this.hidCommand(APICommand.DYNAMIC_KEYMAP_MACRO_SET_BUFFER, [
         ...lastOffsetBytes,
         1,
         0x00,
@@ -531,7 +558,7 @@ export class KeyboardAPI {
   }
 
   async resetMacros() {
-    await this.hidCommand(DYNAMIC_KEYMAP_MACRO_RESET);
+    await this.hidCommand(APICommand.DYNAMIC_KEYMAP_MACRO_RESET);
   }
 
   get commandQueueWrapper() {
@@ -633,14 +660,12 @@ export class KeyboardAPI {
         buffer,
       );
 
-      const error = new Error('Receiving incorrect response for command');
-      const {message, stack} = error;
       const {path, productId, vendorId, ...hid} = this.getHID();
+      const commandName = APICommandValueToName[command];
 
       store.dispatch(
         logKeyboardAPIError({
-          message,
-          stack,
+          commandName,
           commandBytes: commandBytes.slice(1),
           responseBytes: buffer,
           device: {
@@ -652,7 +677,7 @@ export class KeyboardAPI {
         }),
       );
 
-      throw error;
+      throw new Error('Receiving incorrect response for command');
     }
     console.debug(
       `Command for ${this.kbAddr}`,

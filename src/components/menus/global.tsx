@@ -82,11 +82,16 @@ export const UnconnectedGlobalMenu = () => {
   );
 
   const ErrorLink = () => {
+    const isSelectedRoute = location === '/errors';
     if (keyboardAPIErrors.length) {
       return (
         <Link to="/errors">
-          <CategoryIconContainer>
-            <FontAwesomeIcon size={'xl'} icon={faWarning} color={'gold'} />
+          <CategoryIconContainer $selected={isSelectedRoute}>
+            <FontAwesomeIcon
+              size={'xl'}
+              icon={faWarning}
+              color={isSelectedRoute ? 'inherit' : 'gold'}
+            />
             <CategoryMenuTooltip>
               {keyboardAPIErrors.length} error
               {keyboardAPIErrors.length ? 's' : ''}

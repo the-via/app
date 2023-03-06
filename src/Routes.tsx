@@ -28,7 +28,7 @@ export default () => {
         return (
           <Route component={pane.component} key={pane.key} path={pane.path} />
         );
-      }).concat(<Route component={Errors} path={'/errors'} />),
+      }).concat(<Route component={Errors} path={'/errors'} key={'errors'} />),
     [],
   );
 

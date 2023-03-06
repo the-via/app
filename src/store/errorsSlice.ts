@@ -3,8 +3,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {Device} from 'src/types/types';
 
 export type KeyboardAPIError = {
-  message: string;
-  stack?: string;
+  commandName: string;
   commandBytes: number[];
   responseBytes: number[];
   device: Device;
