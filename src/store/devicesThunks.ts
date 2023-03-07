@@ -77,13 +77,16 @@ const selectConnectedDevice =
       await dispatch(loadLayoutOptions());
 
       const {protocol} = connectedDevice;
-      if (protocol < 11) {
-        // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
-        await dispatch(updateLightingData(connectedDevice));
-      }
-      if (protocol >= 11) {
-        // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
-        await dispatch(updateV3MenuData(connectedDevice));
+      try {
+        if (protocol < 11) {
+          // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+          await dispatch(updateLightingData(connectedDevice));
+        } else if (protocol >= 11) {
+          // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+          await dispatch(updateV3MenuData(connectedDevice));
+        }
+      } catch (e) {
+        console.error('Loading lighting/menu data failed:', e);
       }
 
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
