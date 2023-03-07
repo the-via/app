@@ -56,6 +56,7 @@ import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
 import {IconButtonUnfilledContainer} from '../inputs/icon-button';
+import {AccentButton} from '../inputs/accent-button';
 
 let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
@@ -327,24 +328,50 @@ export const DesignTab: FC = () => {
               </Detail>
             </ControlRow>
             {definition && (
-              <ControlRow>
-                <Label>Shown Keyboard Definition</Label>
-                <Detail>
-                  <AccentSelect
-                    onChange={(option: any) => {
-                      // Reset selected layouts when choosing a different
-                      // definition
-                      dispatch(updateSelectedOptionKeys([]));
+              <>
+                <ControlRow>
+                  <Label>Shown Keyboard Definition</Label>
+                  <Detail>
+                    <AccentSelect
+                      onChange={(option: any) => {
+                        // Reset selected layouts when choosing a different
+                        // definition
+                        dispatch(updateSelectedOptionKeys([]));
 
-                      if (option) {
-                        dispatch(updateSelectedDefinitionIndex(+option.value));
-                      }
-                    }}
-                    value={options[selectedDefinitionIndex]}
-                    options={options}
-                  />
-                </Detail>
-              </ControlRow>
+                        if (option) {
+                          dispatch(
+                            updateSelectedDefinitionIndex(+option.value),
+                          );
+                        }
+                      }}
+                      value={options[selectedDefinitionIndex]}
+                      options={options}
+                    />
+                  </Detail>
+                </ControlRow>
+                <ControlRow>
+                  <Label>Next Keyboard Definition</Label>
+                  <Detail>
+                    <AccentButton
+                      onClick={() => {
+                        // Reset selected layouts when choosing a different
+                        // definition
+                        dispatch(updateSelectedOptionKeys([]));
+
+                        if (selectedDefinitionIndex !== options.length - 1) {
+                          dispatch(
+                            updateSelectedDefinitionIndex(
+                              Number(
+                                options[selectedDefinitionIndex + 1].value,
+                              ),
+                            ),
+                          );
+                        }
+                      }}
+                    />
+                  </Detail>
+                </ControlRow>
+              </>
             )}
             {definition && (
               <Layouts

@@ -6,7 +6,7 @@ export const generateRowColArray = (
   rows: number,
   cols: number,
 ) => {
-  const matrixKeys = keys.filter((key) => key['ei'] === undefined);
+  const matrixKeys = keys.filter((key) => key['ei'] === undefined && !key.d);
   const rowKeys = matrixKeys
     .reduce(
       (sumKeys, key) => {

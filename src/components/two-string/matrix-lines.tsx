@@ -1,4 +1,5 @@
 import {VIAKey} from '@the-via/reader';
+import {CSSVarObject} from 'src/utils/keyboard-rendering';
 import styled from 'styled-components';
 import {generateRowColArray} from '../n-links/matrix-lines';
 
@@ -8,7 +9,13 @@ type MatrixProps = {
 };
 
 const Matrix: React.FC<MatrixProps> = ({rowKeys, colKeys}) => (
-  <SVG style={{position: 'absolute', top: 0}}>
+  <SVG
+    style={{
+      position: 'absolute',
+      top: CSSVarObject.insideBorder,
+      left: CSSVarObject.insideBorder,
+    }}
+  >
     {rowKeys.map((arr, index) => (
       <RowLine
         points={arr.map((point) => (point || []).join(',')).join(' ')}

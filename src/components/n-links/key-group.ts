@@ -1,4 +1,4 @@
-import {VIAKey} from '@the-via/reader';
+import {getBoundingBox, Result, VIAKey} from '@the-via/reader';
 import {useAppDispatch} from 'src/store/hooks';
 import {updateSelectedKey} from 'src/store/keymapSlice';
 import {
@@ -93,11 +93,28 @@ export function getKeysKeys<T>(
 ): KeysKeys<T> {
   const {keys} = props;
   const {rowMap} = getKeyboardRowPartitions(keys);
+  const boxes = (keys as unknown as Result[]).map(getBoundingBox);
+  const [minX, minY] = [
+    Math.min(...boxes.map((p) => p.xStart)),
+    Math.min(...boxes.map((p) => p.yStart)),
+  ];
+  const positions = keys
+    .map((k) => {
+      const key = {...k};
+      if (minX < 0) {
+        key.x = key.x - minX;
+      }
+      if (minY < 0) {
+        key.y = key.y - minY;
+      }
+      return key;
+    })
+    .map(calculatePointPosition);
   return {
     indices: keys.map(getKeysKeysIndices(props.definition.vendorProductId)),
     coords: keys.map((k, i) => {
       // x & y are pixel positioned
-      const [x, y] = calculatePointPosition(k);
+      const [x, y] = positions[i];
       const r = (k.r * (2 * Math.PI)) / 360;
       // The 1.05mm in-between keycaps but normalized by a keycap width/height
       const normalizedKeyXSpacing =
@@ -113,7 +130,7 @@ export function getKeysKeys<T>(
       const color = (keyColorPalette as any)[paletteKey];
 
       return {
-        position: getPosition(x, y),
+        position: getPosition(x + minX, y + minY),
         rotation: [0, 0, -r],
         scale: [normalizedWidth, normalizedHeight, 1],
         color,

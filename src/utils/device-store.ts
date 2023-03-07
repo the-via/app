@@ -30,7 +30,6 @@ const defaultStoreData = {
   },
   definitions: {},
   settings: {
-    allowKeyboardKeyRemapping: false,
     showDesignTab: false,
     disableFastRemap: false,
     renderMode: '2D' as const,

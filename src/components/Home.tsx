@@ -16,15 +16,11 @@ import {
   loadSupportedIds,
   reloadConnectedDevices,
 } from 'src/store/devicesThunks';
-import {
-  getAllowKeyboardKeyRemapping,
-  getDisableFastRemap,
-} from '../store/settingsSlice';
+import {getDisableFastRemap} from '../store/settingsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
   getSelectedKey,
   getSelectedLayerIndex,
-  updateKey,
   updateSelectedKey as updateSelectedKeyAction,
 } from 'src/store/keymapSlice';
 import {
@@ -32,8 +28,6 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import {getNextKey} from 'src/utils/keyboard-rendering';
-import {mapEvtToKeycode} from 'src/utils/key-event';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardValue} from 'src/utils/keyboard-api';
 
@@ -97,9 +91,6 @@ export const Home: React.FC<HomeProps> = (props) => {
   const {hasHIDSupport} = props;
 
   const dispatch = useAppDispatch();
-  const allowKeyRemappingViaKeyboard = useAppSelector(
-    getAllowKeyboardKeyRemapping,
-  );
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const connectedDevices = useAppSelector(getConnectedDevices);
@@ -116,47 +107,6 @@ export const Home: React.FC<HomeProps> = (props) => {
     500,
     1,
   );
-
-  const updateSelectedKey = async (value: number) => {
-    if (
-      selectedLayerIndex !== null &&
-      selectedKey !== null &&
-      selectedDefinition
-    ) {
-      // Redux
-      dispatch(updateKey(selectedKey, value));
-      dispatch(
-        updateSelectedKeyAction(
-          disableFastRemap
-            ? null
-            : getNextKey(selectedKey, selectedKeyDefinitions),
-        ),
-      );
-    }
-  };
-
-  const handleKeys = (evt: KeyboardEvent): void => {
-    if (allowKeyRemappingViaKeyboard && selectedKey !== null) {
-      const keycode = mapEvtToKeycode(evt);
-      if (keycode) {
-        updateSelectedKey(getByteForCode(keycode, basicKeyToByte));
-      }
-    }
-  };
-
-  const enableKeyPressListener = () => {
-    const body = document.body;
-    if (body) {
-      body.addEventListener('keydown', handleKeys);
-    }
-  };
-
-  const disableKeyPressListener = () => {
-    const body = document.body;
-    if (body) {
-      body.removeEventListener('keydown', handleKeys);
-    }
-  };
 
   const toggleLights = async () => {
     if (!api || !selectedDefinition) {
@@ -203,12 +153,10 @@ export const Home: React.FC<HomeProps> = (props) => {
     startMonitoring();
     usbDetect.on('change', updateDevicesRepeat);
     dispatch(loadSupportedIds());
-    enableKeyPressListener();
 
     return () => {
       // Cleanup function equiv to componentWillUnmount
       usbDetect.off('change', updateDevicesRepeat);
-      disableKeyPressListener();
     };
   }, []); // Passing an empty array as the second arg makes the body of the function equiv to componentDidMount (not including the cleanup func)
 

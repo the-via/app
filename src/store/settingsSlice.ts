@@ -38,9 +38,6 @@ const settingsSlice = createSlice({
   name: 'settings',
   initialState,
   reducers: {
-    toggleKeyRemappingViaKeyboard: (state) => {
-      toggleBool(state, 'allowKeyboardKeyRemapping');
-    },
     toggleFastRemap: (state) => {
       toggleBool(state, 'disableFastRemap');
     },
@@ -97,7 +94,6 @@ const settingsSlice = createSlice({
 });
 
 export const {
-  toggleKeyRemappingViaKeyboard,
   toggleFastRemap,
   toggleCreatorMode,
   setTestMatrixEnabled,
@@ -112,8 +108,6 @@ export const {
 
 export default settingsSlice.reducer;
 
-export const getAllowKeyboardKeyRemapping = (state: RootState) =>
-  state.settings.allowKeyboardKeyRemapping;
 export const getAllowGlobalHotKeys = (state: RootState) =>
   state.settings.allowGlobalHotKeys;
 export const getDisableFastRemap = (state: RootState) =>
