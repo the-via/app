@@ -28,6 +28,22 @@
       "headers": {
         "cache-control": "public, max-age=18144000"
       }
+    },
+    {
+      "route": "/test",
+      "rewrite": "/"
+    },
+    {
+      "route": "/design",
+      "rewrite": "/"
+    },
+    {
+      "route": "/settings",
+      "rewrite": "/"
+    },
+    {
+      "route": "/debug",
+      "rewrite": "/"
     }
   ],
   "platform": {
