@@ -9,6 +9,8 @@ import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
 import {VIALogo} from '../icons/via';
 import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
+import {faWarning} from '@fortawesome/free-solid-svg-icons';
+import {getKeyboardAPIErrors} from 'src/store/errorsSlice';
 
 const Container = styled.div`
   width: 100vw;
@@ -37,6 +39,7 @@ const ExternalLinkContainer = styled.span`
 
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
+  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
 
   const [location] = useLocation();
 
@@ -78,9 +81,33 @@ export const UnconnectedGlobalMenu = () => {
     </ExternalLinkContainer>
   );
 
+  const ErrorLink = () => {
+    const isSelectedRoute = location === '/errors';
+    if (keyboardAPIErrors.length) {
+      return (
+        <Link to="/errors">
+          <CategoryIconContainer $selected={isSelectedRoute}>
+            <FontAwesomeIcon
+              size={'xl'}
+              icon={faWarning}
+              color={isSelectedRoute ? 'inherit' : 'gold'}
+            />
+            <CategoryMenuTooltip>
+              {keyboardAPIErrors.length} error
+              {keyboardAPIErrors.length ? 's' : ''}
+            </CategoryMenuTooltip>
+          </CategoryIconContainer>
+        </Link>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <React.Fragment>
       <GlobalContainer>
+        <ErrorLink></ErrorLink>
         {Panes}
         <ExternalLinks />
       </GlobalContainer>

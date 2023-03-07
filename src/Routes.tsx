@@ -10,6 +10,7 @@ import {useMemo, useState} from 'react';
 import {OVERRIDE_HID_CHECK} from './utils/override';
 import {useAppSelector} from './store/hooks';
 import {getRenderMode} from './store/settingsSlice';
+import {Errors} from './components/panes/errors';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -27,7 +28,7 @@ export default () => {
         return (
           <Route component={pane.component} key={pane.key} path={pane.path} />
         );
-      }),
+      }).concat(<Route component={Errors} path={'/errors'} key={'errors'} />),
     [],
   );
 
