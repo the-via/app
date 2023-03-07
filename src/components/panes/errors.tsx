@@ -1,4 +1,10 @@
-import {faKeyboard, faWarning} from '@fortawesome/free-solid-svg-icons';
+import {
+  faCancel,
+  faDownload,
+  faKeyboard,
+  faSave,
+  faWarning,
+} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {render} from 'react-dom';
 import {
@@ -10,7 +16,12 @@ import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
 import {AccentButton} from '../inputs/accent-button';
-import {CategoryMenuTooltip, MenuTooltip} from '../inputs/tooltip';
+import {IconButtonContainer} from '../inputs/icon-button';
+import {
+  CategoryMenuTooltip,
+  IconButtonTooltip,
+  MenuTooltip,
+} from '../inputs/tooltip';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {
   Grid,
@@ -81,6 +92,14 @@ const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
     console.log('User cancelled save errors request');
   }
 };
+const IconButtonGroupContainer = styled.div`
+  border-radius: 2px;
+  border: 1px solid var(--border_color_icon);
+  display: inline-flex;
+  > button:last-child {
+    border: none;
+  }
+`;
 
 export const Errors = () => {
   const dispatch = useAppDispatch();
@@ -100,16 +119,28 @@ export const Errors = () => {
           </MenuContainer>
         </MenuCell>
         <SpanOverflowCell style={{flex: 1, borderWidth: 0}}>
-          <ButtonContainer>
-            <AccentButton onClick={() => dispatch(clearKeyboardAPIErrors())}>
-              Clear
-            </AccentButton>
-            <AccentButton
+          <IconButtonGroupContainer style={{margin: '10px 15px'}}>
+            <IconButtonContainer
+              onClick={() => dispatch(clearKeyboardAPIErrors())}
+            >
+              <FontAwesomeIcon
+                size={'sm'}
+                color="var(--color_label)"
+                icon={faCancel}
+              />
+              <IconButtonTooltip>Clear</IconButtonTooltip>
+            </IconButtonContainer>
+            <IconButtonContainer
               onClick={() => saveKeyboardAPIErrors(keyboardAPIErrors)}
             >
-              Download
-            </AccentButton>
-          </ButtonContainer>
+              <FontAwesomeIcon
+                size={'sm'}
+                color="var(--color_label)"
+                icon={faDownload}
+              />
+              <IconButtonTooltip>Download</IconButtonTooltip>
+            </IconButtonContainer>
+          </IconButtonGroupContainer>
           {renderKeyboardAPIErrors(keyboardAPIErrors)}
         </SpanOverflowCell>
       </Grid>
