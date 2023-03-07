@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
 import PANES from '../../utils/pane-config';
@@ -9,8 +9,9 @@ import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
 import {VIALogo} from '../icons/via';
 import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
-import {faWarning} from '@fortawesome/free-solid-svg-icons';
 import {getKeyboardAPIErrors} from 'src/store/errorsSlice';
+import {ErrorLink, ErrorsPaneConfig} from '../panes/errors';
+import {ExternalLinks} from './external-links';
 
 const Container = styled.div`
   width: 100vw;
@@ -30,84 +31,33 @@ const GlobalContainer = styled(Container)`
   column-gap: 20px;
 `;
 
-const ExternalLinkContainer = styled.span`
-  position: absolute;
-  right: 1em;
-  display: flex;
-  gap: 1em;
-`;
-
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
   const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
 
   const [location] = useLocation();
 
-  const Panes = React.useMemo(() => {
-    return PANES.map((pane) => {
-      if (pane.key === 'design' && !showDesignTab) return null;
-      if (pane.key === 'debug' && !showDebugPane) return null;
-      return (
-        <Link key={pane.key} to={pane.path}>
-          <CategoryIconContainer $selected={pane.path === location}>
-            <FontAwesomeIcon size={'xl'} icon={pane.icon} />
-            <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
-          </CategoryIconContainer>
-        </Link>
-      );
-    });
+  const Panes = useMemo(() => {
+    return PANES.filter((pane) => pane.key !== ErrorsPaneConfig.key).map(
+      (pane) => {
+        if (pane.key === 'design' && !showDesignTab) return null;
+        if (pane.key === 'debug' && !showDebugPane) return null;
+        return (
+          <Link key={pane.key} to={pane.path}>
+            <CategoryIconContainer $selected={pane.path === location}>
+              <FontAwesomeIcon size={'xl'} icon={pane.icon} />
+              <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
+            </CategoryIconContainer>
+          </Link>
+        );
+      },
+    );
   }, [location, showDesignTab]);
-
-  const ExternalLinks = () => (
-    <ExternalLinkContainer>
-      <a href="https://caniusevia.com/" target="_blank">
-        <CategoryIconContainer>
-          <VIALogo height="25px" fill="currentColor"></VIALogo>
-          <CategoryMenuTooltip>Firmware + Docs</CategoryMenuTooltip>
-        </CategoryIconContainer>
-      </a>
-      <a href="https://discord.gg/NStTR5YaPB" target="_blank">
-        <CategoryIconContainer>
-          <FontAwesomeIcon size={'xl'} icon={faDiscord} />
-          <CategoryMenuTooltip>Discord</CategoryMenuTooltip>
-        </CategoryIconContainer>
-      </a>
-      <a href="https://github.com/the-via/app" target="_blank">
-        <CategoryIconContainer>
-          <FontAwesomeIcon size={'xl'} icon={faGithub} />
-          <CategoryMenuTooltip>Github</CategoryMenuTooltip>
-        </CategoryIconContainer>
-      </a>
-    </ExternalLinkContainer>
-  );
-
-  const ErrorLink = () => {
-    const isSelectedRoute = location === '/errors';
-    if (keyboardAPIErrors.length) {
-      return (
-        <Link to="/errors">
-          <CategoryIconContainer $selected={isSelectedRoute}>
-            <FontAwesomeIcon
-              size={'xl'}
-              icon={faWarning}
-              color={isSelectedRoute ? 'inherit' : 'gold'}
-            />
-            <CategoryMenuTooltip>
-              {keyboardAPIErrors.length} error
-              {keyboardAPIErrors.length ? 's' : ''}
-            </CategoryMenuTooltip>
-          </CategoryIconContainer>
-        </Link>
-      );
-    }
-
-    return null;
-  };
 
   return (
     <React.Fragment>
       <GlobalContainer>
-        <ErrorLink></ErrorLink>
+        <ErrorLink />
         {Panes}
         <ExternalLinks />
       </GlobalContainer>

@@ -1,4 +1,4 @@
-import {faKeyboard} from '@fortawesome/free-solid-svg-icons';
+import {faKeyboard, faWarning} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {render} from 'react-dom';
 import {
@@ -8,10 +8,18 @@ import {
 } from 'src/store/errorsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
+import {Link, useLocation} from 'wouter';
 import {AccentButton} from '../inputs/accent-button';
-import {MenuTooltip} from '../inputs/tooltip';
+import {CategoryMenuTooltip, MenuTooltip} from '../inputs/tooltip';
 import {MenuContainer} from './configure-panes/custom/menu-generator';
-import {Grid, MenuCell, Row, IconContainer, SpanOverflowCell} from './grid';
+import {
+  Grid,
+  MenuCell,
+  Row,
+  IconContainer,
+  SpanOverflowCell,
+  CategoryIconContainer,
+} from './grid';
 import {Pane} from './pane';
 
 const Container = styled.div`
@@ -107,4 +115,37 @@ export const Errors = () => {
       </Grid>
     </Pane>
   );
+};
+
+export const ErrorLink = () => {
+  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
+  const [location] = useLocation();
+  const isSelectedRoute = location === '/errors';
+  if (keyboardAPIErrors.length) {
+    return (
+      <Link to="/errors">
+        <CategoryIconContainer $selected={isSelectedRoute}>
+          <FontAwesomeIcon
+            size={'xl'}
+            icon={ErrorsPaneConfig.icon}
+            color={isSelectedRoute ? 'inherit' : 'gold'}
+          />
+          <CategoryMenuTooltip>
+            {keyboardAPIErrors.length} error
+            {keyboardAPIErrors.length ? 's' : ''}
+          </CategoryMenuTooltip>
+        </CategoryIconContainer>
+      </Link>
+    );
+  }
+
+  return null;
+};
+
+export const ErrorsPaneConfig = {
+  component: Errors,
+  path: '/errors',
+  icon: faWarning,
+  key: 'errors',
+  title: 'Errors',
 };

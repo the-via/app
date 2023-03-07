@@ -41,11 +41,8 @@ enum APICommand {
 }
 
 const APICommandValueToName = Object.entries(APICommand).reduce(
-  (acc: any, [key, value]) => {
-    acc[value] = key;
-    return acc;
-  },
-  {},
+  (acc: any, [key, value]) => ({...acc, [value]: key}),
+  {} as Record<APICommand, string>,
 );
 
 export enum KeyboardValue {
