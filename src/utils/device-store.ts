@@ -16,6 +16,7 @@ import type {
   Device,
   ConnectedDevice,
 } from '../types/types';
+import {formatNumberAsHex} from './format';
 import {getVendorProductId} from './hid-keyboards';
 
 let deviceStore: Store;
@@ -122,6 +123,17 @@ export const getMissingDefinition = async <
   const vpid = getVendorProductId(device.vendorId, device.productId);
   const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
+
+  if (response.status >= 400) {
+    throw new Error(
+      `Cannot download definition for ${device.productName} at ${url} 
+      (HTTP status: ${response.status}; Vendor Id: ${formatNumberAsHex(
+        device.vendorId,
+        2,
+      )}; Product Id: ${formatNumberAsHex(device.productId, 2)})`,
+    );
+  }
+
   const json: DefinitionVersionMap[K] = await response.json();
   let definitions = deviceStore.get('definitions');
   const newDefinitions = {

@@ -32,6 +32,7 @@ const tagDevice = (device: HIDDevice): WebVIADevice => {
     vendorId: device.vendorId ?? -1,
     productId: device.productId ?? -1,
     path,
+    productName: device.productName ?? '',
   };
   return (ExtendedHID._cache[path] = HIDDevice);
 };
@@ -80,6 +81,7 @@ const ExtendedHID = {
     vendorId: number = -1;
     productId: number = -1;
     path: string = '';
+    productName: string = '';
     openPromise: Promise<void> = Promise.resolve();
     constructor(path: string) {
       this._hidDevice = ExtendedHID._cache[path];
@@ -93,6 +95,7 @@ const ExtendedHID = {
         this.usage = this._hidDevice.usage ?? this.usage;
         this.usagePage = this._hidDevice.usagePage ?? this.usagePage;
         this.interface = this._hidDevice.interface;
+        this.productName = this._hidDevice.productName;
         globalBuffer[this.path] = globalBuffer[this.path] || [];
         eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];
         if (!this._hidDevice._device.opened) {

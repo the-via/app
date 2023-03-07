@@ -57,6 +57,7 @@ import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
 import {IconButtonUnfilledContainer} from '../inputs/icon-button';
 import {AccentButton} from '../inputs/accent-button';
+import {formatNumberAsHex} from 'src/utils/format';
 
 let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
 
@@ -412,11 +413,10 @@ export const DesignTab: FC = () => {
                 >
                   <SubLabel>{definition[definitionVersion].name}</SubLabel>
                   <Detail>
-                    0x
-                    {definition[definitionVersion].vendorProductId
-                      .toString(16)
-                      .padStart(8, '0')
-                      .toUpperCase()}
+                    {formatNumberAsHex(
+                      definition[definitionVersion].vendorProductId,
+                      4,
+                    )}
                     <IconButtonUnfilledContainer
                       onClick={() => {
                         dispatch(

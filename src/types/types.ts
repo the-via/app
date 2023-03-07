@@ -27,9 +27,10 @@ export type Device = {
   productId: number;
   vendorId: number;
   interface: number;
-  usage?: number;
-  usagePage?: number;
+  usage: number;
+  usagePage: number;
   path: string;
+  productName: string;
 };
 
 export type Keymap = number[];
@@ -51,6 +52,7 @@ export type ConnectedDevice = {
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
+  productName: string;
 };
 export type ConnectedDevices = {
   [devicePath: string]: ConnectedDevice;

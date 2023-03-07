@@ -1,7 +1,6 @@
-import type {KeyboardDictionary} from '@the-via/reader';
 import type {Device, VendorProductIdMap} from '../types/types';
 import {canConnect} from './keyboard-api';
-import {scanDevices} from './usb-hid';
+import {scanRawHIDDevices} from './usb-hid';
 
 //const IS_OSX = require('os').platform() === 'darwin';
 const IS_OSX = false;
@@ -28,22 +27,24 @@ export function getVendorProductId(vendorId: number, productId: number) {
   return vendorId * 65536 + productId;
 }
 
-function definitionExists(
-  {productId, vendorId}: Device,
-  definitions: KeyboardDictionary,
-) {
-  const definition = definitions[getVendorProductId(vendorId, productId)];
-  return definition && (definition.v2 || definition.v3);
-}
-
 const idExists = ({productId, vendorId}: Device, vpidMap: VendorProductIdMap) =>
   vpidMap[getVendorProductId(vendorId, productId)];
 
 export const getRecognisedDevices = async (vpidMap: VendorProductIdMap) => {
-  const usbDevices = await scanDevices();
+  const usbDevices = await scanRawHIDDevices();
   return usbDevices.filter((device) => {
     const validVendorProduct = idExists(device, vpidMap);
+    if (!validVendorProduct) {
+      throw new Error(
+        `Definition not found: VendorId: ${device.vendorId}; Product Id: ${device.productId};`,
+      );
+    }
+
     const validInterface = isValidInterface(device);
+    if (!validInterface) {
+      throw new Error('Invalid device interface');
+    }
+
     // attempt connection
     return validVendorProduct && validInterface && canConnect(device);
   });

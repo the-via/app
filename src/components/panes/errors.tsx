@@ -13,6 +13,7 @@ import {
   KeyboardAPIError,
 } from 'src/store/errorsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
+import {formatNumberAsHex} from 'src/utils/format';
 import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
 import {AccentButton} from '../inputs/accent-button';
@@ -50,8 +51,7 @@ const ButtonContainer = styled.div`
   gap: 2rem;
 `;
 
-const printId = (id: number) =>
-  `0x${id.toString(16).padStart(4, '0').toUpperCase()}`;
+const printId = (id: number) => formatNumberAsHex(id, 2);
 
 const printBytes = (bytes: number[]) => bytes.join(' ');
 

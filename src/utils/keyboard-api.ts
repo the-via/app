@@ -657,7 +657,8 @@ export class KeyboardAPI {
         buffer,
       );
 
-      const {path, productId, vendorId, ...hid} = this.getHID();
+      const {path, productId, vendorId, productName, usage, usagePage, ...hid} =
+        this.getHID();
       const commandName = APICommandValueToName[command];
       const now = new Date();
       const timestamp = `${now.toLocaleTimeString()}.${now
@@ -676,6 +677,9 @@ export class KeyboardAPI {
             path,
             productId,
             vendorId,
+            productName,
+            usage,
+            usagePage,
           },
         }),
       );

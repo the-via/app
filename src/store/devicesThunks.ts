@@ -126,11 +126,12 @@ export const reloadConnectedDevices =
 
     const connectedDevices = recognisedDevices.reduce<ConnectedDevices>(
       (devices, device, idx) => {
-        const {path, productId, vendorId} = device;
+        const {path, productId, vendorId, productName} = device;
         const protocol = protocolVersions[idx];
         devices[device.path] = {
           path,
           productId,
+          productName,
           vendorId,
           protocol,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',

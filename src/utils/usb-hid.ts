@@ -5,7 +5,7 @@ import type {Device, WebVIADevice} from '../types/types';
 export {HID} from '../shims/node-hid';
 export {usbDetect} from '../shims/usb-detection';
 
-export async function scanDevices(): Promise<WebVIADevice[]> {
+export async function scanRawHIDDevices(): Promise<WebVIADevice[]> {
   return HID.devices();
 }
 
