@@ -22,7 +22,7 @@ export interface IKeycode {
 }
 
 export interface IKeycodeMenu {
-  category: string;
+  id: string;
   label: string;
   keycodes: IKeycode[];
   width?: 'label';
@@ -348,7 +348,7 @@ export function getOtherMenu(
     }));
 
   return {
-    category: 'other',
+    id: 'other',
     label: 'Other',
     keycodes,
   };
@@ -389,7 +389,7 @@ function buildLayerMenu(): IKeycodeMenu {
   ];
 
   const menu: IKeycodeMenu = {
-    category: 'layers',
+    id: 'layers',
     label: 'Layers',
     width: 'label',
     keycodes: [
@@ -467,7 +467,7 @@ function buildLayerMenu(): IKeycodeMenu {
 export function getKeycodes(): IKeycodeMenu[] {
   return [
     {
-      category: 'basic',
+      id: 'basic',
       label: 'Basic',
       keycodes: [
         {name: '', code: 'KC_NO', title: 'Nothing'},
@@ -622,7 +622,7 @@ export function getKeycodes(): IKeycodeMenu[] {
       ],
     },
     {
-      category: 'wt_lighting',
+      id: 'wt_lighting',
       label: 'Lighting',
       width: 'label',
       keycodes: [
@@ -713,7 +713,7 @@ export function getKeycodes(): IKeycodeMenu[] {
       ],
     },
     {
-      category: 'media',
+      id: 'media',
       label: 'Media',
       width: 'label',
       keycodes: [
@@ -731,7 +731,7 @@ export function getKeycodes(): IKeycodeMenu[] {
       ],
     },
     {
-      category: 'macro',
+      id: 'macro',
       label: 'Macro',
       width: 'label',
       keycodes: [
@@ -755,7 +755,7 @@ export function getKeycodes(): IKeycodeMenu[] {
     },
     buildLayerMenu(),
     {
-      category: 'special',
+      id: 'special',
       label: 'Special',
       width: 'label',
       keycodes: [
@@ -931,7 +931,7 @@ export function getKeycodes(): IKeycodeMenu[] {
     },
     /* These are for controlling the original backlighting and bottom RGB. */
     {
-      category: 'qmk_lighting',
+      id: 'qmk_lighting',
       label: 'Lighting',
       width: 'label',
       keycodes: [
@@ -968,7 +968,7 @@ export function getKeycodes(): IKeycodeMenu[] {
      Name and Title should be replaced with the correct ones from the keyboard json
     */
     {
-      category: 'custom',
+      id: 'custom',
       label: 'Custom',
       width: 'label',
       keycodes: [
@@ -1022,7 +1022,7 @@ export const getKeycodesForKeyboard = (
   }
   return getKeycodes()
     .flatMap((keycodeMenu) =>
-      includeList.includes(keycodeMenu.category) ? keycodeMenu.keycodes : [],
+      includeList.includes(keycodeMenu.id) ? keycodeMenu.keycodes : [],
     )
     .sort((a, b) => {
       if (a.code <= b.code) {

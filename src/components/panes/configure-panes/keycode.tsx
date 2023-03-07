@@ -164,7 +164,7 @@ export const KeycodePane: FC = () => {
   }
 
   const [selectedCategory, setSelectedCategory] = useState(
-    KeycodeCategories[0].category,
+    KeycodeCategories[0].id,
   );
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
@@ -178,19 +178,16 @@ export const KeycodePane: FC = () => {
     return KeycodeCategories.filter(
       maybeFilter(
         keycodes === KeycodeType.QMK,
-        ({category}) => category !== 'qmk_lighting',
+        ({id}) => id !== 'qmk_lighting',
       ),
     )
       .filter(
-        maybeFilter(
-          keycodes === KeycodeType.WT,
-          ({category}) => category !== 'lighting',
-        ),
+        maybeFilter(keycodes === KeycodeType.WT, ({id}) => id !== 'lighting'),
       )
       .filter(
         maybeFilter(
           typeof customKeycodes !== 'undefined',
-          ({category}) => category !== 'custom',
+          ({id}) => id !== 'custom',
         ),
       );
   };
@@ -203,7 +200,7 @@ export const KeycodePane: FC = () => {
       allowedKeycodes.push('custom');
     }
     return KeycodeCategories.filter((category) =>
-      allowedKeycodes.includes(category.category),
+      allowedKeycodes.includes(category.id),
     );
   };
 
@@ -221,11 +218,11 @@ export const KeycodePane: FC = () => {
   const renderCategories = () => {
     return (
       <MenuContainer>
-        {getEnabledMenus().map(({category, label}) => (
+        {getEnabledMenus().map(({id, label}) => (
           <SubmenuRow
-            $selected={category === selectedCategory}
-            onClick={() => setSelectedCategory(category)}
-            key={category}
+            $selected={id === selectedCategory}
+            onClick={() => setSelectedCategory(id)}
+            key={id}
           >
             {label}
           </SubmenuRow>
@@ -358,7 +355,7 @@ export const KeycodePane: FC = () => {
   };
 
   const selectedCategoryKeycodes = KeycodeCategories.find(
-    ({category}) => category === selectedCategory,
+    ({id}) => id === selectedCategory,
   )?.keycodes as IKeycode[];
 
   return (
