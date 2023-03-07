@@ -70,7 +70,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {
-      return (
+      return k.d ? null : (
         <Keycap
           {...getComboKeyProps(k)}
           {...getKeycapSharedProps(

@@ -71,7 +71,7 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {
       const {meshKey} = keysKeys.coords[i];
-      return (
+      return k.d ? null : (
         <Keycap
           keycapGeometry={
             (

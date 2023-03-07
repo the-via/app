@@ -7,7 +7,6 @@ import {
   VIAKey,
 } from '@the-via/reader';
 import partition from 'lodash.partition';
-import {KeyColorPair} from 'src/types/keyboard-rendering';
 import {Color} from 'three';
 import {getThemeFromStore} from './device-store';
 import {
@@ -34,6 +33,7 @@ export const CSSVarObject = {
   keyYPos: 54 + 2,
   faceXPadding: [6, 6],
   faceYPadding: [2, 10],
+  insideBorder: 10,
 };
 
 export const KeycapMetric = {
@@ -289,21 +289,14 @@ export const getNextKey = (
   currIndex: number,
   keys: VIAKey[],
 ): number | null => {
+  const displayedKeys = keys.filter((k) => !k.d);
   const currKey = keys[currIndex];
-  const sortedKeys = getTraversalOrder([...keys]);
+  const sortedKeys = getTraversalOrder([...displayedKeys]);
   const sortedIndex = sortedKeys.indexOf(currKey);
   return sortedIndex === sortedKeys.length - 1
     ? null
     : keys.indexOf(sortedKeys[(sortedIndex + 1) % sortedKeys.length]);
 };
-
-const theme = getThemeFromStore();
-
-const srgbTheme = Object.entries(theme).reduce((p, [key, colorPair]) => {
-  const c = `#${new Color(colorPair.c).convertSRGBToLinear().getHexString()}`;
-  const t = `#${new Color(colorPair.t).convertSRGBToLinear().getHexString()}`;
-  return {...p, [key]: {c, t}};
-}, {}) as ReturnType<typeof getThemeFromStore>;
 
 export const makeSRGBTheme = (theme: ThemeDefinition) =>
   Object.entries(theme).reduce((p, [key, colorPair]) => {

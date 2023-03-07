@@ -2,7 +2,7 @@
   "license": "GPL-3.0",
   "scripts": {
     "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
-    "dev": "node scripts/build-definitions.js && vite",
+    "dev": "node scripts/build-definitions.js && vite --force",
     "build": "npm run build:kbs && tsc && vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -28,7 +28,7 @@
     "@react-three/fiber": "^8.11.5",
     "@reduxjs/toolkit": "^1.9.3",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.6.0",
+    "@the-via/reader": "^1.7.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^7.2.1",
     "idb-keyval": "^6.2.0",

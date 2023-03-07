@@ -40,7 +40,7 @@ export const Case = React.memo((props: {width: number; height: number}) => {
     props.width * CSSVarObject.keyXPos - CSSVarObject.keyXSpacing;
   const properHeight =
     CSSVarObject.keyYPos * props.height - CSSVarObject.keyYSpacing;
-  const insideBorder = 10;
+  const insideBorder = CSSVarObject.insideBorder;
   const insideWidth = properWidth + insideBorder * 1;
   const outsideWidth = properWidth + insideBorder * 3;
   const [insideHeight, outsideHeight] = [
