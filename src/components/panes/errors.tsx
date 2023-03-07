@@ -37,8 +37,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   padding: 16px;
-  border-bottom: 1px solid var(--color_accent);
   user-select: text;
+  border-top: 1px solid var(--color_accent);
+  &:last-of-type {
+    border-bottom: 1px solid var(--color_accent);
+  }
 `;
 
 const ButtonContainer = styled.div`
