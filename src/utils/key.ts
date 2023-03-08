@@ -9,6 +9,7 @@ import {
   getLightingDefinition,
   KeycodeType,
 } from '@the-via/reader';
+import type {KeycodeDict} from './keycode-dict';
 
 export interface IKeycode {
   name: string;
@@ -67,17 +68,14 @@ export function isNumericSymbol(label: string) {
 }
 
 // Maps the byte value to the keycode
-export function getByteForCode(
-  code: string,
-  basicKeyToByte: Record<string, number>,
-) {
-  const byte: number | undefined = basicKeyToByte[code];
+export function getByteForCode(code: string, keycodeDict: KeycodeDict) {
+  const byte: number | undefined = keycodeDict.keycodes[code]?.byte;
   if (byte !== undefined) {
     return byte;
   } else if (isLayerCode(code)) {
-    return getByteForLayerCode(code, basicKeyToByte);
-  } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
-    return advancedStringToKeycode(code, basicKeyToByte);
+    return getByteForLayerCode(code, keycodeDict);
+  } else if (advancedStringToKeycode(code, keycodeDict) !== null) {
+    return advancedStringToKeycode(code, keycodeDict);
   }
   throw `Could not find byte for ${code}`;
 }
@@ -86,9 +84,11 @@ function isLayerCode(code: string) {
   return /([A-Za-z]+)\((\d+)\)/.test(code);
 }
 
+// TODO: this is redundant with advanced keycode parsing
+// should refactor both together
 function getByteForLayerCode(
   keycode: string,
-  basicKeyToByte: Record<string, number>,
+  keycodeDict: KeycodeDict,
 ): number {
   const keycodeMatch = keycode.match(/([A-Za-z]+)\((\d+)\)/);
   if (keycodeMatch) {
@@ -97,50 +97,50 @@ function getByteForLayerCode(
     switch (code) {
       case 'TO': {
         return Math.min(
-          basicKeyToByte._QK_TO + numLayer,
-          basicKeyToByte._QK_TO_MAX,
+          keycodeDict.ranges.QK_TO + numLayer,
+          keycodeDict.ranges.QK_TO_MAX,
         );
       }
       case 'MO': {
         return Math.min(
-          basicKeyToByte._QK_MOMENTARY + numLayer,
-          basicKeyToByte._QK_MOMENTARY_MAX,
+          keycodeDict.ranges.QK_MOMENTARY + numLayer,
+          keycodeDict.ranges.QK_MOMENTARY_MAX,
         );
       }
       case 'DF': {
         return Math.min(
-          basicKeyToByte._QK_DEF_LAYER + numLayer,
-          basicKeyToByte._QK_DEF_LAYER_MAX,
+          keycodeDict.ranges.QK_DEF_LAYER + numLayer,
+          keycodeDict.ranges.QK_DEF_LAYER_MAX,
         );
       }
       case 'TG': {
         return Math.min(
-          basicKeyToByte._QK_TOGGLE_LAYER + numLayer,
-          basicKeyToByte._QK_TOGGLE_LAYER_MAX,
+          keycodeDict.ranges.QK_TOGGLE_LAYER + numLayer,
+          keycodeDict.ranges.QK_TOGGLE_LAYER_MAX,
         );
       }
       case 'OSL': {
         return Math.min(
-          basicKeyToByte._QK_ONE_SHOT_LAYER + numLayer,
-          basicKeyToByte._QK_ONE_SHOT_LAYER_MAX,
+          keycodeDict.ranges.QK_ONE_SHOT_LAYER + numLayer,
+          keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX,
         );
       }
       case 'TT': {
         return Math.min(
-          basicKeyToByte._QK_LAYER_TAP_TOGGLE + numLayer,
-          basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+          keycodeDict.ranges.QK_LAYER_TAP_TOGGLE + numLayer,
+          keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX,
         );
       }
       case 'CUSTOM': {
         return Math.min(
-          basicKeyToByte._QK_KB + numLayer,
-          basicKeyToByte._QK_KB_MAX,
+          keycodeDict.ranges.QK_KB + numLayer,
+          keycodeDict.ranges.QK_KB_MAX,
         );
       }
       case 'MACRO': {
         return Math.min(
-          basicKeyToByte._QK_MACRO + numLayer,
-          basicKeyToByte._QK_MACRO_MAX,
+          keycodeDict.ranges.QK_MACRO + numLayer,
+          keycodeDict.ranges.QK_MACRO_MAX,
         );
       }
       default: {
@@ -151,54 +151,56 @@ function getByteForLayerCode(
   throw new Error('No match found');
 }
 
-function getCodeForLayerByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  if (basicKeyToByte._QK_TO <= byte && basicKeyToByte._QK_TO_MAX >= byte) {
-    const layer = byte - basicKeyToByte._QK_TO;
+// TODO: this is redundant with advanced keycode parsing
+// should refactor both together
+function getCodeForLayerByte(byte: number, keycodeDict: KeycodeDict) {
+  if (
+    keycodeDict.ranges.QK_TO <= byte &&
+    keycodeDict.ranges.QK_TO_MAX >= byte
+  ) {
+    const layer = byte - keycodeDict.ranges.QK_TO;
     return `TO(${layer})`;
   } else if (
-    basicKeyToByte._QK_MOMENTARY <= byte &&
-    basicKeyToByte._QK_MOMENTARY_MAX >= byte
+    keycodeDict.ranges.QK_MOMENTARY <= byte &&
+    keycodeDict.ranges.QK_MOMENTARY_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_MOMENTARY;
+    const layer = byte - keycodeDict.ranges.QK_MOMENTARY;
     return `MO(${layer})`;
   } else if (
-    basicKeyToByte._QK_DEF_LAYER <= byte &&
-    basicKeyToByte._QK_DEF_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_DEF_LAYER <= byte &&
+    keycodeDict.ranges.QK_DEF_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_DEF_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_DEF_LAYER;
     return `DF(${layer})`;
   } else if (
-    basicKeyToByte._QK_TOGGLE_LAYER <= byte &&
-    basicKeyToByte._QK_TOGGLE_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_TOGGLE_LAYER <= byte &&
+    keycodeDict.ranges.QK_TOGGLE_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_TOGGLE_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_TOGGLE_LAYER;
     return `TG(${layer})`;
   } else if (
-    basicKeyToByte._QK_ONE_SHOT_LAYER <= byte &&
-    basicKeyToByte._QK_ONE_SHOT_LAYER_MAX >= byte
+    keycodeDict.ranges.QK_ONE_SHOT_LAYER <= byte &&
+    keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_ONE_SHOT_LAYER;
+    const layer = byte - keycodeDict.ranges.QK_ONE_SHOT_LAYER;
     return `OSL(${layer})`;
   } else if (
-    basicKeyToByte._QK_LAYER_TAP_TOGGLE <= byte &&
-    basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX >= byte
+    keycodeDict.ranges.QK_LAYER_TAP_TOGGLE <= byte &&
+    keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX >= byte
   ) {
-    const layer = byte - basicKeyToByte._QK_LAYER_TAP_TOGGLE;
+    const layer = byte - keycodeDict.ranges.QK_LAYER_TAP_TOGGLE;
     return `TT(${layer})`;
   } else if (
-    basicKeyToByte._QK_KB <= byte &&
-    basicKeyToByte._QK_KB_MAX >= byte
+    keycodeDict.ranges.QK_KB <= byte &&
+    keycodeDict.ranges.QK_KB_MAX >= byte
   ) {
-    const n = byte - basicKeyToByte._QK_KB;
+    const n = byte - keycodeDict.ranges.QK_KB;
     return `CUSTOM(${n})`;
   } else if (
-    basicKeyToByte._QK_MACRO <= byte &&
-    basicKeyToByte._QK_MACRO_MAX >= byte
+    keycodeDict.ranges.QK_MACRO <= byte &&
+    keycodeDict.ranges.QK_MACRO_MAX >= byte
   ) {
-    const n = byte - basicKeyToByte._QK_MACRO;
+    const n = byte - keycodeDict.ranges.QK_MACRO;
     return `MACRO(${n})`;
   }
 }
@@ -208,62 +210,46 @@ export const keycodesList = getKeycodes().reduce<IKeycode[]>(
   [],
 );
 
-export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
-  Object.keys(basicKeyToByte).reduce((p, n) => {
-    const key = basicKeyToByte[n];
-    if (key in p) {
-      const basicKeycode = keycodesList.find(({code}) => code === n);
-      if (basicKeycode) {
-        return {...p, [key]: basicKeycode.code};
-      }
-      return p;
-    }
-    return {...p, [key]: n};
-  }, {} as {[key: number]: string});
-
-function isLayerKey(byte: number, basicKeyToByte: Record<string, number>) {
+function isLayerKey(byte: number, keycodeDict: KeycodeDict) {
   return [
-    [basicKeyToByte._QK_TO, basicKeyToByte._QK_TO_MAX],
-    [basicKeyToByte._QK_MOMENTARY, basicKeyToByte._QK_MOMENTARY_MAX],
-    [basicKeyToByte._QK_DEF_LAYER, basicKeyToByte._QK_DEF_LAYER_MAX],
-    [basicKeyToByte._QK_TOGGLE_LAYER, basicKeyToByte._QK_TOGGLE_LAYER_MAX],
-    [basicKeyToByte._QK_ONE_SHOT_LAYER, basicKeyToByte._QK_ONE_SHOT_LAYER_MAX],
+    [keycodeDict.ranges.QK_TO, keycodeDict.ranges.QK_TO_MAX],
+    [keycodeDict.ranges.QK_MOMENTARY, keycodeDict.ranges.QK_MOMENTARY_MAX],
+    [keycodeDict.ranges.QK_DEF_LAYER, keycodeDict.ranges.QK_DEF_LAYER_MAX],
     [
-      basicKeyToByte._QK_LAYER_TAP_TOGGLE,
-      basicKeyToByte._QK_LAYER_TAP_TOGGLE_MAX,
+      keycodeDict.ranges.QK_TOGGLE_LAYER,
+      keycodeDict.ranges.QK_TOGGLE_LAYER_MAX,
     ],
-    [basicKeyToByte._QK_KB, basicKeyToByte._QK_KB_MAX],
-    [basicKeyToByte._QK_MACRO, basicKeyToByte._QK_MACRO_MAX],
+    [
+      keycodeDict.ranges.QK_ONE_SHOT_LAYER,
+      keycodeDict.ranges.QK_ONE_SHOT_LAYER_MAX,
+    ],
+    [
+      keycodeDict.ranges.QK_LAYER_TAP_TOGGLE,
+      keycodeDict.ranges.QK_LAYER_TAP_TOGGLE_MAX,
+    ],
+    [keycodeDict.ranges.QK_KB, keycodeDict.ranges.QK_KB_MAX],
+    [keycodeDict.ranges.QK_MACRO, keycodeDict.ranges.QK_MACRO_MAX],
   ].some((code) => byte >= code[0] && byte <= code[1]);
 }
 
-export function getCodeForByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
-) {
-  const keycode = byteToKey[byte];
-  if (keycode && !keycode.startsWith('_QK')) {
+export function getCodeForByte(byte: number, keycodeDict: KeycodeDict) {
+  const keycode = keycodeDict.byteToKeycode[byte];
+  if (keycode) {
     return keycode;
-  } else if (isLayerKey(byte, basicKeyToByte)) {
-    return getCodeForLayerByte(byte, basicKeyToByte);
-  } else if (
-    advancedKeycodeToString(byte, basicKeyToByte, byteToKey) !== null
-  ) {
-    return advancedKeycodeToString(byte, basicKeyToByte, byteToKey);
+  } else if (isLayerKey(byte, keycodeDict)) {
+    return getCodeForLayerByte(byte, keycodeDict);
+  } else if (advancedKeycodeToString(byte, keycodeDict) !== null) {
+    return advancedKeycodeToString(byte, keycodeDict);
   } else {
     return '0x' + Number(byte).toString(16);
   }
 }
 
-export function keycodeInMaster(
-  keycode: string,
-  basicKeyToByte: Record<string, number>,
-) {
+export function keycodeInMaster(keycode: string, keycodeDict: KeycodeDict) {
   return (
-    keycode in basicKeyToByte ||
+    keycode in keycodeDict.keycodes ||
     isLayerCode(keycode) ||
-    advancedStringToKeycode(keycode, basicKeyToByte) !== null
+    advancedStringToKeycode(keycode, keycodeDict) !== null
   );
 }
 
@@ -274,43 +260,33 @@ function shorten(str: string) {
     .join('');
 }
 
-export function isCustomKeycodeByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte >= basicKeyToByte._QK_KB && byte <= basicKeyToByte._QK_KB_MAX;
-}
-
-export function getCustomKeycodeIndex(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte - basicKeyToByte._QK_KB;
-}
-
-export function isMacroKeycodeByte(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
+export function isCustomKeycodeByte(byte: number, keycodeDict: KeycodeDict) {
   return (
-    byte >= basicKeyToByte._QK_MACRO && byte <= basicKeyToByte._QK_MACRO_MAX
+    byte >= keycodeDict.ranges.QK_KB && byte <= keycodeDict.ranges.QK_KB_MAX
   );
 }
 
-export function getMacroKeycodeIndex(
-  byte: number,
-  basicKeyToByte: Record<string, number>,
-) {
-  return byte - basicKeyToByte._QK_MACRO;
+export function getCustomKeycodeIndex(byte: number, keycodeDict: KeycodeDict) {
+  return byte - keycodeDict.ranges.QK_KB;
+}
+
+export function isMacroKeycodeByte(byte: number, keycodeDict: KeycodeDict) {
+  return (
+    byte >= keycodeDict.ranges.QK_MACRO &&
+    byte <= keycodeDict.ranges.QK_MACRO_MAX
+  );
+}
+
+export function getMacroKeycodeIndex(byte: number, keycodeDict: KeycodeDict) {
+  return byte - keycodeDict.ranges.QK_MACRO;
 }
 
 export function getLabelForByte(
   byte: number,
   size = 100,
-  basicKeyToByte: Record<string, number>,
-  byteToKey: Record<number, string>,
+  keycodeDict: KeycodeDict,
 ) {
-  const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
+  const keycode = getCodeForByte(byte, keycodeDict);
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
     return keycode;
@@ -336,14 +312,11 @@ export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   return name;
 }
 
-export function getOtherMenu(
-  basicKeyToByte: Record<string, number>,
-): IKeycodeMenu {
-  const keycodes = Object.keys(basicKeyToByte)
-    .filter((key) => !key.startsWith('_QK'))
+export function getOtherMenu(keycodeDict: KeycodeDict): IKeycodeMenu {
+  const keycodes = Object.keys(keycodeDict.keycodes)
     .filter((key) => !keycodesList.map(({code}) => code).includes(key))
     .map((code) => ({
-      name: code.replace('KC_', '').replace(/_/g, ' '),
+      name: code.replace(/_/g, ' '),
       code: code,
     }));
 
@@ -358,13 +331,13 @@ function buildLayerMenu(): IKeycodeMenu {
   const hardCodedKeycodes: IKeycode[] = [
     {
       name: 'Fn1\n(Fn3)',
-      code: 'FN_MO13',
+      code: 'QK_TRI_LAYER_1_3',
       title: 'Hold = Layer 1, Hold with Fn2 = Layer 3',
       shortName: 'Fn1(3)',
     },
     {
       name: 'Fn2\n(Fn3)',
-      code: 'FN_MO23',
+      code: 'QK_TRI_LAYER_2_3',
       title: 'Hold = Layer 2, Hold with Fn1 = Layer 3',
       shortName: 'Fn2(3)',
     },
@@ -471,9 +444,9 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Basic',
       keycodes: [
         {name: '', code: 'KC_NO', title: 'Nothing'},
-        {name: '▽', code: 'KC_TRNS', title: 'Pass-through'},
+        {name: '▽', code: 'KC_TRANSPARENT', title: 'Pass-through'},
         // TODO: remove "shortName" when multiline keycap labels are working
-        {name: 'Esc', code: 'KC_ESC', keys: 'esc'},
+        {name: 'Esc', code: 'KC_ESCAPE', keys: 'esc'},
         {name: 'A', code: 'KC_A', keys: 'a'},
         {name: 'B', code: 'KC_B', keys: 'b'},
         {name: 'C', code: 'KC_C', keys: 'c'},
@@ -510,19 +483,19 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: '*\n8', code: 'KC_8', keys: '8'},
         {name: '(\n9', code: 'KC_9', keys: '9'},
         {name: ')\n0', code: 'KC_0', keys: '0'},
-        {name: '_\n-', code: 'KC_MINS', keys: '-'},
-        {name: '+\n=', code: 'KC_EQL', keys: '='},
-        {name: '~\n`', code: 'KC_GRV', keys: '`'},
-        {name: '{\n[', code: 'KC_LBRC', keys: '['},
-        {name: '}\n]', code: 'KC_RBRC', keys: ']'},
-        {name: '|\n\\', code: 'KC_BSLS', keys: '\\', width: 1500},
-        {name: ':\n;', code: 'KC_SCLN', keys: ';'},
-        {name: '"\n\'', code: 'KC_QUOT', keys: "'"},
-        {name: '<\n,', code: 'KC_COMM', keys: ','},
+        {name: '_\n-', code: 'KC_MINUS', keys: '-'},
+        {name: '+\n=', code: 'KC_EQUAL', keys: '='},
+        {name: '~\n`', code: 'KC_GRAVE', keys: '`'},
+        {name: '{\n[', code: 'KC_LEFT_BRACKET', keys: '['},
+        {name: '}\n]', code: 'KC_RIGHT_BRACKET', keys: ']'},
+        {name: '|\n\\', code: 'KC_BACKSLASH', keys: '\\', width: 1500},
+        {name: ':\n;', code: 'KC_SEMICOLON', keys: ';'},
+        {name: '"\n\'', code: 'KC_QUOTE', keys: "'"},
+        {name: '<\n,', code: 'KC_COMMA', keys: ','},
         {name: '>\n.', code: 'KC_DOT', keys: '.'},
-        {name: '?\n/', code: 'KC_SLSH', keys: '/'},
-        {name: '=', code: 'KC_PEQL'},
-        {name: ',', code: 'KC_PCMM'},
+        {name: '?\n/', code: 'KC_SLASH', keys: '/'},
+        //{name: '=', code: 'KC_PEQL'},
+        //{name: ',', code: 'KC_PCMM'},
         {name: 'F1', code: 'KC_F1'},
         {name: 'F2', code: 'KC_F2'},
         {name: 'F3', code: 'KC_F3'},
@@ -535,90 +508,135 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'F10', code: 'KC_F10'},
         {name: 'F11', code: 'KC_F11'},
         {name: 'F12', code: 'KC_F12'},
-        {name: 'Print Screen', code: 'KC_PSCR', shortName: 'Print'},
-        {name: 'Scroll Lock', code: 'KC_SLCK', shortName: 'Scroll'},
-        {name: 'Pause', code: 'KC_PAUS'},
+        {name: 'Print Screen', code: 'KC_PRINT_SCREEN', shortName: 'Print'},
+        {name: 'Scroll Lock', code: 'KC_SCROLL_LOCK', shortName: 'Scroll'},
+        {name: 'Pause', code: 'KC_PAUSE'},
         {name: 'Tab', code: 'KC_TAB', keys: 'tab', width: 1500},
         {
           name: 'Backspace',
-          code: 'KC_BSPC',
+          code: 'KC_BACKSPACE',
           keys: 'backspace',
           width: 2000,
           shortName: 'Bksp',
         },
-        {name: 'Insert', code: 'KC_INS', keys: 'insert', shortName: 'Ins'},
-        {name: 'Del', code: 'KC_DEL', keys: 'delete'},
+        {name: 'Insert', code: 'KC_INSERT', keys: 'insert', shortName: 'Ins'},
+        {name: 'Del', code: 'KC_DELETE', keys: 'delete'},
         {name: 'Home', code: 'KC_HOME', keys: 'home'},
         {name: 'End', code: 'KC_END', keys: 'end'},
-        {name: 'Page Up', code: 'KC_PGUP', keys: 'pageup', shortName: 'PgUp'},
+        {
+          name: 'Page Up',
+          code: 'KC_PAGE_UP',
+          keys: 'pageup',
+          shortName: 'PgUp',
+        },
         {
           name: 'Page Down',
-          code: 'KC_PGDN',
+          code: 'KC_PAGE_DOWN',
           keys: 'pagedown',
           shortName: 'PgDn',
         },
-        {name: 'Num\nLock', code: 'KC_NLCK', keys: 'num', shortName: 'N.Lck'},
-        {name: 'Caps Lock', code: 'KC_CAPS', keys: 'caps_lock', width: 1750},
-        {name: 'Enter', code: 'KC_ENT', keys: 'enter', width: 2250},
-        {name: '1', code: 'KC_P1', keys: 'num_1', title: 'Numpad 1'},
-        {name: '2', code: 'KC_P2', keys: 'num_2', title: 'Numpad 2'},
-        {name: '3', code: 'KC_P3', keys: 'num_3', title: 'Numpad 3'},
-        {name: '4', code: 'KC_P4', keys: 'num_4', title: 'Numpad 4'},
-        {name: '5', code: 'KC_P5', keys: 'num_5', title: 'Numpad 5'},
-        {name: '6', code: 'KC_P6', keys: 'num_6', title: 'Numpad 6'},
-        {name: '7', code: 'KC_P7', keys: 'num_7', title: 'Numpad 7'},
-        {name: '8', code: 'KC_P8', keys: 'num_8', title: 'Numpad 8'},
-        {name: '9', code: 'KC_P9', keys: 'num_9', title: 'Numpad 9'},
+        {
+          name: 'Num\nLock',
+          code: 'KC_NUM_LOCK',
+          keys: 'num',
+          shortName: 'N.Lck',
+        },
+        {
+          name: 'Caps Lock',
+          code: 'KC_CAPS_LOCK',
+          keys: 'caps_lock',
+          width: 1750,
+        },
+        {name: 'Enter', code: 'KC_ENTER', keys: 'enter', width: 2250},
+        {name: '1', code: 'KC_KP_1', keys: 'num_1', title: 'Numpad 1'},
+        {name: '2', code: 'KC_KP_2', keys: 'num_2', title: 'Numpad 2'},
+        {name: '3', code: 'KC_KP_3', keys: 'num_3', title: 'Numpad 3'},
+        {name: '4', code: 'KC_KP_4', keys: 'num_4', title: 'Numpad 4'},
+        {name: '5', code: 'KC_KP_5', keys: 'num_5', title: 'Numpad 5'},
+        {name: '6', code: 'KC_KP_6', keys: 'num_6', title: 'Numpad 6'},
+        {name: '7', code: 'KC_KP_7', keys: 'num_7', title: 'Numpad 7'},
+        {name: '8', code: 'KC_KP_8', keys: 'num_8', title: 'Numpad 8'},
+        {name: '9', code: 'KC_KP_9', keys: 'num_9', title: 'Numpad 9'},
         {
           name: '0',
-          code: 'KC_P0',
+          code: 'KC_KP_0',
           width: 2000,
           keys: 'num_0',
           title: 'Numpad 0',
         },
-        {name: '÷', code: 'KC_PSLS', keys: 'num_divide', title: 'Numpad ÷'},
-        {name: '×', code: 'KC_PAST', keys: 'num_multiply', title: 'Numpad ×'},
-        {name: '-', code: 'KC_PMNS', keys: 'num_subtract', title: 'Numpad -'},
-        {name: '+', code: 'KC_PPLS', keys: 'num_add', title: 'Numpad +'},
-        {name: '.', code: 'KC_PDOT', keys: 'num_decimal', title: 'Numpad .'},
+        {name: '÷', code: 'KC_KP_SLASH', keys: 'num_divide', title: 'Numpad ÷'},
+        {
+          name: '×',
+          code: 'KC_KP_ASTERISK',
+          keys: 'num_multiply',
+          title: 'Numpad ×',
+        },
+        {
+          name: '-',
+          code: 'KC_KP_MINUS',
+          keys: 'num_subtract',
+          title: 'Numpad -',
+        },
+        {name: '+', code: 'KC_KP_PLUS', keys: 'num_add', title: 'Numpad +'},
+        {name: '.', code: 'KC_KP_DOT', keys: 'num_decimal', title: 'Numpad .'},
         {
           name: 'Num\nEnter',
-          code: 'KC_PENT',
+          code: 'KC_KP_ENTER',
           shortName: 'N.Ent',
           title: 'Numpad Enter',
         },
         {
           name: 'Left Shift',
-          code: 'KC_LSFT',
+          code: 'KC_LEFT_SHIFT',
           keys: 'shift',
           width: 2250,
           shortName: 'LShft',
         },
-        {name: 'Right Shift', code: 'KC_RSFT', width: 2750, shortName: 'RShft'},
-        {name: 'Left Ctrl', code: 'KC_LCTL', keys: 'ctrl', width: 1250},
-        {name: 'Right Ctrl', code: 'KC_RCTL', width: 1250, shortName: 'RCtl'},
+        {
+          name: 'Right Shift',
+          code: 'KC_RIGHT_SHIFT',
+          width: 2750,
+          shortName: 'RShft',
+        },
+        {name: 'Left Ctrl', code: 'KC_LEFT_CTRL', keys: 'ctrl', width: 1250},
+        {
+          name: 'Right Ctrl',
+          code: 'KC_RIGHT_CTRL',
+          width: 1250,
+          shortName: 'RCtl',
+        },
         {
           name: 'Left Win',
-          code: 'KC_LGUI',
+          code: 'KC_LEFT_GUI',
           keys: 'cmd',
           width: 1250,
           shortName: 'LWin',
         },
-        {name: 'Right Win', code: 'KC_RGUI', width: 1250, shortName: 'RWin'},
+        {
+          name: 'Right Win',
+          code: 'KC_RIGHT_GUI',
+          width: 1250,
+          shortName: 'RWin',
+        },
         {
           name: 'Left Alt',
-          code: 'KC_LALT',
+          code: 'KC_LEFT_ALT',
           keys: 'alt',
           width: 1250,
           shortName: 'LAlt',
         },
-        {name: 'Right Alt', code: 'KC_RALT', width: 1250, shortName: 'RAlt'},
-        {name: 'Space', code: 'KC_SPC', keys: 'space', width: 6250},
-        {name: 'Menu', code: 'KC_APP', width: 1250, shortName: 'RApp'},
+        {
+          name: 'Right Alt',
+          code: 'KC_RIGHT_ALT',
+          width: 1250,
+          shortName: 'RAlt',
+        },
+        {name: 'Space', code: 'KC_SPACE', keys: 'space', width: 6250},
+        {name: 'App', code: 'KC_APPLICATION'},
         {name: 'Left', code: 'KC_LEFT', keys: 'left', shortName: '←'},
         {name: 'Down', code: 'KC_DOWN', keys: 'down', shortName: '↓'},
         {name: 'Up', code: 'KC_UP', keys: 'up', shortName: '↑'},
-        {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '→'},
+        {name: 'Right', code: 'KC_RIGHT', keys: 'right', shortName: '→'},
       ],
     },
     {
@@ -717,17 +735,25 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Media',
       width: 'label',
       keycodes: [
-        {name: 'Vol -', code: 'KC_VOLD', title: 'Volume Down'},
-        {name: 'Vol +', code: 'KC_VOLU', title: 'Volume Up'},
-        {name: 'Mute', code: 'KC_MUTE', title: 'Mute Audio'},
-        {name: 'Play', code: 'KC_MPLY', title: 'Play/Pause'},
-        {name: 'Media Stop', code: 'KC_MSTP', title: 'Media Stop'},
-        {name: 'Previous', code: 'KC_MPRV', title: 'Media Previous'},
-        {name: 'Next', code: 'KC_MNXT', title: 'Media Next'},
-        {name: 'Rewind', code: 'KC_MRWD', title: 'Rewind'},
-        {name: 'Fast Forward', code: 'KC_MFFD', title: 'Fast Forward'},
-        {name: 'Select', code: 'KC_MSEL', title: 'Media Select'},
-        {name: 'Eject', code: 'KC_EJCT', title: 'Media Eject'},
+        {name: 'Vol -', code: 'KC_AUDIO_VOL_DOWN', title: 'Volume Down'},
+        {name: 'Vol +', code: 'KC_AUDIO_VOL_UP', title: 'Volume Up'},
+        {name: 'Mute', code: 'KC_AUDIO_MUTE', title: 'Mute Audio'},
+        {name: 'Play', code: 'KC_MEDIA_PLAY_PAUSE', title: 'Play/Pause'},
+        {name: 'Media Stop', code: 'KC_MEDIA_STOP', title: 'Media Stop'},
+        {
+          name: 'Previous',
+          code: 'KC_MEDIA_PREV_TRACK',
+          title: 'Media Previous',
+        },
+        {name: 'Next', code: 'KC_MEDIA_NEXT_TRACK', title: 'Media Next'},
+        {name: 'Rewind', code: 'KC_MEDIA_REWIND', title: 'Rewind'},
+        {
+          name: 'Fast Forward',
+          code: 'KC_MEDIA_FAST_FORWARD',
+          title: 'Fast Forward',
+        },
+        {name: 'Select', code: 'KC_MEDIA_SELECT', title: 'Media Select'},
+        {name: 'Eject', code: 'KC_MEDIA_EJECT', title: 'Media Eject'},
       ],
     },
     {
@@ -780,76 +806,80 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: '<', code: 'S(KC_COMM)', keys: '<', title: 'Shift + ,'},
         {name: '>', code: 'S(KC_DOT)', keys: '>', title: 'Shift + .'},
         {name: '?', code: 'S(KC_SLSH)', keys: '?', title: 'Shift + /'},
-        {name: 'NUHS', code: 'KC_NUHS', title: 'Non-US # and ~'},
-        {name: 'NUBS', code: 'KC_NUBS', title: 'Non-US \\ and |'},
-        {name: 'Ro', code: 'KC_RO', title: 'JIS \\ and |'},
-        {name: '¥', code: 'KC_JYEN', title: 'JPN Yen'},
-        {name: '無変換', code: 'KC_MHEN', title: 'JIS Muhenkan'},
-        {name: '漢字', code: 'KC_HANJ', title: 'Hanja'},
-        {name: '한영', code: 'KC_HAEN', title: 'HanYeong'},
-        {name: '変換', code: 'KC_HENK', title: 'JIS Henkan'},
-        {name: 'かな', code: 'KC_KANA', title: 'JIS Katakana/Hiragana'},
+        {name: 'NUHS', code: 'KC_NONUS_HASH', title: 'Non-US # and ~'},
+        {name: 'NUBS', code: 'KC_NONUS_BACKSLASH', title: 'Non-US \\ and |'},
+        {name: 'Ro', code: 'KC_INTERNATIONAL_1', title: 'JIS \\ and |'},
+        {name: '¥', code: 'KC_INTERNATIONAL_3', title: 'JPN Yen'},
+        {name: '無変換', code: 'KC_INTERNATIONAL_5', title: 'JIS Muhenkan'},
+        {name: '漢字', code: 'KC_LANGUAGE_2', title: 'Hanja'},
+        {name: '한영', code: 'KC_LANGUAGE_1', title: 'HanYeong'},
+        {name: '変換', code: 'KC_INTERNATIONAL_4', title: 'JIS Henkan'},
+        {
+          name: 'かな',
+          code: 'KC_INTERNATIONAL_2',
+          title: 'JIS Katakana/Hiragana',
+        },
         {
           name: 'Esc `',
-          code: 'KC_GESC',
+          code: 'QK_GRAVE_ESCAPE',
           title: 'Esc normally, but ` when Shift or Win is pressed',
         },
         {
           name: 'LS (',
-          code: 'KC_LSPO',
+          code: 'QK_SPACE_CADET_LEFT_CTRL_PARENTHESIS_OPEN',
           title: 'Left Shift when held, ( when tapped',
         },
         {
           name: 'RS )',
-          code: 'KC_RSPC',
+          code: 'QK_SPACE_CADET_RIGHT_CTRL_PARENTHESIS_CLOSE',
           title: 'Right Shift when held, ) when tapped',
         },
         {
           name: 'LC (',
-          code: 'KC_LCPO',
+          code: 'QK_SPACE_CADET_LEFT_SHIFT_PARENTHESIS_OPEN',
           title: 'Left Control when held, ( when tapped',
         },
         {
           name: 'RC )',
-          code: 'KC_RCPC',
+          code: 'QK_SPACE_CADET_RIGHT_SHIFT_PARENTHESIS_CLOSE',
           title: 'Right Control when held, ) when tapped',
         },
         {
           name: 'LA (',
-          code: 'KC_LAPO',
+          code: 'QK_SPACE_CADET_LEFT_ALT_PARENTHESIS_OPEN',
           title: 'Left Alt when held, ( when tapped',
         },
         {
           name: 'RA )',
-          code: 'KC_RAPC',
+          code: 'QK_SPACE_CADET_RIGHT_ALT_PARENTHESIS_CLOSE',
           title: 'Right Alt when held, ) when tapped',
         },
         {
           name: 'SftEnt',
-          code: 'KC_SFTENT',
+          code: 'QK_SPACE_CADET_RIGHT_SHIFT_ENTER',
           title: 'Right Shift when held, Enter when tapped',
         },
-        {name: 'Reset', code: 'RESET', title: 'Reset the keyboard'},
-        {name: 'Debug', code: 'DEBUG', title: 'Toggle debug mode'},
+        {name: 'Reset', code: 'QK_BOOTLOADER', title: 'Reset the keyboard'},
+        {name: 'Debug', code: 'QK_DEBUG_TOGGLE', title: 'Toggle debug mode'},
         {
           name: 'Toggle NKRO',
-          code: 'MAGIC_TOGGLE_NKRO',
+          code: 'QK_MAGIC_TOGGLE_NKRO',
           shortName: 'NKRO',
           title: 'Toggle NKRO',
         },
         // I don't even think the locking stuff is enabled...
-        {name: 'Locking Num Lock', code: 'KC_LNUM'},
-        {name: 'Locking Caps Lock', code: 'KC_LCAP'},
-        {name: 'Locking Scroll Lock', code: 'KC_LSCR'},
-        {name: 'Power', code: 'KC_PWR'},
-        {name: 'Power OSX', code: 'KC_POWER'},
-        {name: 'Sleep', code: 'KC_SLEP'},
-        {name: 'Wake', code: 'KC_WAKE'},
-        {name: 'Calc', code: 'KC_CALC'},
+        {name: 'Locking Num Lock', code: 'KC_LOCKING_NUM_LOCK'},
+        {name: 'Locking Caps Lock', code: 'KC_LOCKING_CAPS_LOCK'},
+        {name: 'Locking Scroll Lock', code: 'KC_LOCKING_SCROLL_LOCK'},
+        {name: 'Power', code: 'KC_SYSTEM_POWER'},
+        {name: 'Power OSX', code: 'KC_KB_POWER'},
+        {name: 'Sleep', code: 'KC_SYSTEM_SLEEP'},
+        {name: 'Wake', code: 'KC_SYSTEM_WAKE'},
+        {name: 'Calc', code: 'KC_CALCULATOR'},
         {name: 'Mail', code: 'KC_MAIL'},
         {name: 'Help', code: 'KC_HELP'},
         {name: 'Stop', code: 'KC_STOP'},
-        {name: 'Alt Erase', code: 'KC_ERAS'},
+        {name: 'Alt Erase', code: 'KC_ALTERNATE_ERASE'},
         {name: 'Again', code: 'KC_AGAIN'},
         {name: 'Menu', code: 'KC_MENU'},
         {name: 'Undo', code: 'KC_UNDO'},
@@ -859,7 +889,7 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Copy', code: 'KC_COPY'},
         {name: 'Paste', code: 'KC_PASTE'},
         {name: 'Find', code: 'KC_FIND'},
-        {name: 'My Comp', code: 'KC_MYCM'},
+        {name: 'My Comp', code: 'KC_MY_COMPUTER'},
         {name: 'Home', code: 'KC_WWW_HOME'},
         {name: 'Back', code: 'KC_WWW_BACK'},
         {name: 'Forward', code: 'KC_WWW_FORWARD'},
@@ -869,13 +899,13 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Search', code: 'KC_WWW_SEARCH'},
         {
           name: 'Screen +',
-          code: 'KC_BRIU',
+          code: 'KC_BRIGHTNESS_UP',
           shortName: 'Scr +',
           title: 'Screen Brightness Up',
         },
         {
           name: 'Screen -',
-          code: 'KC_BRID',
+          code: 'KC_BRIGHTNESS_DOWN',
           shortName: 'Scr -',
           title: 'Screen Brightness Down',
         },
@@ -914,19 +944,19 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Mouse Acc2', code: 'KC_MS_ACCEL2'},
 
         // TODO: move these to a new group
-        {name: 'Audio On', code: 'AU_ON'},
-        {name: 'Audio Off', code: 'AU_OFF'},
-        {name: 'Audio Toggle', code: 'AU_TOG'},
-        {name: 'Clicky Toggle', code: 'CLICKY_TOGGLE'},
-        {name: 'Clicky Enable', code: 'CLICKY_ENABLE'},
-        {name: 'Clicky Disable', code: 'CLICKY_DISABLE'},
-        {name: 'Clicky Up', code: 'CLICKY_UP'},
-        {name: 'Clicky Down', code: 'CLICKY_DOWN'},
-        {name: 'Clicky Reset', code: 'CLICKY_RESET'},
-        {name: 'Music On', code: 'MU_ON'},
-        {name: 'Music Off', code: 'MU_OFF'},
-        {name: 'Music Toggle', code: 'MU_TOG'},
-        {name: 'Music Mode', code: 'MU_MOD'},
+        {name: 'Audio On', code: 'QK_AUDIO_ON'},
+        {name: 'Audio Off', code: 'QK_AUDIO_OFF'},
+        {name: 'Audio Toggle', code: 'QK_AUDIO_TOGGLE'},
+        {name: 'Clicky Toggle', code: 'QK_AUDIO_CLICKY_TOGGLE'},
+        {name: 'Clicky On', code: 'QK_AUDIO_CLICKY_ON'},
+        {name: 'Clicky Off', code: 'QK_AUDIO_CLICKY_OFF'},
+        {name: 'Clicky Up', code: 'QK_AUDIO_CLICKY_UP'},
+        {name: 'Clicky Down', code: 'QK_AUDIO_CLICKY_DOWN'},
+        {name: 'Clicky Reset', code: 'QK_AUDIO_CLICKY_RESET'},
+        {name: 'Music On', code: 'QK_MUSIC_ON'},
+        {name: 'Music Off', code: 'QK_MUSIC_OFF'},
+        {name: 'Music Toggle', code: 'QK_MUSIC_TOGGLE'},
+        {name: 'Music Mode', code: 'QK_MUSIC_MODE_NEXT'},
       ],
     },
     /* These are for controlling the original backlighting and bottom RGB. */
@@ -935,16 +965,16 @@ export function getKeycodes(): IKeycodeMenu[] {
       label: 'Lighting',
       width: 'label',
       keycodes: [
-        {name: 'BL Toggle', code: 'BL_TOGG'},
-        {name: 'BL On', code: 'BL_ON'},
-        {name: 'BL Off', code: 'BL_OFF', shortName: 'BL Off'},
-        {name: 'BL -', code: 'BL_DEC'},
-        {name: 'BL +', code: 'BL_INC'},
-        {name: 'BL Cycle', code: 'BL_STEP'},
-        {name: 'BR Toggle', code: 'BL_BRTG'},
+        {name: 'BL Toggle', code: 'QK_BACKLIGHT_TOGGLE'},
+        {name: 'BL On', code: 'QK_BACKLIGHT_ON'},
+        {name: 'BL Off', code: 'QK_BACKLIGHT_OFF', shortName: 'BL Off'},
+        {name: 'BL -', code: 'QK_BACKLIGHT_DOWN'},
+        {name: 'BL +', code: 'QK_BACKLIGHT_UP'},
+        {name: 'BL Cycle', code: 'QK_BACKLIGHT_STEP'},
+        {name: 'BR Toggle', code: 'QK_BACKLIGHT_TOGGLE_BREATHING'},
         {name: 'RGB Toggle', code: 'RGB_TOG'},
-        {name: 'RGB Mode -', code: 'RGB_RMOD'},
-        {name: 'RGB Mode +', code: 'RGB_MOD'},
+        {name: 'RGB Mode -', code: 'RGB_MODE_REVERSE'},
+        {name: 'RGB Mode +', code: 'RGB_MODE_FORWARD'},
         {name: 'Hue -', code: 'RGB_HUD'},
         {name: 'Hue +', code: 'RGB_HUI'},
         {name: 'Sat -', code: 'RGB_SAD'},
@@ -953,14 +983,14 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Bright +', code: 'RGB_VAI'},
         {name: 'Effect Speed-', code: 'RGB_SPD'},
         {name: 'Effect Speed+', code: 'RGB_SPI'},
-        {name: 'RGB Mode P', code: 'RGB_M_P', title: 'Plain'},
-        {name: 'RGB Mode B', code: 'RGB_M_B', title: 'Breathe'},
-        {name: 'RGB Mode R', code: 'RGB_M_R', title: 'Rainbow'},
-        {name: 'RGB Mode SW', code: 'RGB_M_SW', title: 'Swirl'},
-        {name: 'RGB Mode SN', code: 'RGB_M_SN', title: 'Snake'},
-        {name: 'RGB Mode K', code: 'RGB_M_K', title: 'Knight'},
-        {name: 'RGB Mode X', code: 'RGB_M_X', title: 'Xmas'},
-        {name: 'RGB Mode G', code: 'RGB_M_G', title: 'Gradient'},
+        {name: 'RGB Mode P', code: 'RGB_MODE_PLAIN', title: 'Plain'},
+        {name: 'RGB Mode B', code: 'RGB_MODE_BREATHE', title: 'Breathe'},
+        {name: 'RGB Mode R', code: 'RGB_MODE_RAINBOW', title: 'Rainbow'},
+        {name: 'RGB Mode SW', code: 'RGB_MODE_SWIRL', title: 'Swirl'},
+        {name: 'RGB Mode SN', code: 'RGB_MODE_SNAKE', title: 'Snake'},
+        {name: 'RGB Mode K', code: 'RGB_MODE_KNIGHT', title: 'Knight'},
+        {name: 'RGB Mode X', code: 'RGB_MODE_XMAS', title: 'Xmas'},
+        {name: 'RGB Mode G', code: 'RGB_MODE_GRADIENT', title: 'Gradient'},
       ],
     },
     /*

@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {getBasicKeyToByte} from 'src/store/definitionsSlice';
+import {getKeycodeDict} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
 import {Keycap} from './unit-key/keycap';
@@ -51,7 +51,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const keyColorPalette = props.keyColors
     ? getRGBArray(props.keyColors)
     : selectedTheme;
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;
   const selectedKeyIndex =
@@ -65,7 +65,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
     props.onKeycapPointerOver,
   ]);
   const labels = useMemo(() => {
-    return getLabels(props, macroExpressions, basicKeyToByte, byteToKey);
+    return getLabels(props, macroExpressions, keycodeDict);
   }, [keys, props.matrixKeycodes, macros, props.definition]);
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const elems = useMemo(() => {

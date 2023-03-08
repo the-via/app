@@ -24,7 +24,7 @@ import {
   updateSelectedKey as updateSelectedKeyAction,
 } from 'src/store/keymapSlice';
 import {
-  getBasicKeyToByte,
+  getKeycodeDict,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
@@ -97,7 +97,7 @@ export const Home: React.FC<HomeProps> = (props) => {
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
-  const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   const api = useAppSelector(getSelectedKeyboardAPI);
 
   const updateDevicesRepeat: () => void = timeoutRepeater(

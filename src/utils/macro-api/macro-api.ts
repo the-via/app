@@ -1,6 +1,9 @@
 import {isAutocompleteKeycode} from '../autocomplete-keycodes';
 import type {KeyboardAPI} from '../keyboard-api';
+import type {KeycodeDict} from '../keycode-dict';
 import {
+  getByte,
+  getKeycode,
   IMacroAPI,
   ValidationResult,
   KeyAction,
@@ -73,8 +76,7 @@ export function validateMacroExpression(expression: string): ValidationResult {
 export class MacroAPI implements IMacroAPI {
   constructor(
     private keyboardApi: KeyboardAPI,
-    private basicKeyToByte: Record<string, number>,
-    private byteToKey: Record<number, string>,
+    private keycodeDict: KeycodeDict,
   ) {}
 
   async readRawKeycodeSequences(): Promise<RawKeycodeSequence[]> {
@@ -103,21 +105,21 @@ export class MacroAPI implements IMacroAPI {
           byte = bytes[++i];
           currentSequence.push([
             RawKeycodeSequenceAction.Tap,
-            (this.byteToKey as any)[byte],
+            getKeycode(this.keycodeDict, byte),
           ]);
           break;
         case KeyAction.Down:
           byte = bytes[++i];
           currentSequence.push([
             RawKeycodeSequenceAction.Down,
-            (this.byteToKey as any)[byte],
+            getKeycode(this.keycodeDict, byte),
           ]);
           break;
         case KeyAction.Up:
           byte = bytes[++i];
           currentSequence.push([
             RawKeycodeSequenceAction.Up,
-            (this.byteToKey as any)[byte],
+            getKeycode(this.keycodeDict, byte),
           ]);
           break;
         default: {
@@ -152,13 +154,13 @@ export class MacroAPI implements IMacroAPI {
       sequence.forEach((element) => {
         switch (element[0]) {
           case RawKeycodeSequenceAction.Tap:
-            bytes.push(KeyAction.Tap, this.basicKeyToByte[element[1]]);
+            bytes.push(KeyAction.Tap, getByte(this.keycodeDict, element[1] as string));
             break;
           case RawKeycodeSequenceAction.Up:
-            bytes.push(KeyAction.Up, this.basicKeyToByte[element[1]]);
+            bytes.push(KeyAction.Up, getByte(this.keycodeDict, element[1] as string));
             break;
           case RawKeycodeSequenceAction.Down:
-            bytes.push(KeyAction.Down, this.basicKeyToByte[element[1]]);
+            bytes.push(KeyAction.Down, getByte(this.keycodeDict, element[1] as string));
             break;
           case RawKeycodeSequenceAction.Delay:
             // Unsupported

@@ -1,5 +1,5 @@
 import React from 'react';
-import {getBasicKeyToByte} from 'src/store/definitionsSlice';
+import {getKeycodeDict} from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {anyKeycodeToString} from '../../../utils/advanced-keys';
 import {AccentButton} from '../accent-button';
@@ -8,12 +8,12 @@ import type {PelpiInput} from './input';
 
 export const PelpiKeycodeInput: React.FC<PelpiInput<{}>> = (props) => {
   const [showModal, setShowModal] = React.useState(false);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
 
   return (
     <>
       <AccentButton onClick={() => setShowModal(true)}>
-        {anyKeycodeToString(props.value, basicKeyToByte, byteToKey)}
+        {anyKeycodeToString(props.value, keycodeDict)}
       </AccentButton>
       {showModal && (
         <KeycodeModal

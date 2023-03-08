@@ -15,6 +15,7 @@ import {
   updateDefinitions,
   getDefinitions,
   loadStoredCustomDefinitions,
+  getKeycodeDict,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
 import {updateLightingData} from './lightingSlice';
@@ -70,6 +71,7 @@ const selectConnectedDevice =
         connectedDevice,
         getDefinitions(getState()),
       );
+      const keycodeDict = getKeycodeDict(getState());
       dispatch(selectDevice(connectedDevice));
 
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
