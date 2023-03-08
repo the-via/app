@@ -121,9 +121,7 @@ const Link = styled.a`
 `;
 
 const generateKeycodeCategories = (basicKeyToByte: Record<string, number>) =>
-  getKeycodes()
-    .concat(getOtherMenu(basicKeyToByte))
-    .filter((menu) => !['Mod+_'].includes(menu.label));
+  getKeycodes().concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -166,7 +164,7 @@ export const KeycodePane: FC = () => {
   }
 
   const [selectedCategory, setSelectedCategory] = useState(
-    KeycodeCategories[0].label,
+    KeycodeCategories[0].id,
   );
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
@@ -180,19 +178,16 @@ export const KeycodePane: FC = () => {
     return KeycodeCategories.filter(
       maybeFilter(
         keycodes === KeycodeType.QMK,
-        ({label}) => label !== 'QMK Lighting',
+        ({id}) => id !== 'qmk_lighting',
       ),
     )
       .filter(
-        maybeFilter(
-          keycodes === KeycodeType.WT,
-          ({label}) => label !== 'Lighting',
-        ),
+        maybeFilter(keycodes === KeycodeType.WT, ({id}) => id !== 'lighting'),
       )
       .filter(
         maybeFilter(
           typeof customKeycodes !== 'undefined',
-          ({label}) => label !== 'Custom',
+          ({id}) => id !== 'custom',
         ),
       );
   };
@@ -202,10 +197,10 @@ export const KeycodePane: FC = () => {
       categoriesForKeycodeModule(keycodeName),
     );
     if ((selectedDefinition.customKeycodes || []).length !== 0) {
-      allowedKeycodes.push('Custom');
+      allowedKeycodes.push('custom');
     }
     return KeycodeCategories.filter((category) =>
-      allowedKeycodes.includes(category.label),
+      allowedKeycodes.includes(category.id),
     );
   };
 
@@ -223,11 +218,11 @@ export const KeycodePane: FC = () => {
   const renderCategories = () => {
     return (
       <MenuContainer>
-        {getEnabledMenus().map(({label}) => (
+        {getEnabledMenus().map(({id, label}) => (
           <SubmenuRow
-            $selected={label === selectedCategory}
-            onClick={() => setSelectedCategory(label)}
-            key={label}
+            $selected={id === selectedCategory}
+            onClick={() => setSelectedCategory(id)}
+            key={id}
           >
             {label}
           </SubmenuRow>
@@ -317,21 +312,21 @@ export const KeycodePane: FC = () => {
       renderKeycode(keycode, i),
     );
     switch (selectedCategory) {
-      case 'Macro': {
+      case 'macro': {
         return !macros.isFeatureSupported ? (
           renderMacroError()
         ) : (
           <KeycodeList>{keycodeListItems}</KeycodeList>
         );
       }
-      case 'Special': {
+      case 'special': {
         return (
           <KeycodeList>
             {keycodeListItems.concat(renderCustomKeycode())}
           </KeycodeList>
         );
       }
-      case 'Custom': {
+      case 'custom': {
         if (
           (!isVIADefinitionV2(selectedDefinition) &&
             !isVIADefinitionV3(selectedDefinition)) ||
@@ -360,7 +355,7 @@ export const KeycodePane: FC = () => {
   };
 
   const selectedCategoryKeycodes = KeycodeCategories.find(
-    ({label}) => label === selectedCategory,
+    ({id}) => id === selectedCategory,
   )?.keycodes as IKeycode[];
 
   return (
