@@ -31,8 +31,7 @@ import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
 import {isFulfilledPromise} from 'src/utils/type-predicates';
-import {logAppError, unwrapError} from './errorsSlice';
-import {tryResolveName} from 'src/shims/node-hid';
+import {logAppError} from './errorsSlice';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -353,15 +352,10 @@ export const reloadDefinitions =
       const device = missingDevicesToFetchDefinitions[i];
       if (settledPromise.status === 'rejected') {
         dispatch(
-          logAppError(
-            unwrapError(
-              new Error(
-                `Fetching ${
-                  device.requiredDefinitionVersion
-                } definition for ${tryResolveName(device)} failed`,
-              ),
-            ),
-          ),
+          logAppError({
+            error: `Fetching ${device.requiredDefinitionVersion} definition failed`,
+            ...device,
+          }),
         );
       }
     });
