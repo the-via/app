@@ -23,9 +23,11 @@ import {updateV3MenuData} from './menusSlice';
 import {
   clearAllDevices,
   getConnectedDevices,
+  getForceAuthorize,
   getSelectedDevicePath,
   getSupportedIds,
   selectDevice,
+  setForceAuthorize,
   updateConnectedDevices,
   updateSupportedIds,
 } from './devicesSlice';
@@ -147,12 +149,16 @@ export const reloadConnectedDevices =
   (): AppThunk => async (dispatch, getState) => {
     const state = getState();
     const selectedDevicePath = getSelectedDevicePath(state);
+    const forceRequest = getForceAuthorize(state);
 
     // TODO: should we store in local storage for when offline?
     // Might be worth looking at whole store to work out which bits to store locally
     const supportedIds = getSupportedIds(state);
 
-    const recognisedDevices = await getRecognisedDevices(supportedIds);
+    const recognisedDevices = await getRecognisedDevices(
+      supportedIds,
+      forceRequest,
+    );
 
     const protocolVersions = await Promise.all(
       recognisedDevices.map((device) =>
@@ -216,6 +222,7 @@ export const reloadConnectedDevices =
       dispatch(selectConnectedDevice(firstConnectedDevice));
     } else if (validDevicesArr.length === 0) {
       dispatch(selectDevice(null));
+      dispatch(setForceAuthorize(true));
     }
   };
 
