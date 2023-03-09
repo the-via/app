@@ -323,6 +323,7 @@ export const reloadDefinitions =
   (connectedDevices: ConnectedDevices): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
+    const baseDefinitions = getBaseDefinitions(state);
     const definitions = getDefinitions(state);
     const missingDefinitions = await Promise.all(
       Object.values(connectedDevices)
@@ -352,7 +353,7 @@ export const reloadDefinitions =
               [version]: definition,
             },
           }),
-          {},
+          baseDefinitions,
         ),
       ),
     );
