@@ -3,7 +3,7 @@ import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 import {store} from 'src/store/index';
-import {logKeyboardAPIError} from 'src/store/errorsSlice';
+import {getErrorTimestamp, logKeyboardAPIError} from 'src/store/errorsSlice';
 
 // VIA Command IDs
 
@@ -659,15 +659,9 @@ export class KeyboardAPI {
 
       const {path, productId, vendorId, ...hid} = this.getHID();
       const commandName = APICommandValueToName[command];
-      const now = new Date();
-      const timestamp = `${now.toLocaleTimeString()}.${now
-        .getMilliseconds()
-        .toString()
-        .padStart(3, '0')}`;
-
       store.dispatch(
         logKeyboardAPIError({
-          timestamp,
+          timestamp: getErrorTimestamp(),
           commandName,
           commandBytes: commandBytes.slice(1),
           responseBytes: buffer,

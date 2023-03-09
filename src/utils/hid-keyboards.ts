@@ -39,8 +39,11 @@ function definitionExists(
 const idExists = ({productId, vendorId}: Device, vpidMap: VendorProductIdMap) =>
   vpidMap[getVendorProductId(vendorId, productId)];
 
-export const getRecognisedDevices = async (vpidMap: VendorProductIdMap) => {
-  const usbDevices = await scanDevices();
+export const getRecognisedDevices = async (
+  vpidMap: VendorProductIdMap,
+  forceRequest = false,
+) => {
+  const usbDevices = await scanDevices(forceRequest);
   return usbDevices.filter((device) => {
     const validVendorProduct = idExists(device, vpidMap);
     const validInterface = isValidInterface(device);

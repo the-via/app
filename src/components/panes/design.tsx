@@ -349,28 +349,6 @@ export const DesignTab: FC = () => {
                     />
                   </Detail>
                 </ControlRow>
-                <ControlRow>
-                  <Label>Next Keyboard Definition</Label>
-                  <Detail>
-                    <AccentButton
-                      onClick={() => {
-                        // Reset selected layouts when choosing a different
-                        // definition
-                        dispatch(updateSelectedOptionKeys([]));
-
-                        if (selectedDefinitionIndex !== options.length - 1) {
-                          dispatch(
-                            updateSelectedDefinitionIndex(
-                              Number(
-                                options[selectedDefinitionIndex + 1].value,
-                              ),
-                            ),
-                          );
-                        }
-                      }}
-                    />
-                  </Detail>
-                </ControlRow>
               </>
             )}
             {definition && (

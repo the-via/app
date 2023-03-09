@@ -24,15 +24,19 @@ import {updateV3MenuData} from './menusSlice';
 import {
   clearAllDevices,
   getConnectedDevices,
+  getForceAuthorize,
   getSelectedDevicePath,
   getSupportedIds,
   selectDevice,
+  setForceAuthorize,
   updateConnectedDevices,
   updateSupportedIds,
 } from './devicesSlice';
 import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
 import type {KeyboardDictionary} from '@the-via/reader';
 import {createRetry} from 'src/utils/retry';
+import {logAppError} from './errorsSlice';
+import {tryResolveName} from 'src/shims/node-hid';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
 
@@ -71,9 +75,19 @@ const selectConnectedDevice =
         connectedDevice,
         getDefinitions(getState()),
       );
-      const keycodeDict = getKeycodeDict(getState());
+    } catch (e) {
+      dispatch(
+        logAppError(
+          new Error(
+            `Fetching ${
+              connectedDevice.requiredDefinitionVersion
+            } definition for ${tryResolveName(connectedDevice)} failed`,
+          ),
+        ),
+      );
+    }
+    try {
       dispatch(selectDevice(connectedDevice));
-
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
       await dispatch(loadMacros(connectedDevice));
       await dispatch(loadLayoutOptions());
@@ -88,19 +102,42 @@ const selectConnectedDevice =
           await dispatch(updateV3MenuData(connectedDevice));
         }
       } catch (e) {
-        console.error('Loading lighting/menu data failed:', e);
+        dispatch(
+          logAppError(
+            new Error(
+              `Loading lighting/menu data failed for ${tryResolveName(
+                connectedDevice,
+              )}`,
+            ),
+          ),
+        );
       }
 
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
       await dispatch(loadKeymapFromDevice(connectedDevice));
       selectConnectedDeviceRetry.clear();
     } catch (e) {
-      console.log('Loading keyboard failed:', e);
+      dispatch(
+        logAppError(
+          new Error(
+            `Loading ${tryResolveName(connectedDevice)} completely failed`,
+          ),
+        ),
+      );
       if (selectConnectedDeviceRetry.retriesLeft()) {
         selectConnectedDeviceRetry.retry(() => {
           dispatch(selectConnectedDevice(connectedDevice));
         });
       } else {
+        dispatch(
+          logAppError(
+            new Error(
+              `All retries failed for attempting connection with ${tryResolveName(
+                connectedDevice,
+              )}`,
+            ),
+          ),
+        );
         console.log('Hard resetting device store:', e);
         dispatch(clearAllDevices());
       }
@@ -113,12 +150,16 @@ export const reloadConnectedDevices =
   (): AppThunk => async (dispatch, getState) => {
     const state = getState();
     const selectedDevicePath = getSelectedDevicePath(state);
+    const forceRequest = getForceAuthorize(state);
 
     // TODO: should we store in local storage for when offline?
     // Might be worth looking at whole store to work out which bits to store locally
     const supportedIds = getSupportedIds(state);
 
-    const recognisedDevices = await getRecognisedDevices(supportedIds);
+    const recognisedDevices = await getRecognisedDevices(
+      supportedIds,
+      forceRequest,
+    );
 
     const protocolVersions = await Promise.all(
       recognisedDevices.map((device) =>
@@ -126,8 +167,26 @@ export const reloadConnectedDevices =
       ),
     );
 
-    const connectedDevices = recognisedDevices.reduce<ConnectedDevices>(
-      (devices, device, idx) => {
+    const recognisedDevicesWithBadProtocol = recognisedDevices.filter(
+      (_, i) => protocolVersions[i] === -1,
+    );
+
+    if (recognisedDevicesWithBadProtocol.length) {
+      // Should we exit early??
+      recognisedDevicesWithBadProtocol.forEach((device) => {
+        dispatch(
+          logAppError(
+            new Error(
+              `Received invalid protocol version for ${device._device.productName}`,
+            ),
+          ),
+        );
+      });
+    }
+
+    const connectedDevices = recognisedDevices
+      .filter((_, i) => protocolVersions[i] !== -1)
+      .reduce<ConnectedDevices>((devices, device, idx) => {
         const {path, productId, vendorId} = device;
         const protocol = protocolVersions[idx];
         devices[device.path] = {
@@ -143,9 +202,7 @@ export const reloadConnectedDevices =
         };
 
         return devices;
-      },
-      {},
-    );
+      }, {});
 
     Object.entries(connectedDevices).forEach(([path, d]) => {
       console.info('Setting connected device:', d.protocol, path, d);
@@ -166,6 +223,7 @@ export const reloadConnectedDevices =
       dispatch(selectConnectedDevice(firstConnectedDevice));
     } else if (validDevicesArr.length === 0) {
       dispatch(selectDevice(null));
+      dispatch(setForceAuthorize(true));
     }
   };
 
