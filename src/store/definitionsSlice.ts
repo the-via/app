@@ -31,7 +31,7 @@ import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
 import {isFulfilledPromise} from 'src/utils/type-predicates';
-import {logAppError} from './errorsSlice';
+import {logAppError, unwrapError} from './errorsSlice';
 import {tryResolveName} from 'src/shims/node-hid';
 
 type LayoutOption = number;
@@ -354,10 +354,12 @@ export const reloadDefinitions =
       if (settledPromise.status === 'rejected') {
         dispatch(
           logAppError(
-            new Error(
-              `Fetching ${
-                device.requiredDefinitionVersion
-              } definition for ${tryResolveName(device)} failed`,
+            unwrapError(
+              new Error(
+                `Fetching ${
+                  device.requiredDefinitionVersion
+                } definition for ${tryResolveName(device)} failed`,
+              ),
             ),
           ),
         );

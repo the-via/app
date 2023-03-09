@@ -10,9 +10,15 @@ export type KeyboardAPIError = {
   device: Device;
 };
 
+export type UnwrappedError = {
+  name: string;
+  message: string;
+  cause: string;
+};
+
 type ErrorsState = {
   keyboardAPIErrors: KeyboardAPIError[];
-  appErrors: [string, Error][];
+  appErrors: [string, UnwrappedError][];
 };
 
 const initialState: ErrorsState = {
@@ -28,11 +34,19 @@ export const getErrorTimestamp = () => {
     .padStart(3, '0')}`;
 };
 
+export const unwrapError = (e: Error): UnwrappedError => {
+  return {
+    name: e.name,
+    message: e.message,
+    cause: `${e.cause}`,
+  };
+};
+
 const errorsSlice = createSlice({
   name: 'errors',
   initialState,
   reducers: {
-    logAppError: (state, action: PayloadAction<Error>) => {
+    logAppError: (state, action: PayloadAction<UnwrappedError>) => {
       state.appErrors.push([getErrorTimestamp(), action.payload]);
     },
     logKeyboardAPIError: (state, action: PayloadAction<KeyboardAPIError>) => {

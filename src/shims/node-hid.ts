@@ -49,6 +49,14 @@ export const tryResolveName = (device: ConnectedDevice | AuthorizedDevice) => {
   return `0x${device.vendorProductId.toString(16)}`;
 };
 
+// Attempt to forget device
+export const tryForgetDevice = (device: ConnectedDevice | AuthorizedDevice) => {
+  const cachedDevice = ExtendedHID._cache[device.path];
+  if (cachedDevice) {
+    return cachedDevice._device.forget();
+  }
+};
+
 const ExtendedHID = {
   _cache: {} as {[key: string]: WebVIADevice},
   requestDevice: async () => {

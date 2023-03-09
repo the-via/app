@@ -33,14 +33,12 @@ import {
 } from './devicesSlice';
 import type {
   AuthorizedDevice,
-  AuthorizedDevices,
   ConnectedDevice,
   ConnectedDevices,
 } from 'src/types/types';
-import type {KeyboardDictionary} from '@the-via/reader';
 import {createRetry} from 'src/utils/retry';
-import {logAppError} from './errorsSlice';
-import {tryResolveName} from 'src/shims/node-hid';
+import {logAppError, unwrapError} from './errorsSlice';
+import {tryForgetDevice, tryResolveName} from 'src/shims/node-hid';
 import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
@@ -79,10 +77,12 @@ const selectConnectedDevice =
       } catch (e) {
         dispatch(
           logAppError(
-            new Error(
-              `Loading lighting/menu data failed for ${tryResolveName(
-                connectedDevice,
-              )}`,
+            unwrapError(
+              new Error(
+                `Loading lighting/menu data failed for ${tryResolveName(
+                  connectedDevice,
+                )}`,
+              ),
             ),
           ),
         );
@@ -95,8 +95,12 @@ const selectConnectedDevice =
       if (selectConnectedDeviceRetry.retriesLeft()) {
         dispatch(
           logAppError(
-            new Error(
-              `Loading ${tryResolveName(connectedDevice)} failed but retrying`,
+            unwrapError(
+              new Error(
+                `Loading ${tryResolveName(
+                  connectedDevice,
+                )} failed but retrying`,
+              ),
             ),
           ),
         );
@@ -106,10 +110,12 @@ const selectConnectedDevice =
       } else {
         dispatch(
           logAppError(
-            new Error(
-              `All retries failed for attempting connection with ${tryResolveName(
-                connectedDevice,
-              )}`,
+            unwrapError(
+              new Error(
+                `All retries failed for attempting connection with ${tryResolveName(
+                  connectedDevice,
+                )}`,
+              ),
             ),
           ),
         );
@@ -151,8 +157,10 @@ export const reloadConnectedDevices =
       recognisedDevicesWithBadProtocol.forEach((device) => {
         dispatch(
           logAppError(
-            new Error(
-              `Received invalid protocol version for ${device._device.productName}`,
+            unwrapError(
+              new Error(
+                `Received invalid protocol version for ${device._device.productName}`,
+              ),
             ),
           ),
         );
@@ -193,12 +201,16 @@ export const reloadConnectedDevices =
         return devices;
       }, {});
 
-    Object.entries(connectedDevices).forEach(([path, d]) => {
+    // Remove authorized devices that we could not find definitions for
+    authorizedDevices
+      .filter((device) => !isAuthorizedDeviceConnected(device, newDefinitions))
+      .forEach(tryForgetDevice);
+
+    const validDevicesArr = Object.entries(connectedDevices);
+    validDevicesArr.forEach(([path, d]) => {
       console.info('Setting connected device:', d.protocol, path, d);
     });
     dispatch(updateConnectedDevices(connectedDevices));
-
-    const validDevicesArr = Object.entries(connectedDevices);
 
     // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
     // If we haven't chosen a selected device yet and there is a valid device, try that
