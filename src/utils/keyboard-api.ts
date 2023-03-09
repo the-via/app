@@ -657,14 +657,16 @@ export class KeyboardAPI {
         buffer,
       );
 
-      const device = this.getHID();
+      const {vendorId, productId, productName} = this.getHID();
       const commandName = APICommandValueToName[command];
       store.dispatch(
         logKeyboardAPIError({
           commandName,
           commandBytes: commandBytes.slice(1),
           responseBytes: buffer,
-          ...device,
+          vendorId,
+          productId,
+          productName,
         }),
       );
 

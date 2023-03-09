@@ -237,6 +237,7 @@ export const Errors = () => {
                 onClick={() => {
                   setSelectedPane(id);
                 }}
+                key={id}
               >
                 <IconContainer>
                   <FontAwesomeIcon icon={Icon} />

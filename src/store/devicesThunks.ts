@@ -59,6 +59,7 @@ export const selectConnectedDeviceByPath =
 const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
+    const {vendorId, productId, productName} = connectedDevice;
     try {
       dispatch(selectDevice(connectedDevice));
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
@@ -78,7 +79,9 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             error: 'Loading lighting/menu data failed',
-            ...connectedDevice,
+            vendorId,
+            productId,
+            productName,
           }),
         );
       }
@@ -91,7 +94,9 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             error: 'Loading device failed - retrying',
-            ...connectedDevice,
+            vendorId,
+            productId,
+            productName,
           }),
         );
         selectConnectedDeviceRetry.retry(() => {
@@ -101,7 +106,9 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             error: 'All retries failed for attempting connection with device',
-            ...connectedDevice,
+            vendorId,
+            productId,
+            productName,
           }),
         );
         console.log('Hard resetting device store:', e);
@@ -140,10 +147,13 @@ export const reloadConnectedDevices =
     if (recognisedDevicesWithBadProtocol.length) {
       // Should we exit early??
       recognisedDevicesWithBadProtocol.forEach((device: WebVIADevice) => {
+        const {vendorId, productId, productName} = device;
         dispatch(
           logAppError({
             error: 'Received invalid protocol version from device',
-            ...device,
+            vendorId,
+            productId,
+            productName,
           }),
         );
       });

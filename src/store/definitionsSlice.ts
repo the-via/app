@@ -351,10 +351,13 @@ export const reloadDefinitions =
     missingDefinitionsSettledPromises.forEach((settledPromise, i) => {
       const device = missingDevicesToFetchDefinitions[i];
       if (settledPromise.status === 'rejected') {
+        const {vendorId, productId, productName} = device;
         dispatch(
           logAppError({
             error: `Fetching ${device.requiredDefinitionVersion} definition failed`,
-            ...device,
+            vendorId,
+            productId,
+            productName,
           }),
         );
       }
