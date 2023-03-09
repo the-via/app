@@ -44,6 +44,17 @@ export type WebVIADevice = Device & {
   _device: HIDDevice;
 };
 
+// Refers to a device that may or may not have an associated definition but does have a valid protocol version
+export type AuthorizedDevice = {
+  path: string;
+  productId: number;
+  vendorId: number;
+  vendorProductId: number;
+  protocol: number;
+  requiredDefinitionVersion: DefinitionVersion;
+  hasResolvedDefinition: false;
+};
+
 export type ConnectedDevice = {
   path: string;
   productId: number;
@@ -51,10 +62,10 @@ export type ConnectedDevice = {
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
+  hasResolvedDefinition: true;
 };
-export type ConnectedDevices = {
-  [devicePath: string]: ConnectedDevice;
-};
+export type AuthorizedDevices = Record<string, AuthorizedDevice>;
+export type ConnectedDevices = Record<string, ConnectedDevice>;
 
 export type MacroEditorSettings = {
   recordDelaysEnabled: boolean;
