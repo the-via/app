@@ -140,6 +140,12 @@ const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
   try {
     const handle = await window.showSaveFilePicker({
       suggestedName: 'VIA-keyboard-API-errors.csv',
+      types: [
+        {
+          accept: {'text/csv': ['.csv']},
+          description: 'CSV file',
+        },
+      ],
     });
     const headers = [`timestamp, vid, pid, commandName, command, response`];
     const data = errors.map(
