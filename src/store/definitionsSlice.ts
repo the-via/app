@@ -1,5 +1,9 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevices} from '../types/types';
+import type {
+  AuthorizedDevice,
+  AuthorizedDevices,
+  ConnectedDevices,
+} from '../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -26,6 +30,9 @@ import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
+import {isFulfilledPromise} from 'src/utils/type-predicates';
+import {logAppError, unwrapError} from './errorsSlice';
+import {tryResolveName} from 'src/shims/node-hid';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -319,30 +326,54 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
   }
 };
 
+// Take a list of authorized devices and attempt to resolve any missing definitions
 export const reloadDefinitions =
-  (connectedDevices: ConnectedDevices): AppThunk =>
+  (authorizedDevices: AuthorizedDevice[]): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
     const baseDefinitions = getBaseDefinitions(state);
     const definitions = getDefinitions(state);
-    const missingDefinitions = await Promise.all(
-      Object.values(connectedDevices)
-        // Check if we already have the required definition in the store
-        .filter(({vendorProductId, requiredDefinitionVersion}) => {
-          return (
-            !definitions ||
-            !definitions[vendorProductId] ||
-            !definitions[vendorProductId][requiredDefinitionVersion]
-          );
-        })
-        // Go and get it if we don't
-        .map((device) =>
-          getMissingDefinition(device, device.requiredDefinitionVersion),
-        ),
+    const missingDevicesToFetchDefinitions = authorizedDevices.filter(
+      ({vendorProductId, requiredDefinitionVersion}) => {
+        return (
+          !definitions ||
+          !definitions[vendorProductId] ||
+          !definitions[vendorProductId][requiredDefinitionVersion]
+        );
+      },
     );
+    const missingDefinitionsSettledPromises = await Promise.allSettled(
+      missingDevicesToFetchDefinitions.map((device) =>
+        getMissingDefinition(device, device.requiredDefinitionVersion),
+      ),
+    );
+
+    // Error Reporting
+    missingDefinitionsSettledPromises.forEach((settledPromise, i) => {
+      const device = missingDevicesToFetchDefinitions[i];
+      if (settledPromise.status === 'rejected') {
+        dispatch(
+          logAppError(
+            unwrapError(
+              new Error(
+                `Fetching ${
+                  device.requiredDefinitionVersion
+                } definition for ${tryResolveName(device)} failed`,
+              ),
+            ),
+          ),
+        );
+      }
+    });
+
+    const missingDefinitions = missingDefinitionsSettledPromises
+      .filter(isFulfilledPromise)
+      .map((res) => res.value);
+
     if (!missingDefinitions.length) {
       return;
     }
+
     dispatch(
       updateDefinitions(
         missingDefinitions.reduce<KeyboardDictionary>(

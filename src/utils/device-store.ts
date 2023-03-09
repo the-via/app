@@ -15,6 +15,7 @@ import type {
   Settings,
   Device,
   ConnectedDevice,
+  AuthorizedDevice,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
@@ -116,7 +117,7 @@ export async function syncStore(): Promise<DefinitionIndex> {
 export const getMissingDefinition = async <
   K extends keyof DefinitionVersionMap,
 >(
-  device: ConnectedDevice,
+  device: AuthorizedDevice,
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);

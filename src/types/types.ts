@@ -3,7 +3,6 @@ import type {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   LightingValue,
-  VIAKey,
   VIAMenu,
 } from '@the-via/reader';
 import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
@@ -45,6 +44,18 @@ export type WebVIADevice = Device & {
   _device: HIDDevice;
 };
 
+// Refers to a device that may or may not have an associated definition but does have a valid protocol version
+export type AuthorizedDevice = {
+  path: string;
+  productId: number;
+  vendorId: number;
+  vendorProductId: number;
+  protocol: number;
+  requiredDefinitionVersion: DefinitionVersion;
+  productName: string;
+  hasResolvedDefinition: false;
+};
+
 export type ConnectedDevice = {
   path: string;
   productId: number;
@@ -53,10 +64,10 @@ export type ConnectedDevice = {
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
   productName: string;
+  hasResolvedDefinition: true;
 };
-export type ConnectedDevices = {
-  [devicePath: string]: ConnectedDevice;
-};
+export type AuthorizedDevices = Record<string, AuthorizedDevice>;
+export type ConnectedDevices = Record<string, ConnectedDevice>;
 
 export type MacroEditorSettings = {
   recordDelaysEnabled: boolean;

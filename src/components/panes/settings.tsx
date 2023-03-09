@@ -87,7 +87,6 @@ export const Settings = () => {
   const renderModeDefaultValue = renderModeOptions.find(
     (opt) => opt.value === renderMode,
   );
-
   return (
     <Pane>
       <Grid style={{overflow: 'hidden'}}>
