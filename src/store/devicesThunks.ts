@@ -31,11 +31,14 @@ import {
   updateConnectedDevices,
   updateSupportedIds,
 } from './devicesSlice';
-import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
+import type {
+  ConnectedDevice,
+  ConnectedDevices,
+  WebVIADevice,
+} from 'src/types/types';
 import type {KeyboardDictionary} from '@the-via/reader';
 import {createRetry} from 'src/utils/retry';
 import {logAppError} from './errorsSlice';
-import {tryResolveName} from 'src/shims/node-hid';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
 
@@ -76,13 +79,10 @@ const selectConnectedDevice =
       );
     } catch (e) {
       dispatch(
-        logAppError(
-          new Error(
-            `Fetching ${
-              connectedDevice.requiredDefinitionVersion
-            } definition for ${tryResolveName(connectedDevice)} failed`,
-          ),
-        ),
+        logAppError({
+          error: `Fetching ${connectedDevice.requiredDefinitionVersion} definition failed.`,
+          ...connectedDevice,
+        }),
       );
     }
     try {
@@ -102,13 +102,10 @@ const selectConnectedDevice =
         }
       } catch (e) {
         dispatch(
-          logAppError(
-            new Error(
-              `Loading lighting/menu data failed for ${tryResolveName(
-                connectedDevice,
-              )}`,
-            ),
-          ),
+          logAppError({
+            error: 'Loading lighting/menu data failed.',
+            ...connectedDevice,
+          }),
         );
       }
 
@@ -117,11 +114,10 @@ const selectConnectedDevice =
       selectConnectedDeviceRetry.clear();
     } catch (e) {
       dispatch(
-        logAppError(
-          new Error(
-            `Loading ${tryResolveName(connectedDevice)} completely failed`,
-          ),
-        ),
+        logAppError({
+          error: 'Loading definition completely failed.',
+          ...connectedDevice,
+        }),
       );
       if (selectConnectedDeviceRetry.retriesLeft()) {
         selectConnectedDeviceRetry.retry(() => {
@@ -129,13 +125,10 @@ const selectConnectedDevice =
         });
       } else {
         dispatch(
-          logAppError(
-            new Error(
-              `All retries failed for attempting connection with ${tryResolveName(
-                connectedDevice,
-              )}`,
-            ),
-          ),
+          logAppError({
+            error: 'All retries failed for attempting connection with device',
+            ...connectedDevice,
+          }),
         );
         console.log('Hard resetting device store:', e);
         dispatch(clearAllDevices());
@@ -172,13 +165,12 @@ export const reloadConnectedDevices =
 
     if (recognisedDevicesWithBadProtocol.length) {
       // Should we exit early??
-      recognisedDevicesWithBadProtocol.forEach((device) => {
+      recognisedDevicesWithBadProtocol.forEach((device: WebVIADevice) => {
         dispatch(
-          logAppError(
-            new Error(
-              `Received invalid protocol version for ${device._device.productName}`,
-            ),
-          ),
+          logAppError({
+            error: 'Received invalid protocol version',
+            ...device,
+          }),
         );
       });
     }
@@ -186,13 +178,14 @@ export const reloadConnectedDevices =
     const connectedDevices = recognisedDevices
       .filter((_, i) => protocolVersions[i] !== -1)
       .reduce<ConnectedDevices>((devices, device, idx) => {
-        const {path, productId, vendorId} = device;
+        const {path, productId, vendorId, productName} = device;
         const protocol = protocolVersions[idx];
         devices[device.path] = {
           path,
           productId,
           vendorId,
           protocol,
+          productName,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
           vendorProductId: getVendorProductId(
             device.vendorId,

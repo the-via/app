@@ -10,9 +10,17 @@ export type KeyboardAPIError = {
   device: Device;
 };
 
+export type AppError = {
+  timestamp: string;
+  error: string;
+  vendorId: number;
+  productId: number;
+  productName: string;
+};
+
 type ErrorsState = {
   keyboardAPIErrors: KeyboardAPIError[];
-  appErrors: [string, Error][];
+  appErrors: AppError[];
 };
 
 const initialState: ErrorsState = {
@@ -22,7 +30,7 @@ const initialState: ErrorsState = {
 
 export const getErrorTimestamp = () => {
   const now = new Date();
-  return `${now.toLocaleTimeString()}.${now
+  return `${now.toLocaleTimeString([], {hour12: false})}.${now
     .getMilliseconds()
     .toString()
     .padStart(3, '0')}`;
@@ -32,14 +40,20 @@ const errorsSlice = createSlice({
   name: 'errors',
   initialState,
   reducers: {
-    logAppError: (state, action: PayloadAction<Error>) => {
-      state.appErrors.push([getErrorTimestamp(), action.payload]);
+    logAppError: (
+      state,
+      action: PayloadAction<Omit<AppError, 'timestamp'>>,
+    ) => {
+      state.appErrors.push({...action.payload, timestamp: getErrorTimestamp()});
     },
-    logKeyboardAPIError: (state, action: PayloadAction<KeyboardAPIError>) => {
-      state.keyboardAPIErrors.push(action.payload);
-    },
-    appErrors: (state) => {
-      state.keyboardAPIErrors = [];
+    logKeyboardAPIError: (
+      state,
+      action: PayloadAction<Omit<KeyboardAPIError, 'timestamp'>>,
+    ) => {
+      state.keyboardAPIErrors.push({
+        ...action.payload,
+        timestamp: getErrorTimestamp(),
+      });
     },
     clearAppErrors: (state) => {
       state.appErrors = [];

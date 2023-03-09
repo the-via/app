@@ -10,6 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {
+  AppError,
   clearAppErrors,
   clearKeyboardAPIErrors,
   getAppErrors,
@@ -17,6 +18,7 @@ import {
   KeyboardAPIError,
 } from 'src/store/errorsSlice';
 import {useAppSelector} from 'src/store/hooks';
+import {formatNumberAsHex} from 'src/utils/format';
 import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
 import {IconButtonContainer} from '../inputs/icon-button';
@@ -47,15 +49,7 @@ const Container = styled.div`
   }
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  padding: 1.5rem 3rem;
-  gap: 2rem;
-`;
-
-const printId = (id: number) =>
-  `0x${id.toString(16).padStart(4, '0').toUpperCase()}`;
-
+const printId = (id: number) => formatNumberAsHex(id, 4);
 const printBytes = (bytes: number[]) => bytes.join(' ');
 
 const AppErrors: React.FC<{}> = ({}) => {
@@ -88,13 +82,14 @@ const AppErrors: React.FC<{}> = ({}) => {
           <IconButtonTooltip>Download</IconButtonTooltip>
         </IconButtonContainer>
       </IconButtonGroupContainer>
-      {errors.map(([timestamp, {name, message, cause}]) => (
+      {errors.map(({timestamp, productName, productId, vendorId, error}) => (
         <Container key={timestamp}>
           {timestamp}
           <ul>
-            <li>Name: {name}</li>
-            <li>Message: {message}</li>
-            <li>Cause: {`${cause}`}</li>
+            <li>Error: {error}</li>
+            <li>Device: {productName}</li>
+            <li>Vid: {printId(vendorId)}</li>
+            <li>Pid: {printId(productId)}</li>
           </ul>
         </Container>
       ))}
@@ -173,15 +168,15 @@ const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
     console.log('User cancelled save errors request');
   }
 };
-const saveAppErrors = async (errors: [string, Error][]) => {
+const saveAppErrors = async (errors: AppError[]) => {
   try {
     const handle = await window.showSaveFilePicker({
       suggestedName: 'VIA-app-errors.csv',
     });
-    const headers = [`timestamp, name, message, cause`];
+    const headers = [`timestamp, device, vid, pid, error`];
     const data = errors.map(
-      ([timestamp, {name, message, cause}]) =>
-        `${timestamp}, ${name}, ${message}, ${cause}`,
+      ({timestamp, productName, vendorId, productId, error}) =>
+        `${timestamp}, ${productName}, ${vendorId}, ${productId}, ${error}`,
     );
     const csv = headers.concat(...data).join('\n');
     const blob = new Blob([csv], {type: 'text/csv'});
