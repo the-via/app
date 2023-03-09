@@ -87,8 +87,6 @@ const ExtendedHID = {
   },
   HID: class HID {
     _hidDevice?: WebVIADevice;
-    usage: number = -1;
-    usagePage: number = -1;
     interface: number = -1;
     vendorId: number = -1;
     productId: number = -1;
@@ -104,8 +102,6 @@ const ExtendedHID = {
         this.vendorId = this._hidDevice.vendorId;
         this.productId = this._hidDevice.productId;
         this.path = this._hidDevice.path;
-        this.usage = this._hidDevice.usage ?? this.usage;
-        this.usagePage = this._hidDevice.usagePage ?? this.usagePage;
         this.interface = this._hidDevice.interface;
         globalBuffer[this.path] = globalBuffer[this.path] || [];
         eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];

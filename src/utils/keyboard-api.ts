@@ -657,8 +657,7 @@ export class KeyboardAPI {
         buffer,
       );
 
-      const {path, productId, vendorId, productName, usage, usagePage, ...hid} =
-        this.getHID();
+      const {path, productId, vendorId, productName, ...hid} = this.getHID();
       const commandName = APICommandValueToName[command];
       store.dispatch(
         logKeyboardAPIError({
@@ -671,8 +670,6 @@ export class KeyboardAPI {
             productId,
             vendorId,
             productName,
-            usage,
-            usagePage,
           },
         }),
       );
