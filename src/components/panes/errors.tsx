@@ -61,10 +61,14 @@ const printBytes = (bytes: number[]) => bytes.join(' ');
 const AppErrors: React.FC<{}> = ({}) => {
   const errors = useAppSelector(getAppErrors);
   const dispatch = useDispatch();
+  const disabled = !errors.length;
   return (
     <>
       <IconButtonGroupContainer style={{margin: '10px 15px'}}>
-        <IconButtonContainer onClick={() => dispatch(clearAppErrors())}>
+        <IconButtonContainer
+          onClick={() => dispatch(clearAppErrors())}
+          disabled={disabled}
+        >
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
@@ -72,7 +76,10 @@ const AppErrors: React.FC<{}> = ({}) => {
           />
           <IconButtonTooltip>Clear</IconButtonTooltip>
         </IconButtonContainer>
-        <IconButtonContainer onClick={() => saveAppErrors(errors)}>
+        <IconButtonContainer
+          onClick={() => saveAppErrors(errors)}
+          disabled={disabled}
+        >
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
@@ -98,10 +105,14 @@ const AppErrors: React.FC<{}> = ({}) => {
 const KeyboardAPIErrors: React.FC<{}> = ({}) => {
   const errors = useAppSelector(getKeyboardAPIErrors);
   const dispatch = useDispatch();
+  const disabled = !errors.length;
   return (
     <>
       <IconButtonGroupContainer style={{margin: '10px 15px'}}>
-        <IconButtonContainer onClick={() => dispatch(clearKeyboardAPIErrors())}>
+        <IconButtonContainer
+          onClick={() => dispatch(clearKeyboardAPIErrors())}
+          disabled={disabled}
+        >
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
@@ -109,7 +120,10 @@ const KeyboardAPIErrors: React.FC<{}> = ({}) => {
           />
           <IconButtonTooltip>Clear</IconButtonTooltip>
         </IconButtonContainer>
-        <IconButtonContainer onClick={() => saveKeyboardAPIErrors(errors)}>
+        <IconButtonContainer
+          onClick={() => saveKeyboardAPIErrors(errors)}
+          disabled={disabled}
+        >
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
