@@ -240,7 +240,7 @@ export default {
   KC_MS_ACCEL2: 0x00ff,
   RESET: 0x5c00,
   DEBUG: 0x5c01,
-  QK_MAGIC_TOGGLE_NKRO: 0x5c14,
+  MAGIC_TOGGLE_NKRO: 0x5c14,
   KC_GESC: 0x5c16,
   AU_ON: 0x5c1d,
   AU_OFF: 0x5c1e,
@@ -302,6 +302,6 @@ export default {
   H2_DEC: 0x5f0b,
   S2_INC: 0x5f0c,
   S2_DEC: 0x5f0d,
-  QK_TRI_LAYER_LOWER: 0x5f10,
-  QK_TRI_LAYER_UPPER: 0x5f11,
+  FN_MO13: 0x5f10,
+  FN_MO23: 0x5f11,
 };
