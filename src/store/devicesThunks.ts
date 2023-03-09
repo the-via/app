@@ -50,7 +50,7 @@ export const selectConnectedDeviceByPath =
     }
   };
 
-const validateDefinitionAvailable = async (
+export const validateDefinitionAvailable = async (
   device: ConnectedDevice,
   definitions: KeyboardDictionary,
 ) => {
@@ -60,8 +60,9 @@ const validateDefinitionAvailable = async (
     definitions[device.vendorProductId][device.requiredDefinitionVersion];
   if (!definition) {
     console.log('missing definition: fetching new one');
-    await getMissingDefinition(device, device.requiredDefinitionVersion);
+    return getMissingDefinition(device, device.requiredDefinitionVersion);
   }
+  return definition;
 };
 
 // TODO: should we change these other thunks to use the selected device state instead of params?
@@ -208,10 +209,34 @@ export const reloadConnectedDevices =
     });
     dispatch(updateConnectedDevices(connectedDevices));
 
-    const validDevicesArr = Object.entries(connectedDevices);
-
     // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
     await dispatch(reloadDefinitions(connectedDevices));
+
+    const validDevicesArr = (
+      await Promise.all(
+        Object.entries(connectedDevices).map(async (device) => {
+          try {
+            const definition = await validateDefinitionAvailable(
+              device[1],
+              getDefinitions(getState()),
+            );
+            if (definition) {
+              return device;
+            }
+          } catch (e) {
+            dispatch(
+              logAppError(
+                new Error(
+                  `Fetching ${
+                    device[1].requiredDefinitionVersion
+                  } definition for ${tryResolveName(device[1])} failed`,
+                ),
+              ),
+            );
+          }
+        }),
+      )
+    ).filter((i) => i) as [string, ConnectedDevice][];
     // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
       (!selectedDevicePath || !connectedDevices[selectedDevicePath]) &&

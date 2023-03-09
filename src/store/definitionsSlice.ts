@@ -1,5 +1,5 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {ConnectedDevices} from '../types/types';
+import type {ConnectedDevice, ConnectedDevices} from '../types/types';
 import {
   bytesIntoNum,
   numIntoBytes,
@@ -26,6 +26,8 @@ import {getMissingDefinition} from 'src/utils/device-store';
 import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
+import {logAppError} from './errorsSlice';
+import {tryResolveName} from 'src/shims/node-hid';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -318,6 +320,20 @@ export const loadLayoutOptions = (): AppThunk => async (dispatch, getState) => {
     console.warn('Getting layout options command not working');
   }
 };
+export const validateDefinitionAvailable = async (
+  device: ConnectedDevice,
+  definitions: KeyboardDictionary,
+) => {
+  const definition =
+    definitions &&
+    definitions[device.vendorProductId] &&
+    definitions[device.vendorProductId][device.requiredDefinitionVersion];
+  if (!definition) {
+    console.log('missing definition: fetching new one');
+    return getMissingDefinition(device, device.requiredDefinitionVersion);
+  }
+  return definition;
+};
 
 export const reloadDefinitions =
   (connectedDevices: ConnectedDevices): AppThunk =>
@@ -325,21 +341,29 @@ export const reloadDefinitions =
     const state = getState();
     const baseDefinitions = getBaseDefinitions(state);
     const definitions = getDefinitions(state);
-    const missingDefinitions = await Promise.all(
+    const missingDefinitionsPromise = await Promise.all(
       Object.values(connectedDevices)
-        // Check if we already have the required definition in the store
-        .filter(({vendorProductId, requiredDefinitionVersion}) => {
-          return (
-            !definitions ||
-            !definitions[vendorProductId] ||
-            !definitions[vendorProductId][requiredDefinitionVersion]
-          );
-        })
         // Go and get it if we don't
-        .map((device) =>
-          getMissingDefinition(device, device.requiredDefinitionVersion),
-        ),
+        .map((device) => {
+          try {
+            return validateDefinitionAvailable(device, definitions);
+          } catch (e) {
+            dispatch(
+              logAppError(
+                new Error(
+                  `Fetching ${
+                    device.requiredDefinitionVersion
+                  } definition for ${tryResolveName(device)} failed`,
+                ),
+              ),
+            );
+            return null;
+          }
+        }),
     );
+    const missingDefinitions = missingDefinitionsPromise.filter(
+      (i) => i !== null,
+    ) as [VIADefinitionV2 | VIADefinitionV3, keyof DefinitionVersionMap][];
     if (!missingDefinitions.length) {
       return;
     }
