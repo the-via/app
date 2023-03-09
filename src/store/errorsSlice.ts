@@ -1,13 +1,14 @@
 import {RootState} from './index';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {Device} from 'src/types/types';
 
 export type KeyboardAPIError = {
   timestamp: string;
   commandName: string;
   commandBytes: number[];
   responseBytes: number[];
-  device: Device;
+  vendorId: number;
+  productId: number;
+  productName: string;
 };
 
 export type AppError = {

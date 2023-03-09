@@ -7,7 +7,7 @@ import {
   faWarning,
 } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {useState} from 'react';
+import {PropsWithChildren, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {
   AppError,
@@ -52,17 +52,18 @@ const Container = styled.div`
 const printId = (id: number) => formatNumberAsHex(id, 4);
 const printBytes = (bytes: number[]) => bytes.join(' ');
 
-const AppErrors: React.FC<{}> = ({}) => {
-  const errors = useAppSelector(getAppErrors);
-  const dispatch = useDispatch();
-  const disabled = !errors.length;
+const ErrorList: React.FC<
+  PropsWithChildren<{
+    clear: () => void;
+    save: () => void;
+    hasErrors: boolean;
+  }>
+> = (props) => {
+  const {clear, save, hasErrors} = props;
   return (
     <>
       <IconButtonGroupContainer style={{margin: '10px 15px'}}>
-        <IconButtonContainer
-          onClick={() => dispatch(clearAppErrors())}
-          disabled={disabled}
-        >
+        <IconButtonContainer onClick={clear} disabled={!hasErrors}>
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
@@ -70,10 +71,7 @@ const AppErrors: React.FC<{}> = ({}) => {
           />
           <IconButtonTooltip>Clear</IconButtonTooltip>
         </IconButtonContainer>
-        <IconButtonContainer
-          onClick={() => saveAppErrors(errors)}
-          disabled={disabled}
-        >
+        <IconButtonContainer onClick={save} disabled={!hasErrors}>
           <FontAwesomeIcon
             size={'sm'}
             color="var(--color_label)"
@@ -82,6 +80,20 @@ const AppErrors: React.FC<{}> = ({}) => {
           <IconButtonTooltip>Download</IconButtonTooltip>
         </IconButtonContainer>
       </IconButtonGroupContainer>
+      {props.children}
+    </>
+  );
+};
+
+const AppErrors: React.FC<{}> = ({}) => {
+  const errors = useAppSelector(getAppErrors);
+  const dispatch = useDispatch();
+  return (
+    <ErrorList
+      clear={() => dispatch(clearAppErrors())}
+      save={() => saveAppErrors(errors)}
+      hasErrors={!!errors.length}
+    >
       {errors.map(({timestamp, productName, productId, vendorId, error}) => (
         <Container key={timestamp}>
           {timestamp}
@@ -93,47 +105,33 @@ const AppErrors: React.FC<{}> = ({}) => {
           </ul>
         </Container>
       ))}
-    </>
+    </ErrorList>
   );
 };
 
 const KeyboardAPIErrors: React.FC<{}> = ({}) => {
   const errors = useAppSelector(getKeyboardAPIErrors);
   const dispatch = useDispatch();
-  const disabled = !errors.length;
   return (
-    <>
-      <IconButtonGroupContainer style={{margin: '10px 15px'}}>
-        <IconButtonContainer
-          onClick={() => dispatch(clearKeyboardAPIErrors())}
-          disabled={disabled}
-        >
-          <FontAwesomeIcon
-            size={'sm'}
-            color="var(--color_label)"
-            icon={faCancel}
-          />
-          <IconButtonTooltip>Clear</IconButtonTooltip>
-        </IconButtonContainer>
-        <IconButtonContainer
-          onClick={() => saveKeyboardAPIErrors(errors)}
-          disabled={disabled}
-        >
-          <FontAwesomeIcon
-            size={'sm'}
-            color="var(--color_label)"
-            icon={faDownload}
-          />
-          <IconButtonTooltip>Download</IconButtonTooltip>
-        </IconButtonContainer>
-      </IconButtonGroupContainer>
+    <ErrorList
+      clear={() => dispatch(clearKeyboardAPIErrors())}
+      save={() => saveKeyboardAPIErrors(errors)}
+      hasErrors={!!errors.length}
+    >
       {errors.map(
-        ({timestamp, commandName, commandBytes, responseBytes, device}) => (
+        ({
+          timestamp,
+          commandName,
+          commandBytes,
+          responseBytes,
+          vendorId,
+          productId,
+        }) => (
           <Container key={timestamp}>
             {timestamp}
             <ul>
-              <li>Vid: {printId(device.vendorId)}</li>
-              <li>Pid: {printId(device.productId)}</li>
+              <li>Vid: {printId(vendorId)}</li>
+              <li>Pid: {printId(productId)}</li>
               <li>Command name: {commandName}</li>
               <li>Command: {printBytes(commandBytes)}</li>
               <li>Response: {printBytes(responseBytes)}</li>
@@ -141,25 +139,23 @@ const KeyboardAPIErrors: React.FC<{}> = ({}) => {
           </Container>
         ),
       )}
-    </>
+    </ErrorList>
   );
 };
 
-const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
+async function saveErrors<T>(
+  errors: T[],
+  headers: Array<keyof T>,
+  fileName: string,
+  printRow: (error: T) => string,
+) {
   try {
     const handle = await window.showSaveFilePicker({
-      suggestedName: 'VIA-keyboard-API-errors.csv',
+      suggestedName: `${fileName}.csv`,
     });
-    const headers = [`timestamp, vid, pid, commandName, command, response`];
-    const data = errors.map(
-      ({timestamp, commandName, commandBytes, responseBytes, device}) =>
-        `${timestamp}, ${printId(device.vendorId)}, ${printId(
-          device.productId,
-        )}, ${commandName}, ${printBytes(commandBytes)}, ${printBytes(
-          responseBytes,
-        )}`,
-    );
-    const csv = headers.concat(...data).join('\n');
+    const csvHeaders = [headers.join(', ')];
+    const data = errors.map(printRow);
+    const csv = csvHeaders.concat(...data).join('\n');
     const blob = new Blob([csv], {type: 'text/csv'});
     const writeable = await handle.createWritable();
     await writeable.write(blob);
@@ -167,26 +163,46 @@ const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) => {
   } catch (err) {
     console.log('User cancelled save errors request');
   }
-};
-const saveAppErrors = async (errors: AppError[]) => {
-  try {
-    const handle = await window.showSaveFilePicker({
-      suggestedName: 'VIA-app-errors.csv',
-    });
-    const headers = [`timestamp, device, vid, pid, error`];
-    const data = errors.map(
-      ({timestamp, productName, vendorId, productId, error}) =>
-        `${timestamp}, ${productName}, ${vendorId}, ${productId}, ${error}`,
-    );
-    const csv = headers.concat(...data).join('\n');
-    const blob = new Blob([csv], {type: 'text/csv'});
-    const writeable = await handle.createWritable();
-    await writeable.write(blob);
-    await writeable.close();
-  } catch (err) {
-    console.log('User cancelled save errors request');
-  }
-};
+}
+
+const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) =>
+  saveErrors(
+    errors,
+    [
+      'timestamp',
+      'vendorId',
+      'productId',
+      'commandName',
+      'commandBytes',
+      'responseBytes',
+    ],
+    'VIA-keyboard-API-errors',
+    ({
+      timestamp,
+      vendorId,
+      productId,
+      commandName,
+      commandBytes,
+      responseBytes,
+    }) =>
+      `${timestamp}, ${printId(vendorId)}, ${printId(
+        productId,
+      )}, ${commandName}, ${printBytes(commandBytes)}, ${printBytes(
+        responseBytes,
+      )}`,
+  );
+
+const saveAppErrors = async (errors: AppError[]) =>
+  saveErrors(
+    errors,
+    ['timestamp', 'productName', 'vendorId', 'productId', 'error'],
+    'VIA-app-errors',
+    ({timestamp, productName, vendorId, productId, error}) =>
+      `${timestamp}, ${productName}, ${printId(vendorId)}, ${printId(
+        productId,
+      )}, ${error}`,
+  );
+
 const IconButtonGroupContainer = styled.div`
   border-radius: 2px;
   border: 1px solid var(--border_color_icon);
