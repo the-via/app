@@ -1,12 +1,10 @@
 import fs from 'fs';
-import glob from 'glob';
 import path from 'path';
 
 import {
   getVersionedKeycodeDict,
   KeycodeDict,
   KeycodeDictSource,
-  KeycodeRecord,
 } from '../src/utils/keycode-dict';
 
 import deprecatedKeycodes from '../src/utils/keycode-dict/deprecated-keycodes';
@@ -15,8 +13,8 @@ const deprecatedKeycodesInverse: Record<string, string> = Object.entries(
   deprecatedKeycodes,
 ).reduce((p, [oldKey, newKey]) => ({...p, [newKey]: oldKey}), {});
 
-import {getBasicKeyDict} from '../src/utils/key-to-byte/dictionary-store';
-import {forOwn} from 'lodash';
+import {getBasicKeyDict} from './test-keycode-dict-data';
+
 const outputPath = getOutputPath();
 
 export function getOutputPath() {
@@ -46,40 +44,6 @@ function toTypescript(obj: Object): string {
   return 'export default ' + ts;
 }
 
-function testKeycodeDict() {
-  const keycodeDict = getVersionedKeycodeDict(12);
-
-  const keycode = 'KC_A';
-  console.log(
-    `${keycode} => ${toHexString(keycodeDict.keycodes['KC_A'].byte)}`,
-  );
-
-  const byte = 0x0004;
-  console.log(`${toHexString(byte)} => ${keycodeDict.byteToKeycode[byte]}`);
-
-  const keycodeRange = 'QK_MODS';
-  console.log(toHexString(keycodeDict.ranges[keycodeRange]));
-  const byte2 = 0x0100;
-  console.log(keycodeDict.byteToRange[byte2]);
-
-  //console.log(keycodeDict.aliases);
-}
-
-function checkExistingKeycodes() {
-  const keycodeDict = getVersionedKeycodeDict(12);
-  const keycodeToByte: Record<string, number> = getBasicKeyDict(9);
-
-  const missingKeys = Object.keys(keycodeToByte)
-    .filter((key) => keycodeDict.keycodes[key] === undefined)
-    .filter((key) => keycodeDict.aliases[key] === undefined)
-    .filter(
-      (key) => (deprecatedKeycodes as Record<string, string>)[key] == undefined,
-    )
-    .filter((key) => keycodeDict.ranges[key.replace(/^_/, '')] === undefined);
-
-  console.log(missingKeys);
-}
-
 function validateKeycodes(version: number) {
   const keycodeDict = getVersionedKeycodeDict(version);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(version);
@@ -97,24 +61,6 @@ function validateKeycodes(version: number) {
   } else {
     console.log(`validateKeycodes(${version}): VALID`);
   }
-}
-
-function createDeprecatedKeycodeMap() {
-  const keycodeDict = getVersionedKeycodeDict(12);
-  const keycodeToByte: Record<string, number> = getBasicKeyDict(12);
-
-  const missingKeys = Object.entries(keycodeToByte)
-    .filter(([key]) => keycodeDict.keycodes[key] === undefined)
-    .filter(([key]) => keycodeDict.aliases[key] === undefined)
-    .filter(([key]) => keycodeDict.ranges[key.replace(/^_/, '')] === undefined);
-
-  const deprecatedKeycodes = missingKeys.reduce((p, [key, byte]) => {
-    // use old byte to find new keycode
-    const keycode = keycodeDict.byteToKeycode[byte];
-    return {...p, [key]: keycode ?? 'MISSING'};
-  }, {});
-
-  console.log(deprecatedKeycodes);
 }
 
 function legacyKeycodeToByte(
@@ -150,6 +96,7 @@ function legacyKeycodeToByte(
 }
 
 function generateKeycodeDict(version: number) {
+  console.log(`generateKeycodeDict(${version})`);
   const keycodeDict: KeycodeDict = getVersionedKeycodeDict(12);
   const keycodeToByte: Record<string, number> = getBasicKeyDict(version);
 
@@ -193,7 +140,7 @@ function generateKeycodeDict(version: number) {
     if (legacyByte !== undefined) {
       return {...p, [key]: toHexString(legacyByte)};
     }
-    //console.error(`Could not get byte for ${key}`);
+    console.error(`Could not get byte for ${key}`);
     return p;
   }, {});
 
