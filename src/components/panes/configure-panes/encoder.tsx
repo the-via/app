@@ -17,6 +17,7 @@ import {
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {KeyboardAPI} from 'src/utils/keyboard-api';
+import {ErrorMessage} from 'src/components/styled';
 
 const Encoder = styled(CenterPane)`
   height: 100%;
@@ -29,6 +30,15 @@ const Container = styled.div`
   flex-direction: column;
   padding: 0 12px;
 `;
+
+const renderEncoderError = () => {
+  return (
+    <ErrorMessage>
+      Your current firmware does not support rotary encoders. Install the latest
+      firmware for your device.
+    </ErrorMessage>
+  );
+};
 
 export const Pane: FC = () => {
   const [cwValue, setCWValue] = useState<number>();
@@ -82,7 +92,13 @@ export const Pane: FC = () => {
     setCCWValue(ccw);
   };
   useEffect(() => {
-    if (encoderKey !== undefined && encoderKey.ei !== undefined && api) {
+    if (
+      selectedDevice &&
+      selectedDevice.protocol >= 10 &&
+      encoderKey !== undefined &&
+      encoderKey.ei !== undefined &&
+      api
+    ) {
       const encoderId = +encoderKey.ei;
       loadValues(layer, encoderId, api);
     }
@@ -94,7 +110,7 @@ export const Pane: FC = () => {
     ccwValue === undefined ||
     cwValue === undefined
   ) {
-    return null;
+    return <SpanOverflowCell>{renderEncoderError()}</SpanOverflowCell>;
   }
   return (
     <SpanOverflowCell>
