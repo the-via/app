@@ -1,4 +1,8 @@
-import type {ConnectedDevice, WebVIADevice} from '../types/types';
+import type {
+  AuthorizedDevice,
+  ConnectedDevice,
+  WebVIADevice,
+} from '../types/types';
 // This is a bit cray
 const globalBuffer: {
   [path: string]: {currTime: number; message: Uint8Array}[];
@@ -37,12 +41,20 @@ const tagDevice = (device: HIDDevice): WebVIADevice => {
 };
 
 // Attempt to get device name, else return vendorProductId
-export const tryResolveName = (device: ConnectedDevice) => {
+export const tryResolveName = (device: ConnectedDevice | AuthorizedDevice) => {
   const cachedDevice = ExtendedHID._cache[device.path];
   if (cachedDevice) {
     return cachedDevice._device.productName;
   }
   return `0x${device.vendorProductId.toString(16)}`;
+};
+
+// Attempt to forget device
+export const tryForgetDevice = (device: ConnectedDevice | AuthorizedDevice) => {
+  const cachedDevice = ExtendedHID._cache[device.path];
+  if (cachedDevice) {
+    return cachedDevice._device.forget();
+  }
 };
 
 const ExtendedHID = {
