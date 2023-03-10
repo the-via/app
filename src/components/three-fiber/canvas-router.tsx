@@ -25,10 +25,12 @@ import {a, config, useSpring} from '@react-spring/three';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
 import {Object3D} from 'three';
-import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {UpdateUVMaps} from './update-uv-maps';
-import {getSelectedTheme} from 'src/store/settingsSlice';
+import {
+  getDesignDefinitionVersion,
+  getSelectedTheme,
+} from 'src/store/settingsSlice';
 import glbSrc from 'assets/models/keyboard_components.glb';
 import cubeySrc from 'assets/models/cubey.glb';
 import {AccentButtonLarge} from '../inputs/accent-button';
@@ -69,7 +71,7 @@ export const CanvasRouter = () => {
   const dimensions = useSize(body);
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const definitionVersion = useAppSelector(getSelectedVersion);
+  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const theme = useAppSelector(getSelectedTheme);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const [fontLoaded, setLoaded] = useState(false);

@@ -3,7 +3,6 @@ import type {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   LightingValue,
-  VIAKey,
   VIAMenu,
 } from '@the-via/reader';
 import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
@@ -89,6 +88,7 @@ export type Settings = {
   themeName: string;
   macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
+  designDefinitionVersion: DefinitionVersion;
 };
 
 export type CommonMenusMap = {
