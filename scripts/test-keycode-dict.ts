@@ -157,9 +157,6 @@ function generateKeycodeDict(version: number) {
   );
 }
 
-//createDeprecatedKeycodeMap();
-//checkExistingKeycodes();
-
 // These generate keycode dicts for old versions
 // based on version 12 keycode dict and what exists
 // in the old byteToKey dicts

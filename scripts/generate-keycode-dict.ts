@@ -78,14 +78,10 @@ function generateKeycodeDict(
   const keycodesObjs3: Record<string, Object> = Object.entries(
     keycodesObjs2,
   ).reduce((p, [byte, obj]) => {
-    //const objWithoutKey = Object.fromEntries(
-    //  Object.entries(obj).filter(([k, _]) => k !== 'key'),
-    //);
-    let {a, ...acc} = {a: 1, b: 2, c: 3};
     let {key, ...objWithoutKey} = obj;
     return {
       ...p,
-      [(obj as any).key]: {
+      [key]: {
         byte: toHexString(Number.parseInt(byte)),
         ...objWithoutKey,
       },
