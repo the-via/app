@@ -354,7 +354,7 @@ export const reloadDefinitions =
         const {vendorId, productId, productName} = device;
         dispatch(
           logAppError({
-            error: `Fetching ${device.requiredDefinitionVersion} definition failed`,
+            message: `Fetching ${device.requiredDefinitionVersion} definition failed`,
             vendorId,
             productId,
             productName,

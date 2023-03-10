@@ -13,16 +13,10 @@ export type KeyboardAPIError = {
 
 export type AppError = {
   timestamp: string;
-  error: string;
+  message: string;
   vendorId: number;
   productId: number;
   productName: string;
-};
-
-export type UnwrappedError = {
-  name: string;
-  message: string;
-  cause: string;
 };
 
 type ErrorsState = {
@@ -43,13 +37,7 @@ export const getErrorTimestamp = () => {
     .padStart(3, '0')}`;
 };
 
-export const unwrapError = (e: Error): UnwrappedError => {
-  return {
-    name: e.name,
-    message: e.message,
-    cause: `${e.cause}`,
-  };
-};
+export const getMessageFromError = (e: Error) => e.stack || e.message;
 
 const errorsSlice = createSlice({
   name: 'errors',

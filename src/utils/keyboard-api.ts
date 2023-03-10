@@ -3,7 +3,12 @@ import type {LightingValue, MatrixInfo} from '@the-via/reader';
 import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 import {store} from 'src/store/index';
-import {getErrorTimestamp, logKeyboardAPIError} from 'src/store/errorsSlice';
+import {
+  getErrorTimestamp,
+  getMessageFromError,
+  logAppError,
+  logKeyboardAPIError,
+} from 'src/store/errorsSlice';
 
 // VIA Command IDs
 
@@ -115,7 +120,7 @@ type HIDAddress = string;
 type Layer = number;
 type Row = number;
 type Column = number;
-type CommandQueueArgs = [string, number, Array<number>] | (() => Promise<void>);
+type CommandQueueArgs = [number, Array<number>] | (() => Promise<void>);
 type CommandQueueEntry = {
   res: (val?: any) => void;
   rej: (error?: any) => void;
@@ -593,7 +598,7 @@ export class KeyboardAPI {
       this.commandQueueWrapper.commandQueue.push({
         res,
         rej,
-        args: [this.kbAddr, command, bytes],
+        args: [command, bytes],
       });
       if (!this.commandQueueWrapper.isFlushing) {
         this.flushQueue();
@@ -617,7 +622,16 @@ export class KeyboardAPI {
         try {
           const ans = await this._hidCommand(...args);
           res(ans);
-        } catch (e) {
+        } catch (e: any) {
+          const {vendorId, productId, productName} = this.getHID();
+          store.dispatch(
+            logAppError({
+              message: getMessageFromError(e),
+              vendorId,
+              productId,
+              productName,
+            }),
+          );
           rej(e);
         }
       }
@@ -629,23 +643,15 @@ export class KeyboardAPI {
     return cache[this.kbAddr].hid;
   }
 
-  async _hidCommand(
-    kbAddr: HIDAddress,
-    command: Command,
-    bytes: Array<number> = [],
-  ): Promise<any> {
+  async _hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
     const commandBytes = [...[COMMAND_START, command], ...bytes];
     const paddedArray = new Array(33).fill(0);
     commandBytes.forEach((val, idx) => {
       paddedArray[idx] = val;
     });
-    try {
-      await this.getHID().write(paddedArray);
-    } catch (ex) {
-      console.log('Retrying...');
-      this.refresh(kbAddr);
-      this.getHID().write(paddedArray);
-    }
+
+    await this.getHID().write(paddedArray);
+
     const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);

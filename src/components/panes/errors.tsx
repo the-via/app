@@ -94,17 +94,23 @@ const AppErrors: React.FC<{}> = ({}) => {
       save={() => saveAppErrors(errors)}
       hasErrors={!!errors.length}
     >
-      {errors.map(({timestamp, productName, productId, vendorId, error}) => (
-        <Container key={timestamp}>
-          {timestamp}
-          <ul>
-            <li>Error: {error}</li>
-            <li>Device: {productName}</li>
-            <li>Vid: {printId(vendorId)}</li>
-            <li>Pid: {printId(productId)}</li>
-          </ul>
-        </Container>
-      ))}
+      {errors.map(
+        ({timestamp, productName, productId, vendorId, message: error}) => (
+          <Container key={timestamp}>
+            {timestamp}
+            <ul>
+              {error?.split('\n').map((line) => (
+                <li>{line}</li>
+              ))}
+            </ul>
+            <ul>
+              <li>Device: {productName}</li>
+              <li>Vid: {printId(vendorId)}</li>
+              <li>Pid: {printId(productId)}</li>
+            </ul>
+          </Container>
+        ),
+      )}
     </ErrorList>
   );
 };
@@ -201,12 +207,12 @@ const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) =>
 const saveAppErrors = async (errors: AppError[]) =>
   saveErrors(
     errors,
-    ['timestamp', 'productName', 'vendorId', 'productId', 'error'],
+    ['timestamp', 'productName', 'vendorId', 'productId', 'message'],
     'VIA-app-errors',
-    ({timestamp, productName, vendorId, productId, error}) =>
+    ({timestamp, productName, vendorId, productId, message}) =>
       `${timestamp}, ${productName}, ${printId(vendorId)}, ${printId(
         productId,
-      )}, ${error}`,
+      )}, ${message}`,
   );
 
 const IconButtonGroupContainer = styled.div`

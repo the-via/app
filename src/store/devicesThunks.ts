@@ -78,7 +78,7 @@ const selectConnectedDevice =
       } catch (e) {
         dispatch(
           logAppError({
-            error: 'Loading lighting/menu data failed',
+            message: 'Loading lighting/menu data failed',
             vendorId,
             productId,
             productName,
@@ -93,7 +93,7 @@ const selectConnectedDevice =
       if (selectConnectedDeviceRetry.retriesLeft()) {
         dispatch(
           logAppError({
-            error: 'Loading device failed - retrying',
+            message: 'Loading device failed - retrying',
             vendorId,
             productId,
             productName,
@@ -105,7 +105,7 @@ const selectConnectedDevice =
       } else {
         dispatch(
           logAppError({
-            error: 'All retries failed for attempting connection with device',
+            message: 'All retries failed for attempting connection with device',
             vendorId,
             productId,
             productName,
@@ -150,7 +150,7 @@ export const reloadConnectedDevices =
         const {vendorId, productId, productName} = device;
         dispatch(
           logAppError({
-            error: 'Received invalid protocol version from device',
+            message: 'Received invalid protocol version from device',
             vendorId,
             productId,
             productName,

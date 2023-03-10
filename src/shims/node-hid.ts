@@ -103,6 +103,7 @@ const ExtendedHID = {
         this.productId = this._hidDevice.productId;
         this.path = this._hidDevice.path;
         this.interface = this._hidDevice.interface;
+        this.productName = this._hidDevice.productName;
         globalBuffer[this.path] = globalBuffer[this.path] || [];
         eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];
         if (!this._hidDevice._device.opened) {
