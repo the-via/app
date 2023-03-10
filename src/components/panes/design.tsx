@@ -45,9 +45,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {
   getSelectedDefinitionIndex,
-  getSelectedVersion,
   getShowMatrix,
-  selectVersion,
   updateSelectedDefinitionIndex,
   updateSelectedOptionKeys,
   updateShowMatrix,
@@ -56,10 +54,15 @@ import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
 import {IconButtonUnfilledContainer} from '../inputs/icon-button';
-import {AccentButton} from '../inputs/accent-button';
 import {formatNumberAsHex} from 'src/utils/format';
+import {
+  getDesignDefinitionVersion,
+  updateDesignDefinitionVersion,
+} from 'src/store/settingsSlice';
 
-let hideDesignWarning = sessionStorage.getItem('hideDesignWarning');
+let designWarningSeen = Number(localStorage.getItem('designWarningSeen') || 0);
+let hideDesignWarning =
+  sessionStorage.getItem('hideDesignWarning') || designWarningSeen > 4;
 
 const DesignErrorMessage = styled(ErrorMessage)`
   margin: 0;
@@ -225,7 +228,7 @@ function onDrop(
 export const DesignTab: FC = () => {
   const dispatch = useDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
-  const definitionVersion = useAppSelector(getSelectedVersion);
+  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
   const showMatrix = useAppSelector(getShowMatrix);
   const [errors, setErrors] = useState<string[]>([]);
@@ -261,6 +264,8 @@ export const DesignTab: FC = () => {
         onClose={() => {
           sessionStorage.setItem('hideDesignWarning', '1');
           hideDesignWarning = '1';
+          designWarningSeen = designWarningSeen + 1;
+          localStorage.setItem('designWarningSeen', `${designWarningSeen}`);
         }}
       >
         This feature is intended for development purposes. If your keyboard is
@@ -324,7 +329,9 @@ export const DesignTab: FC = () => {
               <Detail>
                 <AccentSlider
                   isChecked={definitionVersion === 'v2'}
-                  onChange={(val) => dispatch(selectVersion(val ? 'v2' : 'v3'))}
+                  onChange={(val) =>
+                    dispatch(updateDesignDefinitionVersion(val ? 'v2' : 'v3'))
+                  }
                 />
               </Detail>
             </ControlRow>

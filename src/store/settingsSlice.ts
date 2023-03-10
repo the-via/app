@@ -11,6 +11,7 @@ import {THEMES} from 'src/utils/themes';
 import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
 import {updateCSSVariables} from 'src/utils/color-math';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
+import {DefinitionVersion} from '@the-via/reader';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 type SettingsState = Settings & {
@@ -52,6 +53,13 @@ const settingsSlice = createSlice({
     },
     updateRenderMode: (state, action: PayloadAction<'3D' | '2D'>) => {
       state.renderMode = action.payload;
+      setSettings(state);
+    },
+    updateDesignDefinitionVersion: (
+      state,
+      action: PayloadAction<DefinitionVersion>,
+    ) => {
+      state.designDefinitionVersion = action.payload;
       setSettings(state);
     },
     updateThemeName: (state, action: PayloadAction<string>) => {
@@ -104,10 +112,13 @@ export const {
   enableGlobalHotKeys,
   updateRenderMode,
   updateThemeName,
+  updateDesignDefinitionVersion,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
 
+export const getDesignDefinitionVersion = (state: RootState) =>
+  state.settings.designDefinitionVersion;
 export const getAllowGlobalHotKeys = (state: RootState) =>
   state.settings.allowGlobalHotKeys;
 export const getDisableFastRemap = (state: RootState) =>

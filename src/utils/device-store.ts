@@ -13,8 +13,6 @@ import type {
   DefinitionIndex,
   VendorProductIdMap,
   Settings,
-  Device,
-  ConnectedDevice,
   AuthorizedDevice,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
@@ -35,6 +33,7 @@ const defaultStoreData = {
     disableFastRemap: false,
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
+    designDefinitionVersion: 'v3' as const,
     themeName: 'OLIVIA_DARK',
     macroEditor: {
       smartOptimizeEnabled: true,

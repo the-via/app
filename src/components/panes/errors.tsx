@@ -152,6 +152,12 @@ async function saveErrors<T>(
   try {
     const handle = await window.showSaveFilePicker({
       suggestedName: `${fileName}.csv`,
+      types: [
+        {
+          accept: {'text/csv': ['.csv']},
+          description: 'CSV file',
+        },
+      ],
     });
     const csvHeaders = [headers.join(', ')];
     const data = errors.map(printRow);

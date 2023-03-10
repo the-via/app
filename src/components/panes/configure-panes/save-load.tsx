@@ -114,7 +114,12 @@ export const Pane: FC = () => {
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName,
-        types: [{accept: {'application/json': ['.layout.json']}}],
+        types: [
+          {
+            accept: {'application/json': ['.layout.json']},
+            description: 'JSON layout file',
+          },
+        ],
       });
       const encoderValues = await getEncoderValues();
       const saveFile: ViaSaveFile = {

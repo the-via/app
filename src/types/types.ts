@@ -89,6 +89,7 @@ export type Settings = {
   themeName: string;
   macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
+  designDefinitionVersion: DefinitionVersion;
 };
 
 export type CommonMenusMap = {
