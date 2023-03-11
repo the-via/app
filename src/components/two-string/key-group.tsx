@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
@@ -20,6 +20,7 @@ import {
 import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
 import {getRGB} from 'src/utils/color-math';
 import {Color} from 'three';
+import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
 
 const KeyGroupContainer = styled.div<{height: number; width: number}>`
   position: absolute;
@@ -43,11 +44,13 @@ const getRGBArray = (keyColors: number[][]) => {
     return keyColor;
   });
 };
+
 export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const dispatch = useAppDispatch();
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedTheme = useAppSelector(getSelectedTheme);
   const macroExpressions = useAppSelector(getExpressions);
+  const skipFontCheck = useSkipFontCheck();
   const keyColorPalette = props.keyColors
     ? getRGBArray(props.keyColors)
     : selectedTheme;
@@ -80,6 +83,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
             keysKeys,
             selectedKeyIndex,
             labels,
+            skipFontCheck,
           )}
         />
       );
@@ -92,6 +96,7 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
     props.selectable,
     keyColorPalette,
     props.definition.vendorProductId,
+    skipFontCheck,
   ]);
   return (
     <KeyGroupContainer

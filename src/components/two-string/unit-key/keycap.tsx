@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {shallowEqual} from 'react-redux';
 import {TestKeyState} from 'src/types/types';
 import {getDarkenedColor} from 'src/utils/color-math';
@@ -178,6 +178,7 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     shouldRotate,
     textureWidth,
     textureHeight,
+    skipFontCheck,
     idx,
   } = props;
   const macroData = label && getMacroData(label);
@@ -185,12 +186,14 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   const redraw = React.useCallback(() => {
     if (
       canvasRef.current &&
       color &&
       label &&
-      document.fonts.check('bold 16px "Fira Sans"', label.label)
+      (document.fonts.check('bold 16px "Fira Sans"', label.label) ||
+        skipFontCheck)
     ) {
       // Only render label if it is available
       const doesOverflow = paintKeycap(
@@ -212,7 +215,12 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     color && color.c,
     shouldRotate,
   ]);
-  useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
+  useEffect(redraw, [
+    label && label.key,
+    skipFontCheck,
+    color && color.c,
+    color && color.t,
+  ]);
 
   useEffect(() => {
     document.fonts.addEventListener('loadingdone', redraw);

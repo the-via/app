@@ -25,6 +25,7 @@ export function getKeycapSharedProps<T>(
   keysKeys: KeysKeys<T>,
   selectedKeyIndex: number | null,
   labels: any[],
+  skipFontCheck: boolean,
 ): KeycapSharedProps<T> {
   const {
     position,
@@ -56,6 +57,7 @@ export function getKeycapSharedProps<T>(
     label: labels[i],
     onClick: onClick,
     key: keysKeys.indices[i],
+    skipFontCheck,
   };
 }
 
