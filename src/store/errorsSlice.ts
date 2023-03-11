@@ -1,78 +1,76 @@
 import {RootState} from './index';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {Device} from 'src/types/types';
+import {DeviceInfo} from 'src/types/types';
 
 export type KeyboardAPIError = {
-  timestamp: string;
   commandName: string;
   commandBytes: number[];
   responseBytes: number[];
-  device: Device;
+  deviceInfo: DeviceInfo;
 };
 
-export type UnwrappedError = {
-  name: string;
+export type AppError = {
+  timestamp: string;
   message: string;
-  cause: string;
+  deviceInfo: DeviceInfo;
 };
+
+export const extractDeviceInfo = (device: DeviceInfo): DeviceInfo => ({
+  productId: device.productId,
+  vendorId: device.vendorId,
+  productName: device.productName,
+});
 
 type ErrorsState = {
-  keyboardAPIErrors: KeyboardAPIError[];
-  appErrors: [string, UnwrappedError][];
+  appErrors: AppError[];
 };
 
 const initialState: ErrorsState = {
-  keyboardAPIErrors: [],
   appErrors: [],
 };
 
 export const getErrorTimestamp = () => {
   const now = new Date();
-  return `${now.toLocaleTimeString()}.${now
+  return `${now.toLocaleTimeString([], {hour12: false})}.${now
     .getMilliseconds()
     .toString()
     .padStart(3, '0')}`;
 };
 
-export const unwrapError = (e: Error): UnwrappedError => {
-  return {
-    name: e.name,
-    message: e.message,
-    cause: `${e.cause}`,
-  };
-};
+export const extractMessageFromKeyboardAPIError = (error: KeyboardAPIError) =>
+  `Command Name: ${error.commandName}
+Command: ${formatBytes(error.commandBytes)}
+Response: ${formatBytes(error.responseBytes)}`;
+export const getMessageFromError = (e: Error) => e.stack || e.message;
+const formatBytes = (bytes: number[]) => bytes.join(' ');
 
 const errorsSlice = createSlice({
   name: 'errors',
   initialState,
   reducers: {
-    logAppError: (state, action: PayloadAction<UnwrappedError>) => {
-      state.appErrors.push([getErrorTimestamp(), action.payload]);
+    logAppError: (
+      state,
+      action: PayloadAction<Omit<AppError, 'timestamp'>>,
+    ) => {
+      state.appErrors.push({...action.payload, timestamp: getErrorTimestamp()});
     },
     logKeyboardAPIError: (state, action: PayloadAction<KeyboardAPIError>) => {
-      state.keyboardAPIErrors.push(action.payload);
-    },
-    appErrors: (state) => {
-      state.keyboardAPIErrors = [];
+      const {deviceInfo} = action.payload;
+      state.appErrors.push({
+        timestamp: getErrorTimestamp(),
+        message: extractMessageFromKeyboardAPIError(action.payload),
+        deviceInfo,
+      });
     },
     clearAppErrors: (state) => {
       state.appErrors = [];
     },
-    clearKeyboardAPIErrors: (state) => {
-      state.keyboardAPIErrors = [];
-    },
   },
 });
 
-export const {
-  logKeyboardAPIError,
-  clearKeyboardAPIErrors,
-  logAppError,
-  clearAppErrors,
-} = errorsSlice.actions;
+export const {logKeyboardAPIError, logAppError, clearAppErrors} =
+  errorsSlice.actions;
 
 export default errorsSlice.reducer;
 
 export const getAppErrors = (state: RootState) => state.errors.appErrors;
-export const getKeyboardAPIErrors = (state: RootState) =>
-  state.errors.keyboardAPIErrors;

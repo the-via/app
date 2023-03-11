@@ -27,6 +27,8 @@
     "@react-three/drei": "^9.56.27",
     "@react-three/fiber": "^8.11.5",
     "@reduxjs/toolkit": "^1.9.3",
+    "@sentry/react": "^7.42.0",
+    "@sentry/tracing": "^7.42.0",
     "@the-via/pelpi": "^0.0.3",
     "@the-via/reader": "^1.7.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",

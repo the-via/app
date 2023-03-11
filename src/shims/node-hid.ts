@@ -36,17 +36,9 @@ const tagDevice = (device: HIDDevice): WebVIADevice => {
     vendorId: device.vendorId ?? -1,
     productId: device.productId ?? -1,
     path,
+    productName: device.productName,
   };
   return (ExtendedHID._cache[path] = HIDDevice);
-};
-
-// Attempt to get device name, else return vendorProductId
-export const tryResolveName = (device: ConnectedDevice | AuthorizedDevice) => {
-  const cachedDevice = ExtendedHID._cache[device.path];
-  if (cachedDevice) {
-    return cachedDevice._device.productName;
-  }
-  return `0x${device.vendorProductId.toString(16)}`;
 };
 
 // Attempt to forget device
@@ -95,11 +87,10 @@ const ExtendedHID = {
   },
   HID: class HID {
     _hidDevice?: WebVIADevice;
-    usage: number = -1;
-    usagePage: number = -1;
     interface: number = -1;
     vendorId: number = -1;
     productId: number = -1;
+    productName: string = '';
     path: string = '';
     openPromise: Promise<void> = Promise.resolve();
     constructor(path: string) {
@@ -111,9 +102,8 @@ const ExtendedHID = {
         this.vendorId = this._hidDevice.vendorId;
         this.productId = this._hidDevice.productId;
         this.path = this._hidDevice.path;
-        this.usage = this._hidDevice.usage ?? this.usage;
-        this.usagePage = this._hidDevice.usagePage ?? this.usagePage;
         this.interface = this._hidDevice.interface;
+        this.productName = this._hidDevice.productName;
         globalBuffer[this.path] = globalBuffer[this.path] || [];
         eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];
         if (!this._hidDevice._device.opened) {

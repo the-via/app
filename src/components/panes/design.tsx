@@ -54,6 +54,7 @@ import {MenuContainer} from './configure-panes/custom/menu-generator';
 import {MenuTooltip} from '../inputs/tooltip';
 import {MessageDialog} from '../inputs/message-dialog';
 import {IconButtonUnfilledContainer} from '../inputs/icon-button';
+import {formatNumberAsHex} from 'src/utils/format';
 import {
   getDesignDefinitionVersion,
   updateDesignDefinitionVersion,
@@ -397,11 +398,10 @@ export const DesignTab: FC = () => {
                 >
                   <SubLabel>{definition[definitionVersion].name}</SubLabel>
                   <Detail>
-                    0x
-                    {definition[definitionVersion].vendorProductId
-                      .toString(16)
-                      .padStart(8, '0')
-                      .toUpperCase()}
+                    {formatNumberAsHex(
+                      definition[definitionVersion].vendorProductId,
+                      8,
+                    )}
                     <IconButtonUnfilledContainer
                       onClick={() => {
                         dispatch(

@@ -2,7 +2,6 @@
 
 import {
   getDefinitionsFromStore,
-  getMissingDefinition,
   getSupportedIdsFromStore,
   syncStore,
 } from '../utils/device-store';
@@ -35,10 +34,11 @@ import type {
   AuthorizedDevice,
   ConnectedDevice,
   ConnectedDevices,
+  WebVIADevice,
 } from 'src/types/types';
 import {createRetry} from 'src/utils/retry';
-import {logAppError, unwrapError} from './errorsSlice';
-import {tryForgetDevice, tryResolveName} from 'src/shims/node-hid';
+import {extractDeviceInfo, logAppError} from './errorsSlice';
+import {tryForgetDevice} from 'src/shims/node-hid';
 import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
@@ -59,6 +59,7 @@ export const selectConnectedDeviceByPath =
 const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
+    const deviceInfo = extractDeviceInfo(connectedDevice);
     try {
       dispatch(selectDevice(connectedDevice));
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
@@ -76,15 +77,10 @@ const selectConnectedDevice =
         }
       } catch (e) {
         dispatch(
-          logAppError(
-            unwrapError(
-              new Error(
-                `Loading lighting/menu data failed for ${tryResolveName(
-                  connectedDevice,
-                )}`,
-              ),
-            ),
-          ),
+          logAppError({
+            message: 'Loading lighting/menu data failed',
+            deviceInfo,
+          }),
         );
       }
 
@@ -94,30 +90,20 @@ const selectConnectedDevice =
     } catch (e) {
       if (selectConnectedDeviceRetry.retriesLeft()) {
         dispatch(
-          logAppError(
-            unwrapError(
-              new Error(
-                `Loading ${tryResolveName(
-                  connectedDevice,
-                )} failed but retrying`,
-              ),
-            ),
-          ),
+          logAppError({
+            message: 'Loading device failed - retrying',
+            deviceInfo,
+          }),
         );
         selectConnectedDeviceRetry.retry(() => {
           dispatch(selectConnectedDevice(connectedDevice));
         });
       } else {
         dispatch(
-          logAppError(
-            unwrapError(
-              new Error(
-                `All retries failed for attempting connection with ${tryResolveName(
-                  connectedDevice,
-                )}`,
-              ),
-            ),
-          ),
+          logAppError({
+            message: 'All retries failed for attempting connection with device',
+            deviceInfo,
+          }),
         );
         console.log('Hard resetting device store:', e);
         dispatch(clearAllDevices());
@@ -154,15 +140,13 @@ export const reloadConnectedDevices =
 
     if (recognisedDevicesWithBadProtocol.length) {
       // Should we exit early??
-      recognisedDevicesWithBadProtocol.forEach((device) => {
+      recognisedDevicesWithBadProtocol.forEach((device: WebVIADevice) => {
+        const deviceInfo = extractDeviceInfo(device);
         dispatch(
-          logAppError(
-            unwrapError(
-              new Error(
-                `Received invalid protocol version for ${device._device.productName}`,
-              ),
-            ),
-          ),
+          logAppError({
+            message: 'Received invalid protocol version from device',
+            deviceInfo,
+          }),
         );
       });
     }
@@ -170,13 +154,14 @@ export const reloadConnectedDevices =
     const authorizedDevices: AuthorizedDevice[] = recognisedDevices
       .filter((_, i) => protocolVersions[i] !== -1)
       .map((device, idx) => {
-        const {path, productId, vendorId} = device;
+        const {path, productId, vendorId, productName} = device;
         const protocol = protocolVersions[idx];
         return {
           path,
           productId,
           vendorId,
           protocol,
+          productName,
           hasResolvedDefinition: false,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
           vendorProductId: getVendorProductId(

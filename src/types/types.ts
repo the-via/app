@@ -22,13 +22,16 @@ export type LightingData = Partial<{[key in LightingValue]: number[]}> & {
   customColors?: HIDColor[];
 };
 
-export type Device = {
-  productId: number;
+export type DeviceInfo = {
   vendorId: number;
-  interface: number;
-  usage?: number;
-  usagePage?: number;
+  productId: number;
+  productName: string;
+};
+
+export type Device = DeviceInfo & {
   path: string;
+  productName: string;
+  interface: number;
 };
 
 export type Keymap = number[];
@@ -44,25 +47,22 @@ export type WebVIADevice = Device & {
 };
 
 // Refers to a device that may or may not have an associated definition but does have a valid protocol version
-export type AuthorizedDevice = {
+export type AuthorizedDevice = DeviceInfo & {
   path: string;
-  productId: number;
-  vendorId: number;
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
   hasResolvedDefinition: false;
 };
 
-export type ConnectedDevice = {
+export type ConnectedDevice = DeviceInfo & {
   path: string;
-  productId: number;
-  vendorId: number;
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
   hasResolvedDefinition: true;
 };
+
 export type AuthorizedDevices = Record<string, AuthorizedDevice>;
 export type ConnectedDevices = Record<string, ConnectedDevice>;
 
