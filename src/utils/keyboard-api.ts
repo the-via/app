@@ -654,7 +654,7 @@ export class KeyboardAPI {
     const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
-    if (eqArr(commandBytes.slice(1), bufferCommandBytes)) {
+    if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
       console.error(
         `Command for ${this.kbAddr}:`,
         commandBytes,
