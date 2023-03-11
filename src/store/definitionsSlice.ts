@@ -31,7 +31,7 @@ import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
 import {isFulfilledPromise} from 'src/utils/type-predicates';
-import {logAppError} from './errorsSlice';
+import {extractDeviceInfo, logAppError} from './errorsSlice';
 
 type LayoutOption = number;
 type LayoutOptionsMap = {[devicePath: string]: LayoutOption[] | null}; // TODO: is this null valid?
@@ -351,13 +351,11 @@ export const reloadDefinitions =
     missingDefinitionsSettledPromises.forEach((settledPromise, i) => {
       const device = missingDevicesToFetchDefinitions[i];
       if (settledPromise.status === 'rejected') {
-        const {vendorId, productId, productName} = device;
+        const deviceInfo = extractDeviceInfo(device);
         dispatch(
           logAppError({
             message: `Fetching ${device.requiredDefinitionVersion} definition failed`,
-            vendorId,
-            productId,
-            productName,
+            deviceInfo,
           }),
         );
       }

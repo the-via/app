@@ -37,7 +37,7 @@ import type {
   WebVIADevice,
 } from 'src/types/types';
 import {createRetry} from 'src/utils/retry';
-import {logAppError} from './errorsSlice';
+import {extractDeviceInfo, logAppError} from './errorsSlice';
 import {tryForgetDevice} from 'src/shims/node-hid';
 import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
 
@@ -59,7 +59,7 @@ export const selectConnectedDeviceByPath =
 const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch) => {
-    const {vendorId, productId, productName} = connectedDevice;
+    const deviceInfo = extractDeviceInfo(connectedDevice);
     try {
       dispatch(selectDevice(connectedDevice));
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
@@ -79,9 +79,7 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             message: 'Loading lighting/menu data failed',
-            vendorId,
-            productId,
-            productName,
+            deviceInfo,
           }),
         );
       }
@@ -94,9 +92,7 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             message: 'Loading device failed - retrying',
-            vendorId,
-            productId,
-            productName,
+            deviceInfo,
           }),
         );
         selectConnectedDeviceRetry.retry(() => {
@@ -106,9 +102,7 @@ const selectConnectedDevice =
         dispatch(
           logAppError({
             message: 'All retries failed for attempting connection with device',
-            vendorId,
-            productId,
-            productName,
+            deviceInfo,
           }),
         );
         console.log('Hard resetting device store:', e);
@@ -147,13 +141,11 @@ export const reloadConnectedDevices =
     if (recognisedDevicesWithBadProtocol.length) {
       // Should we exit early??
       recognisedDevicesWithBadProtocol.forEach((device: WebVIADevice) => {
-        const {vendorId, productId, productName} = device;
+        const deviceInfo = extractDeviceInfo(device);
         dispatch(
           logAppError({
             message: 'Received invalid protocol version from device',
-            vendorId,
-            productId,
-            productName,
+            deviceInfo,
           }),
         );
       });

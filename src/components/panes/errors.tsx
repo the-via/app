@@ -9,15 +9,9 @@ import {
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {PropsWithChildren, useState} from 'react';
 import {useDispatch} from 'react-redux';
-import {
-  AppError,
-  clearAppErrors,
-  clearKeyboardAPIErrors,
-  getAppErrors,
-  getKeyboardAPIErrors,
-  KeyboardAPIError,
-} from 'src/store/errorsSlice';
+import {AppError, clearAppErrors, getAppErrors} from 'src/store/errorsSlice';
 import {useAppSelector} from 'src/store/hooks';
+import {DeviceInfo} from 'src/types/types';
 import {formatNumberAsHex} from 'src/utils/format';
 import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
@@ -50,9 +44,8 @@ const Container = styled.div`
 `;
 
 const printId = (id: number) => formatNumberAsHex(id, 4);
-const printBytes = (bytes: number[]) => bytes.join(' ');
 
-const ErrorList: React.FC<
+const ErrorListContainer: React.FC<
   PropsWithChildren<{
     clear: () => void;
     save: () => void;
@@ -89,13 +82,17 @@ const AppErrors: React.FC<{}> = ({}) => {
   const errors = useAppSelector(getAppErrors);
   const dispatch = useDispatch();
   return (
-    <ErrorList
+    <ErrorListContainer
       clear={() => dispatch(clearAppErrors())}
       save={() => saveAppErrors(errors)}
       hasErrors={!!errors.length}
     >
       {errors.map(
-        ({timestamp, productName, productId, vendorId, message: error}) => (
+        ({
+          timestamp,
+          deviceInfo: {productId, productName, vendorId},
+          message: error,
+        }) => (
           <Container key={timestamp}>
             {timestamp}
             <ul>
@@ -111,47 +108,13 @@ const AppErrors: React.FC<{}> = ({}) => {
           </Container>
         ),
       )}
-    </ErrorList>
-  );
-};
-
-const KeyboardAPIErrors: React.FC<{}> = ({}) => {
-  const errors = useAppSelector(getKeyboardAPIErrors);
-  const dispatch = useDispatch();
-  return (
-    <ErrorList
-      clear={() => dispatch(clearKeyboardAPIErrors())}
-      save={() => saveKeyboardAPIErrors(errors)}
-      hasErrors={!!errors.length}
-    >
-      {errors.map(
-        ({
-          timestamp,
-          commandName,
-          commandBytes,
-          responseBytes,
-          vendorId,
-          productId,
-        }) => (
-          <Container key={timestamp}>
-            {timestamp}
-            <ul>
-              <li>Vid: {printId(vendorId)}</li>
-              <li>Pid: {printId(productId)}</li>
-              <li>Command name: {commandName}</li>
-              <li>Command: {printBytes(commandBytes)}</li>
-              <li>Response: {printBytes(responseBytes)}</li>
-            </ul>
-          </Container>
-        ),
-      )}
-    </ErrorList>
+    </ErrorListContainer>
   );
 };
 
 async function saveErrors<T>(
   errors: T[],
-  headers: Array<keyof T>,
+  headers: Array<keyof (T & DeviceInfo)>,
   fileName: string,
   printRow: (error: T) => string,
 ) {
@@ -177,42 +140,15 @@ async function saveErrors<T>(
   }
 }
 
-const saveKeyboardAPIErrors = async (errors: KeyboardAPIError[]) =>
-  saveErrors(
-    errors,
-    [
-      'timestamp',
-      'vendorId',
-      'productId',
-      'commandName',
-      'commandBytes',
-      'responseBytes',
-    ],
-    'VIA-keyboard-API-errors',
-    ({
-      timestamp,
-      vendorId,
-      productId,
-      commandName,
-      commandBytes,
-      responseBytes,
-    }) =>
-      `${timestamp}, ${printId(vendorId)}, ${printId(
-        productId,
-      )}, ${commandName}, ${printBytes(commandBytes)}, ${printBytes(
-        responseBytes,
-      )}`,
-  );
-
 const saveAppErrors = async (errors: AppError[]) =>
   saveErrors(
     errors,
     ['timestamp', 'productName', 'vendorId', 'productId', 'message'],
     'VIA-app-errors',
-    ({timestamp, productName, vendorId, productId, message}) =>
+    ({timestamp, deviceInfo: {productName, vendorId, productId}, message}) =>
       `${timestamp}, ${productName}, ${printId(vendorId)}, ${printId(
         productId,
-      )}, ${message}`,
+      )}, "${message}"`,
   );
 
 const IconButtonGroupContainer = styled.div`
@@ -230,7 +166,6 @@ enum ErrorPaneMenu {
 }
 
 const ErrorPanes: [ErrorPaneMenu, React.FC, IconProp, string][] = [
-  [ErrorPaneMenu.KeyboardAPI, KeyboardAPIErrors, faKeyboard, 'Keyboard API'],
   [ErrorPaneMenu.App, AppErrors, faComputer, 'App'],
 ];
 
@@ -268,12 +203,10 @@ export const Errors = () => {
 };
 
 export const ErrorLink = () => {
-  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
   const appErrors = useAppSelector(getAppErrors);
-  const allErrors = [...keyboardAPIErrors, ...appErrors];
   const [location] = useLocation();
   const isSelectedRoute = location === '/errors';
-  if (allErrors.length) {
+  if (appErrors.length) {
     return (
       <Link to="/errors">
         <CategoryIconContainer $selected={isSelectedRoute}>
@@ -283,8 +216,8 @@ export const ErrorLink = () => {
             color={isSelectedRoute ? 'inherit' : 'gold'}
           />
           <CategoryMenuTooltip>
-            {allErrors.length} error
-            {allErrors.length > 1 ? 's' : ''}
+            {appErrors.length} error
+            {appErrors.length > 1 ? 's' : ''}
           </CategoryMenuTooltip>
         </CategoryIconContainer>
       </Link>

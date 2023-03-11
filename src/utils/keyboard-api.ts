@@ -4,6 +4,7 @@ import {logCommand} from './command-logger';
 import {initAndConnectDevice} from './usb-hid';
 import {store} from 'src/store/index';
 import {
+  extractDeviceInfo,
   getErrorTimestamp,
   getMessageFromError,
   logAppError,
@@ -623,13 +624,11 @@ export class KeyboardAPI {
           const ans = await this._hidCommand(...args);
           res(ans);
         } catch (e: any) {
-          const {vendorId, productId, productName} = this.getHID();
+          const deviceInfo = extractDeviceInfo(this.getHID());
           store.dispatch(
             logAppError({
               message: getMessageFromError(e),
-              vendorId,
-              productId,
-              productName,
+              deviceInfo,
             }),
           );
           rej(e);
@@ -655,7 +654,7 @@ export class KeyboardAPI {
     const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
-    if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
+    if (eqArr(commandBytes.slice(1), bufferCommandBytes)) {
       console.error(
         `Command for ${this.kbAddr}:`,
         commandBytes,
@@ -663,16 +662,14 @@ export class KeyboardAPI {
         buffer,
       );
 
-      const {vendorId, productId, productName} = this.getHID();
+      const deviceInfo = extractDeviceInfo(this.getHID());
       const commandName = APICommandValueToName[command];
       store.dispatch(
         logKeyboardAPIError({
           commandName,
           commandBytes: commandBytes.slice(1),
           responseBytes: buffer,
-          vendorId,
-          productId,
-          productName,
+          deviceInfo,
         }),
       );
 

@@ -1,31 +1,32 @@
 import {RootState} from './index';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {DeviceInfo} from 'src/types/types';
 
 export type KeyboardAPIError = {
   timestamp: string;
   commandName: string;
   commandBytes: number[];
   responseBytes: number[];
-  vendorId: number;
-  productId: number;
-  productName: string;
+  deviceInfo: DeviceInfo;
 };
 
 export type AppError = {
   timestamp: string;
   message: string;
-  vendorId: number;
-  productId: number;
-  productName: string;
+  deviceInfo: DeviceInfo;
 };
 
+export const extractDeviceInfo = (device: DeviceInfo): DeviceInfo => ({
+  productId: device.productId,
+  vendorId: device.vendorId,
+  productName: device.productName,
+});
+
 type ErrorsState = {
-  keyboardAPIErrors: KeyboardAPIError[];
   appErrors: AppError[];
 };
 
 const initialState: ErrorsState = {
-  keyboardAPIErrors: [],
   appErrors: [],
 };
 
@@ -38,6 +39,7 @@ export const getErrorTimestamp = () => {
 };
 
 export const getMessageFromError = (e: Error) => e.stack || e.message;
+const formatBytes = (bytes: number[]) => bytes.join(' ');
 
 const errorsSlice = createSlice({
   name: 'errors',
@@ -53,29 +55,25 @@ const errorsSlice = createSlice({
       state,
       action: PayloadAction<Omit<KeyboardAPIError, 'timestamp'>>,
     ) => {
-      state.keyboardAPIErrors.push({
-        ...action.payload,
+      const {commandName, commandBytes, responseBytes, deviceInfo} =
+        action.payload;
+      state.appErrors.push({
         timestamp: getErrorTimestamp(),
+        message: `Command Name: ${commandName}
+Command: ${formatBytes(commandBytes)}
+Response: ${formatBytes(responseBytes)}`,
+        deviceInfo,
       });
     },
     clearAppErrors: (state) => {
       state.appErrors = [];
     },
-    clearKeyboardAPIErrors: (state) => {
-      state.keyboardAPIErrors = [];
-    },
   },
 });
 
-export const {
-  logKeyboardAPIError,
-  clearKeyboardAPIErrors,
-  logAppError,
-  clearAppErrors,
-} = errorsSlice.actions;
+export const {logKeyboardAPIError, logAppError, clearAppErrors} =
+  errorsSlice.actions;
 
 export default errorsSlice.reducer;
 
 export const getAppErrors = (state: RootState) => state.errors.appErrors;
-export const getKeyboardAPIErrors = (state: RootState) =>
-  state.errors.keyboardAPIErrors;
