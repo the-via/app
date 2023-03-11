@@ -8,6 +8,10 @@ import lightingReducer from './lightingSlice';
 import menusReducer from './menusSlice';
 import designReducer from './designSlice';
 import errorsReducer from './errorsSlice';
+import * as Sentry from '@sentry/react';
+import {errorsListenerMiddleware} from './errorsListener';
+
+const sentryEnhancer = Sentry.createReduxEnhancer({});
 
 export const store = configureStore({
   reducer: {
@@ -21,7 +25,9 @@ export const store = configureStore({
     design: designReducer,
     errors: errorsReducer,
   },
-  enhancers: [],
+  enhancers: [sentryEnhancer],
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().prepend(errorsListenerMiddleware.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
