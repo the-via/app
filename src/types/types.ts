@@ -26,6 +26,7 @@ export type DeviceInfo = {
   vendorId: number;
   productId: number;
   productName: string;
+  protocol?: number;
 };
 
 export type Device = DeviceInfo & {

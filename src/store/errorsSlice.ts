@@ -19,6 +19,7 @@ export const extractDeviceInfo = (device: DeviceInfo): DeviceInfo => ({
   productId: device.productId,
   vendorId: device.vendorId,
   productName: device.productName,
+  protocol: device.protocol,
 });
 
 type ErrorsState = {

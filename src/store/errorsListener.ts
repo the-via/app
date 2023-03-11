@@ -15,6 +15,7 @@ const captureError = (message: string, deviceInfo: DeviceInfo) => {
     tags: {
       productName: deviceInfo.productName,
       vendorId: formatNumberAsHex(deviceInfo.vendorId, 4),
+      protocol: deviceInfo.protocol,
     },
     extra: {
       deviceInfo: deviceInfo,
