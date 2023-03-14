@@ -110,16 +110,11 @@ export const Pane: FC = () => {
 
   const saveLayout = async () => {
     const {name, vendorProductId} = selectedDefinition;
-    const suggestedName = name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const suggestedName =
+      name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + '.layout.json';
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName,
-        types: [
-          {
-            accept: {'application/json': ['.layout.json']},
-            description: 'JSON layout file',
-          },
-        ],
       });
       const encoderValues = await getEncoderValues();
       const saveFile: ViaSaveFile = {
