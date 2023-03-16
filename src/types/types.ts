@@ -3,7 +3,6 @@ import type {
   KeyboardDefinitionIndex,
   KeyboardDictionary,
   LightingValue,
-  VIAKey,
   VIAMenu,
 } from '@the-via/reader';
 import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
@@ -23,13 +22,17 @@ export type LightingData = Partial<{[key in LightingValue]: number[]}> & {
   customColors?: HIDColor[];
 };
 
-export type Device = {
-  productId: number;
+export type DeviceInfo = {
   vendorId: number;
-  interface: number;
-  usage?: number;
-  usagePage?: number;
+  productId: number;
+  productName: string;
+  protocol?: number;
+};
+
+export type Device = DeviceInfo & {
   path: string;
+  productName: string;
+  interface: number;
 };
 
 export type Keymap = number[];
@@ -44,17 +47,25 @@ export type WebVIADevice = Device & {
   _device: HIDDevice;
 };
 
-export type ConnectedDevice = {
+// Refers to a device that may or may not have an associated definition but does have a valid protocol version
+export type AuthorizedDevice = DeviceInfo & {
   path: string;
-  productId: number;
-  vendorId: number;
   vendorProductId: number;
   protocol: number;
   requiredDefinitionVersion: DefinitionVersion;
+  hasResolvedDefinition: false;
 };
-export type ConnectedDevices = {
-  [devicePath: string]: ConnectedDevice;
+
+export type ConnectedDevice = DeviceInfo & {
+  path: string;
+  vendorProductId: number;
+  protocol: number;
+  requiredDefinitionVersion: DefinitionVersion;
+  hasResolvedDefinition: true;
 };
+
+export type AuthorizedDevices = Record<string, AuthorizedDevice>;
+export type ConnectedDevices = Record<string, ConnectedDevice>;
 
 export type MacroEditorSettings = {
   recordDelaysEnabled: boolean;
@@ -78,6 +89,7 @@ export type Settings = {
   themeName: string;
   macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
+  designDefinitionVersion: DefinitionVersion;
 };
 
 export type CommonMenusMap = {

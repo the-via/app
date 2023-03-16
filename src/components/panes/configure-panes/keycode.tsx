@@ -209,10 +209,8 @@ export const KeycodePane: FC = () => {
   const renderMacroError = () => {
     return (
       <ErrorMessage>
-        It looks like your current firmware doesn't support macros.{' '}
-        <Link href="https://beta.docs.qmk.fm/newbs" target="_blank">
-          How do I update my firmware?
-        </Link>
+        Your current firmware does not support macros. Install the latest
+        firmware for your device.
       </ErrorMessage>
     );
   };

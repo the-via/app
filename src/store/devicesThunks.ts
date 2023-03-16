@@ -2,7 +2,6 @@
 
 import {
   getDefinitionsFromStore,
-  getMissingDefinition,
   getSupportedIdsFromStore,
   syncStore,
 } from '../utils/device-store';
@@ -32,11 +31,16 @@ import {
   updateConnectedDevices,
   updateSupportedIds,
 } from './devicesSlice';
-import type {ConnectedDevice, ConnectedDevices} from 'src/types/types';
-import type {KeyboardDictionary} from '@the-via/reader';
+import type {
+  AuthorizedDevice,
+  ConnectedDevice,
+  ConnectedDevices,
+  WebVIADevice,
+} from 'src/types/types';
 import {createRetry} from 'src/utils/retry';
-import {logAppError} from './errorsSlice';
-import {tryResolveName} from 'src/shims/node-hid';
+import {extractDeviceInfo, logAppError} from './errorsSlice';
+import {tryForgetDevice} from 'src/shims/node-hid';
+import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
 
@@ -51,41 +55,12 @@ export const selectConnectedDeviceByPath =
     }
   };
 
-const validateDefinitionAvailable = async (
-  device: ConnectedDevice,
-  definitions: KeyboardDictionary,
-) => {
-  const definition =
-    definitions &&
-    definitions[device.vendorProductId] &&
-    definitions[device.vendorProductId][device.requiredDefinitionVersion];
-  if (!definition) {
-    console.log('missing definition: fetching new one');
-    await getMissingDefinition(device, device.requiredDefinitionVersion);
-  }
-};
-
 // TODO: should we change these other thunks to use the selected device state instead of params?
 // Maybe not? the nice this about this is we don't have to null check the device
 const selectConnectedDevice =
   (connectedDevice: ConnectedDevice): AppThunk =>
-  async (dispatch, getState) => {
-    try {
-      await validateDefinitionAvailable(
-        connectedDevice,
-        getDefinitions(getState()),
-      );
-    } catch (e) {
-      dispatch(
-        logAppError(
-          new Error(
-            `Fetching ${
-              connectedDevice.requiredDefinitionVersion
-            } definition for ${tryResolveName(connectedDevice)} failed`,
-          ),
-        ),
-      );
-    }
+  async (dispatch) => {
+    const deviceInfo = extractDeviceInfo(connectedDevice);
     try {
       dispatch(selectDevice(connectedDevice));
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
@@ -103,13 +78,10 @@ const selectConnectedDevice =
         }
       } catch (e) {
         dispatch(
-          logAppError(
-            new Error(
-              `Loading lighting/menu data failed for ${tryResolveName(
-                connectedDevice,
-              )}`,
-            ),
-          ),
+          logAppError({
+            message: 'Loading lighting/menu data failed',
+            deviceInfo,
+          }),
         );
       }
 
@@ -117,26 +89,22 @@ const selectConnectedDevice =
       await dispatch(loadKeymapFromDevice(connectedDevice));
       selectConnectedDeviceRetry.clear();
     } catch (e) {
-      dispatch(
-        logAppError(
-          new Error(
-            `Loading ${tryResolveName(connectedDevice)} completely failed`,
-          ),
-        ),
-      );
       if (selectConnectedDeviceRetry.retriesLeft()) {
+        dispatch(
+          logAppError({
+            message: 'Loading device failed - retrying',
+            deviceInfo,
+          }),
+        );
         selectConnectedDeviceRetry.retry(() => {
           dispatch(selectConnectedDevice(connectedDevice));
         });
       } else {
         dispatch(
-          logAppError(
-            new Error(
-              `All retries failed for attempting connection with ${tryResolveName(
-                connectedDevice,
-              )}`,
-            ),
-          ),
+          logAppError({
+            message: 'All retries failed for attempting connection with device',
+            deviceInfo,
+          }),
         );
         console.log('Hard resetting device store:', e);
         dispatch(clearAllDevices());
@@ -173,46 +141,64 @@ export const reloadConnectedDevices =
 
     if (recognisedDevicesWithBadProtocol.length) {
       // Should we exit early??
-      recognisedDevicesWithBadProtocol.forEach((device) => {
+      recognisedDevicesWithBadProtocol.forEach((device: WebVIADevice) => {
+        const deviceInfo = extractDeviceInfo(device);
         dispatch(
-          logAppError(
-            new Error(
-              `Received invalid protocol version for ${device._device.productName}`,
-            ),
-          ),
+          logAppError({
+            message: 'Received invalid protocol version from device',
+            deviceInfo,
+          }),
         );
       });
     }
 
-    const connectedDevices = recognisedDevices
+    const authorizedDevices: AuthorizedDevice[] = recognisedDevices
       .filter((_, i) => protocolVersions[i] !== -1)
-      .reduce<ConnectedDevices>((devices, device, idx) => {
-        const {path, productId, vendorId} = device;
+      .map((device, idx) => {
+        const {path, productId, vendorId, productName} = device;
         const protocol = protocolVersions[idx];
-        devices[device.path] = {
+        return {
           path,
           productId,
           vendorId,
           protocol,
+          productName,
+          hasResolvedDefinition: false,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
           vendorProductId: getVendorProductId(
             device.vendorId,
             device.productId,
           ),
         };
+      });
 
+    await dispatch(reloadDefinitions(authorizedDevices));
+
+    const newDefinitions = getDefinitions(getState());
+    const connectedDevices = authorizedDevices
+      .filter((device, i) =>
+        isAuthorizedDeviceConnected(device, newDefinitions),
+      )
+      .reduce<ConnectedDevices>((devices, device, idx) => {
+        devices[device.path] = {
+          ...device,
+          hasResolvedDefinition: true,
+        };
         return devices;
       }, {});
 
-    Object.entries(connectedDevices).forEach(([path, d]) => {
+    // Remove authorized devices that we could not find definitions for
+    authorizedDevices
+      .filter((device) => !isAuthorizedDeviceConnected(device, newDefinitions))
+      .forEach(tryForgetDevice);
+
+    const validDevicesArr = Object.entries(connectedDevices);
+    validDevicesArr.forEach(([path, d]) => {
       console.info('Setting connected device:', d.protocol, path, d);
     });
     dispatch(updateConnectedDevices(connectedDevices));
 
-    const validDevicesArr = Object.entries(connectedDevices);
-
     // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
-    await dispatch(reloadDefinitions(connectedDevices));
     // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
       (!selectedDevicePath || !connectedDevices[selectedDevicePath]) &&

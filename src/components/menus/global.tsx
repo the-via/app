@@ -7,9 +7,6 @@ import {getShowDesignTab} from 'src/store/settingsSlice';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
-import {VIALogo} from '../icons/via';
-import {faDiscord, faGithub} from '@fortawesome/free-brands-svg-icons';
-import {getKeyboardAPIErrors} from 'src/store/errorsSlice';
 import {ErrorLink, ErrorsPaneConfig} from '../panes/errors';
 import {ExternalLinks} from './external-links';
 
@@ -33,7 +30,6 @@ const GlobalContainer = styled(Container)`
 
 export const UnconnectedGlobalMenu = () => {
   const showDesignTab = useAppSelector(getShowDesignTab);
-  const keyboardAPIErrors = useAppSelector(getKeyboardAPIErrors);
 
   const [location] = useLocation();
 

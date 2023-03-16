@@ -20,7 +20,8 @@ import {
   getLabels,
 } from '../n-links/key-group';
 import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
-import { getKeycodeDict } from 'src/store/definitionsSlice';
+import {getKeycodeDict} from 'src/store/definitionsSlice';
+import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
 
 const getSRGBArray = (keyColors: number[][]) => {
   return keyColors.map(([hue, sat]) => {
@@ -48,6 +49,7 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedSRGBTheme = useAppSelector(getSelectedSRGBTheme);
   const macroExpressions = useAppSelector(getExpressions);
+  const skipFontCheck = useSkipFontCheck();
   const keyColorPalette = props.keyColors
     ? getSRGBArray(props.keyColors)
     : selectedSRGBTheme;
@@ -86,6 +88,7 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
             keysKeys,
             selectedKeyIndex,
             labels,
+            skipFontCheck,
           )}
         />
       );
@@ -98,6 +101,7 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
     props.selectable,
     keyColorPalette,
     props.definition.vendorProductId,
+    skipFontCheck,
   ]);
   return (
     <group

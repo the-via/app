@@ -1,4 +1,4 @@
-import {useState, FC, useEffect, useCallback} from 'react';
+import {useState, FC} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {KeyboardValue} from '../../utils/keyboard-api';
@@ -8,7 +8,6 @@ import {AccentButton} from '../inputs/accent-button';
 import {AccentSlider} from '../inputs/accent-slider';
 import {ArrayColorPicker} from '../inputs/color-picker';
 import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {authGithub, getUser} from '../../utils/github';
 import {
   ControlRow,
   Label,
@@ -69,45 +68,45 @@ const ControlGroupHeader = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-const GithubUserData = () => {
-  const [userData, setUserData] = useState<{
-    login: string;
-    avatar_url: string;
-  }>();
-  const clickLogin = useCallback(async () => {
-    await authGithub();
-    const userData = await getUser();
-    setUserData(userData);
-  }, []);
-  // Attempt first
-  useEffect(() => {
-    (async () => {
-      const userData = await getUser();
-      setUserData(userData);
-    })();
-  }, []);
-  return (
-    <ControlGroup>
-      <ControlGroupHeader>GH Integration</ControlGroupHeader>
-      {userData && (
-        <ControlRow>
-          <Label>{userData.login}</Label>
-          <Detail>
-            <img src={userData.avatar_url} width={40} height={40} />
-          </Detail>
-        </ControlRow>
-      )}
-      {!userData && (
-        <ControlRow>
-          <Label>Login</Label>
-          <Detail>
-            <AccentButton onClick={clickLogin}>OAuth me</AccentButton>
-          </Detail>
-        </ControlRow>
-      )}
-    </ControlGroup>
-  );
-};
+// const GithubUserData = () => {
+//   const [userData, setUserData] = useState<{
+//     login: string;
+//     avatar_url: string;
+//   }>();
+//   const clickLogin = useCallback(async () => {
+//     await authGithub();
+//     const userData = await getUser();
+//     setUserData(userData);
+//   }, []);
+//   // Attempt first
+//   useEffect(() => {
+//     (async () => {
+//       const userData = await getUser();
+//       setUserData(userData);
+//     })();
+//   }, []);
+//   return (
+//     <ControlGroup>
+//       <ControlGroupHeader>GH Integration</ControlGroupHeader>
+//       {userData && (
+//         <ControlRow>
+//           <Label>{userData.login}</Label>
+//           <Detail>
+//             <img src={userData.avatar_url} width={40} height={40} />
+//           </Detail>
+//         </ControlRow>
+//       )}
+//       {!userData && (
+//         <ControlRow>
+//           <Label>Login</Label>
+//           <Detail>
+//             <AccentButton onClick={clickLogin}>OAuth me</AccentButton>
+//           </Detail>
+//         </ControlRow>
+//       )}
+//     </ControlGroup>
+//   );
+// };
 
 const TestControls = () => {
   const [isChecked, setIsChecked] = useState(true);
@@ -264,7 +263,7 @@ export const Debug: FC = () => {
     <Pane>
       <OverflowCell>
         <Container>
-          <GithubUserData />
+          {/* <GithubUserData /> */}
           <ControlGroup>
             <ControlGroupHeader>Key Testing</ControlGroupHeader>
             <ControlRow>

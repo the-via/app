@@ -23,6 +23,7 @@ import {
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {
+  getDesignDefinitionVersion,
   getIsTestMatrixEnabled,
   getTestKeyboardSoundsSettings,
   setTestMatrixEnabled,
@@ -30,7 +31,6 @@ import {
 import {
   getDesignSelectedOptionKeys,
   getSelectedDefinitionIndex,
-  getSelectedVersion,
   getShowMatrix,
 } from 'src/store/designSlice';
 import {useGlobalKeys} from 'src/utils/use-global-keys';
@@ -198,7 +198,7 @@ export const Design = (props: {
   nDimension: NDimension;
 }) => {
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
-  const definitionVersion = useAppSelector(getSelectedVersion);
+  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
   const selectedOptionKeys = useAppSelector(getDesignSelectedOptionKeys);
   const showMatrix = useAppSelector(getShowMatrix);

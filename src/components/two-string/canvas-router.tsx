@@ -16,9 +16,11 @@ import {
 } from 'src/store/keymapSlice';
 import React from 'react';
 import {shallowEqual} from 'react-redux';
-import {getSelectedVersion} from 'src/store/designSlice';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
-import {getSelectedTheme} from 'src/store/settingsSlice';
+import {
+  getDesignDefinitionVersion,
+  getSelectedTheme,
+} from 'src/store/settingsSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import styled from 'styled-components';
 import {getDarkenedColor} from 'src/utils/color-math';
@@ -65,7 +67,7 @@ export const CanvasRouter = () => {
   const dimensions = useSize(body);
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const definitionVersion = useAppSelector(getSelectedVersion);
+  const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const theme = useAppSelector(getSelectedTheme);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
   const showLoader =

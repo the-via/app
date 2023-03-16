@@ -13,8 +13,7 @@ import type {
   DefinitionIndex,
   VendorProductIdMap,
   Settings,
-  Device,
-  ConnectedDevice,
+  AuthorizedDevice,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
 
@@ -34,6 +33,7 @@ const defaultStoreData = {
     disableFastRemap: false,
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
+    designDefinitionVersion: 'v3' as const,
     themeName: 'OLIVIA_DARK',
     macroEditor: {
       smartOptimizeEnabled: true,
@@ -116,7 +116,7 @@ export async function syncStore(): Promise<DefinitionIndex> {
 export const getMissingDefinition = async <
   K extends keyof DefinitionVersionMap,
 >(
-  device: ConnectedDevice,
+  device: AuthorizedDevice,
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);

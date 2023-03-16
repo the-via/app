@@ -8,8 +8,7 @@ export const ExportScene = () => {
     if (state) {
       try {
         const handle = await window.showSaveFilePicker({
-          suggestedName: 'scene',
-          types: [{accept: {'application/octet-stream': ['.glb']}}],
+          suggestedName: 'scene.glb',
         });
         const exporter = new GLTFExporter();
         const result = await new Promise((res) => {
