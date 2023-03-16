@@ -1,4 +1,4 @@
-import {getKeycodeDict} from 'src/store/definitionsSlice';
+import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
 import KeycodeTextInput from '../../../../inputs/keycode-text-input';
@@ -34,7 +34,7 @@ export const EncoderCustomConfig = (props: Props) => {
     title,
     behaviors: [cw, ccw, press],
   } = props;
-  const keycodeDict = useAppSelector(getKeycodeDict);
+  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   const handleInputChange = (newValue: number, behaviorIdx: number) => {
     onChange(encoderIdx, behaviorIdx, newValue);
   };
@@ -44,17 +44,20 @@ export const EncoderCustomConfig = (props: Props) => {
       <LabelText>{title}</LabelText>
       <KeyInput
         defaultValue={cw}
-        keycodeDict={keycodeDict}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
         onBlur={(newValue: any) => handleInputChange(newValue, 0)}
       />
       <KeyInput
         defaultValue={ccw}
-        keycodeDict={keycodeDict}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
         onBlur={(newValue: any) => handleInputChange(newValue, 1)}
       />
       <KeyInput
         defaultValue={press}
-        keycodeDict={keycodeDict}
+        basicKeyToByte={basicKeyToByte}
+        byteToKey={byteToKey}
         onBlur={(newValue: any) => handleInputChange(newValue, 2)}
       />
     </RowDiv>

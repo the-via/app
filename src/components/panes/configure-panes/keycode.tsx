@@ -24,11 +24,10 @@ import {
 import {OverflowCell, SubmenuOverflowCell, SubmenuRow} from '../grid';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {
-  getKeycodeDict,
+  getBasicKeyToByte,
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import type {KeycodeDict} from 'src/utils/keycode-dict';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   getSelectedKey,
@@ -42,7 +41,6 @@ import {
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
-
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -116,14 +114,8 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const Link = styled.a`
-  font-size: 16x !important;
-  color: var(--color_accent);
-  text-decoration: underline;
-`;
-
-const generateKeycodeCategories = (keycodeDict: KeycodeDict) =>
-  getKeycodes().concat(getOtherMenu(keycodeDict));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>) =>
+  getKeycodes().concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -154,10 +146,10 @@ export const KeycodePane: FC = () => {
   const selectedKey = useAppSelector(getSelectedKey);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
-  const keycodeDict = useAppSelector(getKeycodeDict);
+  const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(keycodeDict),
-    [keycodeDict],
+    () => generateKeycodeCategories(basicKeyToByte),
+    [basicKeyToByte],
   );
 
   // TODO: improve typing so we can get rid of this
@@ -270,8 +262,8 @@ export const KeycodePane: FC = () => {
       setShowKeyTextInputModal(true);
     } else {
       return (
-        keycodeInMaster(code, keycodeDict) &&
-        updateKey(getByteForCode(code, keycodeDict))
+        keycodeInMaster(code, basicKeyToByte) &&
+        updateKey(getByteForCode(code, basicKeyToByte))
       );
     }
   };
@@ -281,7 +273,7 @@ export const KeycodePane: FC = () => {
     return (
       <Keycode
         key={code}
-        disabled={!keycodeInMaster(code, keycodeDict) && code != 'text'}
+        disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
         onClick={() => handleClick(code, index)}
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}

@@ -27,7 +27,8 @@ import {
   getSelectedKeyboardAPI,
 } from './devicesSlice';
 import {getMissingDefinition} from 'src/utils/device-store';
-import {getVersionedKeycodeDict, KeycodeDict} from 'src/utils/keycode-dict';
+import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
+import {getByteToKey} from 'src/utils/key';
 import {del, entries, setMany, update} from 'idb-keyval';
 import {isFulfilledPromise} from 'src/utils/type-predicates';
 import {extractDeviceInfo, logAppError} from './errorsSlice';
@@ -149,13 +150,13 @@ export const getSelectedDefinition = createSelector(
     ],
 );
 
-export const getKeycodeDict = createSelector(
+export const getBasicKeyToByte = createSelector(
   getSelectedConnectedDevice,
   (connectedDevice) => {
-    const keycodeDict: KeycodeDict = getVersionedKeycodeDict(
+    const basicKeyToByte = getBasicKeyDict(
       connectedDevice ? connectedDevice.protocol : 0,
     );
-    return keycodeDict;
+    return {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)};
   },
 );
 

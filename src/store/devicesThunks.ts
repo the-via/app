@@ -14,7 +14,6 @@ import {
   updateDefinitions,
   getDefinitions,
   loadStoredCustomDefinitions,
-  getKeycodeDict,
 } from './definitionsSlice';
 import {loadKeymapFromDevice} from './keymapSlice';
 import {updateLightingData} from './lightingSlice';

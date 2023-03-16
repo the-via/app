@@ -6,6 +6,8 @@ import {
   KeyGroupProps,
   KeysKeys,
 } from 'src/types/keyboard-rendering';
+import {getByteToKey} from 'src/utils/key';
+import {getBasicKeyDict} from 'src/utils/key-to-byte/dictionary-store';
 import {
   calculatePointPosition,
   getKeyboardRowPartitions,
@@ -15,7 +17,6 @@ import {
   getScale,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
-import { KeycodeDict } from 'src/utils/keycode-dict';
 
 export function getKeycapSharedProps<T>(
   k: VIAKey,
@@ -69,7 +70,8 @@ const getKeysKeysIndices =
 export function getLabels<T>(
   props: KeyGroupProps<T>,
   macroExpressions: string[],
-  keycodeDict: KeycodeDict,
+  basicKeyToByte: ReturnType<typeof getBasicKeyDict>,
+  byteToKey: ReturnType<typeof getByteToKey>,
 ) {
   return !props.matrixKeycodes.length
     ? []
@@ -79,7 +81,8 @@ export function getLabels<T>(
           k.w,
           macroExpressions,
           props.definition,
-          keycodeDict,
+          basicKeyToByte,
+          byteToKey,
         ),
       );
 }

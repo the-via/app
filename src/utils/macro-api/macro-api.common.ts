@@ -6,7 +6,6 @@ import {
   RawKeycodeSequenceAction,
   RawKeycodeSequenceItem,
 } from './types';
-import type {KeycodeDict} from '../keycode-dict';
 
 export type ValidationResult = {
   isValid: boolean;
@@ -442,20 +441,4 @@ export function expressionToSequence(str: string): OptimizedKeycodeSequence {
   });
 
   return result;
-}
-
-export function getByte(keycodeDict: KeycodeDict, keycode: string): number {
-  return keycodeDict.keycodes[keycode.toUpperCase()].byte;
-}
-
-export function getKeycode(keycodeDict: KeycodeDict, byte: number): string {
-  return keycodeDict.byteToKeycode[byte];
-}
-
-export function buildKeyActionBytes(
-  keycodeDict: KeycodeDict,
-  keyaction: KeyAction,
-  keycode: string,
-) {
-  return [KeyActionPrefix, keyaction, getByte(keycodeDict, keycode)];
 }

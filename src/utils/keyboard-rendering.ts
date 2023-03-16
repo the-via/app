@@ -23,7 +23,6 @@ import {
   isMacroKeycodeByte,
   getMacroKeycodeIndex,
 } from './key';
-import {KeycodeDict} from './keycode-dict';
 
 export const CSSVarObject = {
   keyWidth: 52,
@@ -454,7 +453,8 @@ export const getLabel = (
   width: number,
   macroExpressions: string[],
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
-  keycodeDict: KeycodeDict,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
 ) => {
   let label: string = '';
   let size: number = 1.0;
@@ -463,13 +463,13 @@ export const getLabel = (
   // Full name
   let tooltipLabel: string = '';
   if (
-    isCustomKeycodeByte(keycodeByte, keycodeDict) &&
+    isCustomKeycodeByte(keycodeByte, basicKeyToByte) &&
     selectedDefinition?.customKeycodes &&
     selectedDefinition.customKeycodes[
-      getCustomKeycodeIndex(keycodeByte, keycodeDict)
+      getCustomKeycodeIndex(keycodeByte, basicKeyToByte)
     ] !== undefined
   ) {
-    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, keycodeDict);
+    const customKeycodeIdx = getCustomKeycodeIndex(keycodeByte, basicKeyToByte);
     label = getShortNameForKeycode(
       selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
     );
@@ -478,12 +478,15 @@ export const getLabel = (
       700,
     );
   } else if (keycodeByte) {
-    label = getLabelForByte(keycodeByte, width * 100, keycodeDict) ?? '';
-    tooltipLabel = getLabelForByte(keycodeByte, 700, keycodeDict) ?? '';
+    label =
+      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
+      '';
+    tooltipLabel =
+      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
   }
   let macroExpression: string | undefined;
-  if (isMacroKeycodeByte(keycodeByte, keycodeDict)) {
-    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, keycodeDict);
+  if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
+    const macroKeycodeIdx = getMacroKeycodeIndex(keycodeByte, basicKeyToByte);
     macroExpression = macroExpressions[macroKeycodeIdx];
     tooltipLabel = macroExpression || '';
   }

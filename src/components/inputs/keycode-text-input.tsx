@@ -1,5 +1,4 @@
 import React from 'react';
-import type {KeycodeDict} from 'src/utils/keycode-dict';
 import styled from 'styled-components';
 import {
   advancedStringToKeycode,
@@ -35,7 +34,8 @@ type Props = {
   defaultValue: number;
   onBlur: (newValue: number) => void;
   className?: string;
-  keycodeDict: KeycodeDict;
+  basicKeyToByte: Record<string, number>;
+  byteToKey: Record<number, string>;
 };
 
 type State = {
@@ -49,8 +49,12 @@ type State = {
 export class KeycodeTextInput extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const {defaultValue, keycodeDict} = props;
-    let currentValue = anyKeycodeToString(defaultValue, keycodeDict);
+    const {defaultValue, basicKeyToByte, byteToKey} = props;
+    let currentValue = anyKeycodeToString(
+      defaultValue,
+      basicKeyToByte,
+      byteToKey,
+    );
     this.state = {
       lastDefault: defaultValue,
       defaultValueAsString: currentValue,
@@ -71,7 +75,11 @@ export class KeycodeTextInput extends React.Component<Props, State> {
     ) {
       return {
         ...state,
-        currentValue: anyKeycodeToString(props.defaultValue, props.keycodeDict),
+        currentValue: anyKeycodeToString(
+          props.defaultValue,
+          props.basicKeyToByte,
+          props.byteToKey,
+        ),
         currentParsed: props.defaultValue,
         lastDefault: props.defaultValue,
       };
@@ -85,15 +93,13 @@ export class KeycodeTextInput extends React.Component<Props, State> {
   };
 
   handleBlur: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const {onBlur, keycodeDict} = this.props;
+    const {onBlur, basicKeyToByte} = this.props;
     const {lastDefault} = this.state;
     const value = e.target.value.trim().toUpperCase();
-    const advancedParsed = advancedStringToKeycode(value, keycodeDict);
-    // TODO: handle aliases
-    const byte = keycodeDict.keycodes[value].byte;
-    if (byte != undefined) {
-      if (lastDefault !== byte) {
-        onBlur(byte);
+    const advancedParsed = advancedStringToKeycode(value, basicKeyToByte);
+    if (Object.keys(basicKeyToByte).includes(value)) {
+      if (lastDefault !== basicKeyToByte[value]) {
+        onBlur(basicKeyToByte[value]);
       }
       this.setState({isError: false});
     } else if (advancedParsed !== 0) {
