@@ -5,12 +5,12 @@ import {ErrorMessage, SuccessMessage} from '../../styled';
 import {AccentUploadButton} from '../../inputs/accent-upload-button';
 import {AccentButton} from '../../inputs/accent-button';
 import {getByteForCode, getCodeForByte} from '../../../utils/key';
-import deprecatedKeycodes from '../../../utils/key-to-byte/deprecated-keycodes';
+import deprecatedKeycodes from '../../../utils/keycode-dict/deprecated-keycodes';
 import {title, component} from '../../icons/save';
 import {CenterPane} from '../pane';
 import {Detail, Label, ControlRow, SpanOverflowCell} from '../grid';
 import {
-  getBasicKeyToByte,
+  getKeycodeDict,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
 import {
@@ -55,7 +55,7 @@ export const Pane: FC = () => {
   const rawLayers = useAppSelector(getSelectedRawLayers);
   const macros = useAppSelector((state) => state.macros);
   const expressions = useAppSelector(getExpressions);
-  const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const keycodeDict = useAppSelector(getKeycodeDict);
 
   // TODO: improve typing so we can remove this
   if (!selectedDefinition || !selectedDevice || !api) {
@@ -93,9 +93,7 @@ export const Pane: FC = () => {
                   ]).then(
                     (a) =>
                       a.map(
-                        (keyByte) =>
-                          getCodeForByte(keyByte, basicKeyToByte, byteToKey) ||
-                          '',
+                        (keyByte) => getCodeForByte(keyByte, keycodeDict) || '',
                       ) as [string, string],
                   ),
                 ),
@@ -125,7 +123,7 @@ export const Pane: FC = () => {
           (layer: {keymap: number[]}) =>
             layer.keymap.map(
               (keyByte: number) =>
-                getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+                getCodeForByte(keyByte, keycodeDict) || '',
             ), // TODO: should empty string be empty keycode instead?
         ),
         encoders: encoderValues,
@@ -198,7 +196,7 @@ export const Pane: FC = () => {
 
       const keymap: number[][] = saveFile.layers.map((layer) =>
         layer.map((key) =>
-          getByteForCode(`${deprecatedKeycodes[key] ?? key}`, basicKeyToByte),
+          getByteForCode(`${deprecatedKeycodes[key] ?? key}`, keycodeDict),
         ),
       );
 
@@ -217,7 +215,7 @@ export const Pane: FC = () => {
                     false,
                     getByteForCode(
                       `${deprecatedKeycodes[layer[0]] ?? layer[0]}`,
-                      basicKeyToByte,
+                      keycodeDict,
                     ),
                   ),
                   api.setEncoderValue(
@@ -226,7 +224,7 @@ export const Pane: FC = () => {
                     true,
                     getByteForCode(
                       `${deprecatedKeycodes[layer[1]] ?? layer[1]}`,
-                      basicKeyToByte,
+                      keycodeDict,
                     ),
                   ),
                 ]),

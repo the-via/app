@@ -1,5 +1,5 @@
 import {useCallback, useContext, useEffect, useMemo} from 'react';
-import {matrixKeycodes} from 'src/utils/key-event';
+import {fullKeyboardMatrixKeycodes} from 'src/utils/key-event';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {VIAKey, DefinitionVersionMap} from '@the-via/reader';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
@@ -7,6 +7,7 @@ import {
   getSelectedKeyDefinitions,
   getSelectedDefinition,
   getCustomDefinitions,
+  getKeycodeDict,
 } from 'src/store/definitionsSlice';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
 import {
@@ -233,6 +234,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const isShowingTest = path === '/test';
   const api = useAppSelector(getSelectedKeyboardAPI);
   const device = useAppSelector(getSelectedConnectedDevice);
+  const keycodeDict = useAppSelector(getKeycodeDict);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const keyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const isTestMatrixEnabled = useAppSelector(getIsTestMatrixEnabled);
@@ -295,6 +297,11 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const testKeys = isTestMatrixEnabled
     ? keyDefinitions
     : fullKeyboardDefinition.layouts.keys;
+  const testMatrixKeycodes = isTestMatrixEnabled
+    ? selectedMatrixKeycodes
+    : fullKeyboardMatrixKeycodes.map(
+        (keycode) => keycodeDict.keycodes[keycode].byte,
+      );
 
   if (!testDefinition || typeof testDefinition === 'string') {
     return null;
@@ -329,9 +336,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
         definition={testDefinition as VIADefinitionV2}
         keys={testKeys as VIAKey[]}
         pressedKeys={testPressedKeys}
-        matrixKeycodes={
-          isTestMatrixEnabled ? selectedMatrixKeycodes : matrixKeycodes
-        }
+        matrixKeycodes={testMatrixKeycodes}
         containerDimensions={props.dimensions}
         nDimension={props.nDimension}
       />

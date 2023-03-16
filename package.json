@@ -10,7 +10,9 @@
     "build:azure": "npm run refresh-kbs && npm run build",
     "preview": "vite preview",
     "build:kbs": "via-keyboards public/definitions",
-    "find-deadcode": "ts-prune"
+    "find-deadcode": "ts-prune",
+    "generate-keycode-dict": "ts-node -P tsconfig.script.json scripts/generate-keycode-dict.ts",
+    "test-keycode-dict": "ts-node -P tsconfig.script.json scripts/test-keycode-dict.ts"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -51,6 +53,8 @@
     "wouter": "^2.10.0"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.1",
+    "@types/glob": "^8.0.1",
     "@types/lodash.defaultsdeep": "^4.6.7",
     "@types/lodash.partition": "^4.6.7",
     "@types/raf-schd": "^4.0.1",
@@ -62,6 +66,7 @@
     "@types/wicg-file-system-access": "^2020.9.5",
     "@vitejs/plugin-react": "^3.1.0",
     "concurrently": "^7.6.0",
+    "hjson": "^3.2.2",
     "husky": "^8.0.3",
     "ts-node": "^10.9.1",
     "ts-prune": "^0.10.3",
