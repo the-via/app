@@ -243,9 +243,8 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
     (state) => getSelectedKeymap(state) || [],
   );
 
-  const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(
-    !isTestMatrixEnabled && isShowingTest,
-  );
+  const [globalPressedKeys, setGlobalPressedKeys] =
+    useGlobalKeys(isShowingTest);
   const [matrixPressedKeys, setMatrixPressedKeys] = useMatrixTest(
     isTestMatrixEnabled && isShowingTest,
     api as any,
