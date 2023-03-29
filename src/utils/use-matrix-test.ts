@@ -109,5 +109,25 @@ export const useMatrixTest = (
       stopTicking();
     };
   }, [startTest, selectedDefinition, api]);
+
+  const downHandler = (evt: KeyboardEvent) => {
+    evt.preventDefault();
+  };
+  const upHandler = (evt: KeyboardEvent) => {
+    evt.preventDefault();
+  };
+
+  useEffect(() => {
+    if (startTest) {
+      window.addEventListener('keydown', downHandler);
+      window.addEventListener('keyup', upHandler);
+    }
+    // Remove event listeners on cleanup
+    return () => {
+      window.removeEventListener('keydown', downHandler);
+      window.removeEventListener('keyup', upHandler);
+    };
+  }, [startTest]);
+
   return selectedKeyArr;
 };
