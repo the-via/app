@@ -79,6 +79,20 @@ export const THEMES = {
         t: '#393b3b',
       },
     },
+    CARBON_BLACK_A: {
+      alpha: {
+        c: '#8c93a3',
+        t: '#f3f3f3',
+      },
+      mod: {
+        c: '#3b3b3e',
+        t: '#f3f3f3',
+      },
+      accent: {
+        c: '#e66b67',
+        t: '#f3f3f3',
+      },
+    },    
   },
   ...REMOTETHEMES,
 };
