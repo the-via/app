@@ -241,6 +241,8 @@ export default {
   KC_RSFT: 0x00e5,
   KC_RALT: 0x00e6,
   KC_RGUI: 0x00e7,
+  KC_MCTL: 0x00c1,
+  KC_LPAD: 0x00c2,
   RESET: 0x7c00,
   DEBUG: 0x7c02,
   MAGIC_TOGGLE_NKRO: 0x7013,

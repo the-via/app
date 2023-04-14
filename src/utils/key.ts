@@ -728,6 +728,18 @@ export function getKeycodes(): IKeycodeMenu[] {
         {name: 'Fast Forward', code: 'KC_MFFD', title: 'Fast Forward'},
         {name: 'Select', code: 'KC_MSEL', title: 'Media Select'},
         {name: 'Eject', code: 'KC_EJCT', title: 'Media Eject'},
+        {
+          name: 'Mission Control',
+          code: 'KC_MCTL',
+          title: 'Mission Control',
+          shortName: 'Mctl',
+        },
+        {
+          name: 'Launchpad',
+          code: 'KC_LPAD',
+          title: 'Launchpad',
+          shortName: 'Lpad',
+        },
       ],
     },
     {
