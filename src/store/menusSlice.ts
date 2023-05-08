@@ -101,10 +101,10 @@ export const updateCustomMenuValue =
 
     const channel = rest[0];
     
-    // Delete existing menu commit timeout if it exists
+    // Delete any existing menu commit timeouts
     clearTimeout(customMenuCommitTimeouts[channel]);
 
-    // Generate timeout for commiting the custom menu
+    // Create and store timeout for commiting the custom menu
     const customMenuTimeoutMs: number = 250;
     customMenuCommitTimeouts[channel] = setTimeout(() => {
       api.commitCustomMenu(channel);
