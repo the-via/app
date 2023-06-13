@@ -257,36 +257,7 @@ export class ColorPicker extends Component<Props, State> {
 
     return [r, g, b];
   }
-
-  // hexToHs(hex: string): {hue: number; sat: number} {
-  //   const r = parseInt(hex.substring(0, 2), 16) / 255;
-  //   const g = parseInt(hex.substring(2, 2), 16) / 255;
-  //   const b = parseInt(hex.substring(4, 2), 16) / 255;
-  //   const max = Math.max(r, g, b);
-  //   const min = Math.min(r, g, b);
-  //   let hue = 0;
-  //   if (max === min) {
-  //     hue = 0;
-  //   } else {
-  //     const diff = max - min;
-  //     switch (max) {
-  //       case r:
-  //         hue = ((g - b) / diff + (g < b ? 6 : 0)) * 60;
-  //         break;
-  //       case g:
-  //         hue = ((b - r) / diff + 2) * 60;
-  //         break;
-  //       case b:
-  //         hue = ((r - g) / diff + 4) * 60;
-  //         break;
-  //       default:
-  //         break;
-  //     }
-  //   }
-  //   const sat = max === 0 ? 0 : (max - min) / max;
-  //   return {hue, sat};
-  // }
-
+  
   getRGB({hue, sat}: {hue: number; sat: number}) {
     const [r, g, b] = this.hsToRgb({hue, sat});
     return `rgba(${r},${g},${b},1)`;
