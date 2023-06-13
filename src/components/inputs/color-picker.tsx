@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, KeyboardEventHandler} from 'react';
 import styled from 'styled-components';
 
 import {
@@ -6,6 +6,7 @@ import {
   toDegrees,
   calcRadialHue,
   calcRadialMagnitude,
+  getHSV,
 } from '../../utils/color-math';
 
 type Color = {
@@ -26,6 +27,7 @@ type State = {
   lensTransform: string;
   showPicker: boolean;
   offset: [number, number];
+  hexColorCode: string;
 };
 
 const ColorPickerContainer = styled.div`
@@ -117,6 +119,34 @@ const ColorPreview = styled.div`
   border-bottom: none;
 `;
 
+const ColorHexContainer = styled.div`
+  border: 4px solid var(--border_color_cell);
+  border-bottom: none;
+  width: 180px;
+  height: 32px;
+  line-height: 32px;
+  text-align: center;
+`;
+
+const ColorHexInput = styled.input`
+  text-align: center;
+  border: none;
+  color: var(--color_accent);
+  background: var(--bg_menu);
+  font-size: 20px;
+  font-weight: 300;
+  padding: 0;
+  width: 100%;
+  &:focus {
+    outline: none;
+    color: var(--color_accent);
+    border-color: var(--color_accent);
+  }
+  &::placeholder {
+    color: var(--bg_control);
+  }
+`;
+
 export class ColorPicker extends Component<Props, State> {
   ref: HTMLDivElement | null = null;
   refWidth: number = 0;
@@ -127,6 +157,7 @@ export class ColorPicker extends Component<Props, State> {
     lensTransform: '',
     showPicker: false,
     offset: [5, 5] as [number, number],
+    hexColorCode: this.getHex(this.props.color),
   };
 
   componentWillUnmount() {
@@ -185,10 +216,12 @@ export class ColorPicker extends Component<Props, State> {
 
       const offset = [offsetX, offsetY] as [number, number];
       const {hue, sat} = this.getLinearHueSat(offset);
+      const hexColorCode = this.getHex(this.props.color);
       this.props.setColor(Math.round(255 * (hue / 360)), Math.round(255 * sat));
       this.setState({
         lensTransform,
         offset,
+        hexColorCode,
       });
     }
   };
@@ -212,7 +245,7 @@ export class ColorPicker extends Component<Props, State> {
     }
   };
 
-  getRGB({hue, sat}: {hue: number; sat: number}) {
+  hsToRgb({hue, sat}: {hue: number; sat: number}) {
     sat = sat / 255;
     hue = Math.round(360 * hue) / 255;
     const c = sat;
@@ -221,7 +254,50 @@ export class ColorPicker extends Component<Props, State> {
     const [r, g, b] = getRGBPrime(hue, c, x).map((n) =>
       Math.round(255 * (m + n)),
     );
+
+    return [r, g, b];
+  }
+
+  // hexToHs(hex: string): {hue: number; sat: number} {
+  //   const r = parseInt(hex.substring(0, 2), 16) / 255;
+  //   const g = parseInt(hex.substring(2, 2), 16) / 255;
+  //   const b = parseInt(hex.substring(4, 2), 16) / 255;
+  //   const max = Math.max(r, g, b);
+  //   const min = Math.min(r, g, b);
+  //   let hue = 0;
+  //   if (max === min) {
+  //     hue = 0;
+  //   } else {
+  //     const diff = max - min;
+  //     switch (max) {
+  //       case r:
+  //         hue = ((g - b) / diff + (g < b ? 6 : 0)) * 60;
+  //         break;
+  //       case g:
+  //         hue = ((b - r) / diff + 2) * 60;
+  //         break;
+  //       case b:
+  //         hue = ((r - g) / diff + 4) * 60;
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   }
+  //   const sat = max === 0 ? 0 : (max - min) / max;
+  //   return {hue, sat};
+  // }
+
+  getRGB({hue, sat}: {hue: number; sat: number}) {
+    const [r, g, b] = this.hsToRgb({hue, sat});
     return `rgba(${r},${g},${b},1)`;
+  }
+
+  getHex({hue, sat}: {hue: number; sat: number}) {
+    let [r, g, b] = this.hsToRgb({hue, sat}).map((x) => x.toString(16));
+    if (r.length == 1) r = '0' + r;
+    if (g.length == 1) g = '0' + g;
+    if (b.length == 1) b = '0' + b;
+    return '#' + r + g + b;
   }
 
   onThumbnailClick = () => {
@@ -248,7 +324,10 @@ export class ColorPicker extends Component<Props, State> {
         this.props.onClose(hue, sat);
       }
       this.mouseDown = false;
-      this.setState({showPicker: false});
+      this.setState({
+        showPicker: false,
+        hexColorCode: this.getHex(this.props.color),
+      });
     } else if (
       this.mouseDown &&
       this.state.showPicker &&
@@ -258,6 +337,40 @@ export class ColorPicker extends Component<Props, State> {
       !this.colorThumbnail.current.contains(evt.target as HTMLDivElement)
     ) {
       this.onMouseUp();
+    }
+  };
+
+  handleHexChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    let value = e.target.value;
+    value = value.replace(/[^A-Fa-f0-9]/g, '');
+    if (value.length > 0 && value[0] !== '#') {
+      value = `#${value}`;
+    }
+    if (value.length > 7) {
+      value = value.substring(0, 7);
+    }
+    this.setState({hexColorCode: value});
+  };
+
+  handleHexBlur: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    this.setState({hexColorCode: this.getHex(this.props.color)});
+  };
+
+  handleHexSubmit: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === 'Enter') {
+      const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+      if (hexColorRegex.test(this.state.hexColorCode)) {
+        var hexString = this.state.hexColorCode.replace('#', '');
+        if (hexString.length == 3) {
+          hexString = `${hexString
+            .split('')
+            .map((char) => char + char)
+            .join('')}`;
+        }
+        const [h, s] = getHSV(hexString);
+        this.props.setColor(Math.round(255 * (h / 360)), Math.round(255 * s));
+      }
+      this.setState({hexColorCode: this.getHex(this.props.color)});
     }
   };
 
@@ -287,6 +400,15 @@ export class ColorPicker extends Component<Props, State> {
               ref={this.pickerContainer}
               onMouseUp={this.onMouseUp}
             >
+              <ColorHexContainer>
+                <ColorHexInput
+                  type="text"
+                  value={this.state.hexColorCode}
+                  onChange={this.handleHexChange}
+                  onBlur={this.handleHexBlur}
+                  onKeyDown={this.handleHexSubmit}
+                />
+              </ColorHexContainer>
               <ColorPreview
                 style={{background: this.getRGB(this.props.color)}}
               />
