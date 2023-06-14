@@ -126,6 +126,7 @@ const ColorHexContainer = styled.div`
   height: 32px;
   line-height: 32px;
   text-align: center;
+  background: var(--bg_menu);
 `;
 
 const ColorHexInput = styled.input`
@@ -141,9 +142,6 @@ const ColorHexInput = styled.input`
     outline: none;
     color: var(--color_accent);
     border-color: var(--color_accent);
-  }
-  &::placeholder {
-    color: var(--bg_control);
   }
 `;
 
@@ -257,7 +255,7 @@ export class ColorPicker extends Component<Props, State> {
 
     return [r, g, b];
   }
-  
+
   getRGB({hue, sat}: {hue: number; sat: number}) {
     const [r, g, b] = this.hsToRgb({hue, sat});
     return `rgba(${r},${g},${b},1)`;
