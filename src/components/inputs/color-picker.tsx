@@ -108,7 +108,7 @@ const PickerContainer = styled.div`
     border-bottom-color: transparent;
     border-right-color: transparent;
     right: -22px;
-    top: 50px;
+    top: 66px;
   }
 `;
 
