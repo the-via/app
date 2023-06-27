@@ -2,11 +2,12 @@ import React, {Component, KeyboardEventHandler} from 'react';
 import styled from 'styled-components';
 
 import {
-  getRGBPrime,
   toDegrees,
   calcRadialHue,
   calcRadialMagnitude,
   getHSV,
+  getRGB,
+  getHex,
 } from '../../utils/color-math';
 
 type Color = {
@@ -155,7 +156,7 @@ export class ColorPicker extends Component<Props, State> {
     lensTransform: '',
     showPicker: false,
     offset: [5, 5] as [number, number],
-    hexColorCode: this.getHex(this.props.color),
+    hexColorCode: getHex(this.props.color),
   };
 
   componentWillUnmount() {
@@ -214,7 +215,7 @@ export class ColorPicker extends Component<Props, State> {
 
       const offset = [offsetX, offsetY] as [number, number];
       const {hue, sat} = this.getLinearHueSat(offset);
-      const hexColorCode = this.getHex(this.props.color);
+      const hexColorCode = getHex(this.props.color);
       this.props.setColor(Math.round(255 * (hue / 360)), Math.round(255 * sat));
       this.setState({
         lensTransform,
@@ -243,32 +244,6 @@ export class ColorPicker extends Component<Props, State> {
     }
   };
 
-  hsToRgb({hue, sat}: {hue: number; sat: number}) {
-    sat = sat / 255;
-    hue = Math.round(360 * hue) / 255;
-    const c = sat;
-    const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
-    const m = 1 - c;
-    const [r, g, b] = getRGBPrime(hue, c, x).map((n) =>
-      Math.round(255 * (m + n)),
-    );
-
-    return [r, g, b];
-  }
-
-  getRGB({hue, sat}: {hue: number; sat: number}) {
-    const [r, g, b] = this.hsToRgb({hue, sat});
-    return `rgba(${r},${g},${b},1)`;
-  }
-
-  getHex({hue, sat}: {hue: number; sat: number}) {
-    let [r, g, b] = this.hsToRgb({hue, sat}).map((x) => x.toString(16));
-    if (r.length == 1) r = '0' + r;
-    if (g.length == 1) g = '0' + g;
-    if (b.length == 1) b = '0' + b;
-    return '#' + r + g + b;
-  }
-
   onThumbnailClick = () => {
     if (this.props.onOpen) {
       this.props.onOpen();
@@ -295,7 +270,7 @@ export class ColorPicker extends Component<Props, State> {
       this.mouseDown = false;
       this.setState({
         showPicker: false,
-        hexColorCode: this.getHex(this.props.color),
+        hexColorCode: getHex(this.props.color),
       });
     } else if (
       this.mouseDown &&
@@ -322,7 +297,7 @@ export class ColorPicker extends Component<Props, State> {
   };
 
   handleHexBlur: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    this.setState({hexColorCode: this.getHex(this.props.color)});
+    this.setState({hexColorCode: getHex(this.props.color)});
   };
 
   handleHexSubmit: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -339,12 +314,12 @@ export class ColorPicker extends Component<Props, State> {
         const [h, s] = getHSV(hexString);
         this.props.setColor(Math.round(255 * (h / 360)), Math.round(255 * s));
       }
-      this.setState({hexColorCode: this.getHex(this.props.color)});
+      this.setState({hexColorCode: getHex(this.props.color)});
     }
   };
 
   render() {
-    const color = this.getRGB(this.props.color);
+    const color = getRGB(this.props.color);
     const {isSelected = false} = this.props;
     const {offset} = this.state;
 
@@ -378,9 +353,7 @@ export class ColorPicker extends Component<Props, State> {
                   onKeyDown={this.handleHexSubmit}
                 />
               </ColorHexContainer>
-              <ColorPreview
-                style={{background: this.getRGB(this.props.color)}}
-              />
+              <ColorPreview style={{background: getRGB(this.props.color)}} />
               <Container>
                 <ColorOuter
                   onMouseDown={this.onMouseDown}

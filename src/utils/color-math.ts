@@ -178,3 +178,24 @@ export function calcRadialMagnitude(x: number, y: number) {
     return x > 200 ? (x - 200) / 200 : (200 - x) / 200;
   }
 }
+
+export function hsToRgb({hue, sat}: {hue: number; sat: number}) {
+  sat = sat / 255;
+  hue = Math.round(360 * hue) / 255;
+  const c = sat;
+  const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = 1 - c;
+  const [r, g, b] = getRGBPrime(hue, c, x).map((n) =>
+    Math.round(255 * (m + n)),
+  );
+
+  return [r, g, b];
+}
+
+export function getHex({hue, sat}: {hue: number; sat: number}) {
+  let [r, g, b] = hsToRgb({hue, sat}).map((x) => x.toString(16));
+  if (r.length == 1) r = '0' + r;
+  if (g.length == 1) g = '0' + g;
+  if (b.length == 1) b = '0' + b;
+  return '#' + r + g + b;
+}
