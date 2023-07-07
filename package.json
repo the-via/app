@@ -47,7 +47,7 @@
     "styled-components": "^6.0.0-beta.5",
     "three": "^0.150.1",
     "use-resize-observer": "^9.1.0",
-    "via-keyboards": "github:the-via/keyboards",
+    "via-keyboards": "github:EagleVee/via-keyboards",
     "wouter": "^2.10.0"
   },
   "devDependencies": {
