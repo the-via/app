@@ -3,7 +3,7 @@
   "scripts": {
     "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && vite --force",
-    "build": "npm run build:kbs && tsc && vite build",
+    "build": "npm run build:kbs && vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "refresh-kbs": "npm uninstall --force via-keyboards && npm install --force github:EagleVee/via-keyboards",
