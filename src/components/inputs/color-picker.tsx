@@ -358,7 +358,7 @@ export class ColorPicker extends Component<Props, State> {
                 <ColorOuter
                   onMouseDown={this.onMouseDown}
                   onMouseMove={this.onMouseMove}
-                  ref={(ref) => (this.ref = ref)}
+                  ref={(ref: HTMLDivElement | null) => (this.ref = ref)}
                 >
                   <ColorInner>
                     <ColorLens style={{transform: lensTransform}} />

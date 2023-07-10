@@ -231,7 +231,7 @@ const ConfigureGrid = () => {
   return (
     <>
       <ConfigureFlexCell
-        onClick={(evt) => {
+        onClick={(evt: { target: any; }) => {
           if ((evt.target as any).nodeName !== 'CANVAS')
             dispatch(clearSelectedKey());
         }}
@@ -255,7 +255,7 @@ const ConfigureGrid = () => {
               ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
                 <Row
                   key={idx}
-                  onClick={(_) => setRow(idx)}
+                  onClick={(_: any) => setRow(idx)}
                   $selected={selectedRow === idx}
                 >
                   <IconContainer>

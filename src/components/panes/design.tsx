@@ -171,7 +171,7 @@ function importDefinitions(
                   isVIADefinitionV3.errors ||
                   []
             ).map(
-              (e) =>
+              (e: any) =>
                 `${fileName} ${e.dataPath ? e.dataPath + ': ' : 'Object: '}${
                   e.message
                 }`,
@@ -278,10 +278,10 @@ export const DesignTab: FC = () => {
             onClick={() => {
               uploadButton.current && uploadButton.current.click();
             }}
-            onDrop={(evt) =>
+            onDrop={(evt: DragEvent<HTMLElement>) =>
               onDrop(evt, definitionVersion, dispatch, setErrors)
             }
-            onDragOver={(evt) => {
+            onDragOver={(evt: any) => {
               evt.dataTransfer.effectAllowed = 'copyMove';
               evt.dataTransfer.dropEffect = 'copy';
               evt.preventDefault();
