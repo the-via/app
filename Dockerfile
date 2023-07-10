@@ -1,4 +1,5 @@
 FROM node:18-alpine3.17 as build
+WORKDIR .
 RUN yarn install
 RUN yarn build
 
