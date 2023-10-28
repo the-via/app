@@ -155,6 +155,7 @@ export const getBasicKeyToByte = createSelector(
   (connectedDevice) => {
     const basicKeyToByte = getBasicKeyDict(
       connectedDevice ? connectedDevice.protocol : 0,
+      connectedDevice ? connectedDevice.keycodeVersion : 0,
     );
     return {basicKeyToByte, byteToKey: getByteToKey(basicKeyToByte)};
   },

@@ -27,6 +27,7 @@ export type DeviceInfo = {
   productId: number;
   productName: string;
   protocol?: number;
+  keycodeVersion?: number;
 };
 
 export type Device = DeviceInfo & {
@@ -52,6 +53,7 @@ export type AuthorizedDevice = DeviceInfo & {
   path: string;
   vendorProductId: number;
   protocol: number;
+  keycodeVersion: number;
   requiredDefinitionVersion: DefinitionVersion;
   hasResolvedDefinition: false;
 };
@@ -60,6 +62,7 @@ export type ConnectedDevice = DeviceInfo & {
   path: string;
   vendorProductId: number;
   protocol: number;
+  keycodeVersion: number;
   requiredDefinitionVersion: DefinitionVersion;
   hasResolvedDefinition: true;
 };
