@@ -28,7 +28,9 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
+import {getSelectedConnectedDevice,
+        getSelectedKeyboardAPI,
+} from 'src/store/devicesSlice';
 import {
   getSelectedKey,
   getSelectedKeymap,
@@ -114,8 +116,8 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>) =>
-  getKeycodes().concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
+  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -147,9 +149,21 @@ export const KeycodePane: FC = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const [numMacros, setNumMacros] = useState(16);
+  
+  const api = useAppSelector(getSelectedKeyboardAPI);
+  if (!api) {
+    return null;
+  }
+  api.getMacroCount().then((nMacros) =>{
+    setNumMacros(nMacros);
+    console.log("numMacros: ", numMacros);
+  })
+  // let numMacros = async() => await new Promise(resolve => api.getMacroCount());
+
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(basicKeyToByte),
-    [basicKeyToByte],
+    () => generateKeycodeCategories(basicKeyToByte, numMacros),
+    [basicKeyToByte, numMacros],
   );
 
   // TODO: improve typing so we can get rid of this
