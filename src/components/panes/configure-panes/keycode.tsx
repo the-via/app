@@ -28,15 +28,16 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
-import {getSelectedConnectedDevice,
-        getSelectedKeyboardAPI,
-} from 'src/store/devicesSlice';
+import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {
   getSelectedKey,
   getSelectedKeymap,
   updateKey as updateKeyAction,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
+import {
+  getMacroCount,
+} from 'src/store/macrosSlice';
 import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
@@ -149,21 +150,11 @@ export const KeycodePane: FC = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
-  const [numMacros, setNumMacros] = useState(16);
-  
-  const api = useAppSelector(getSelectedKeyboardAPI);
-  if (!api) {
-    return null;
-  }
-  api.getMacroCount().then((nMacros) =>{
-    setNumMacros(nMacros);
-    console.log("numMacros: ", numMacros);
-  })
-  // let numMacros = async() => await new Promise(resolve => api.getMacroCount());
+  const macroCount = useAppSelector(getMacroCount);
 
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(basicKeyToByte, numMacros),
-    [basicKeyToByte, numMacros],
+    () => generateKeycodeCategories(basicKeyToByte, macroCount),
+    [basicKeyToByte, macroCount],
   );
 
   // TODO: improve typing so we can get rid of this

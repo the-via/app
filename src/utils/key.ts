@@ -465,7 +465,6 @@ function buildLayerMenu(): IKeycodeMenu {
 }
 
 function generateMacros(numMacros: number = 16): IKeycode[] {
-  const macroTemplate: IKeycode = {name: 'M0', code: 'MACRO(0)', title: 'Macro 0'};
   let res: IKeycode[] = [];
   for (let idx = 0; idx < numMacros; idx++) {
     const newName = `M${idx}`;
