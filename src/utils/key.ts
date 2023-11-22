@@ -464,7 +464,22 @@ function buildLayerMenu(): IKeycodeMenu {
   };
 }
 
-export function getKeycodes(): IKeycodeMenu[] {
+function generateMacros(numMacros: number = 16): IKeycode[] {
+  let res: IKeycode[] = [];
+  for (let idx = 0; idx < numMacros; idx++) {
+    const newName = `M${idx}`;
+    const newCode = `MACRO(${idx})`;
+    const newTitle = `Macro ${idx}`;
+    res = [
+      ...res,
+      {name: newName, title: newTitle, code: newCode},
+    ];
+  }
+  return res;
+}
+
+
+export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
   return [
     {
       id: 'basic',
@@ -734,24 +749,7 @@ export function getKeycodes(): IKeycodeMenu[] {
       id: 'macro',
       label: 'Macro',
       width: 'label',
-      keycodes: [
-        {name: 'M0', code: 'MACRO(0)', title: 'Macro 0'},
-        {name: 'M1', code: 'MACRO(1)', title: 'Macro 1'},
-        {name: 'M2', code: 'MACRO(2)', title: 'Macro 2'},
-        {name: 'M3', code: 'MACRO(3)', title: 'Macro 3'},
-        {name: 'M4', code: 'MACRO(4)', title: 'Macro 4'},
-        {name: 'M5', code: 'MACRO(5)', title: 'Macro 5'},
-        {name: 'M6', code: 'MACRO(6)', title: 'Macro 6'},
-        {name: 'M7', code: 'MACRO(7)', title: 'Macro 7'},
-        {name: 'M8', code: 'MACRO(8)', title: 'Macro 8'},
-        {name: 'M9', code: 'MACRO(9)', title: 'Macro 9'},
-        {name: 'M10', code: 'MACRO(10)', title: 'Macro 10'},
-        {name: 'M11', code: 'MACRO(11)', title: 'Macro 11'},
-        {name: 'M12', code: 'MACRO(12)', title: 'Macro 12'},
-        {name: 'M13', code: 'MACRO(13)', title: 'Macro 13'},
-        {name: 'M14', code: 'MACRO(14)', title: 'Macro 14'},
-        {name: 'M15', code: 'MACRO(15)', title: 'Macro 15'},
-      ],
+      keycodes: generateMacros(numMacros)
     },
     buildLayerMenu(),
     {

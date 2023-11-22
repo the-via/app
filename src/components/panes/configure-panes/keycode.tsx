@@ -36,6 +36,9 @@ import {
   updateSelectedKey,
 } from 'src/store/keymapSlice';
 import {
+  getMacroCount,
+} from 'src/store/macrosSlice';
+import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
   getDisableFastRemap,
@@ -114,8 +117,8 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>) =>
-  getKeycodes().concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
+  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -147,9 +150,11 @@ export const KeycodePane: FC = () => {
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
+  const macroCount = useAppSelector(getMacroCount);
+
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(basicKeyToByte),
-    [basicKeyToByte],
+    () => generateKeycodeCategories(basicKeyToByte, macroCount),
+    [basicKeyToByte, macroCount],
   );
 
   // TODO: improve typing so we can get rid of this
