@@ -12,7 +12,7 @@ import {THEMES} from './utils/themes';
 import * as Sentry from '@sentry/react';
 import {BrowserTracing} from '@sentry/tracing';
 
-const {MODE} = import.meta.env;
+const {MODE} = process.env;
 
 Sentry.init({
   dsn: 'https://1083464e2a864de791972ab8c976849a@o4504817817747456.ingest.sentry.io/4504817834655749',

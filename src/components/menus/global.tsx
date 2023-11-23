@@ -20,7 +20,11 @@ const Container = styled.div`
   justify-content: center;
 `;
 
-const {DEBUG_PROD, MODE, DEV} = import.meta.env;
+const {DEBUG_PROD, MODE, DEV} = {
+  DEBUG_PROD: 'true',
+  MODE: 'development',
+  DEV: false,
+};
 const showDebugPane = MODE === 'development' || DEBUG_PROD === 'true' || DEV;
 
 const GlobalContainer = styled(Container)`

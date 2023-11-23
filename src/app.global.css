@@ -117,15 +117,15 @@ html[data-theme-mode='light'] {
 }
 @font-face {
   font-family: GothamRoundedBold;
-  src: url(/fonts/GothamRoundedBold_21016.ttf) format('opentype');
+  src: url(../public/fonts/GothamRoundedBold_21016.ttf) format('opentype');
 }
 @font-face {
   font-family: GothamRounded;
-  src: url(/fonts/GothamRoundedBook_21018.ttf) format('opentype');
+  src: url(../public/fonts/GothamRoundedBook_21018.ttf) format('opentype');
 }
 @font-face {
   font-family: Symbola;
-  src: url(/fonts/Symbola.ttf) format('opentype');
+  src: url(../public/fonts/Symbola.ttf) format('opentype');
 }
 
 @keyframes border-glow {
