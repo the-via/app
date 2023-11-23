@@ -105,12 +105,15 @@ module.exports = {
       'process.env.MODE': JSON.stringify(process.env.MODE),
       'process.env.DEV': JSON.stringify(process.env.DEV),
     }),
+    new webpack.ProvidePlugin({
+      React: 'react'
+    }),
   ],
 
   // Development server configuration
   devServer: {
     static: path.join(__dirname, 'dist'),
     compress: true,
-    port: 3000,
+    port: 5000,
   },
 };

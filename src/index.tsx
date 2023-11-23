@@ -1,5 +1,6 @@
 import '@webscopeio/react-textarea-autocomplete/style.css';
 import {createRoot} from 'react-dom/client';
+import React from 'react';
 import Root from './containers/Root';
 import {ApplicationInsights} from '@microsoft/applicationinsights-web';
 import './app.global.css';
