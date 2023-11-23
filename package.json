@@ -1,11 +1,11 @@
 {
   "license": "GPL-3.0",
   "scripts": {
-    "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
+    "start:vite": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
+    "build:vite": "npm run build:kbs && vite build",
     "dev": "node scripts/build-definitions.js && vite --force",
-    "start:webpack": "webpack-dev-server --mode development --open --hot --env development",
-    "build:webpack": "webpack --mode production",
-    "build": "npm run build:kbs && vite build",
+    "start": "webpack-dev-server --mode development --open --hot --env development",
+    "build": "npm run build:kbs && webpack --mode production",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "refresh-kbs": "npm uninstall --force via-keyboards && npm install --force github:EagleVee/via-keyboards",
