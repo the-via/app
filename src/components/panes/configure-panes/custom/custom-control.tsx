@@ -1,5 +1,6 @@
 import React from 'react';
 import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
+import {AccentButton} from '../../../inputs/accent-button';
 import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
 import {AccentRange} from '../../../inputs/accent-range';
@@ -78,6 +79,16 @@ const VIACustomControl = (props: VIACustomControlProps) => {
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {
+    case 'button': {
+      const buttonOption: any[] = options || [1];
+      return (
+        <AccentButton
+          onClick={() => 
+            props.updateValue(name, ...command, buttonOption[0])
+          }
+        >Click</AccentButton>
+      );
+    }
     case 'range': {
       return (
         <AccentRange

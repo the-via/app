@@ -26,7 +26,7 @@ export default {
   _QK_LAYER_TAP_TOGGLE_MAX: 0x52df,
   _QK_LAYER_MOD_MASK: 0x1f,
   _QK_MACRO: 0x7700,
-  _QK_MACRO_MAX: 0x770f,
+  _QK_MACRO_MAX: 0x777f,
   _QK_KB: 0x7e00,
   _QK_KB_MAX: 0x7eff,
   KC_NO: 0x0000,

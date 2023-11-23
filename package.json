@@ -30,7 +30,7 @@
     "@sentry/react": "^7.42.0",
     "@sentry/tracing": "^7.42.0",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.7.0",
+    "@the-via/reader": "^1.8.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^7.2.1",
     "idb-keyval": "^6.2.0",
