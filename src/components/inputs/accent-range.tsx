@@ -5,7 +5,7 @@ const Container = styled.span`
   display: flex;
   align-items: center;
   line-height: initial;
-  width: 200px;
+  width: 250px; // Increase the width
 `;
 
 const SliderInput = styled.input.attrs({type: 'range'})`
@@ -15,10 +15,13 @@ const SliderInput = styled.input.attrs({type: 'range'})`
 
 const ValueDisplay = styled.span`
   margin-right: 10px;
+  width: 50px; // Set a fixed width
+  text-align: right; // Align the text to the right
+  flex-shrink: 0; // Prevent it from shrinking
 `;
 
 export const AccentRange: React.FC<
-  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
+  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'type'> & {
     onChange: (x: number) => void;
   }
 > = (props) => {
@@ -31,12 +34,14 @@ export const AccentRange: React.FC<
     }
   }, [props.value]);
 
+  const { type, ...restProps } = props;
+
   return (
     <Container>
       <ValueDisplay>{sliderValue}</ValueDisplay>
       <SliderInput
         ref={inputRef}
-        {...props}
+        {...restProps}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           const value = +e.target.value;
           setSliderValue(value);
