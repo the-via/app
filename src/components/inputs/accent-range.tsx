@@ -26,22 +26,20 @@ export const AccentRange: React.FC<
   }
 > = (props) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [sliderValue, setSliderValue] = useState(() => +inputRef.current?.value || 0);
+  const [sliderValue, setSliderValue] = useState(0); // Initialize with 0
 
   useEffect(() => {
     if (inputRef.current) {
-      setSliderValue(+inputRef.current.value);
+      setSliderValue(+inputRef.current.value || 0); // Provide a default value
     }
   }, [props.value]);
-
-  const { type, ...restProps } = props;
 
   return (
     <Container>
       <ValueDisplay>{sliderValue}</ValueDisplay>
       <SliderInput
         ref={inputRef}
-        {...restProps}
+        {...props}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
           const value = +e.target.value;
           setSliderValue(value);
