@@ -86,7 +86,7 @@ const VIACustomControl = (props: VIACustomControlProps) => {
           onClick={() => {
             if (
               window.confirm(
-                `Are you sure you want to continue performing the action **${props.label}**?`,
+                `Are you sure you want to continue performing the action ${props.label}?`,
               )
             ) {
               props.updateValue(name, ...command, buttonOption[0]);
