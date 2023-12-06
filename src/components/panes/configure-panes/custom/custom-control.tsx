@@ -50,7 +50,7 @@ type ControlGetSet = {
   updateValue: (name: string, ...command: number[]) => void;
 };
 
-type VIACustomControlProps = VIAItem & ControlGetSet;
+type VIACustomControlProps = VIAItem & ControlGetSet & {label: string};
 
 const boxOrArr = <N extends any>(elem: N | N[]) =>
   Array.isArray(elem) ? elem : [elem];
@@ -83,10 +83,18 @@ const VIACustomControl = (props: VIACustomControlProps) => {
       const buttonOption: any[] = options || [1];
       return (
         <AccentButton
-          onClick={() => 
-            props.updateValue(name, ...command, buttonOption[0])
-          }
-        >Click</AccentButton>
+          onClick={() => {
+            if (
+              window.confirm(
+                `Are you sure you want to continue performing the action **${props.label}**?`,
+              )
+            ) {
+              props.updateValue(name, ...command, buttonOption[0]);
+            }
+          }}
+        >
+          Click
+        </AccentButton>
       );
     }
     case 'range': {
