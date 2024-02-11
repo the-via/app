@@ -44,6 +44,8 @@ import {
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import TextInput from 'src/components/inputs/text-input';
+
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -95,6 +97,7 @@ const CustomKeycode = styled(Button)`
 `;
 
 const KeycodeContainer = styled.div`
+  text-align: center;
   padding: 12px;
   padding-bottom: 30px;
 `;
@@ -275,6 +278,14 @@ export const KeycodePane: FC = () => {
 
   const renderKeycode = (keycode: IKeycode, index: number) => {
     const {code, title, name} = keycode;
+    const found = name.toLowerCase().includes(search) || title?.toLowerCase().includes(search) || false
+    console.log("Found: ", found, title, name);
+    if (search !== "" && !found)
+    {
+      return (
+        <></>
+      )
+    }
     return (
       <Keycode
         key={code}
@@ -300,6 +311,8 @@ export const KeycodePane: FC = () => {
       </CustomKeycode>
     );
   };
+
+  const [search, setSearch] = useState("")
 
   const renderSelectedCategory = (
     keycodes: IKeycode[],
@@ -360,6 +373,7 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
+          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value); console.log(search.toLowerCase())}}/>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
