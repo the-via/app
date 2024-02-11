@@ -988,6 +988,12 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
         {name: 'CUSTOM(15)', code: 'CUSTOM(15)', title: 'Custom Keycode 15'},
       ],
     },
+    {
+      id: 'all',
+      label: 'All',
+      width: 'label',
+      keycodes: []
+    }
   ];
 }
 
@@ -995,7 +1001,7 @@ export const categoriesForKeycodeModule = (
   keycodeModule: BuiltInKeycodeModule | 'default',
 ) =>
   ({
-    default: ['basic', 'media', 'macro', 'layers', 'special'],
+    default: ['basic', 'media', 'macro', 'layers', 'special', 'all'],
     [BuiltInKeycodeModule.WTLighting]: ['wt_lighting'],
     [BuiltInKeycodeModule.QMKLighting]: ['qmk_lighting'],
   }[keycodeModule]);

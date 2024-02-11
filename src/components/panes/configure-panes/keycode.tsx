@@ -278,8 +278,7 @@ export const KeycodePane: FC = () => {
 
   const renderKeycode = (keycode: IKeycode, index: number) => {
     const {code, title, name} = keycode;
-    const found = name.toLowerCase().includes(search) || title?.toLowerCase().includes(search) || false
-    console.log("Found: ", found, title, name);
+    const found = code.toLowerCase().includes(search) || name.toLowerCase().includes(search) || title?.toLowerCase().includes(search) || false
     if (search !== "" && !found)
     {
       return (
@@ -358,6 +357,27 @@ export const KeycodePane: FC = () => {
           </KeycodeList>
         );
       }
+      case 'all': {
+        const allKeycodes = []
+        for (const item of getEnabledMenus())
+        {
+          const itemKeycodes = KeycodeCategories.find(
+            ({id}) => id === item.id,
+          )?.keycodes as IKeycode[]
+
+          for (const key of itemKeycodes)
+          {
+            allKeycodes.push(key)
+          }
+        }
+        return (
+          <KeycodeList>
+            {allKeycodes.map((keycode, i) =>
+              renderKeycode(keycode, i),
+            )}
+          </KeycodeList>
+        )
+      }
       default: {
         return <KeycodeList>{keycodeListItems}</KeycodeList>;
       }
@@ -373,7 +393,7 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
-          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value); console.log(search.toLowerCase())}}/>
+          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value)}}/>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
