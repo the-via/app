@@ -374,7 +374,7 @@ export const KeycodePane: FC = () => {
           <KeycodeList>
             {allKeycodes.map((keycode, i) =>
               renderKeycode(keycode, i),
-            )}
+            ).concat(renderCustomKeycode())}
           </KeycodeList>
         )
       }
@@ -393,7 +393,7 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
-          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value)}}/>
+          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value.toLowerCase())}}/>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>
