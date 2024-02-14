@@ -20,6 +20,7 @@ import {
   PromptText,
   RowDiv,
 } from './dialog-base';
+import { getSelectedLanguage } from 'src/store/settingsSlice';
 
 const AutocompleteContainer = styled.ul`
   position: fixed;

@@ -11,9 +11,11 @@ const KeycodeLabel = styled.span`
   color: var(--color_label);
   display: flex;
 `;
+
 const Item = styled.div<{$selected?: boolean}>`
   box-sizing: border-box;
-  min-width: 200px;
+  min-width: 150px;
+  max-width: 300px;
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;

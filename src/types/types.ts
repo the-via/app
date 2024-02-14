@@ -90,6 +90,7 @@ export type Settings = {
   macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
   designDefinitionVersion: DefinitionVersion;
+  language: string;
 };
 
 export type CommonMenusMap = {
