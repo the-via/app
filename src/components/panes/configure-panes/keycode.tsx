@@ -42,9 +42,11 @@ import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
   getDisableFastRemap,
+  getSelectedLanguage,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import TextInput from 'src/components/inputs/text-input';
+import { LANGUAGES } from 'src/utils/languages';
 
 const KeycodeList = styled.div`
   display: grid;
@@ -120,8 +122,8 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
-  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16, language: any) =>
+  getKeycodes(numMacros, language).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -154,10 +156,11 @@ export const KeycodePane: FC = () => {
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const macroCount = useAppSelector(getMacroCount);
-
+  const language = useAppSelector(getSelectedLanguage);
+  
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(basicKeyToByte, macroCount),
-    [basicKeyToByte, macroCount],
+    () => generateKeycodeCategories(basicKeyToByte, macroCount, language),
+    [basicKeyToByte, macroCount, language],
   );
 
   // TODO: improve typing so we can get rid of this
@@ -361,13 +364,19 @@ export const KeycodePane: FC = () => {
         const allKeycodes = []
         for (const item of getEnabledMenus())
         {
-          const itemKeycodes = KeycodeCategories.find(
+          const keycodesList = KeycodeCategories.find(
             ({id}) => id === item.id,
           )?.keycodes as IKeycode[]
-
-          for (const key of itemKeycodes)
+          
+          // for now skip custom keycodes since those are generated above instead of inside the getKeycodes()
+          if (item.id === "custom")
           {
-            allKeycodes.push(key)
+            continue
+          }
+
+          for (const keycode of keycodesList)
+          {
+            allKeycodes.push(keycode)
           }
         }
         return (

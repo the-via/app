@@ -29,8 +29,10 @@ import {useAppSelector} from 'src/store/hooks';
 import {
   getMacroEditorSettings,
   setMacroEditorSettings,
+  getSelectedLanguage,
 } from 'src/store/settingsSlice';
 import {useDispatch} from 'react-redux';
+import { getMacroCount } from 'src/store/macrosSlice';
 
 declare global {
   interface Navigator {
@@ -113,10 +115,6 @@ const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
   }, [] as (JSX.Element | null)[]);
 };
 
-const KeycodeMap = getKeycodes()
-  .flatMap((menu) => menu.keycodes)
-  .reduce((p, n) => ({...p, [n.code]: n}), {} as Record<string, IKeycode>);
-
 const optimizeKeycodeSequence = (sequence: RawKeycodeSequence) => {
   return pipeline(
     sequence,
@@ -158,6 +156,12 @@ export const MacroRecorder: React.FC<{
     isRecording,
     recordDelaysEnabled,
   );
+
+  const numMacros = useAppSelector(getMacroCount)
+  const language = useAppSelector(getSelectedLanguage)
+  const KeycodeMap = getKeycodes(numMacros, language)
+  .flatMap((menu) => menu.keycodes)
+  .reduce((p, n) => ({...p, [n.code]: n}), {} as Record<string, IKeycode>);
   const macroSequenceRef = useRef<HTMLDivElement>(null);
   const recordingToggleChange = useCallback(
     async (isRecording: boolean) => {

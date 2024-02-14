@@ -20,6 +20,7 @@ import {
   PromptText,
   RowDiv,
 } from './dialog-base';
+import { getSelectedLanguage } from 'src/store/settingsSlice';
 
 const AutocompleteContainer = styled.ul`
   position: fixed;
@@ -134,12 +135,13 @@ const getInputItems = (arr: IKeycode[]) =>
 // Connect component with redux here:
 export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
+  const langauge = useAppSelector(getSelectedLanguage);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
     return null;
   }
   const supportedInputItems = getInputItems(
-    getKeycodesForKeyboard(selectedDefinition),
+    getKeycodesForKeyboard(selectedDefinition, langauge),
   );
   const [inputItems, setInputItems] = useState(supportedInputItems);
   const defaultInput = anyKeycodeToString(
