@@ -135,13 +135,12 @@ const getInputItems = (arr: IKeycode[]) =>
 // Connect component with redux here:
 export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
   const selectedDefinition = useAppSelector(getSelectedDefinition);
-  const langauge = useAppSelector(getSelectedLanguage);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
     return null;
   }
   const supportedInputItems = getInputItems(
-    getKeycodesForKeyboard(selectedDefinition, langauge),
+    getKeycodesForKeyboard(selectedDefinition),
   );
   const [inputItems, setInputItems] = useState(supportedInputItems);
   const defaultInput = anyKeycodeToString(

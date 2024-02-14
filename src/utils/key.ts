@@ -10,6 +10,8 @@ import {
   KeycodeType,
 } from '@the-via/reader';
 import { LANGUAGES, LanguageKey } from './languages';
+import { useAppSelector } from 'src/store/hooks';
+import { getLanguageFromStore } from './device-store';
 
 export interface IKeycode {
   name: string;
@@ -479,7 +481,7 @@ function generateMacros(numMacros: number = 16): IKeycode[] {
   return res;
 }
 
-function generateBasicKeycodes(language: LanguageKey[] = []): IKeycode[] {
+function generateBasicKeycodes(): IKeycode[] {
   let basicKeycodes: IKeycode[] = [
     {name: '', code: 'KC_NO', title: 'Nothing'},
     {name: '▽', code: 'KC_TRNS', title: 'Pass-through'},
@@ -633,7 +635,9 @@ function generateBasicKeycodes(language: LanguageKey[] = []): IKeycode[] {
     {name: 'Up', code: 'KC_UP', keys: 'up', shortName: '↑'},
     {name: 'Right', code: 'KC_RGHT', keys: 'right', shortName: '→'},
   ];
-  language.forEach(element => {
+  const selectedLang = getLanguageFromStore();
+  const lang = LANGUAGES[selectedLang as keyof typeof LANGUAGES]
+  lang.forEach(element => {
     let entry = Object.entries(element)
     let [key, value] = entry[0];
     console.log(entry)
@@ -647,12 +651,12 @@ function generateBasicKeycodes(language: LanguageKey[] = []): IKeycode[] {
   return basicKeycodes;
 }
 
-export function getKeycodes(numMacros: number = 16, language: LanguageKey[] = []): IKeycodeMenu[] {
+export function getKeycodes(numMacros: number = 16): IKeycodeMenu[] {
   return [
     {
       id: 'basic',
       label: 'Basic',
-      keycodes: generateBasicKeycodes(language)
+      keycodes: generateBasicKeycodes()
     },
     {
       id: 'wt_lighting',
@@ -1024,7 +1028,6 @@ export const categoriesForKeycodeModule = (
 
 export const getKeycodesForKeyboard = (
   definition: VIADefinitionV3 | VIADefinitionV2,
-  language: LanguageKey[] = [],
 ) => {
   // v2
   let includeList: string[] = [];
@@ -1043,7 +1046,7 @@ export const getKeycodesForKeyboard = (
     includeList = categoriesForKeycodeModule('default').concat(keycodes.flatMap(categoriesForKeycodeModule))
     console.log(includeList)
   }
-  return getKeycodes(undefined, language)
+  return getKeycodes()
     .flatMap((keycodeMenu) =>
       includeList.includes(keycodeMenu.id) ? keycodeMenu.keycodes : [],
     )

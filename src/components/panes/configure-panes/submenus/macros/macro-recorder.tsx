@@ -158,8 +158,7 @@ export const MacroRecorder: React.FC<{
   );
 
   const numMacros = useAppSelector(getMacroCount)
-  const language = useAppSelector(getSelectedLanguage)
-  const KeycodeMap = getKeycodes(numMacros, language)
+  const KeycodeMap = getKeycodes(numMacros)
   .flatMap((menu) => menu.keycodes)
   .reduce((p, n) => ({...p, [n.code]: n}), {} as Record<string, IKeycode>);
   const macroSequenceRef = useRef<HTMLDivElement>(null);

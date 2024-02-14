@@ -122,8 +122,8 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16, language: any) =>
-  getKeycodes(numMacros, language).concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
+  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
