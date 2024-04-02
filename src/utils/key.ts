@@ -206,10 +206,17 @@ function getCodeForLayerByte(
   }
 }
 
-export const keycodesList = getKeycodes().reduce<IKeycode[]>(
+export let keycodesList = getKeycodes().reduce<IKeycode[]>(
   (p, n) => p.concat(n.keycodes),
   [],
 );
+
+export const updateKeycodesList = () => {
+  keycodesList = getKeycodes().reduce<IKeycode[]>(
+    (p, n) => p.concat(n.keycodes),
+    [],
+  );
+}
 
 export const getByteToKey = (basicKeyToByte: Record<string, number>) =>
   Object.keys(basicKeyToByte).reduce((p, n) => {

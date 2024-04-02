@@ -13,6 +13,7 @@ import {updateCSSVariables} from 'src/utils/color-math';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
 import {DefinitionVersion} from '@the-via/reader';
 import { LANGUAGES } from 'src/utils/languages';
+import { updateKeycodesList } from '../utils/key';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 type SettingsState = Settings & {
@@ -148,6 +149,7 @@ export const getSelectedTheme = createSelector(getThemeName, (themeName) => {
 });
 export const getLanguage = (state: RootState) => state.settings.language;
 export const getSelectedLanguage = createSelector(getLanguage, (language) => {
+  updateKeycodesList();
   return LANGUAGES[language as keyof typeof LANGUAGES];
 });
 
