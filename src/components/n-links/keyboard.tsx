@@ -1,5 +1,6 @@
 import {useCallback, useContext, useEffect, useMemo} from 'react';
 import {matrixKeycodes} from 'src/utils/key-event';
+import { useKeyboardRecord } from 'src/utils/use-keyboard-record';
 import fullKeyboardDefinition from '../../utils/test-keyboard-definition.json';
 import {VIAKey, DefinitionVersionMap} from '@the-via/reader';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
@@ -79,6 +80,9 @@ export const ConfigureKeyboard = (props: {
   }
 
   const KeyboardCanvas = getKeyboardCanvas(props.nDimension);
+
+  useKeyboardRecord();
+
   return (
     <>
       <KeyboardCanvas
@@ -227,7 +231,7 @@ export const Design = (props: {
 };
 
 const EMPTY_ARR = [] as any[];
-export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
+export const Test = (props: { dimensions?: DOMRect; nDimension: NDimension }) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
   const isShowingTest = path === '/test';
@@ -336,7 +340,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
         nDimension={props.nDimension}
       />
       {partitionedPressedKeys && testKeyboardSoundsSettings.isEnabled && (
-        <TestKeyboardSounds pressedKeys={partitionedPressedKeys} />
+        <TestKeyboardSounds pressedKeys={partitionedPressedKeys}/>
       )}
     </>
   );

@@ -42,6 +42,9 @@ const settingsSlice = createSlice({
     toggleFastRemap: (state) => {
       toggleBool(state, 'disableFastRemap');
     },
+    toggleRecordKeyboard: (state) => {
+      toggleBool(state, 'disableRecordKeyboard');
+    },
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
     },
@@ -104,6 +107,7 @@ const settingsSlice = createSlice({
 export const {
   toggleFastRemap,
   toggleCreatorMode,
+  toggleRecordKeyboard,
   setTestMatrixEnabled,
   setTestKeyboardSoundsSettings,
   setMacroEditorSettings,
@@ -123,6 +127,8 @@ export const getAllowGlobalHotKeys = (state: RootState) =>
   state.settings.allowGlobalHotKeys;
 export const getDisableFastRemap = (state: RootState) =>
   state.settings.disableFastRemap;
+export const getDisableRecordKeyboard = (state: RootState) =>
+  state.settings.disableRecordKeyboard;
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
 export const getRestartRequired = (state: RootState) =>
