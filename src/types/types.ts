@@ -84,6 +84,7 @@ export type TestKeyboardSoundsSettings = {
 export type Settings = {
   showDesignTab: boolean;
   disableFastRemap: boolean;
+  disableRecordKeyboard: boolean;
   renderMode: '3D' | '2D';
   themeMode: 'light' | 'dark';
   themeName: string;

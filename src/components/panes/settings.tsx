@@ -24,7 +24,7 @@ import {
   getThemeName,
   updateThemeName,
   getRenderMode,
-  updateRenderMode,
+  updateRenderMode, getDisableRecordKeyboard, toggleRecordKeyboard,
 } from 'src/store/settingsSlice';
 import {AccentSelect} from '../inputs/accent-select';
 import {THEMES} from 'src/utils/themes';
@@ -57,6 +57,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const disableRecordKeyboard = useAppSelector(getDisableRecordKeyboard);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
@@ -94,7 +95,7 @@ export const Settings = () => {
           <MenuContainer>
             <Row $selected={true}>
               <IconContainer>
-                <FontAwesomeIcon icon={faToolbox} />
+                <FontAwesomeIcon icon={faToolbox}/>
                 <MenuTooltip>General</MenuTooltip>
               </IconContainer>
             </Row>
@@ -117,6 +118,15 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Record Keyboard</Label>
+              <Detail>
+                <AccentSlider
+                  onChange={() => dispatch(toggleRecordKeyboard())}
+                  isChecked={!disableRecordKeyboard}
                 />
               </Detail>
             </ControlRow>
