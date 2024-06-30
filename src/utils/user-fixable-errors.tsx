@@ -5,6 +5,8 @@ const LinuxHidrawFix = (deviceInfo: DeviceInfo): () => JSX.Element => {
   const textUdev = `SUBSYSTEM=="usb", ATTR{idVendor}=="${deviceInfo.vendorId.toString(16).toUpperCase().padStart(4, '0')}", ATTR{idProduct}=="${deviceInfo.productId.toString(16).toUpperCase().padStart(4, '0')}", TAG+="uaccess""
 KERNEL=="hidraw*", MODE="0660", TAG+="uaccess", TAG+="udev-acl"`
 
+  const textUdevApplyRule = 'sudo udevadm control --reload-rules && sudo udevadm trigger';
+
   const textDevHidraw = `#!/bin/bash
 HID_NAME='${deviceInfo.productName}'
 # loop over possible devices
@@ -19,7 +21,7 @@ do
 	fi
 done`;
 
-  const textRunDevHidrawScript = `bash script.sh`;
+  const textRunDevHidrawScript = 'bash script.sh';
 
   return () => (
     <div>
@@ -29,7 +31,9 @@ done`;
       <MonospaceText text="/etc/udev/rules.d/50-qmk.rules" />
       <p>with the following content:</p>
       <MonospaceText text={textUdev} />
-      <p>Unplug and plug your keyboard back in. Reload this website and it should work.</p>
+      <p>Finally run:</p>
+      <MonospaceText text={textUdevApplyRule} />
+      <p>Reload this website and it should work.</p>
       <p>If you want to temporarily allow the browser access to the keyboard device, create a script with the following content:</p>
       <MonospaceText text={textDevHidraw} />
       <p>And run it:</p>
