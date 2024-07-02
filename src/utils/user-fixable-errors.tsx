@@ -2,7 +2,7 @@ import { MonospaceText } from 'src/components/monospace-text';
 import { DeviceInfo } from 'src/types/types';
 
 const LinuxHidrawFix = (deviceInfo: DeviceInfo): () => JSX.Element => {
-  const textUdev = `SUBSYSTEM=="usb", ATTR{idVendor}=="${deviceInfo.vendorId.toString(16).toUpperCase().padStart(4, '0')}", ATTR{idProduct}=="${deviceInfo.productId.toString(16).toUpperCase().padStart(4, '0')}", TAG+="uaccess""
+  const textUdev = `SUBSYSTEM=="usb", ATTR{idVendor}=="${deviceInfo.vendorId.toString(16).toUpperCase().padStart(4, '0')}", ATTR{idProduct}=="${deviceInfo.productId.toString(16).toUpperCase().padStart(4, '0')}", TAG+="uaccess"
 KERNEL=="hidraw*", MODE="0660", TAG+="uaccess", TAG+="udev-acl"`
 
   const textUdevApplyRule = 'sudo udevadm control --reload-rules && sudo udevadm trigger';
