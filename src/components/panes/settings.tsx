@@ -14,11 +14,13 @@ import {
 import {AccentSlider} from '../inputs/accent-slider';
 import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
-import {
+import {  
   getShowDesignTab,
   getDisableFastRemap,
   toggleCreatorMode,
   toggleFastRemap,
+  getAskConfirmationButton,
+  toggleAskConfirmationButton,
   getThemeMode,
   toggleThemeMode,
   getThemeName,
@@ -57,6 +59,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const showAskConfirmationButton = useAppSelector(getAskConfirmationButton);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
@@ -117,6 +120,15 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Ask for confirmation on button click for custom UI</Label>
+              <Detail>
+                <AccentSlider
+                  onChange={() => dispatch(toggleAskConfirmationButton())}
+                  isChecked={showAskConfirmationButton}
                 />
               </Detail>
             </ControlRow>
