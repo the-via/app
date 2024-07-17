@@ -124,7 +124,7 @@ export const Settings = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Show explicit value for custom UI sliders</Label>
+              <Label>Show explicit value for sliders</Label>
               <Detail>
                 <AccentSlider
                   onChange={() => dispatch(toggleShowSliderValue())}
