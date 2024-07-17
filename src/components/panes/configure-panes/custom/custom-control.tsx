@@ -1,4 +1,5 @@
 import React from 'react';
+import {useSelector} from 'react-redux';
 import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
 import {AccentButton} from '../../../inputs/accent-button';
 import {AccentSlider} from '../../../inputs/accent-slider';
@@ -10,6 +11,7 @@ import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
+import {getShowSliderValue} from 'src/store/settingsSlice';
 
 type Props = {
   lightingData: LightingData;
@@ -28,21 +30,26 @@ type ControlMeta = [
 type AdvancedControlProps = Props & {meta: ControlMeta};
 
 export const VIACustomItem = React.memo(
-  (props: VIACustomControlProps & {_id: string}) => (
-    <ControlRow id={props._id}>
-      <Label>{props.label}</Label>
-      <Detail>
-        {'type' in props ? (
-          <VIACustomControl
-            {...props}
-            value={props.value && Array.from(props.value)}
-          />
-        ) : (
-          props.content
-        )}
-      </Detail>
-    </ControlRow>
-  ),
+  (props: VIACustomControlProps & {_id: string}) => {
+    const showSliderValue = useSelector(getShowSliderValue);
+
+    return (
+      <ControlRow id={props._id}>
+        <Label>{props.label}</Label>
+        <Detail>
+          {'type' in props ? (
+            <VIACustomControl
+              {...props}
+              value={props.value && Array.from(props.value)}
+              showSliderValue={showSliderValue}
+            />
+          ) : (
+            props.content
+          )}
+        </Detail>
+      </ControlRow>
+    );
+  },
 );
 
 type ControlGetSet = {
@@ -50,7 +57,8 @@ type ControlGetSet = {
   updateValue: (name: string, ...command: number[]) => void;
 };
 
-type VIACustomControlProps = VIAItem & ControlGetSet;
+type VIACustomControlProps = VIAItem &
+  ControlGetSet & {label: string; showSliderValue: boolean};
 
 const boxOrArr = <N extends any>(elem: N | N[]) =>
   Array.isArray(elem) ? elem : [elem];
@@ -76,17 +84,17 @@ const getRangeBytes = (value: number, max: number) => {
 };
 
 const VIACustomControl = (props: VIACustomControlProps) => {
-  const {content, type, options, value} = props as any;
+  const {content, type, options, value, showSliderValue} = props as any;
   const [name, ...command] = content;
   switch (type) {
     case 'button': {
       const buttonOption: any[] = options || [1];
       return (
         <AccentButton
-          onClick={() => 
-            props.updateValue(name, ...command, buttonOption[0])
-          }
-        >Click</AccentButton>
+          onClick={() => props.updateValue(name, ...command, buttonOption[0])}
+        >
+          Click
+        </AccentButton>
       );
     }
     case 'range': {
@@ -102,6 +110,7 @@ const VIACustomControl = (props: VIACustomControlProps) => {
               ...getRangeBytes(val, options[1]),
             )
           }
+          showingSliderValue={showSliderValue}
         />
       );
     }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import styled from 'styled-components';
 
 const Container = styled.span`
@@ -20,13 +20,19 @@ const ValueDisplay = styled.span`
   flex-shrink: 0; // Prevent it from shrinking
 `;
 
-export const AccentRange: React.FC<
-  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'type'> & {
-    onChange: (x: number) => void;
-  }
-> = (props) => {
+interface AccentRangeProps
+  extends Omit<
+    React.InputHTMLAttributes<HTMLInputElement>,
+    'onChange' | 'type'
+  > {
+  onChange: (x: number) => void;
+  showingSliderValue?: boolean; // Make showSliderValue optional
+}
+
+export const AccentRange: React.FC<AccentRangeProps> = (props) => {
+  const {showingSliderValue = false} = props; // Default showSliderValue to false if not provided
   const inputRef = useRef<HTMLInputElement>(null);
-  const [sliderValue, setSliderValue] = useState(0); // Initialize with 0
+  const [sliderValue, setSliderValue] = useState<number>(0); // Initialize with 0
 
   useEffect(() => {
     if (inputRef.current) {
@@ -34,6 +40,24 @@ export const AccentRange: React.FC<
     }
   }, [props.value]);
 
+  if (!showingSliderValue) {
+    // Render original version without value display
+    return (
+      <Container>
+        <SliderInput
+          ref={inputRef}
+          {...props}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = +e.target.value;
+            setSliderValue(value);
+            props.onChange?.(value);
+          }}
+        />
+      </Container>
+    );
+  }
+
+  // Render enhanced version with value display
   return (
     <Container>
       <ValueDisplay>{sliderValue}</ValueDisplay>

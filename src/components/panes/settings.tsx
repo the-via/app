@@ -18,6 +18,8 @@ import {
   getShowDesignTab,
   getDisableFastRemap,
   toggleCreatorMode,
+  getShowSliderValue,
+  toggleShowSliderValue,
   toggleFastRemap,
   getThemeMode,
   toggleThemeMode,
@@ -57,6 +59,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const ShowSliderValue = useAppSelector(getShowSliderValue);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
@@ -117,6 +120,15 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Show explicit value for custom UI sliders</Label>
+              <Detail>
+                <AccentSlider
+                  onChange={() => dispatch(toggleShowSliderValue())}
+                  isChecked={ShowSliderValue}
                 />
               </Detail>
             </ControlRow>
