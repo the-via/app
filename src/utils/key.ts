@@ -75,7 +75,7 @@ export function getByteForCode(
   if (byte !== undefined) {
     return byte;
   } else if (isHexCode(code)) {
-    return eval(code)
+    return Number(code)
   } else if (isLayerCode(code)) {
     return getByteForLayerCode(code, basicKeyToByte);
   } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
