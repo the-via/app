@@ -103,14 +103,6 @@ export const ColorPalettePicker: React.FC<{
           setSelectedColor([h, s]);
           setPickerColor([h, s]);
         }}
-        onOpen={() => {
-          setSelectedColor([colorPickerColor[0], colorPickerColor[1]]);
-          setColor(colorPickerColor[0], colorPickerColor[1]);
-        }}
-        onMouseUp={() => {
-          setSelectedColor([colorPickerColor[0], colorPickerColor[1]]);
-          setColor(colorPickerColor[0], colorPickerColor[1]);
-        }}
       />
     </ColorPalettePickerContainer>
   );

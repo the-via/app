@@ -13,14 +13,6 @@ export const updateCSSVariables = (themeName: keyof typeof THEMES) => {
   );
 };
 
-export const getRandomColor = () =>
-  Array(3)
-    .fill(0)
-    .reduce(
-      (a) => `${a}${(~~(Math.random() * 255)).toString(16).padStart(2, '0')}`,
-      '#',
-    );
-
 export function getRGBPrime(
   hue: number,
   c: number,
@@ -79,14 +71,6 @@ export const getDarkenedColor = (color: string, multiplier = 0.8) => {
   return res;
 };
 
-export const get256HSV = (color: string) => {
-  const [h, s, v] = getHSV(color);
-  return [
-    Math.round((255 * h) / 360),
-    Math.round(255 * s),
-    Math.round(255 * v),
-  ];
-};
 export const getHSV = (color: string) => {
   const [rPrime, gPrime, bPrime] = getColorByte(color).map((c) => c / 255);
   const [cmax, cmin] = [
@@ -125,58 +109,6 @@ export function getRGB({hue, sat}: {hue: number; sat: number}): string {
     Math.round(255 * (m + n)),
   );
   return `rgba(${r},${g},${b},1)`;
-}
-
-export function toDegrees(rad: number): number {
-  return rad * (180 / Math.PI);
-}
-
-export function calcRadialHue(x: number, y: number) {
-  if (x < 200 && y < 200) {
-    const nX = 200 - x;
-    const nY = 200 - y;
-    return 2 * Math.PI - Math.atan(nX / nY);
-  } else if (x > 200 && y < 200) {
-    const nX = x - 200;
-    const nY = 200 - y;
-    return Math.atan(nX / nY);
-  } else if (x < 200 && y > 200) {
-    const nX = 200 - x;
-    const nY = y - 200;
-    return Math.PI + Math.atan(nX / nY);
-  } else if (x > 200 && y > 200) {
-    const nX = x - 200;
-    const nY = y - 200;
-    return 0.5 * Math.PI + Math.atan(nY / nX);
-  } else if (x === 200) {
-    return y > 200 ? Math.PI : 0;
-  } else if (y === 200) {
-    return x >= 200 ? 0.5 * Math.PI : 1.5 * Math.PI;
-  }
-}
-
-export function calcRadialMagnitude(x: number, y: number) {
-  if (x < 200 && y < 200) {
-    const nX = 200 - x;
-    const nY = 200 - y;
-    return Math.sqrt(nX * nX + nY * nY) / 200;
-  } else if (x > 200 && y < 200) {
-    const nX = x - 200;
-    const nY = 200 - y;
-    return Math.sqrt(nX * nX + nY * nY) / 200;
-  } else if (x < 200 && y > 200) {
-    const nX = 200 - x;
-    const nY = y - 200;
-    return Math.sqrt(nX * nX + nY * nY) / 200;
-  } else if (x > 200 && y > 200) {
-    const nX = x - 200;
-    const nY = y - 200;
-    return Math.sqrt(nX * nX + nY * nY) / 200;
-  } else if (x === 200) {
-    return y > 200 ? (y - 200) / 200 : (200 - y) / 200;
-  } else if (y === 200) {
-    return x > 200 ? (x - 200) / 200 : (200 - x) / 200;
-  }
 }
 
 export function hsToRgb({hue, sat}: {hue: number; sat: number}) {
