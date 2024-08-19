@@ -177,8 +177,8 @@ const extractCommands = (menuOrControls: any) => {
   return 'type' in menuOrControls
     ? [menuOrControls.content]
     : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
-    ? menuOrControls.content.flatMap(extractCommands)
-    : [];
+      ? menuOrControls.content.flatMap(extractCommands)
+      : [];
 };
 
 export const getCommonMenusDataMap = (state: RootState) =>

@@ -35,13 +35,13 @@ export default () => {
   const testContextState = useState({clearTestKeys: () => {}});
   return (
     <>
-        <TestContext.Provider value={testContextState}>
-          <GlobalStyle />
-          {hasHIDSupport && <UnconnectedGlobalMenu />}
-          <CanvasRouter />
+      <TestContext.Provider value={testContextState}>
+        <GlobalStyle />
+        {hasHIDSupport && <UnconnectedGlobalMenu />}
+        <CanvasRouter />
 
-          <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
-        </TestContext.Provider>
+        <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
+      </TestContext.Provider>
     </>
   );
 };

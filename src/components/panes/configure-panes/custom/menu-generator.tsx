@@ -99,8 +99,9 @@ const MenuComponent = React.memo((props: any) => (
   </>
 ));
 
-const MenuBuilder = (elem: any) => (props: any) =>
-  <MenuComponent {...props} key={elem._id} elem={elem} />;
+const MenuBuilder = (elem: any) => (props: any) => (
+  <MenuComponent {...props} key={elem._id} elem={elem} />
+);
 
 function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,

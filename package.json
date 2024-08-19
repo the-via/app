@@ -1,4 +1,6 @@
 {
+  "private": true,
+  "name": "via-app",
   "license": "GPL-3.0",
   "scripts": {
     "dev": "node scripts/build-definitions.js && vite --force",
@@ -63,6 +65,7 @@
     "@vitejs/plugin-react": "^3.1.0",
     "concurrently": "^7.6.0",
     "husky": "^8.0.3",
+    "prettier": "^3.3.3",
     "typescript": "^5.6.2",
     "vite": "^4.1.4",
     "vite-plugin-html": "^3.2.0"

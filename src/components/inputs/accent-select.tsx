@@ -15,13 +15,13 @@ const customStyles = {
       background: state.isSelected
         ? 'var(--color_accent)'
         : state.isFocused
-        ? 'var(--bg_control)'
-        : 'var(--bg_menu)',
+          ? 'var(--bg_control)'
+          : 'var(--bg_menu)',
       color: state.isSelected
         ? 'var(--color_inside-accent)'
         : state.isFocused
-        ? 'var(--color_accent)'
-        : 'var(--color_accent)',
+          ? 'var(--color_accent)'
+          : 'var(--color_accent)',
     };
   },
   container: (provided: any) => ({

@@ -184,10 +184,10 @@ export const getSequenceItemComponent = (
   action === RawKeycodeSequenceAction.Down
     ? KeycodeDownLabel
     : action === RawKeycodeSequenceAction.Up
-    ? KeycodeUpLabel
-    : action === RawKeycodeSequenceAction.CharacterStream
-    ? CharacterStreamLabel
-    : KeycodePressLabel;
+      ? KeycodeUpLabel
+      : action === RawKeycodeSequenceAction.CharacterStream
+        ? CharacterStreamLabel
+        : KeycodePressLabel;
 
 function capitalize(string: string) {
   return string[0].toUpperCase() + string.slice(1);
