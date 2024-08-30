@@ -159,11 +159,12 @@ export const Settings = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Show Diagnostic Information</Label>
+              <Label htmlFor='diagonistic'>Show Diagnostic Information</Label>
 
               <Detail>
                 {selectedDevice ? (
                   <AccentSlider
+                    id='diagonistic'
                     onChange={() => setShowDiagnostics(!showDiagnostics)}
                     isChecked={showDiagnostics}
                   />
