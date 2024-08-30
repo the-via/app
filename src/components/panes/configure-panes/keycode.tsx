@@ -1,4 +1,4 @@
-import {FC, useState, useEffect, useMemo} from 'react';
+import {FC, useState, useEffect, useMemo, useRef} from 'react';
 import styled from 'styled-components';
 import {Button} from '../../inputs/button';
 import {KeycodeModal} from '../../inputs/custom-keycode-modal';
@@ -70,6 +70,10 @@ const Keycode = styled(Button)<{disabled: boolean}>`
   position: relative;
   border-radius: 10px;
   &:hover {
+    border-color: var(--color_accent);
+    transform: translate3d(0, -2px, 0);
+  }
+  &:focus {
     border-color: var(--color_accent);
     transform: translate3d(0, -2px, 0);
   }
@@ -213,13 +217,44 @@ export const KeycodePane: FC = () => {
   };
 
   const renderCategories = () => {
+    const [focusedTab,setTabFocus] = useState(0);
+    const [didMount,mount] = useState(false);
+    const categoryTabRefs = useRef<HTMLDivElement[]>([]);
+    useEffect(()=>{didMount || mount(true)});
+    useEffect(()=>{
+      if (didMount){ 
+        categoryTabRefs.current[focusedTab]?.focus();
+        categoryTabRefs.current[focusedTab]?.click();
+        categoryTabRefs.current[focusedTab]?.scrollIntoView({block:"nearest"});
+      }
+    },[focusedTab]);
+    const availableMenus = getEnabledMenus();
+    
     return (
-      <MenuContainer>
-        {getEnabledMenus().map(({id, label}) => (
+      <MenuContainer role='tablist'>
+        {availableMenus.map(({id, label},idx) => (
           <SubmenuRow
+          onKeyDown={(e)=>{
+            switch(e.code) {
+              case "ArrowUp":
+              case "ArrowLeft":
+                e.preventDefault();
+                setTabFocus(idx - 1 > -1 ? idx - 1 :  availableMenus.length-1 )
+                break;
+              case "ArrowDown":
+              case "ArrowRight":
+                e.preventDefault();
+                setTabFocus(idx + 1 < availableMenus.length ? idx + 1 :  0)
+                break;
+            }
+          }}
+            ref={(r)=>{ categoryTabRefs.current[idx] = r! }}
             $selected={id === selectedCategory}
             onClick={() => setSelectedCategory(id)}
+            aria-selected={id === selectedCategory}
             key={id}
+            tabIndex={id === selectedCategory ? 0 : -1}
+            role='tab'
           >
             {label}
           </SubmenuRow>
@@ -279,10 +314,22 @@ export const KeycodePane: FC = () => {
       <Keycode
         key={code}
         disabled={!keycodeInMaster(code, basicKeyToByte) && code != 'text'}
+        onKeyDown={(e)=>{
+          switch(e.code){
+            case "Space":
+            case "Enter":
+              e.currentTarget.click();
+              break;
+          }
+        }}
         onClick={() => handleClick(code, index)}
         onMouseOver={() => setMouseOverDesc(title ? `${code}: ${title}` : code)}
         onMouseOut={() => setMouseOverDesc(null)}
-      >
+        role='button'
+        tabIndex={0}
+        aria-label={name ? name : "Nothing"}
+        aria-roledescription={title ? `${code}: ${title}` : code}>
+        
         <KeycodeContent>{name}</KeycodeContent>
       </Keycode>
     );
@@ -291,6 +338,16 @@ export const KeycodePane: FC = () => {
   const renderCustomKeycode = () => {
     return (
       <CustomKeycode
+        onKeyDown={(e)=>{
+          switch(e.code){
+            case "Space":
+            case "Enter":
+              e.currentTarget.click();
+              break;
+          }
+        }}
+        role='button'
+        tabIndex={0}
         key="customKeycode"
         onClick={() => selectedKey !== null && handleClick('text', 0)}
         onMouseOver={() => setMouseOverDesc('Enter any QMK Keycode')}
@@ -313,12 +370,12 @@ export const KeycodePane: FC = () => {
         return !macros.isFeatureSupported ? (
           renderMacroError()
         ) : (
-          <KeycodeList>{keycodeListItems}</KeycodeList>
+          <KeycodeList role='region' aria-label='Mecro keycodes'>{keycodeListItems}</KeycodeList>
         );
       }
       case 'special': {
         return (
-          <KeycodeList>
+          <KeycodeList role='region' aria-label='Special keycodes'>
             {keycodeListItems.concat(renderCustomKeycode())}
           </KeycodeList>
         );
@@ -332,7 +389,7 @@ export const KeycodePane: FC = () => {
           return null;
         }
         return (
-          <KeycodeList>
+          <KeycodeList role='region' aria-label='Custom keycodes'>
             {selectedDefinition.customKeycodes.map((keycode, idx) => {
               return renderKeycode(
                 {
@@ -346,7 +403,7 @@ export const KeycodePane: FC = () => {
         );
       }
       default: {
-        return <KeycodeList>{keycodeListItems}</KeycodeList>;
+        return <KeycodeList role='region' aria-label='Keycodes'>{keycodeListItems}</KeycodeList>;
       }
     }
   };

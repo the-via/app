@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {
@@ -87,12 +87,14 @@ export const Settings = () => {
   const renderModeDefaultValue = renderModeOptions.find(
     (opt) => opt.value === renderMode,
   );
+
   return (
     <Pane>
       <Grid style={{overflow: 'hidden'}}>
         <MenuCell style={{pointerEvents: 'all', borderTop: 'none'}}>
           <MenuContainer>
-            <Row $selected={true}>
+            <Row $selected={true}
+            >
               <IconContainer>
                 <FontAwesomeIcon icon={faToolbox} />
                 <MenuTooltip>General</MenuTooltip>
@@ -103,27 +105,30 @@ export const Settings = () => {
         <SpanOverflowCell style={{flex: 1, borderWidth: 0}}>
           <Container>
             <ControlRow>
-              <Label>Show Design tab</Label>
+              <Label htmlFor='show_design_tab'>Show Design tab</Label>
               <Detail>
                 <AccentSlider
+                  id='show_desing_tab'
                   onChange={() => dispatch(toggleCreatorMode())}
                   isChecked={showDesignTab}
                 />
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Fast Key Mapping</Label>
+              <Label htmlFor='fast_mapping'>Fast Key Mapping</Label>
               <Detail>
                 <AccentSlider
+                  id={"fast_mapping"}
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
                 />
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Light Mode</Label>
+              <Label htmlFor="turn_on_light">Light Mode</Label>
               <Detail>
                 <AccentSlider
+                  id='turn_on_light'
                   onChange={() => dispatch(toggleThemeMode())}
                   isChecked={themeMode === 'light'}
                 />

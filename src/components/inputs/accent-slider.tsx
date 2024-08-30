@@ -43,6 +43,7 @@ const Slider = styled.span<{$ischecked?: boolean}>`
 
 type Props = {
   isChecked: boolean;
+  id:string
   onChange: (val: boolean) => void;
 };
 
@@ -70,6 +71,8 @@ export function AccentSlider(props: Props) {
     <Switch>
       <HiddenInput
         ref={ref}
+        role='switch'
+        id={props.id}
         type="checkbox"
         checked={isHiddenChecked}
         onChange={hiddenOnChange}
