@@ -147,9 +147,10 @@ export const Test: FC = () => {
             </ControlRow>
             {canUseMatrixState && selectedDefinition ? (
               <ControlRow>
-                <Label>Test Matrix</Label>
+                <Label htmlFor='test_matrix'>Test Matrix</Label>
                 <Detail>
                   <AccentSlider
+                    id='test_matrix'
                     isChecked={isTestMatrixEnabled}
                     onChange={(val) => {
                       dispatch(setTestMatrixEnabled(val));
@@ -160,9 +161,10 @@ export const Test: FC = () => {
               </ControlRow>
             ) : null}
             <ControlRow>
-              <Label>Key Sounds</Label>
+              <Label htmlFor="key_sounds">Key Sounds</Label>
               <Detail>
                 <AccentSlider
+                  id="key_sounds"
                   isChecked={testKeyboardSoundsSettings.isEnabled}
                   onChange={(val) => {
                     dispatch(

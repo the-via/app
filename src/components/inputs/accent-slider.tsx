@@ -43,7 +43,7 @@ const Slider = styled.span<{$ischecked?: boolean}>`
 
 type Props = {
   isChecked: boolean;
-  id:string
+  id?:string
   onChange: (val: boolean) => void;
 };
 

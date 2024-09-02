@@ -325,9 +325,10 @@ export const DesignTab: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Use V2 definitions (deprecated)</Label>
+              <Label htmlFor='useV2'>Use V2 definitions (deprecated)</Label>
               <Detail>
                 <AccentSlider
+                  id="useV2"
                   isChecked={definitionVersion === 'v2'}
                   onChange={(val) =>
                     dispatch(updateDesignDefinitionVersion(val ? 'v2' : 'v3'))
@@ -369,9 +370,9 @@ export const DesignTab: FC = () => {
             )}
             {definition && (
               <ControlRow>
-                <Label>Show Matrix</Label>
+                <Label htmlFor='show_matrix'>Show Matrix</Label>
                 <Detail>
-                  <AccentSlider
+                  <AccentSlider id='show_matrix'
                     isChecked={showMatrix}
                     onChange={(val) => {
                       dispatch(updateShowMatrix(val));

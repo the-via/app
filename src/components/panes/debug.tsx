@@ -186,9 +186,9 @@ const TestControls = () => {
         </Detail>
       </ControlRow>
       <ControlRow>
-        <Label>{+isChecked}</Label>
+        <Label htmlFor='test_switch'>{+isChecked}</Label>
         <Detail>
-          <AccentSlider isChecked={isChecked} onChange={setIsChecked} />
+          <AccentSlider id="test_switch" isChecked={isChecked} onChange={setIsChecked} />
         </Detail>
       </ControlRow>
       <ControlRow>
@@ -266,9 +266,10 @@ export const Debug: FC = () => {
           <ControlGroup>
             <ControlGroupHeader>Key Testing</ControlGroupHeader>
             <ControlRow>
-              <Label>Show Matrix</Label>
+              <Label htmlFor='show_matrix'>Show Matrix</Label>
               <Detail>
                 <AccentSlider
+                  id='show_matrix'
                   isChecked={showMatrix}
                   onChange={(val) => setShowMatrix(val)}
                 />
