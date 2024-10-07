@@ -1,45 +1,45 @@
-import {useState, FC} from 'react';
-import {Pane} from './pane';
-import styled from 'styled-components';
-import {KeyboardValue} from '../../utils/keyboard-api';
-import {anyKeycodeToString} from '../../utils/advanced-keys';
-import {AccentSelect} from '../inputs/accent-select';
-import {AccentButton} from '../inputs/accent-button';
-import {AccentSlider} from '../inputs/accent-slider';
-import {ArrayColorPicker} from '../inputs/color-picker';
-import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
-import {
-  ControlRow,
-  Label,
-  SubLabel,
-  Detail,
-  IndentedControlRow,
-  OverflowCell,
-} from './grid';
-import Layouts from '../Layouts';
 import type {VIADefinitionV2, VIADefinitionV3} from '@the-via/reader';
-import {AccentRange} from '../inputs/accent-range';
-import {useAppSelector} from 'src/store/hooks';
+import {FC, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {
+  getBaseDefinitions,
+  getBasicKeyToByte,
+  getCustomDefinitions,
+  getDefinitions,
+} from 'src/store/definitionsSlice';
 import {
   getConnectedDevices,
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
-import {
-  getBaseDefinitions,
-  getDefinitions,
-  getCustomDefinitions,
-  getBasicKeyToByte,
-} from 'src/store/definitionsSlice';
-import TextInput from '../inputs/text-input';
-import {getNextKey} from 'src/utils/keyboard-rendering';
-import {ColorPalettePicker} from '../inputs/color-palette-picker';
-import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
 import {
   getSelected256PaletteColor,
   setSelectedPaletteColor,
 } from 'src/store/keymapSlice';
-import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
+import {getNextKey} from 'src/utils/keyboard-rendering';
 import {RawKeycodeSequenceAction} from 'src/utils/macro-api/types';
+import styled from 'styled-components';
+import {anyKeycodeToString} from '../../utils/advanced-keys';
+import {KeyboardValue} from '../../utils/keyboard-api';
+import {AccentButton} from '../inputs/accent-button';
+import {AccentRange} from '../inputs/accent-range';
+import {AccentSelect} from '../inputs/accent-select';
+import {AccentSlider} from '../inputs/accent-slider';
+import {ColorPalettePicker} from '../inputs/color-palette-picker';
+import {ArrayColorPicker} from '../inputs/color-picker';
+import {PelpiKeycodeInput} from '../inputs/pelpi/keycode-input';
+import TextInput from '../inputs/text-input';
+import Layouts from '../Layouts';
+import {MacroRecorder} from './configure-panes/submenus/macros/macro-recorder';
+import {
+  ControlRow,
+  Detail,
+  IndentedControlRow,
+  Label,
+  OverflowCell,
+  SubLabel,
+} from './grid';
+import {Pane} from './pane';
 
 // TODO: should we differentiate between firwmare versions in the UI?
 type KeyboardDefinitionEntry = [string, VIADefinitionV2 | VIADefinitionV3];
@@ -56,6 +56,7 @@ const ControlGroup = styled.div`
   padding-bottom: 0.75rem;
   width: 100%;
 
+  max-width: 960px;
   &:last-child {
     padding-bottom: 0;
   }
@@ -67,46 +68,6 @@ const ControlGroupHeader = styled.div`
   margin: 0;
   margin-bottom: 0.5rem;
 `;
-
-// const GithubUserData = () => {
-//   const [userData, setUserData] = useState<{
-//     login: string;
-//     avatar_url: string;
-//   }>();
-//   const clickLogin = useCallback(async () => {
-//     await authGithub();
-//     const userData = await getUser();
-//     setUserData(userData);
-//   }, []);
-//   // Attempt first
-//   useEffect(() => {
-//     (async () => {
-//       const userData = await getUser();
-//       setUserData(userData);
-//     })();
-//   }, []);
-//   return (
-//     <ControlGroup>
-//       <ControlGroupHeader>GH Integration</ControlGroupHeader>
-//       {userData && (
-//         <ControlRow>
-//           <Label>{userData.login}</Label>
-//           <Detail>
-//             <img src={userData.avatar_url} width={40} height={40} />
-//           </Detail>
-//         </ControlRow>
-//       )}
-//       {!userData && (
-//         <ControlRow>
-//           <Label>Login</Label>
-//           <Detail>
-//             <AccentButton onClick={clickLogin}>OAuth me</AccentButton>
-//           </Detail>
-//         </ControlRow>
-//       )}
-//     </ControlGroup>
-//   );
-// };
 
 const TestControls = () => {
   const [isChecked, setIsChecked] = useState(true);
