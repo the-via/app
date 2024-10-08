@@ -36,6 +36,9 @@ export const AccentButton = styled(AccentButtonBase)`
   &:hover {
     filter: brightness(0.7);
   }
+  &:focus {
+    filter: brightness(0.7);
+  }
 `;
 export const AccentButtonLarge = styled(AccentButton)`
   font-size: 24px;

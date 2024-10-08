@@ -301,6 +301,7 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     idx,
     mode,
   ]);
+  
   return shouldRotate ? (
     <EncoderKey
       onClick={onClick}
@@ -349,10 +350,26 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
   ) : (
     <>
       <KeycapContainer
+        
+        role={"button"}
+        aria-disabled={disabled}
+        aria-label={`${macroData || ( label && (label.label ? label.label : label.bottomLabel ? `${label.bottomLabel} ${label.topLabel}` : label.tooltipLabel) )}`}
+        aria-pressed={selected}
+        tabIndex={disabled ? undefined : 0}
         onClick={onClick}
+        onKeyDown={(e)=>{
+          switch(e.code) {
+            case "Enter":
+            case "Space":
+              e.preventDefault();
+              e.currentTarget.click();
+              break;
+          }
+        }}
         onPointerDown={onPointerDown}
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
+
         style={{
           transform: `translate(${
             CSSVarObject.keyWidth / 2 +

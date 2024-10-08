@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components';
 import ChippyLoader from '../chippy-loader';
@@ -219,7 +219,9 @@ const ConfigureGrid = () => {
   const KeyboardRows = getRowsForKeyboard();
   const SelectedPane = KeyboardRows[selectedRow]?.Pane;
   const selectedTitle = KeyboardRows[selectedRow]?.Title;
-
+  const [didMount,mount] = useState(false);
+  const [focusedTab,setTabFocus] = useState(0);
+  const tabRefs = useRef<HTMLDivElement[]>([]);
   useEffect(() => {
     if (selectedTitle !== 'Keymap') {
       dispatch(setConfigureKeyboardIsSelectable(false));
@@ -227,7 +229,16 @@ const ConfigureGrid = () => {
       dispatch(setConfigureKeyboardIsSelectable(true));
     }
   }, [selectedTitle]);
+  
+  useEffect(()=>{didMount || mount(true);})
+  useEffect(()=>{ // keyboard navigation
+    if (didMount) { 
+      tabRefs.current[focusedTab]?.focus();
+      tabRefs.current[focusedTab]?.click();
+    }
+  },[focusedTab]);
 
+  const menuItems = (KeyboardRows || [])
   return (
     <>
       <ConfigureFlexCell
@@ -250,11 +261,27 @@ const ConfigureGrid = () => {
       </ConfigureFlexCell>
       <Grid style={{pointerEvents: 'none'}}>
         <MenuCell style={{pointerEvents: 'all'}}>
-          <MenuContainer>
-            {(KeyboardRows || []).map(
+          <MenuContainer role='tablist' aria-label='Configure Menu'>
+            {menuItems.map(
               ({Icon, Title}: {Icon: any; Title: string}, idx: number) => (
                 <Row
                   key={idx}
+                  role='tab'
+                  onKeyDown={(e)=>{
+                    switch(e.code) {
+                      case "ArrowUp":
+                      case "ArrowLeft":
+                        setTabFocus(idx - 1 > -1 ? idx - 1 :  menuItems.length-1 )
+                        break;
+                      case "ArrowDown":
+                      case "ArrowRight":
+                        setTabFocus(idx + 1 < menuItems.length ? idx + 1 :  0)
+                        break;
+                    }
+                  }}
+                  ref={(r)=>{tabRefs.current[idx] = r!;}}
+                  aria-selected={selectedRow === idx}
+                  tabIndex={selectedRow === idx ? 0 : -1}
                   onClick={(_) => setRow(idx)}
                   $selected={selectedRow === idx}
                 >
