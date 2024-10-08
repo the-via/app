@@ -1,5 +1,4 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {
   commonMenus,
   isVIADefinitionV2,
@@ -7,18 +6,19 @@ import {
   isVIAMenu,
   VIAMenu,
 } from '@the-via/reader';
-import type {AppThunk, RootState} from './index';
+import {
+  makeCustomMenu,
+  makeCustomMenus,
+} from 'src/components/panes/configure-panes/custom/menu-generator';
+import {KeyboardAPI} from 'src/utils/keyboard-api';
+import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
   getSelectedConnectedDevice,
   getSelectedDevicePath,
   getSelectedKeyboardAPI,
 } from './devicesSlice';
-import {
-  makeCustomMenu,
-  makeCustomMenus,
-} from 'src/components/panes/configure-panes/custom/menu-generator';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
+import type {AppThunk, RootState} from './index';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
