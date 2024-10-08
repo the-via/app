@@ -41,7 +41,7 @@ const ghAPI = async (url: string) => {
     },
   });
   if (!ghReq.ok) {
-    throw new Error(ghReq.statusText)
+    throw new Error(ghReq.statusText);
   }
   const resp: any = await ghReq.json();
   return resp;

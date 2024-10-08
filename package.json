@@ -1,4 +1,6 @@
 {
+  "private": true,
+  "name": "via-app",
   "license": "GPL-3.0",
   "scripts": {
     "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
@@ -61,6 +63,7 @@
     "@vitejs/plugin-react": "^3.1.0",
     "concurrently": "^7.6.0",
     "husky": "^8.0.3",
+    "prettier": "^2.8.8",
     "ts-node": "^10.9.1",
     "ts-prune": "^0.10.3",
     "typescript": "^4.9.5",
