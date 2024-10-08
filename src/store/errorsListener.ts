@@ -4,21 +4,18 @@ import {
   logAppError,
   logKeyboardAPIError,
 } from './errorsSlice';
-import * as Sentry from '@sentry/react';
 import {formatNumberAsHex} from 'src/utils/format';
 import {DeviceInfo} from 'src/types/types';
 
 export const errorsListenerMiddleware = createListenerMiddleware();
 
 const captureError = (message: string, deviceInfo: DeviceInfo) => {
-  Sentry.captureException(new Error(message), {
-    tags: {
+  console.error('Error captured:', {
+    message,
+    deviceInfo: {
       productName: deviceInfo.productName,
       vendorId: formatNumberAsHex(deviceInfo.vendorId, 4),
       protocol: deviceInfo.protocol,
-    },
-    extra: {
-      deviceInfo: deviceInfo,
     },
   });
 };
