@@ -31,7 +31,7 @@ import {
 } from 'src/store/settingsSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {useSize} from 'src/utils/use-size';
-import {Object3D} from 'three';
+import {Object3D, SpotLight as ThreeSpotLight} from 'three';
 import {useLocation} from 'wouter';
 import {AccentButtonLarge} from '../inputs/accent-button';
 import {ConfigureKeyboard} from '../n-links/keyboard/configure';
@@ -40,8 +40,8 @@ import {Test} from '../n-links/keyboard/test';
 import {Camera} from './camera';
 import {LoaderCubey} from './loader-cubey';
 import {UpdateUVMaps} from './update-uv-maps';
-useGLTF.preload(cubeySrc);
-useGLTF.preload(glbSrc);
+useGLTF.preload(cubeySrc, true, true);
+useGLTF.preload(glbSrc, true, true);
 
 const KeyboardBG: React.FC<{
   color: string;
@@ -195,12 +195,12 @@ export const CanvasRouter = () => {
 };
 
 const Lights = React.memo(() => {
-  const x = 3;
-  const y = 0.5;
-  const z = -15;
+  const x = 2;
+  const y = 0.25;
+  const z = -16;
   const spotlightY = 12;
   const spotlightZ = -19;
-  const ref = useRef<THREE.SpotLight>(null);
+  const ref = useRef<ThreeSpotLight>(null);
   useEffect(() => {
     if (ref.current) {
       ref.current.shadow.mapSize.width = 2048;
@@ -214,10 +214,9 @@ const Lights = React.memo(() => {
     return obj;
   }, []);
   // Setting for better perf on slower machines
-  const renderAllLights = true;
-  return renderAllLights ? (
+  return (
     <>
-      <ambientLight intensity={0.0} />
+      <ambientLight intensity={0.8} />
       <SpotLight
         ref={ref}
         distance={spotlightY + 3}
@@ -229,13 +228,8 @@ const Lights = React.memo(() => {
         castShadow={true}
         anglePower={5} // Diffuse-cone anglePower (default: 5)
       ></SpotLight>
-      <pointLight position={[x, y, z]} intensity={0.8} />
-      <pointLight position={[-x, y, z]} intensity={0.8} />
-    </>
-  ) : (
-    <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[-0.5, y, z]} intensity={1.5} />
+      <pointLight position={[x, y, z]} intensity={20} />
+      <pointLight position={[-x, y, z]} intensity={20} />
     </>
   );
 }, shallowEqual);

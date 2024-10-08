@@ -1,22 +1,21 @@
+import {ApplicationInsights} from '@microsoft/applicationinsights-web';
+import * as Sentry from '@sentry/react';
 import '@webscopeio/react-textarea-autocomplete/style.css';
 import {createRoot} from 'react-dom/client';
-import Root from './containers/Root';
-import {ApplicationInsights} from '@microsoft/applicationinsights-web';
 import './app.global.css';
+import Root from './containers/Root';
+import {updateCSSVariables} from './utils/color-math';
 import {
   getThemeModeFromStore,
   getThemeNameFromStore,
 } from './utils/device-store';
-import {updateCSSVariables} from './utils/color-math';
 import {THEMES} from './utils/themes';
-import * as Sentry from '@sentry/react';
-import {BrowserTracing} from '@sentry/tracing';
 
 const {MODE} = import.meta.env;
 
 Sentry.init({
   dsn: 'https://1083464e2a864de791972ab8c976849a@o4504817817747456.ingest.sentry.io/4504817834655749',
-  integrations: [new BrowserTracing()],
+  integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
   normalizeDepth: 10,
   environment: MODE,
