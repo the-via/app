@@ -10,6 +10,7 @@ import {
   logAppError,
   logKeyboardAPIError,
 } from 'src/store/errorsSlice';
+import { getUserFixForError } from './user-fixable-errors';
 
 // VIA Command IDs
 
@@ -625,10 +626,13 @@ export class KeyboardAPI {
           res(ans);
         } catch (e: any) {
           const deviceInfo = extractDeviceInfo(this.getHID());
+          const [isPotentiallyUserFixable, userFix] = getUserFixForError(e, deviceInfo);
           store.dispatch(
             logAppError({
               message: getMessageFromError(e),
               deviceInfo,
+              isPotentiallyUserFixable,
+              userFix,
             }),
           );
           rej(e);
