@@ -463,7 +463,7 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
           />
         </AniMeshMaterial>
       </animated.mesh>
-      {(macroData || overflowsTexture) && (
+      {(macroData || overflowsTexture || (label && label.shortName)) && (
         <React.Suspense fallback={null}>
           <animated.group
             position={props.position}
