@@ -1,7 +1,7 @@
 import {useGLTF} from '@react-three/drei';
-import {useEffect} from 'react';
-import {Box3, BufferAttribute, BufferGeometry} from 'three';
 import glbSrc from 'assets/models/keyboard_components.glb';
+import {useEffect} from 'react';
+import {Box3, BufferAttribute, BufferGeometry, Group, Mesh} from 'three';
 
 export const UpdateUVMaps = () => {
   const keycapScene = useGLTF(glbSrc, true).scene;
@@ -9,10 +9,10 @@ export const UpdateUVMaps = () => {
     // updating uv maps
     // let's assume of now we want to contain uvs in the bottom 1/3
     Object.values(keycapScene.children).forEach((mesh) => {
-      if ((mesh as THREE.Group).isGroup) {
+      if ((mesh as Group).isGroup) {
         return;
       }
-      const u100 = mesh as THREE.Mesh;
+      const u100 = mesh as Mesh;
       // 1U scale to texture unit
       const size1u = 1 / 2.6;
       const geometry100u = u100.geometry as BufferGeometry;

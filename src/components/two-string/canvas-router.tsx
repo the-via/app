@@ -1,29 +1,30 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useProgress} from '@react-three/drei';
+import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
+import React, {useCallback, useEffect, useMemo, useRef} from 'react';
+import {shallowEqual} from 'react-redux';
 import {
   getCustomDefinitions,
   getSelectedDefinition,
 } from 'src/store/definitionsSlice';
-import {useSize} from 'src/utils/use-size';
-import {useLocation} from 'wouter';
-import {ConfigureKeyboard, Design, Test} from '../n-links/keyboard';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
-import {useProgress} from '@react-three/drei';
 import {
+  clearSelectedKey,
+  getConfigureKeyboardIsSelectable,
   getLoadProgress,
   updateSelectedKey,
-  getConfigureKeyboardIsSelectable,
-  clearSelectedKey,
 } from 'src/store/keymapSlice';
-import React from 'react';
-import {shallowEqual} from 'react-redux';
-import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import {
   getDesignDefinitionVersion,
   getSelectedTheme,
 } from 'src/store/settingsSlice';
-import {OVERRIDE_HID_CHECK} from 'src/utils/override';
-import styled from 'styled-components';
 import {getDarkenedColor} from 'src/utils/color-math';
+import {OVERRIDE_HID_CHECK} from 'src/utils/override';
+import {useSize} from 'src/utils/use-size';
+import styled from 'styled-components';
+import {useLocation} from 'wouter';
+import {ConfigureKeyboard} from '../n-links/keyboard/configure';
+import {Design} from '../n-links/keyboard/design';
+import {Test} from '../n-links/keyboard/test';
 
 const KeyboardBG = styled.div<{
   onClick: () => void;

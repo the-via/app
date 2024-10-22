@@ -1,14 +1,6 @@
-import {Canvas} from '@react-three/fiber';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  getCustomDefinitions,
-  getSelectedDefinition,
-} from 'src/store/definitionsSlice';
-import {useSize} from 'src/utils/use-size';
-import {useLocation} from 'wouter';
-import {Camera} from './camera';
-import {ConfigureKeyboard, Design, Test} from '../n-links/keyboard';
-import {useAppDispatch, useAppSelector} from 'src/store/hooks';
+import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {a, config, useSpring} from '@react-spring/three';
 import {
   Html,
   OrbitControls,
@@ -16,31 +8,40 @@ import {
   useGLTF,
   useProgress,
 } from '@react-three/drei';
+import {Canvas} from '@react-three/fiber';
+import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
+import cubeySrc from 'assets/models/cubey.glb';
+import glbSrc from 'assets/models/keyboard_components.glb';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {shallowEqual} from 'react-redux';
 import {
+  getCustomDefinitions,
+  getSelectedDefinition,
+} from 'src/store/definitionsSlice';
+import {reloadConnectedDevices} from 'src/store/devicesThunks';
+import {useAppDispatch, useAppSelector} from 'src/store/hooks';
+import {
+  getConfigureKeyboardIsSelectable,
   getLoadProgress,
   updateSelectedKey,
-  getConfigureKeyboardIsSelectable,
 } from 'src/store/keymapSlice';
-import {a, config, useSpring} from '@react-spring/three';
-import React from 'react';
-import {shallowEqual} from 'react-redux';
-import {Object3D} from 'three';
-import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
-import {UpdateUVMaps} from './update-uv-maps';
 import {
   getDesignDefinitionVersion,
   getSelectedTheme,
 } from 'src/store/settingsSlice';
-import glbSrc from 'assets/models/keyboard_components.glb';
-import cubeySrc from 'assets/models/cubey.glb';
-import {AccentButtonLarge} from '../inputs/accent-button';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {reloadConnectedDevices} from 'src/store/devicesThunks';
-import {faSpinner, faUnlock} from '@fortawesome/free-solid-svg-icons';
-import {LoaderCubey} from './loader-cubey';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
-useGLTF.preload(cubeySrc);
-useGLTF.preload(glbSrc);
+import {useSize} from 'src/utils/use-size';
+import {Object3D, SpotLight as ThreeSpotLight} from 'three';
+import {useLocation} from 'wouter';
+import {AccentButtonLarge} from '../inputs/accent-button';
+import {ConfigureKeyboard} from '../n-links/keyboard/configure';
+import {Design} from '../n-links/keyboard/design';
+import {Test} from '../n-links/keyboard/test';
+import {Camera} from './camera';
+import {LoaderCubey} from './loader-cubey';
+import {UpdateUVMaps} from './update-uv-maps';
+useGLTF.preload(cubeySrc, true, true);
+useGLTF.preload(glbSrc, true, true);
 
 const KeyboardBG: React.FC<{
   color: string;
@@ -194,12 +195,12 @@ export const CanvasRouter = () => {
 };
 
 const Lights = React.memo(() => {
-  const x = 3;
-  const y = 0.5;
-  const z = -15;
+  const x = 2;
+  const y = 0.25;
+  const z = -16;
   const spotlightY = 12;
   const spotlightZ = -19;
-  const ref = useRef<THREE.SpotLight>(null);
+  const ref = useRef<ThreeSpotLight>(null);
   useEffect(() => {
     if (ref.current) {
       ref.current.shadow.mapSize.width = 2048;
@@ -213,10 +214,9 @@ const Lights = React.memo(() => {
     return obj;
   }, []);
   // Setting for better perf on slower machines
-  const renderAllLights = true;
-  return renderAllLights ? (
+  return (
     <>
-      <ambientLight intensity={0.0} />
+      <ambientLight intensity={0.8} />
       <SpotLight
         ref={ref}
         distance={spotlightY + 3}
@@ -228,13 +228,8 @@ const Lights = React.memo(() => {
         castShadow={true}
         anglePower={5} // Diffuse-cone anglePower (default: 5)
       ></SpotLight>
-      <pointLight position={[x, y, z]} intensity={0.8} />
-      <pointLight position={[-x, y, z]} intensity={0.8} />
-    </>
-  ) : (
-    <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[-0.5, y, z]} intensity={1.5} />
+      <pointLight position={[x, y, z]} intensity={20} />
+      <pointLight position={[-x, y, z]} intensity={20} />
     </>
   );
 }, shallowEqual);
