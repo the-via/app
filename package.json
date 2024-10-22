@@ -1,13 +1,12 @@
 {
   "license": "GPL-3.0",
   "scripts": {
-    "start": "concurrently --names \"vite,azure-fn-dev\" -c \"bgBlue,bgMagenta\" \"npm run dev\" \"npm --prefix api start\"",
     "dev": "node scripts/build-definitions.js && vite --force",
-    "build": "npm run build:kbs && tsc && vite build",
+    "build": "bun run build:kbs && tsc && vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "refresh-kbs": "npm uninstall --force via-keyboards && npm install --force github:the-via/keyboards",
-    "build:azure": "npm run refresh-kbs && npm run build",
+    "refresh-kbs": "bun uninstall --force via-keyboards && bun install --force github:the-via/keyboards",
+    "build:azure": "bun run refresh-kbs && bun run build",
     "preview": "vite preview",
     "build:kbs": "via-keyboards public/definitions",
     "find-deadcode": "ts-prune"
@@ -61,8 +60,6 @@
     "@vitejs/plugin-react": "^3.1.0",
     "concurrently": "^7.6.0",
     "husky": "^8.0.3",
-    "ts-node": "^10.9.1",
-    "ts-prune": "^0.10.3",
     "typescript": "^5.6.2",
     "vite": "^4.1.4",
     "vite-plugin-html": "^3.2.0"
