@@ -40,7 +40,10 @@ export const UnconnectedGlobalMenu = () => {
         if (pane.key === 'debug' && !showDebugPane) return null;
         return (
           <Link key={pane.key} to={pane.path}>
-            <CategoryIconContainer $selected={pane.path === location}>
+            <CategoryIconContainer $selected={pane.path === location}
+            role='link'
+            tabIndex={0}
+            aria-current={pane.path === location ? "page" : "false"}>
               <FontAwesomeIcon size={'xl'} icon={pane.icon} />
               <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
             </CategoryIconContainer>

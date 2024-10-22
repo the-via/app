@@ -165,4 +165,7 @@ export const SubmenuRow = styled(Row)`
   color: ${(props) =>
     props.$selected ? 'var(--color_label-highlighted)' : 'var(--color_label)'};
   border-radius: 12px;
+  &:focus {
+    outline:auto;
+  }
 `;
