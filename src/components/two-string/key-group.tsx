@@ -13,7 +13,7 @@ import {
 } from 'src/utils/keyboard-rendering';
 import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
 import styled from 'styled-components';
-import type {Color} from 'three';
+import {Color} from 'three';
 import {
   getKeycapSharedProps,
   getKeysKeys,
