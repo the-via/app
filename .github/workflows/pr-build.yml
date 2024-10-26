@@ -20,4 +20,5 @@ jobs:
       - name: bun install, and start
         run: |
           bun install
+          bun run refresh-kbs
           bun run build
