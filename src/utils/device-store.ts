@@ -10,13 +10,12 @@ import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
 import {THEMES} from 'src/utils/themes';
 import {Store} from '../shims/via-app-store';
 import type {
-  DefinitionIndex,
-  VendorProductIdMap,
-  Settings,
   AuthorizedDevice,
+  DefinitionIndex,
+  Settings,
+  VendorProductIdMap,
 } from '../types/types';
 import {getVendorProductId} from './hid-keyboards';
-
 let deviceStore: Store;
 const defaultStoreData = {
   definitionIndex: {

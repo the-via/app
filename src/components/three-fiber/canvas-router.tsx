@@ -12,7 +12,7 @@ import {Canvas} from '@react-three/fiber';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import cubeySrc from 'assets/models/cubey.glb';
 import glbSrc from 'assets/models/keyboard_components.glb';
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {Suspense, useCallback, useEffect, useMemo, useRef} from 'react';
 import {shallowEqual} from 'react-redux';
 import {
   getCustomDefinitions,
@@ -40,6 +40,7 @@ import {Test} from '../n-links/keyboard/test';
 import {Camera} from './camera';
 import {LoaderCubey} from './loader-cubey';
 import {UpdateUVMaps} from './update-uv-maps';
+
 useGLTF.preload(cubeySrc, true, true);
 useGLTF.preload(glbSrc, true, true);
 
@@ -62,7 +63,21 @@ const KeyboardBG: React.FC<{
     </mesh>
   );
 }, shallowEqual);
+
 export const CanvasRouter = () => {
+  return (
+    <Suspense fallback={null}>
+      <LazyRouter />
+    </Suspense>
+  );
+};
+
+const LazyRouter = React.lazy(async () => {
+  await document.fonts.load('bold 16px Fira Sans').finally();
+  return {default: NonSuspenseCanvasRouter};
+});
+
+export const NonSuspenseCanvasRouter = () => {
   const [path] = useLocation();
   const body = useRef(document.body);
   const containerRef = useRef(null);
@@ -75,9 +90,9 @@ export const CanvasRouter = () => {
   const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const theme = useAppSelector(getSelectedTheme);
   const accentColor = useMemo(() => theme[KeyColorType.Accent].c, [theme]);
-  const [fontLoaded, setLoaded] = useState(false);
   const showLoader =
     path === '/' && (!selectedDefinition || loadProgress !== 1);
+  useGLTF(glbSrc, true, true);
   const versionDefinitions: DefinitionVersionMap[] = useMemo(
     () =>
       localDefinitions.filter(
@@ -105,15 +120,8 @@ export const CanvasRouter = () => {
   );
 
   const hideTerrainBG = showLoader;
-  useEffect(() => {
-    // Block rendering due to font legend being required to render keyboardss
-    document.fonts.load('bold 16px Fira Sans').finally(() => {
-      setLoaded(true);
-    });
-  }, []);
   return (
     <>
-      <UpdateUVMaps />
       <div
         style={{
           height: 500,
@@ -134,6 +142,7 @@ export const CanvasRouter = () => {
         ref={containerRef}
       >
         <Canvas flat={true} shadows style={{overflow: 'visible'}}>
+          <UpdateUVMaps />
           <Lights />
           <KeyboardBG
             onClick={terrainOnClick}
@@ -181,13 +190,11 @@ export const CanvasRouter = () => {
               )
             ) : null}
           </Html>
-          {fontLoaded ? (
-            <KeyboardGroup
-              containerRef={containerRef}
-              configureKeyboardIsSelectable={configureKeyboardIsSelectable}
-              loadProgress={loadProgress}
-            />
-          ) : null}
+          <KeyboardGroup
+            containerRef={containerRef}
+            configureKeyboardIsSelectable={configureKeyboardIsSelectable}
+            loadProgress={loadProgress}
+          />
         </Canvas>
       </div>
     </>
