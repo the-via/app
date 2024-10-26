@@ -37,5 +37,5 @@ jobs:
           skip_api_build: true
           ###### End of Repository/Build Configurations ######
           is_static_export: true
-          app_location: '/'
-          output_location: '/dist'
+          app_location: '/github/workspace/dist'
+          output_location: ''
