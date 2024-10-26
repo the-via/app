@@ -28,7 +28,7 @@
     "@react-spring/three": "^9.7.5",
     "@react-three/drei": "^9.114.2",
     "@react-three/fiber": "^8.17.9",
-    "@reduxjs/toolkit": "^1.9.3",
+    "@reduxjs/toolkit": "^2.3.0",
     "@the-via/pelpi": "^0.0.3",
     "@the-via/reader": "^1.9.0",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
