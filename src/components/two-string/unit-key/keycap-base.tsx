@@ -38,6 +38,7 @@ export const TestOverlay = styled.div`
 
 export const CanvasContainerBG = styled.div<{}>``;
 export const CanvasContainer = styled.div<{}>`
-  box-shadow: inset -1px -1px 0 rgb(0 0 0 / 20%),
+  box-shadow:
+    inset -1px -1px 0 rgb(0 0 0 / 20%),
     inset 1px 1px 0 rgb(255 255 255 / 10%);
 `;

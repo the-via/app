@@ -189,8 +189,8 @@ export const MacroEditControls: React.FC<{
                 {!isDelaySupported
                   ? 'Upgrade firmware to use delays'
                   : !recordDelays
-                  ? 'Record Delays'
-                  : 'Skip Recording Delays'}
+                    ? 'Record Delays'
+                    : 'Skip Recording Delays'}
               </IconButtonTooltip>
             </IconToggleContainer>
           </MacroControlGroupContainer>

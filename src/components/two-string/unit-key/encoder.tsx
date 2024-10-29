@@ -141,7 +141,10 @@ const EncoderKeyContent2 = styled.div<{$innerPadding: number; $size: number}>`
       transparent var(--half-size-p05p)
     );
   background-size: var(--size) var(--size);
-  background-position: 0px 0px, -0.5px -0.5px, 0px 0px,
+  background-position:
+    0px 0px,
+    -0.5px -0.5px,
+    0px 0px,
     calc(var(--inner-padding) / 2) calc(var(--inner-padding) / 2);
   background-repeat: repeat;
 

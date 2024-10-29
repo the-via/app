@@ -95,11 +95,7 @@ const AppErrors: React.FC<{}> = ({}) => {
         }) => (
           <Container key={timestamp}>
             {timestamp}
-            <ul>
-              {error?.split('\n').map((line) => (
-                <li>{line}</li>
-              ))}
-            </ul>
+            <ul>{error?.split('\n').map((line) => <li>{line}</li>)}</ul>
             <ul>
               <li>Device: {productName}</li>
               <li>Vid: {printId(vendorId)}</li>

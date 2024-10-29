@@ -35,9 +35,7 @@ import {
   updateKey as updateKeyAction,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {
-  getMacroCount,
-} from 'src/store/macrosSlice';
+import {getMacroCount} from 'src/store/macrosSlice';
 import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
@@ -117,8 +115,10 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
-  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (
+  basicKeyToByte: Record<string, number>,
+  numMacros: number = 16,
+) => getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;

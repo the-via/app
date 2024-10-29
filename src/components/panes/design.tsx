@@ -158,8 +158,8 @@ function importDefinitions(
                   ? res
                   : keyboardDefinitionV2ToVIADefinitionV2(res)
                 : isVIADefinitionV3(res)
-                ? res
-                : keyboardDefinitionV3ToVIADefinitionV3(res);
+                  ? res
+                  : keyboardDefinitionV3ToVIADefinitionV3(res);
             return definition;
           } else {
             errors = (
