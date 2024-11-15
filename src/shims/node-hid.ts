@@ -1,3 +1,4 @@
+import {timeout} from 'src/utils/promises';
 import type {
   AuthorizedDevice,
   ConnectedDevice,
@@ -173,6 +174,14 @@ const ExtendedHID = {
       await this.openPromise;
       const data = new Uint8Array(arr.slice(1));
       await this._hidDevice?._device.sendReport(0, data);
+    }
+    async writeWithTimeout(arr: number[], ms = 500) {
+      return Promise.race([
+        this.write(arr),
+        timeout(ms).then(() => {
+          throw new Error('HID write timeout');
+        }),
+      ]);
     }
   },
 };

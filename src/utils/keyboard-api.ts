@@ -1,15 +1,14 @@
-import type {Device, Keymap} from '../types/types';
 import type {LightingValue, MatrixInfo} from '@the-via/reader';
-import {logCommand} from './command-logger';
-import {initAndConnectDevice} from './usb-hid';
-import {store} from 'src/store/index';
 import {
   extractDeviceInfo,
-  getErrorTimestamp,
   getMessageFromError,
   logAppError,
   logKeyboardAPIError,
 } from 'src/store/errorsSlice';
+import {store} from 'src/store/index';
+import type {Device, Keymap} from '../types/types';
+import {logCommand} from './command-logger';
+import {initAndConnectDevice} from './usb-hid';
 
 // VIA Command IDs
 
@@ -625,6 +624,7 @@ export class KeyboardAPI {
           res(ans);
         } catch (e: any) {
           const deviceInfo = extractDeviceInfo(this.getHID());
+          console.error(e);
           store.dispatch(
             logAppError({
               message: getMessageFromError(e),
@@ -642,14 +642,17 @@ export class KeyboardAPI {
     return cache[this.kbAddr].hid;
   }
 
-  async _hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
+  async _hidCommand(
+    command: Command,
+    bytes: Array<number> = [],
+  ): Promise<number[]> {
     const commandBytes = [...[COMMAND_START, command], ...bytes];
     const paddedArray = new Array(33).fill(0);
     commandBytes.forEach((val, idx) => {
       paddedArray[idx] = val;
     });
 
-    await this.getHID().write(paddedArray);
+    await this.getHID().writeWithTimeout(paddedArray, 500);
 
     const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);

@@ -1,21 +1,29 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {useAppSelector} from 'src/store/hooks';
+import {
+  getMacroEditorSettings,
+  setMacroEditorSettings,
+} from 'src/store/settingsSlice';
+import {getKeycodes, IKeycode} from 'src/utils/key';
+import {
+  convertCharacterTaps,
+  convertToCharacterStreams,
+  foldKeydownKeyupKeys,
+  mergeConsecutiveWaits,
+  sequenceToExpression,
+  trimLastWait,
+} from 'src/utils/macro-api/macro-api.common';
 import {
   OptimizedKeycodeSequence,
   OptimizedKeycodeSequenceItem,
   RawKeycodeSequence,
   RawKeycodeSequenceAction,
 } from 'src/utils/macro-api/types';
+import {pipeline} from 'src/utils/pipeline';
 import {useKeycodeRecorder} from 'src/utils/use-keycode-recorder';
 import styled from 'styled-components';
-import {
-  convertCharacterTaps,
-  foldKeydownKeyupKeys,
-  convertToCharacterStreams,
-  mergeConsecutiveWaits,
-  sequenceToExpression,
-  trimLastWait,
-} from 'src/utils/macro-api/macro-api.common';
-import {getKeycodes, IKeycode} from 'src/utils/key';
+import {Deletable} from './deletable';
 import {
   getSequenceItemComponent,
   getSequenceLabel,
@@ -23,14 +31,6 @@ import {
   WaitInput,
 } from './keycode-sequence-components';
 import {MacroEditControls} from './macro-controls';
-import {Deletable} from './deletable';
-import {pipeline} from 'src/utils/pipeline';
-import {useAppSelector} from 'src/store/hooks';
-import {
-  getMacroEditorSettings,
-  setMacroEditorSettings,
-} from 'src/store/settingsSlice';
-import {useDispatch} from 'react-redux';
 
 declare global {
   interface Navigator {
@@ -106,7 +106,7 @@ const smartTransform = (
 const componentJoin = (arr: (JSX.Element | null)[], separator: JSX.Element) => {
   return arr.reduce((acc, next, idx) => {
     if (idx) {
-      acc.push({...separator, key: idx});
+      acc.push({...separator, key: `${idx}`});
     }
     acc.push(next);
     return acc;
