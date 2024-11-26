@@ -4,9 +4,9 @@ import type {KeyboardAPI} from '../keyboard-api';
 import {MacroAPI, validateMacroExpression} from './macro-api';
 import {MacroAPIV11, validateMacroExpressionV11} from './macro-api.v11';
 
-export const getMacroAPI = (protocol: number, keyboardApi: KeyboardAPI) => {
-  const basicKeyToByte = getBasicKeyDict(protocol);
-  const byteToKey = getByteToKey(getBasicKeyDict(protocol));
+export const getMacroAPI = (protocol: number, keycodeVersion: number, keyboardApi: KeyboardAPI) => {
+  const basicKeyToByte = getBasicKeyDict(protocol, keycodeVersion);
+  const byteToKey = getByteToKey(getBasicKeyDict(protocol, keycodeVersion));
   return protocol >= 11
     ? new MacroAPIV11(keyboardApi, basicKeyToByte, byteToKey)
     : new MacroAPI(keyboardApi, basicKeyToByte, byteToKey);
