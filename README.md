@@ -1,4 +1,5 @@
 
+This project is tested with [BrowserStack](https://www.browserstack.com/).
 
 # usevia.app
 [![Azure Static Web Apps CI/CD](https://github.com/the-via/app/actions/workflows/azure.yml/badge.svg)](https://github.com/the-via/app/actions/workflows/azure.yml)
@@ -30,4 +31,4 @@ Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch 
 
 #
 
-This project is tested with [BrowserStack](https://www.browserstack.com/).
+
