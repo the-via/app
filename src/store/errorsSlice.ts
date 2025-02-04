@@ -13,6 +13,8 @@ export type AppError = {
   timestamp: string;
   message: string;
   deviceInfo: DeviceInfo;
+  isPotentiallyUserFixable?: boolean;
+  userFix?: () => JSX.Element | undefined;
 };
 
 export const extractDeviceInfo = (device: DeviceInfo): DeviceInfo => ({
