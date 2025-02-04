@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
       tags:
         - via
+    restart: unless-stopped
     stdin_open: true
     tty: true
     ports:
