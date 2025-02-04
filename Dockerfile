@@ -1,4 +1,4 @@
-FROM node:21-alpine
+FROM node:23-alpine
 
 RUN apk update
 
@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN sed -i -e 's/run dev/run dev -- --host/' package.json
+RUN sed -i -e 's/vite --force/vite --force --host/' package.json
 
 RUN npm install
 
@@ -18,4 +18,4 @@ RUN npm run build:azure || true
 
 EXPOSE 5173
 
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "dev" ]
