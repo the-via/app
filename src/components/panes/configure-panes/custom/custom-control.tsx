@@ -149,7 +149,7 @@ const VIACustomControl = (props: VIACustomControlProps) => {
             option && props.updateValue(name, ...command, +option.value)
           }
           options={selectOptions}
-          defaultValue={selectOptions.find((p: any) => value[0] === p.value)}
+          value={selectOptions.find((p: any) => value[0] === p.value)}
         />
       );
     }
