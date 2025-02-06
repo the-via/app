@@ -83,10 +83,10 @@ const VIACustomControl = (props: VIACustomControlProps) => {
       const buttonOption: any[] = options || [1];
       return (
         <AccentButton
-          onClick={() => props.updateValue(name, ...command, buttonOption[0])}
-        >
-          Click
-        </AccentButton>
+          onClick={() => 
+            props.updateValue(name, ...command, buttonOption[0])
+          }
+        >Click</AccentButton>
       );
     }
     case 'range': {
