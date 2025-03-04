@@ -30,6 +30,7 @@ const defaultStoreData = {
   settings: {
     showDesignTab: false,
     disableFastRemap: false,
+    showSliderValue: false,
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
     designDefinitionVersion: 'v3' as const,
