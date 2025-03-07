@@ -1,0 +1,23 @@
+<<<<<<< Updated upstream
+# Current deactivated
+
+name: Azure Static Web Apps CI/CD
+=======
+name: Trigger Deployment
+>>>>>>> Stashed changes
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [definition_update]
+
+jobs:
+  build_and_deploy_job:
+    runs-on: ubuntu-latest
+    name: Trigger deploy hook
+    steps:
+      name: Send request to trigger deploy hook
+      run: |
+        curl -s -X POST "${{secrets.DEPLOY_HOOK_URL}}"
