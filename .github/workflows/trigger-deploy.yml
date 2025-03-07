@@ -1,10 +1,4 @@
-<<<<<<< Updated upstream
-# Current deactivated
-
-name: Azure Static Web Apps CI/CD
-=======
 name: Trigger Deployment
->>>>>>> Stashed changes
 
 on:
   push:
