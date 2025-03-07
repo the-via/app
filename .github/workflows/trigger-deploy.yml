@@ -12,6 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Trigger deploy hook
     steps:
-      name: Send request to trigger deploy hook
-      run: |
-        curl -s -X POST "${{secrets.DEPLOY_HOOK_URL}}"
+      - name: Send request to trigger deploy hook
+        run: |
+          curl -s -X POST "${{secrets.DEPLOY_HOOK_URL}}"
