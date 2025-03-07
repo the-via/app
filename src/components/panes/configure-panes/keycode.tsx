@@ -102,7 +102,8 @@ const KeycodeContainer = styled.div`
 const KeycodeDesc = styled.div`
   position: fixed;
   bottom: 0;
-  background: #d9d9d97a;
+  background: var(--bg_control);
+  color: var(--color_label-highlighted);
   box-sizing: border-box;
   transition: opacity 0.4s ease-out;
   height: 25px;
