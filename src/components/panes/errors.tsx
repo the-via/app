@@ -4,6 +4,7 @@ import {
   faComputer,
   faDownload,
   faKeyboard,
+  faMagicWandSparkles,
   faWarning,
 } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -31,6 +32,7 @@ import {
   CategoryIconContainer,
 } from './grid';
 import {Pane} from './pane';
+import { InformationModal } from '../modals/information';
 
 const Container = styled.div`
   display: flex;
@@ -81,34 +83,55 @@ const ErrorListContainer: React.FC<
 const AppErrors: React.FC<{}> = ({}) => {
   const errors = useAppSelector(getAppErrors);
   const dispatch = useDispatch();
+  const [fixDialog, setFixDialog] = useState<any>(undefined);
   return (
-    <ErrorListContainer
-      clear={() => dispatch(clearAppErrors())}
-      save={() => saveAppErrors(errors)}
-      hasErrors={!!errors.length}
-    >
-      {errors.map(
-        ({
-          timestamp,
-          deviceInfo: {productId, productName, vendorId},
-          message: error,
-        }) => (
-          <Container key={timestamp}>
-            {timestamp}
-            <ul>
-              {error?.split('\n').map((line) => (
-                <li>{line}</li>
-              ))}
-            </ul>
-            <ul>
-              <li>Device: {productName}</li>
-              <li>Vid: {printId(vendorId)}</li>
-              <li>Pid: {printId(productId)}</li>
-            </ul>
-          </Container>
-        ),
-      )}
-    </ErrorListContainer>
+    <>
+      {fixDialog !== undefined && fixDialog}
+      <ErrorListContainer
+        clear={() => dispatch(clearAppErrors())}
+        save={() => saveAppErrors(errors)}
+        hasErrors={!!errors.length}
+      >
+        {errors.map(
+          ({
+            timestamp,
+            deviceInfo: {productId, productName, vendorId},
+            message: error,
+            isPotentiallyUserFixable: isPotentiallyUserFixable,
+            userFix: userFix,
+          }) => (
+            <Container key={timestamp}>
+              {timestamp}
+              <ul>
+                {error?.split('\n').map((line, i) => (
+                  <li key={i}>{line}</li>
+                ))}
+              </ul>
+              <ul>
+                <li>Device: {productName}</li>
+                <li>Vid: {printId(vendorId)}</li>
+                <li>Pid: {printId(productId)}</li>
+              </ul>
+              {isPotentiallyUserFixable && userFix !== undefined &&
+                <IconButtonContainer onClick={() => setFixDialog(
+                    <InformationModal closeModal={() => setFixDialog(undefined)}>
+                      {userFix()}
+                    </InformationModal>
+                  )}
+                >
+                  <FontAwesomeIcon
+                    size={'sm'}
+                    color="var(--color_label)"
+                    icon={faMagicWandSparkles}
+                  />
+                  <IconButtonTooltip>Fix</IconButtonTooltip>
+                </IconButtonContainer>
+              }
+            </Container>
+          ),
+        )}
+      </ErrorListContainer>
+    </>
   );
 };
 
