@@ -106,9 +106,7 @@ export const Pane: FC = () => {
 
   if (
     encoderKey === undefined ||
-    (selectedDevice && selectedDevice.protocol < 10) ||
-    ccwValue === undefined ||
-    cwValue === undefined
+    (selectedDevice && selectedDevice.protocol < 10)
   ) {
     return <SpanOverflowCell>{renderEncoderError()}</SpanOverflowCell>;
   }
@@ -119,21 +117,25 @@ export const Pane: FC = () => {
           <ControlRow>
             <Label>Rotate Counterclockwise</Label>
             <Detail>
-              <PelpiKeycodeInput
-                value={ccwValue}
-                meta={{}}
-                setValue={(val: number) => setEncoderValue('ccw', val)}
-              />
+              {ccwValue !== undefined && (
+                <PelpiKeycodeInput
+                  value={ccwValue}
+                  meta={{}}
+                  setValue={(val: number) => setEncoderValue('ccw', val)}
+                />
+              )}
             </Detail>
           </ControlRow>
           <ControlRow>
             <Label>Rotate Clockwise</Label>
             <Detail>
-              <PelpiKeycodeInput
-                value={cwValue}
-                meta={{}}
-                setValue={(val: number) => setEncoderValue('cw', val)}
-              />
+              {cwValue !== undefined && (
+                <PelpiKeycodeInput
+                  value={cwValue}
+                  meta={{}}
+                  setValue={(val: number) => setEncoderValue('cw', val)}
+                />
+              )}
             </Detail>
           </ControlRow>
           {canClick && (
