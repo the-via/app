@@ -1,7 +1,7 @@
 {
-	"name": "VIA",
+    "name": "VIA",
 	"short_name": "VIA",
-	"description": "VIA Web Application - Your keyboard's best friend",
+	"description": "VIA - Your keyboard's best friend",
 	"start_url": ".",
     "icons": [
         {
