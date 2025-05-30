@@ -79,6 +79,10 @@ const topLevelMacroToValue = {
   MACRO: '_QK_MACRO', // MACRO(n)
 };
 
+// QMK Unicode constants
+const QK_UNICODE = 0x8000;
+const QK_UNICODE_MAX = 0xFFFF;
+
 const modifierKeyToValue = {
   LCTL: modCodes.QK_LCTL,
   C: modCodes.QK_LCTL,
@@ -163,6 +167,8 @@ export const advancedStringToKeycode = (
     return parseTopLevelMacro(parts, basicKeyToByte);
   } else if (Object.keys(modifierKeyToValue).includes(parts[0])) {
     return parseModifierCode(parts, basicKeyToByte);
+  } else if (parts[0] === 'UC') {
+    return parseUnicodeCode(parts);
   }
   return 0;
 };
@@ -172,6 +178,12 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
+  // Check if it's a Unicode keycode first
+  if (inputKeycode >= QK_UNICODE && inputKeycode <= QK_UNICODE_MAX) {
+    const codePoint = inputKeycode & 0x7FFF;
+    return `UC(0x${codePoint.toString(16).toUpperCase().padStart(4, '0')})`;
+  }
+
   let valueToRange: [number, string][] = Object.entries(
     quantumRanges(basicKeyToByte),
   ).map(([key, value]) => [value, key]);
@@ -398,6 +410,33 @@ const parseModifierCode = (
     return 0;
   }
   return bytes.reduce((acc, byte) => acc | byte, 0);
+};
+
+const parseUnicodeCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  let codePoint = 0;
+  
+  // Parse hex value (with or without 0x prefix)
+  if (parameter.startsWith('0X')) {
+    codePoint = parseInt(parameter, 16);
+  } else if (/^[0-9A-F]+$/i.test(parameter)) {
+    // Plain hex without 0x prefix
+    codePoint = parseInt(parameter, 16);
+  } else {
+    return 0;
+  }
+  
+  // Validate code point is within QMK's supported range (0 to 0x7FFF)
+  if (codePoint < 0 || codePoint > 0x7FFF) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode keycode (QK_UNICODE | codePoint)
+  return QK_UNICODE | codePoint;
 };
 
 export const anyKeycodeToString = (
