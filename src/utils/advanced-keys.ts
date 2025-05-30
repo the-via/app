@@ -82,6 +82,10 @@ const topLevelMacroToValue = {
 // QMK Unicode constants
 const QK_UNICODE = 0x8000;
 const QK_UNICODE_MAX = 0xFFFF;
+const QK_UNICODEMAP = 0x8000;
+const QK_UNICODEMAP_MAX = 0xBFFF;
+const QK_UNICODEMAP_PAIR = 0xC000;
+const QK_UNICODEMAP_PAIR_MAX = 0xFFFF;
 
 const modifierKeyToValue = {
   LCTL: modCodes.QK_LCTL,
@@ -169,6 +173,10 @@ export const advancedStringToKeycode = (
     return parseModifierCode(parts, basicKeyToByte);
   } else if (parts[0] === 'UC') {
     return parseUnicodeCode(parts);
+  } else if (parts[0] === 'UM') {
+    return parseUnicodeMapCode(parts);
+  } else if (parts[0] === 'UP') {
+    return parseUnicodePairCode(parts);
   }
   return 0;
 };
@@ -180,8 +188,22 @@ export const advancedKeycodeToString = (
 ): string | null => {
   // Check if it's a Unicode keycode first
   if (inputKeycode >= QK_UNICODE && inputKeycode <= QK_UNICODE_MAX) {
-    const codePoint = inputKeycode & 0x7FFF;
-    return `UC(0x${codePoint.toString(16).toUpperCase().padStart(4, '0')})`;
+    // Unicode Map (UM)
+    if (inputKeycode >= QK_UNICODEMAP && inputKeycode <= QK_UNICODEMAP_MAX) {
+      const index = inputKeycode & 0x3FFF;
+      return `UM(${index})`;
+    }
+    // Unicode Pair (UP)
+    else if (inputKeycode >= QK_UNICODEMAP_PAIR && inputKeycode <= QK_UNICODEMAP_PAIR_MAX) {
+      const lowerIndex = inputKeycode & 0x7F;
+      const upperIndex = (inputKeycode >> 7) & 0x7F;
+      return `UP(${lowerIndex}, ${upperIndex})`;
+    }
+    // Basic Unicode (UC)
+    else {
+      const codePoint = inputKeycode & 0x7FFF;
+      return `UC(0x${codePoint.toString(16).toUpperCase().padStart(4, '0')})`;
+    }
   }
 
   let valueToRange: [number, string][] = Object.entries(
@@ -437,6 +459,49 @@ const parseUnicodeCode = (inputParts: string[]): number => {
   
   // Return the QMK Unicode keycode (QK_UNICODE | codePoint)
   return QK_UNICODE | codePoint;
+};
+
+const parseUnicodeMapCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  const index = parseInt(parameter, 10);
+  
+  // Validate index is within valid range (0 to 0x3FFF = 16383)
+  if (isNaN(index) || index < 0 || index > 0x3FFF) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode Map keycode (QK_UNICODEMAP | index)
+  return QK_UNICODEMAP | index;
+};
+
+const parseUnicodePairCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  const indices = parameter.split(',').map(s => s.trim());
+  
+  if (indices.length !== 2) {
+    return 0;
+  }
+  
+  const lowerIndex = parseInt(indices[0], 10);
+  const upperIndex = parseInt(indices[1], 10);
+  
+  // Validate indices are within valid range (0 to 0x7F = 127)
+  if (isNaN(lowerIndex) || lowerIndex < 0 || lowerIndex > 0x7F ||
+      isNaN(upperIndex) || upperIndex < 0 || upperIndex > 0x7F) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode Pair keycode
+  // UP(i, j) = QK_UNICODEMAP_PAIR | (i & 0x7F) | ((j & 0x7F) << 7)
+  return QK_UNICODEMAP_PAIR | (lowerIndex & 0x7F) | ((upperIndex & 0x7F) << 7);
 };
 
 export const anyKeycodeToString = (
