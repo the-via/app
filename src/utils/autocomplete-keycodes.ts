@@ -203,6 +203,6 @@ export const getAutocompleteKeycodes = () =>
       !!autocompleteKeycodes[keycode.code as keyof typeof autocompleteKeycodes],
   );
 export function isAutocompleteKeycode(keycode: string): boolean {
-  const key = keycode.toUpperCase();
+  const key = keycode.toUpperCase().replace(/^[+-]/, "");
   return !!autocompleteKeycodes[key as keyof typeof autocompleteKeycodes];
 }
