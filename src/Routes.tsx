@@ -10,7 +10,6 @@ import {useMemo, useState} from 'react';
 import {OVERRIDE_HID_CHECK} from './utils/override';
 import {useAppSelector} from './store/hooks';
 import {getRenderMode} from './store/settingsSlice';
-import {ErrorBoundary} from '@sentry/react';
 
 const GlobalStyle = createGlobalStyle`
   *:focus {
@@ -36,7 +35,6 @@ export default () => {
   const testContextState = useState({clearTestKeys: () => {}});
   return (
     <>
-      <ErrorBoundary showDialog={true}>
         <TestContext.Provider value={testContextState}>
           <GlobalStyle />
           {hasHIDSupport && <UnconnectedGlobalMenu />}
@@ -44,7 +42,6 @@ export default () => {
 
           <Home hasHIDSupport={hasHIDSupport}>{RouteComponents}</Home>
         </TestContext.Provider>
-      </ErrorBoundary>
     </>
   );
 };

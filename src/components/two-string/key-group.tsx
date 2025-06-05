@@ -1,26 +1,26 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
-import {Keycap} from './unit-key/keycap';
+import {getExpressions} from 'src/store/macrosSlice';
+import {getSelectedTheme} from 'src/store/settingsSlice';
+import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
+import {getRGB} from 'src/utils/color-math';
 import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,
   getComboKeyProps,
 } from 'src/utils/keyboard-rendering';
-import {getExpressions} from 'src/store/macrosSlice';
+import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
 import styled from 'styled-components';
-import {getSelectedTheme} from 'src/store/settingsSlice';
-import {CaseInsideBorder} from './case';
+import {Color} from 'three';
 import {
   getKeycapSharedProps,
   getKeysKeys,
   getLabels,
 } from '../n-links/key-group';
-import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
-import {getRGB} from 'src/utils/color-math';
-import {Color} from 'three';
-import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
+import {CaseInsideBorder} from './case';
+import {Keycap} from './unit-key/keycap';
 
 const KeyGroupContainer = styled.div<{height: number; width: number}>`
   position: absolute;

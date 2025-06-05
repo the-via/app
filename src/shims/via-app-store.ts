@@ -1,5 +1,5 @@
-import type {StoreData} from '../types/types';
 import defaultsDeep from 'lodash.defaultsdeep';
+import type {StoreData} from '../types/types';
 
 export class Store {
   store: StoreData;

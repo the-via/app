@@ -1,27 +1,27 @@
 import {useGLTF} from '@react-three/drei';
+import {ThreeEvent} from '@react-three/fiber';
+import glbSrc from 'assets/models/keyboard_components.glb';
 import {useMemo} from 'react';
 import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
-import {Keycap} from './unit-key/keycap';
+import {getExpressions} from 'src/store/macrosSlice';
+import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
+import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
+import {getRGB} from 'src/utils/color-math';
 import {
   calculateKeyboardFrameDimensions,
   CSSVarObject,
   KeycapMetric,
 } from 'src/utils/keyboard-rendering';
-import {getSelectedSRGBTheme} from 'src/store/settingsSlice';
-import {ThreeEvent} from '@react-three/fiber';
-import {getRGB} from 'src/utils/color-math';
+import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
 import {Color} from 'three';
-import glbSrc from 'assets/models/keyboard_components.glb';
-import {getExpressions} from 'src/store/macrosSlice';
 import {
   getKeycapSharedProps,
   getKeysKeys,
   getLabels,
 } from '../n-links/key-group';
-import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
-import {useSkipFontCheck} from 'src/utils/use-skip-font-check';
+import {Keycap} from './unit-key/keycap';
 
 const getSRGBArray = (keyColors: number[][]) => {
   return keyColors.map(([hue, sat]) => {
@@ -73,23 +73,25 @@ export const KeyGroup: React.FC<KeyGroupProps<ThreeEvent<MouseEvent>>> = (
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {
       const {meshKey} = keysKeys.coords[i];
+      const {key, ...otherProps} = getKeycapSharedProps(
+        k,
+        i,
+        props,
+        keysKeys,
+        selectedKeyIndex,
+        labels,
+        skipFontCheck,
+      );
       return k.d ? null : (
         <Keycap
+          key={key}
           keycapGeometry={
             (
               (keycapScene.getObjectByName(meshKey) as any) ||
               keycapScene.getObjectByName('K-R1-100')
             ).geometry
           }
-          {...getKeycapSharedProps(
-            k,
-            i,
-            props,
-            keysKeys,
-            selectedKeyIndex,
-            labels,
-            skipFontCheck,
-          )}
+          {...otherProps}
         />
       );
     });
