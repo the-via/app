@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: PR Build
 
 on:
   pull_request:
@@ -10,21 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     name: Build
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Build
+      - name: Use Bun
+        uses: oven-sh/setup-bun@v1
+      - name: bun install, and start
         run: |
-          npm ci 
-          npm run build
+          bun install
+          bun run refresh-kbs
+          bun run build

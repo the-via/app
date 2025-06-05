@@ -172,9 +172,9 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
-  let valueToRange = Object.entries(quantumRanges(basicKeyToByte))
-    .map(([key, value]) => [value, key])
-    .sort((a, b) => (a[0] as number) - (b[0] as number));
+  let valueToRange: [number, string][] = Object.entries(
+    quantumRanges(basicKeyToByte),
+  ).map(([key, value]) => [value, key]);
 
   /* Find the range we are in first */
   let lastRange = null;
