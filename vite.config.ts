@@ -22,7 +22,17 @@ export default defineConfig({
   ],
   assetsInclude: ['**/*.glb'],
   envDir: '.',
-  server: {open: true},
+  server: {
+	host: true,
+	port: 443,
+	open: false,
+	allowedHosts: ['via.modtrack.top'],
+	https: { // 启用 HTTPS
+		key: fs.readFileSync(path.resolve(__dirname, '/ssl/cert.key')),
+		cert: fs.readFileSync(path.resolve(__dirname, '/ssl/cert.pem')),
+	},
+	hmr: { overlay: false }
+  },
   resolve: {
     alias: {
       src: path.resolve(__dirname, './src'),
