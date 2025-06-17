@@ -46,6 +46,7 @@ const defaultStoreData = {
       mode: TestKeyboardSoundsMode.WickiHayden,
       transpose: 0,
     },
+    language: 'ENGLISH',
   },
 };
 
@@ -175,4 +176,8 @@ export const getSettings = (): Settings => deviceStore.get('settings');
 
 export const setSettings = (settings: Settings) => {
   deviceStore.set('settings', current(settings));
+};
+
+export const getLanguageFromStore = () => {
+  return deviceStore.get('settings')?.language;
 };

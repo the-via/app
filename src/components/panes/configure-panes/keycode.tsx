@@ -42,8 +42,12 @@ import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
   getDisableFastRemap,
+  getSelectedLanguage,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import TextInput from 'src/components/inputs/text-input';
+import { LANGUAGES } from 'src/utils/languages';
+
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -95,6 +99,7 @@ const CustomKeycode = styled(Button)`
 `;
 
 const KeycodeContainer = styled.div`
+  text-align: center;
   padding: 12px;
   padding-bottom: 30px;
 `;
@@ -151,10 +156,11 @@ export const KeycodePane: FC = () => {
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const macroCount = useAppSelector(getMacroCount);
-
+  const language = useAppSelector(getSelectedLanguage);
+  
   const KeycodeCategories = useMemo(
-    () => generateKeycodeCategories(basicKeyToByte, macroCount),
-    [basicKeyToByte, macroCount],
+    () => generateKeycodeCategories(basicKeyToByte, macroCount, language),
+    [basicKeyToByte, macroCount, language],
   );
 
   // TODO: improve typing so we can get rid of this
@@ -275,6 +281,13 @@ export const KeycodePane: FC = () => {
 
   const renderKeycode = (keycode: IKeycode, index: number) => {
     const {code, title, name} = keycode;
+    const found = code.toLowerCase().includes(search) || name.toLowerCase().includes(search) || title?.toLowerCase().includes(search) || false
+    if (search !== "" && !found)
+    {
+      return (
+        <></>
+      )
+    }
     return (
       <Keycode
         key={code}
@@ -300,6 +313,8 @@ export const KeycodePane: FC = () => {
       </CustomKeycode>
     );
   };
+
+  const [search, setSearch] = useState("")
 
   const renderSelectedCategory = (
     keycodes: IKeycode[],
@@ -345,6 +360,33 @@ export const KeycodePane: FC = () => {
           </KeycodeList>
         );
       }
+      case 'all': {
+        const allKeycodes = []
+        for (const item of getEnabledMenus())
+        {
+          const keycodesList = KeycodeCategories.find(
+            ({id}) => id === item.id,
+          )?.keycodes as IKeycode[]
+          
+          // for now skip custom keycodes since those are generated above instead of inside the getKeycodes()
+          if (item.id === "custom")
+          {
+            continue
+          }
+
+          for (const keycode of keycodesList)
+          {
+            allKeycodes.push(keycode)
+          }
+        }
+        return (
+          <KeycodeList>
+            {allKeycodes.map((keycode, i) =>
+              renderKeycode(keycode, i),
+            ).concat(renderCustomKeycode())}
+          </KeycodeList>
+        )
+      }
       default: {
         return <KeycodeList>{keycodeListItems}</KeycodeList>;
       }
@@ -360,6 +402,7 @@ export const KeycodePane: FC = () => {
       <SubmenuOverflowCell>{renderCategories()}</SubmenuOverflowCell>
       <OverflowCell>
         <KeycodeContainer>
+          <TextInput placeholder = "search..." onChange={(e) => {setSearch(e.target.value.toLowerCase())}}/>
           {renderSelectedCategory(selectedCategoryKeycodes, selectedCategory)}
         </KeycodeContainer>
         <KeycodeDesc>{mouseOverDesc}</KeycodeDesc>

@@ -1,0 +1,249 @@
+export type LanguageKey = {
+  [key: string]: string;
+}
+
+export enum LanguageType {
+  ENGLISH = "ENGLISH",
+  CANADIAN_MULTILINGUAL_CSA = "CANADIAN_MULTILINGUAL_CSA",
+  CROATIAN = "CROATIAN",
+  CZECH = "CZECH",
+  DANISH = "DANISH",
+  DUTCH_BELGIUM = "DUTCH_BELGIUM",
+  ENGLISH_IRELAND = "ENGLISH_IRELAND",
+  ENGLISH_UK = "ENGLISH_UK",
+  ENGLISH_US_EXTENDED = "ENGLISH_US_EXTENDED",
+  ENGLISH_US_INTERNATIONAL = "ENGLISH_US_INTERNATIONAL",
+  ENGLISH_US_INTERNATIONAL_LINUX = "ENGLISH_US_INTERNATIONAL_LINUX",
+  ESTONIAN = "ESTONIAN",
+  FINNISH = "FINNISH",
+  FRENCH = "FRENCH",
+  FRENCH_AFNOR = "FRENCH_AFNOR",
+  FRENCH_BPO = "FRENCH_BPO",
+  FRENCH_BELGIUM = "FRENCH_BELGIUM",
+  FRENCH_SWITZERLAND = "FRENCH_SWITZERLAND",
+  FRENCH_MACOS_ISO = "FRENCH_MACOS_ISO",
+  GERMAN = "GERMAN",
+  GERMAN_SWITZERLAND = "GERMAN_SWITZERLAND",
+  GERMAN_MACOS = "GERMAN_MACOS",
+  GERMAN_NEO = "GERMAN_NEO",
+  GREEK = "GREEK",
+  HEBREW = "HEBREW",
+  HUNGARIAN = "HUNGARIAN",
+  ICELANDIC = "ICELANDIC",
+  ITALIAN = "ITALIAN",
+  ITALIAN_MACOS_ANSI = "ITALIAN_MACOS_ANSI",
+  ITALIAN_MACOS_ISO = "ITALIAN_MACOS_ISO",
+  JAPANESE = "JAPANESE",
+  KOREAN = "KOREAN",
+  LATVIAN = "LATVIAN",
+  LITHUANIAN_AERTY = "LITHUANIAN_AERTY",
+  LITHUANIAN_QWERTY = "LITHUANIAN_QWERTY",
+  NORWEGIAN = "NORWEGIAN",
+  POLISH = "POLISH",
+  PORTUGUESE = "PORTUGUESE",
+  PORTUGUESE_MACOS_ISO = "PORTUGUESE_MACOS_ISO",
+  PORTUGUESE_BRAZIL = "PORTUGUESE_BRAZIL",
+  ROMANIAN = "ROMANIAN",
+  RUSSIAN = "RUSSIAN",
+  SERBIAN = "SERBIAN",
+  SERBIAN_LATIN = "SERBIAN_LATIN",
+  SLOVAK = "SLOVAK",
+  SLOVENIAN = "SLOVENIAN",
+  SPANISH = "SPANISH",
+  SPANISH_DVORAK = "SPANISH_DVORAK",
+  SWEDISH = "SWEDISH",
+  SWEDISH_MACOS_ANSI = "SWEDISH_MACOS_ANSI",
+  SWEDISH_MACOS_ISO = "SWEDISH_MACOS_ISO",
+  SWEDISH_PRO_MACOS_ANSI = "SWEDISH_PRO_MACOS_ANSI",
+  SWEDISH_PRO_MACOS_ISO = "SWEDISH_PRO_MACOS_ISO",
+  TURKISH_F = "TURKISH_F",
+  TURKISH_Q = "TURKISH_Q",
+  UKRAINIAN = "UKRAINIAN",
+}
+
+export const LANGUAGES: {[key in LanguageType]: LanguageKey[] } = {
+  ENGLISH: [{"EMPTY": ""}],  // no changes
+  CANADIAN_MULTILINGUAL_CSA: [
+    {KC_GRV: "\\\n/    |"},
+    {KC_6: "?\n6"},
+    {KC_7: "&\n7    {"},
+    {KC_8: "*\n8    }"},
+    {KC_9: "(\n9    ["},
+    {KC_0: ")\n0    ]"},
+    {KC_EQL: "+\n=    ¬"},
+    {KC_SLSH: "É"},
+    {KC_LBRC: "¨\n^    `"},
+    {KC_RBRC: "Ç    ~"},
+    {KC_SCLN: ":\n;    °"},
+    {KC_QUOT: "È"},
+    {KC_NUHS: "À"},
+    {KC_NUBS: "Ù"},
+    {KC_Z: "Z    «"},
+    {KC_X: "X    »"},
+    {KC_COMM: "'\n,    <"},
+    {KC_DOT: "\"\n.    >"},
+  ],
+  CROATIAN: [
+
+  ],
+  CZECH: [
+
+  ],
+  DANISH: [
+
+  ],
+  DUTCH_BELGIUM: [
+
+  ],
+  ENGLISH_IRELAND: [
+
+  ],
+  ENGLISH_UK: [
+
+  ],
+  ENGLISH_US_EXTENDED: [
+
+  ],
+  ENGLISH_US_INTERNATIONAL: [
+
+  ],
+  ENGLISH_US_INTERNATIONAL_LINUX: [
+
+  ],
+  ESTONIAN: [
+
+  ],
+  FINNISH: [
+
+  ],
+  FRENCH: [
+
+  ],
+  FRENCH_AFNOR: [
+
+  ],
+  FRENCH_BPO: [
+
+  ],
+  FRENCH_BELGIUM: [
+
+  ],
+  FRENCH_SWITZERLAND: [
+
+  ],
+  FRENCH_MACOS_ISO: [
+
+  ],
+  GERMAN: [
+
+  ],
+  GERMAN_SWITZERLAND: [
+
+  ],
+  GERMAN_MACOS: [
+
+  ],
+  GERMAN_NEO: [
+
+  ],
+  GREEK: [
+
+  ],
+  HEBREW: [
+
+  ],
+  HUNGARIAN: [
+
+  ],
+  ICELANDIC: [
+
+  ],
+  ITALIAN: [
+
+  ],
+  ITALIAN_MACOS_ANSI: [
+
+  ],
+  ITALIAN_MACOS_ISO: [
+
+  ],
+  JAPANESE: [
+
+  ],
+  KOREAN: [
+
+  ],
+  LATVIAN: [
+
+  ],
+  LITHUANIAN_AERTY: [
+
+  ],
+  LITHUANIAN_QWERTY: [
+
+  ],
+  NORWEGIAN: [
+
+  ],
+  POLISH: [
+
+  ],
+  PORTUGUESE: [
+
+  ],
+  PORTUGUESE_MACOS_ISO: [
+
+  ],
+  PORTUGUESE_BRAZIL: [
+
+  ],
+  ROMANIAN: [
+
+  ],
+  RUSSIAN: [
+
+  ],
+  SERBIAN: [
+
+  ],
+  SERBIAN_LATIN: [
+
+  ],
+  SLOVAK: [
+
+  ],
+  SLOVENIAN: [
+
+  ],
+  SPANISH: [
+
+  ],
+  SPANISH_DVORAK: [
+
+  ],
+  SWEDISH: [
+
+  ],
+  SWEDISH_MACOS_ANSI: [
+
+  ],
+  SWEDISH_MACOS_ISO: [
+
+  ],
+  SWEDISH_PRO_MACOS_ANSI: [
+
+  ],
+  SWEDISH_PRO_MACOS_ISO: [
+
+  ],
+  TURKISH_F: [
+
+  ],
+  TURKISH_Q: [
+
+  ],
+  UKRAINIAN: [
+
+  ],
+
+};

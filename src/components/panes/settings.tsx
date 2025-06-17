@@ -25,6 +25,8 @@ import {
   updateThemeName,
   getRenderMode,
   updateRenderMode,
+  getLanguage,
+  updateLanguage
 } from 'src/store/settingsSlice';
 import {AccentSelect} from '../inputs/accent-select';
 import {THEMES} from 'src/utils/themes';
@@ -35,6 +37,7 @@ import {faToolbox} from '@fortawesome/free-solid-svg-icons';
 import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {ErrorMessage} from '../styled';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
+import {LANGUAGES} from 'src/utils/languages';
 
 const Container = styled.div`
   display: flex;
@@ -61,6 +64,7 @@ export const Settings = () => {
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
+  const language = useAppSelector(getLanguage);
 
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
@@ -72,6 +76,14 @@ export const Settings = () => {
     (opt) => opt.value === themeName,
   );
 
+  const languageSelectOptions = Object.keys(LANGUAGES).map((k) => ({
+    label: k.replaceAll('_', ' '),
+    value: k,
+  }));
+  const defaultLanguageValue = languageSelectOptions.find(
+    (opt) => opt.value === language
+  );
+  
   const renderModeOptions = webGLIsAvailable
     ? [
         {
@@ -126,6 +138,18 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleThemeMode())}
                   isChecked={themeMode === 'light'}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Language</Label>
+              <Detail>
+                <AccentSelect
+                  defaultValue={defaultLanguageValue}
+                  options={languageSelectOptions}
+                  onChange={(option: any) => {
+                    option && dispatch(updateLanguage(option.value));
+                  }}
                 />
               </Detail>
             </ControlRow>
