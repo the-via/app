@@ -76,7 +76,7 @@ export function getByteForCode(
     return byte;
   } else if (isLayerCode(code)) {
     return getByteForLayerCode(code, basicKeyToByte);
-  } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
+  } else if (advancedStringToKeycode(code, basicKeyToByte) !== 0) {
     return advancedStringToKeycode(code, basicKeyToByte);
   }
   throw `Could not find byte for ${code}`;
@@ -263,7 +263,7 @@ export function keycodeInMaster(
   return (
     keycode in basicKeyToByte ||
     isLayerCode(keycode) ||
-    advancedStringToKeycode(keycode, basicKeyToByte) !== null
+    advancedStringToKeycode(keycode, basicKeyToByte) !== 0
   );
 }
 

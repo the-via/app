@@ -49,8 +49,7 @@ type KeycodeModalProps = {
 
 function isHex(input: string): boolean {
   const lowercased = input.toLowerCase();
-  const parsed = parseInt(lowercased, 16);
-  return `0x${parsed.toString(16).toLowerCase()}` === lowercased;
+  return /^0x[0-9a-f]{1,4}$/.test(lowercased);
 }
 
 // This is hella basic 💁‍♀️💁‍♂️
