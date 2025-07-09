@@ -835,6 +835,61 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
           shortName: 'NKRO',
           title: 'Toggle NKRO',
         },
+        // Add frequently used magic keys for GUI
+        {
+          name: 'Swap Ctrl GUI',
+          code: 'MAGIC_SWAP_CTL_GUI',
+          shortName: 'CG Swap',
+          title: 'Swap Ctrl and GUI',
+        },
+        {
+          name: 'Unswap Ctrl GUI',
+          code: 'MAGIC_UNSWAP_CTL_GUI',
+          shortName: 'CG Unswap',
+          title: 'Unswap Ctrl and GUI',
+        },
+        {
+          name: 'Toggle Ctrl GUI',
+          code: 'MAGIC_TOGGLE_CTL_GUI',
+          shortName: 'CG Togg',
+          title: 'Toggle Ctrl and GUI swapped/unswapped',
+        },
+        {
+          name: 'Swap Alt GUI',
+          code: 'MAGIC_SWAP_ALT_GUI',
+          shortName: 'AG Swap',
+          title: 'Swap Alt and GUI',
+        },
+        {
+          name: 'Unswap Alt GUI',
+          code: 'MAGIC_UNSWAP_ALT_GUI',
+          shortName: 'AG Unswap',
+          title: 'Unswap Alt and GUI',
+        },
+        {
+          name: 'Toggle Alt GUI',
+          code: 'MAGIC_TOGGLE_ALT_GUI',
+          shortName: 'AG Togg',
+          title: 'Toggle Alt and GUI swapped/unswapped',
+        },
+        {
+          name: 'Enable GUI',
+          code: 'MAGIC_GUI_ON',
+          shortName: 'GUI On',
+          title: 'Enable GUI keys',
+        },
+        {
+          name: 'Disable GUI',
+          code: 'MAGIC_GUI_OFF',
+          shortName: 'GUI Off',
+          title: 'Disable GUI keys',
+        },
+        {
+          name: 'Toggle GUI',
+          code: 'MAGIC_TOGGLE_GUI',
+          shortName: 'GUI Togg',
+          title: 'Toggle GUI keys enabled/disabled',
+        },
         // I don't even think the locking stuff is enabled...
         {name: 'Locking Num Lock', code: 'KC_LNUM'},
         {name: 'Locking Caps Lock', code: 'KC_LCAP'},
