@@ -610,7 +610,13 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
           shortName: 'LShft',
         },
         {name: 'Right Shift', code: 'KC_RSFT', width: 2750, shortName: 'RShft'},
-        {name: 'Left Ctrl', code: 'KC_LCTL', keys: 'ctrl', width: 1250},
+        {
+          name: 'Left Ctrl',
+          code: 'KC_LCTL',
+          keys: 'ctrl',
+          width: 1250,
+          shortName: 'LCtl',
+        },
         {name: 'Right Ctrl', code: 'KC_RCTL', width: 1250, shortName: 'RCtl'},
         {
           name: 'Left Win',
