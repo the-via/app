@@ -394,7 +394,7 @@ const parseModifierCode = (
         : null;
     }
   });
-  if (bytes.some((e) => e === null)) {
+  if (bytes.includes(null)) {
     return 0;
   }
   return bytes.reduce((acc, byte) => acc | byte, 0);
