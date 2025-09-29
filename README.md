@@ -18,12 +18,20 @@ Please follow our [Specification documentation](https://www.caniusevia.com/docs/
 
 ## Local development setup
 
+Start by cloning [`the-via/keyboards`](github.com/the-via/keyboards) then install dependencies with `npm install` and finally `npm run build`. You should see
+the output folder `dist`. This should be copied or symlinked to our repo's `public/definitions` folder.
+
+```bash
+# Inside the-via/app
+public/definitions -> ../../keyboards/dist
+```
+
 ### Useful commands
 
-#### `npm run start`
+#### `npm run dev`
 
 Runs the app in the development mode.
-Open [http://localhost:8080](http://localhost:8080) to view it in the browser.
+Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
 
 The page will reload if you make edits.
 You will also see any lint errors in the console.
