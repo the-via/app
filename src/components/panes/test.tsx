@@ -213,7 +213,7 @@ export const Test: FC = () => {
               <Detail>
                 <AccentSelect
                   isSearchable={false}
-                  defaultValue={waveformDefaultValue}
+                  value={waveformDefaultValue}
                   options={waveformOptions}
                   onChange={(option: any) => {
                     option &&

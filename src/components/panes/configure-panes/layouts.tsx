@@ -32,7 +32,7 @@ const LayoutControl: React.FC<{
         <Detail>
           <AccentSelect
             /*width={150}*/
-            defaultValue={options[selectedOption]}
+            value={options[selectedOption]}
             options={options}
             onChange={(option: any) => {
               if (option) {
