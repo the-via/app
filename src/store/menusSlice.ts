@@ -19,6 +19,7 @@ import {
   getSelectedKeyboardAPI,
 } from './devicesSlice';
 import type {AppThunk, RootState} from './index';
+import {getSelectedFirmwareVersion} from './firmwareSlice';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
@@ -76,6 +77,7 @@ export const updateCustomMenuValue =
   (command: string, ...rest: number[]): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
+    const firmwareVersion = getSelectedFirmwareVersion(state);
     const connectedDevice = getSelectedConnectedDevice(state);
     if (!connectedDevice) {
       return;
@@ -115,6 +117,7 @@ export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
+    const firmwareVersion = getSelectedFirmwareVersion(state);
     const definition = getSelectedDefinition(state);
     const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
 
@@ -163,6 +166,9 @@ export const updateV3MenuData =
           devicePath: path,
           menuData: {
             ...props,
+            ...(firmwareVersion !== undefined && {
+              id_firmware_version: [firmwareVersion],
+            }),
           },
         }),
       );
@@ -214,7 +220,8 @@ export const getV3Menus = createSelector(
 
 export const getV3MenuComponents = createSelector(
   getSelectedDefinition,
-  (definition) => {
+  getSelectedCustomMenuData,
+  (definition, selectedCustomMenuData) => {
     if (!definition || !isVIADefinitionV3(definition)) {
       return [];
     }
@@ -226,7 +233,14 @@ export const getV3MenuComponents = createSelector(
         isVIAMenu(menu)
           ? makeCustomMenu(compileMenu('custom_menu', 3, menu, idx), idx)
           : menu,
-      ) as ReturnType<typeof makeCustomMenus>;
+      )
+      .filter((menuComponent: any) => {
+        // Filter out menus that shouldn't be shown
+        if (menuComponent.shouldShow && selectedCustomMenuData) {
+          return menuComponent.shouldShow(selectedCustomMenuData);
+        }
+        return true; // Show by default if no shouldShow function
+      }) as ReturnType<typeof makeCustomMenus>;
   },
 );
 
