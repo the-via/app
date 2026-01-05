@@ -41,6 +41,8 @@ import {extractDeviceInfo, logAppError} from './errorsSlice';
 import {tryForgetDevice} from 'src/shims/node-hid';
 import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
 
+import {loadFirmwareVersion} from './firmwareSlice';
+
 const selectConnectedDeviceRetry = createRetry(8, 100);
 
 export const selectConnectedDeviceByPath =
@@ -63,6 +65,8 @@ const selectConnectedDevice =
     try {
       dispatch(selectDevice(connectedDevice));
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
+      // Load firmware version FIRST
+      await dispatch(loadFirmwareVersion(connectedDevice));
       await dispatch(loadMacros(connectedDevice));
       await dispatch(loadLayoutOptions());
 

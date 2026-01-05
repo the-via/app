@@ -19,6 +19,7 @@ import {
   getSelectedKeyboardAPI,
 } from './devicesSlice';
 import type {AppThunk, RootState} from './index';
+import { getSelectedFirmwareVersion } from './firmwareSlice';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
@@ -76,6 +77,7 @@ export const updateCustomMenuValue =
   (command: string, ...rest: number[]): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
+    const firmwareVersion = getSelectedFirmwareVersion(state);
     const connectedDevice = getSelectedConnectedDevice(state);
     if (!connectedDevice) {
       return;
@@ -115,6 +117,7 @@ export const updateV3MenuData =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
     const state = getState();
+    const firmwareVersion = getSelectedFirmwareVersion(state);
     const definition = getSelectedDefinition(state);
     const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
 
@@ -163,6 +166,9 @@ export const updateV3MenuData =
           devicePath: path,
           menuData: {
             ...props,
+            ...(firmwareVersion !== undefined && {
+              id_firmware_version: [firmwareVersion],
+            }),
           },
         }),
       );
