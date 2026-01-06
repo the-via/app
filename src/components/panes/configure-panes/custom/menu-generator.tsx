@@ -5,7 +5,7 @@ import {
   faLightbulb,
   faMicrochip,
 } from '@fortawesome/free-solid-svg-icons';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
 import {CenterPane} from '../../pane';
@@ -61,14 +61,6 @@ function isSlice(
 }
 
 function categoryGenerator(props: any): Category[] {
-  // Check if the entire menu has a showIf condition
-  if (
-    'showIf' in props.viaMenu &&
-    !evalExpr(props.viaMenu.showIf as string, props.selectedCustomMenuData)
-  ) {
-    return [];
-  }
-
   return props.viaMenu.content.flatMap((menu: any) =>
     submenuGenerator(menu, props),
   );
@@ -134,6 +126,12 @@ function submenuGenerator(
 
 export const Pane: React.FC<Props> = (props: any) => {
   const dispatch = useAppDispatch();
+  const menus = categoryGenerator(props);
+  const [selectedCategory, setSelectedCategory] = useState(
+    menus[0] || {label: '', Menu: () => <div />},
+  );
+  const SelectedMenu = selectedCategory.Menu;
+
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
 
@@ -145,44 +143,8 @@ export const Pane: React.FC<Props> = (props: any) => {
       dispatch(updateCustomMenuValue(command, ...rest)),
   };
 
-  const menus = categoryGenerator(childProps);
-  const [selectedCategory, setSelectedCategory] = useState(
-    menus.length > 0 ? menus[0] : {label: '', Menu: () => <div />},
-  );
-
-  // Update selected category if menus change and current selection is no longer available
-  useEffect(() => {
-    if (
-      menus.length > 0 &&
-      !menus.find((m) => m.label === selectedCategory.label)
-    ) {
-      setSelectedCategory(menus[0]);
-    }
-  }, [menus, selectedCategory.label]);
-
-  const SelectedMenu = selectedCategory.Menu;
-
   if (!selectedDefinition || !selectedCustomMenuData) {
     return null;
-  }
-
-  // Handle case where all menus are hidden
-  if (menus.length === 0) {
-    return (
-      <CustomPane>
-        <Container>
-          <div
-            style={{
-              padding: '20px',
-              textAlign: 'center',
-              color: 'var(--color_label)',
-            }}
-          >
-            No features available for this firmware version.
-          </div>
-        </Container>
-      </CustomPane>
-    );
   }
 
   return (
@@ -304,17 +266,6 @@ export const makeCustomMenu = (menu: VIAMenu, idx: number) => {
     Pane: (props: any) => (
       <Pane {...props} key={`${menu.label}-${idx}`} viaMenu={menu} />
     ),
-    // Add this function to check if the menu should be shown
-    shouldShow: (selectedCustomMenuData: any) => {
-      // Check if menu itself has showIf
-      if ('showIf' in menu && selectedCustomMenuData) {
-        return evalExpr(menu.showIf as string, selectedCustomMenuData);
-      }
-      // If no showIf on menu, check if it has any visible submenus
-      const mockProps = {viaMenu: menu, selectedCustomMenuData};
-      const categories = categoryGenerator(mockProps);
-      return categories.length > 0;
-    },
   };
 };
 export const makeCustomMenus = (menus: VIAMenu[]) => menus.map(makeCustomMenu);
