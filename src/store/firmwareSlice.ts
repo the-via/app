@@ -51,17 +51,15 @@ export const loadFirmwareVersion =
     const {path} = connectedDevice;
 
     try {
-      // Read 4 bytes since firmware sends 32-bit value across 4 bytes
+      // Assuming your firmware responds to a custom keyboard value ID
+      // Replace FIRMWARE_VERSION with your actual KeyboardValue enum entry
       const result = await api.getKeyboardValue(
-        KeyboardValue.FIRMWARE_VERSION,
+        KeyboardValue.FIRMWARE_VERSION, // You need to add this to KeyboardValue enum
         [],
-        4, // Read 4 bytes
+        1, // or however many bytes the version takes
       );
 
-      // Parse the 32-bit value from 4 bytes (big-endian)
-      // Firmware sends: command_data[1-4] = (value >> 24), (value >> 16), (value >> 8), value
-      const version =
-        (result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3];
+      const version = result[0]; // Parse as needed
 
       dispatch(updateFirmwareVersion({devicePath: path, version}));
     } catch (e) {
