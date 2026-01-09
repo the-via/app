@@ -28,7 +28,7 @@ import {
 
 type Category = {
   label: string;
-  // TODO: type this any
+  // TODO:  type this any
   Menu: React.FC<any>;
 };
 
@@ -61,6 +61,19 @@ function isSlice(
 }
 
 function categoryGenerator(props: any): Category[] {
+  // Safety check:  return empty if data not loaded yet
+  if (!props.selectedCustomMenuData) {
+    return [];
+  }
+
+  // Check if the entire menu has a showIf condition
+  if (
+    'showIf' in props.viaMenu &&
+    !evalExpr(props.viaMenu.showIf as string, props.selectedCustomMenuData)
+  ) {
+    return [];
+  }
+
   return props.viaMenu.content.flatMap((menu: any) =>
     submenuGenerator(menu, props),
   );
@@ -70,6 +83,11 @@ function itemGenerator(
   elem: TagWithId<VIAItem, VIAItemSlice>,
   props: any,
 ): any {
+  // Safety check: return empty if data not loaded yet
+  if (!props.selectedCustomMenuData) {
+    return [];
+  }
+
   if (
     'showIf' in elem &&
     !evalExpr(elem.showIf as string, props.selectedCustomMenuData)
@@ -106,6 +124,11 @@ function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,
   props: any,
 ): any {
+  // Safety check:  return empty if data not loaded yet
+  if (!props.selectedCustomMenuData) {
+    return [];
+  }
+
   if (
     'showIf' in elem &&
     !evalExpr(elem.showIf as string, props.selectedCustomMenuData)
@@ -126,12 +149,6 @@ function submenuGenerator(
 
 export const Pane: React.FC<Props> = (props: any) => {
   const dispatch = useAppDispatch();
-  const menus = categoryGenerator(props);
-  const [selectedCategory, setSelectedCategory] = useState(
-    menus[0] || {label: '', Menu: () => <div />},
-  );
-  const SelectedMenu = selectedCategory.Menu;
-
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
 
@@ -142,6 +159,13 @@ export const Pane: React.FC<Props> = (props: any) => {
     updateCustomMenuValue: (command: string, ...rest: number[]) =>
       dispatch(updateCustomMenuValue(command, ...rest)),
   };
+
+  const menus = categoryGenerator(childProps);
+
+  const [selectedCategory, setSelectedCategory] = useState(
+    menus[0] || {label: '', Menu: () => <div />},
+  );
+  const SelectedMenu = selectedCategory.Menu;
 
   if (!selectedDefinition || !selectedCustomMenuData) {
     return null;
