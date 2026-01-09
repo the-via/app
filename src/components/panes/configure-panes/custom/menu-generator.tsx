@@ -28,8 +28,8 @@ import {
 
 type Category = {
   label: string;
-  // TODO:  type this any
   Menu: React.FC<any>;
+  isHidden?: boolean;
 };
 
 const CustomPane = styled(CenterPane)`
@@ -83,7 +83,7 @@ function itemGenerator(
   elem: TagWithId<VIAItem, VIAItemSlice>,
   props: any,
 ): any {
-  // Safety check: return empty if data not loaded yet
+  // Safety check:  return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
   }
@@ -124,23 +124,38 @@ function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,
   props: any,
 ): any {
-  // Safety check:  return empty if data not loaded yet
+  // Safety check: return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
   }
 
-  if (
+  const isHidden =
     'showIf' in elem &&
-    !evalExpr(elem.showIf as string, props.selectedCustomMenuData)
-  ) {
-    return [];
-  }
+    !evalExpr(elem.showIf as string, props.selectedCustomMenuData);
+
   if ('label' in elem) {
     return {
       label: elem.label,
-      Menu: MenuBuilder(elem),
+      Menu: isHidden
+        ? () => (
+            <div
+              style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: 'var(--color_label)',
+              }}
+            >
+              This feature is not available for this firmware version.
+            </div>
+          )
+        : MenuBuilder(elem),
+      isHidden,
     };
   } else {
+    // For slices, filter out if hidden
+    if (isHidden) {
+      return [];
+    }
     return elem.content.flatMap((e) =>
       submenuGenerator(e as TagWithId<VIASubmenu, VIASubmenuSlice>, props),
     );
@@ -171,6 +186,27 @@ export const Pane: React.FC<Props> = (props: any) => {
     return null;
   }
 
+  // Handle case where all menus are hidden
+  if (menus.length === 0) {
+    return (
+      <OverflowCell>
+        <CustomPane>
+          <Container>
+            <div
+              style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: 'var(--color_label)',
+              }}
+            >
+              No features available for this firmware version.
+            </div>
+          </Container>
+        </CustomPane>
+      </OverflowCell>
+    );
+  }
+
   return (
     <>
       <SubmenuCell>
@@ -180,6 +216,10 @@ export const Pane: React.FC<Props> = (props: any) => {
               $selected={selectedCategory.label === menu.label}
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
+              style={{
+                opacity: menu.isHidden ? 0.5 : 1,
+                cursor: menu.isHidden ? 'not-allowed' : 'pointer',
+              }}
             >
               {menu.label}
             </SubmenuRow>
