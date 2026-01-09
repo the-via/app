@@ -19,6 +19,7 @@ import {
   getSelectedKeyboardAPI,
 } from './devicesSlice';
 import type {AppThunk, RootState} from './index';
+import {getSelectedFirmwareVersion} from './firmwareSlice';
 
 type CustomMenuData = {
   [commandName: string]: number[] | number[][];
@@ -158,11 +159,16 @@ export const updateV3MenuData =
         props.__perKeyRGB = perKeyRGB;
       }
 
+      const firmwareVersion = getSelectedFirmwareVersion(state);
+
       dispatch(
         updateSelectedCustomMenuData({
           devicePath: path,
           menuData: {
             ...props,
+            ...(firmwareVersion !== undefined && {
+              id_firmware_version: [firmwareVersion],
+            }),
           },
         }),
       );

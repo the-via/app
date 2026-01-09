@@ -40,6 +40,7 @@ import {createRetry} from 'src/utils/retry';
 import {extractDeviceInfo, logAppError} from './errorsSlice';
 import {tryForgetDevice} from 'src/shims/node-hid';
 import {isAuthorizedDeviceConnected} from 'src/utils/type-predicates';
+import {loadFirmwareVersion} from './firmwareSlice';
 
 const selectConnectedDeviceRetry = createRetry(8, 100);
 
@@ -72,6 +73,7 @@ const selectConnectedDevice =
           // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
           await dispatch(updateLightingData(connectedDevice));
         } else if (protocol >= 11) {
+          await dispatch(loadFirmwareVersion(connectedDevice));
           // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
           await dispatch(updateV3MenuData(connectedDevice));
         }

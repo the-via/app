@@ -9,6 +9,7 @@ import menusReducer from './menusSlice';
 import designReducer from './designSlice';
 import errorsReducer from './errorsSlice';
 import {errorsListenerMiddleware} from './errorsListener';
+import firmwareReducer from './firmwareSlice';
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     menus: menusReducer,
     design: designReducer,
     errors: errorsReducer,
+    firmware: firmwareReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().prepend(errorsListenerMiddleware.middleware),
