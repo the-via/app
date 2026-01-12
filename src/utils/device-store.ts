@@ -30,7 +30,7 @@ const defaultStoreData = {
   settings: {
     showDesignTab: false,
     disableFastRemap: false,
-    showSliderValues: false,
+    ShowSliderValuesMode: 'Slider Only' as const,
     renderMode: '2D' as const,
     themeMode: 'dark' as const,
     designDefinitionVersion: 'v3' as const,
@@ -162,6 +162,10 @@ export const getThemeFromStore = (): ThemeDefinition =>
 
 export const getThemeModeFromStore = (): 'dark' | 'light' => {
   return deviceStore.get('settings')?.themeMode;
+};
+
+export const getShowSliderValuesModeFromStore = (): 'Slider & Show Value' | 'Slider & Input Field' | 'Slider Only' => {
+  return deviceStore.get('settings')?.ShowSliderValuesMode;
 };
 
 export const getRenderModeFromStore = (): '3D' | '2D' => {
