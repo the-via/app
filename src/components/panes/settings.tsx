@@ -128,7 +128,7 @@ export const Settings = () => {
               <Detail>
                 <AccentSlider
                   onChange={() => dispatch(toggleShowSliderValues())}
-                  isChecked={!showSliderValues}
+                  isChecked={showSliderValues}
                 />
               </Detail>
             </ControlRow>

@@ -30,9 +30,8 @@ export const AccentRange: React.FC<
     onChange: (x: number) => void;
   }
 > = (props) => {
-  // Get the "hide values" setting from Redux (assuming it returns true when values should be hidden)
-  const hideValues = useAppSelector(getShowSliderValues);
-  const showValue = !hideValues; // Show values when they are NOT hidden
+  // Get the dynamic value from Redux store
+  const showValue = useAppSelector(getShowSliderValues);
 
   const [currentValue, setCurrentValue] = useState<number>(
     Number(props.defaultValue || props.value || props.min || 0),
