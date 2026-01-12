@@ -17,8 +17,10 @@ import {useAppSelector} from 'src/store/hooks';
 import {
   getShowDesignTab,
   getDisableFastRemap,
+  getShowSliderValues,
   toggleCreatorMode,
   toggleFastRemap,
+  toggleShowSliderValues,
   getThemeMode,
   toggleThemeMode,
   getThemeName,
@@ -57,6 +59,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
+  const showSliderValues = useAppSelector(getShowSliderValues);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
@@ -117,6 +120,15 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleFastRemap())}
                   isChecked={!disableFastRemap}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>Show Slider Values</Label>
+              <Detail>
+                <AccentSlider
+                  onChange={() => dispatch(toggleShowSliderValues())}
+                  isChecked={!showSliderValues}
                 />
               </Detail>
             </ControlRow>
