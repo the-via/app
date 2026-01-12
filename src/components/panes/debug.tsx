@@ -156,7 +156,7 @@ const TestControls = () => {
         <Label>{+selectionVal}</Label>
         <Detail>
           <AccentSelect
-            defaultValue={selectOptions[selectionVal]}
+            value={selectOptions[selectionVal]}
             options={selectOptions}
             onChange={(option: any) => {
               option && setSelectionVal(+option.value);
