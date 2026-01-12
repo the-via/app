@@ -17,10 +17,10 @@ import {useAppSelector} from 'src/store/hooks';
 import {
   getShowDesignTab,
   getDisableFastRemap,
-  getShowSliderValues,
+  getShowSliderValuesMode,
   toggleCreatorMode,
   toggleFastRemap,
-  toggleShowSliderValues,
+  updateShowSliderValuesMode,
   getThemeMode,
   toggleThemeMode,
   getThemeName,
@@ -59,7 +59,7 @@ export const Settings = () => {
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
-  const showSliderValues = useAppSelector(getShowSliderValues);
+  const ShowSliderValuesMode = useAppSelector(getShowSliderValuesMode);
   const themeMode = useAppSelector(getThemeMode);
   const themeName = useAppSelector(getThemeName);
   const renderMode = useAppSelector(getRenderMode);
@@ -73,6 +73,26 @@ export const Settings = () => {
   }));
   const themeDefaultValue = themeSelectOptions.find(
     (opt) => opt.value === themeName,
+  );
+
+  const ShowSliderModeOptions = webGLIsAvailable
+    ? [
+        {
+          label: 'Slider Only',
+          value: 'Slider Only',
+        },
+        {
+          label: 'Slider & Show Value',
+          value: 'Slider & Show Value',
+        },
+        {
+          label: 'Slider & Input Field',
+          value: 'Slider & Input Field',
+        },
+      ]
+    : [{label: 'Slider Only', value: 'Slider Only'}];
+  const showSliderModeDefaultValue = ShowSliderModeOptions.find(
+    (opt) => opt.value === ShowSliderValuesMode,
   );
 
   const renderModeOptions = webGLIsAvailable
@@ -124,11 +144,14 @@ export const Settings = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Show Slider Values</Label>
+              <Label>Slider Modes</Label>
               <Detail>
-                <AccentSlider
-                  onChange={() => dispatch(toggleShowSliderValues())}
-                  isChecked={showSliderValues}
+                <AccentSelect
+                  defaultValue={showSliderModeDefaultValue}
+                  options={ShowSliderModeOptions}
+                  onChange={(option: any) => {
+                    option && dispatch(updateShowSliderValuesMode(option.value));
+                  }}
                 />
               </Detail>
             </ControlRow>

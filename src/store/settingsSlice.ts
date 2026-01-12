@@ -42,8 +42,14 @@ const settingsSlice = createSlice({
     toggleFastRemap: (state) => {
       toggleBool(state, 'disableFastRemap');
     },
-    toggleShowSliderValues: (state) => {
-      toggleBool(state, 'showSliderValues');
+    updateShowSliderValuesMode: (
+      state,
+      action: PayloadAction<
+        'Slider Only' | 'Slider & Show Value' | 'Slider & Input Field'
+      >,
+    ) => {
+      state.ShowSliderValuesMode = action.payload;
+      setSettings(state);
     },
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
@@ -106,7 +112,7 @@ const settingsSlice = createSlice({
 
 export const {
   toggleFastRemap,
-  toggleShowSliderValues,
+  updateShowSliderValuesMode,
   toggleCreatorMode,
   setTestMatrixEnabled,
   setTestKeyboardSoundsSettings,
@@ -127,8 +133,8 @@ export const getAllowGlobalHotKeys = (state: RootState) =>
   state.settings.allowGlobalHotKeys;
 export const getDisableFastRemap = (state: RootState) =>
   state.settings.disableFastRemap;
-export const getShowSliderValues = (state: RootState) =>
-  state.settings.showSliderValues;
+export const getShowSliderValuesMode = (state: RootState) =>
+  webGLIsAvailable ? state.settings.ShowSliderValuesMode : 'Slider Only';
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
 export const getRestartRequired = (state: RootState) =>
