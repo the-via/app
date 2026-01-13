@@ -35,15 +35,14 @@ import {
   updateKey as updateKeyAction,
   updateSelectedKey,
 } from 'src/store/keymapSlice';
-import {
-  getMacroCount,
-} from 'src/store/macrosSlice';
+import {getMacroCount} from 'src/store/macrosSlice';
 import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
   getDisableFastRemap,
 } from 'src/store/settingsSlice';
 import {getNextKey} from 'src/utils/keyboard-rendering';
+import {useTranslation} from 'react-i18next';
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -118,8 +117,10 @@ const KeycodeDesc = styled.div`
   }
 `;
 
-const generateKeycodeCategories = (basicKeyToByte: Record<string, number>, numMacros: number = 16) =>
-  getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
+const generateKeycodeCategories = (
+  basicKeyToByte: Record<string, number>,
+  numMacros: number = 16,
+) => getKeycodes(numMacros).concat(getOtherMenu(basicKeyToByte));
 
 const maybeFilter = <M extends Function>(maybe: boolean, filter: M) =>
   maybe ? () => true : filter;
@@ -142,6 +143,7 @@ export const Pane: FC = () => {
 };
 
 export const KeycodePane: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const macros = useAppSelector((state: any) => state.macros);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -207,13 +209,15 @@ export const KeycodePane: FC = () => {
   const renderMacroError = () => {
     return (
       <ErrorMessage>
-        Your current firmware does not support macros. Install the latest
-        firmware for your device.
+        {t(
+          'Your current firmware does not support macros. Install the latest firmware for your device.',
+        )}
       </ErrorMessage>
     );
   };
 
   const renderCategories = () => {
+    const {t} = useTranslation();
     return (
       <MenuContainer>
         {getEnabledMenus().map(({id, label}) => (
@@ -222,7 +226,7 @@ export const KeycodePane: FC = () => {
             onClick={() => setSelectedCategory(id)}
             key={id}
           >
-            {label}
+            {t(label)}
           </SubmenuRow>
         ))}
       </MenuContainer>
@@ -294,7 +298,7 @@ export const KeycodePane: FC = () => {
       <CustomKeycode
         key="customKeycode"
         onClick={() => selectedKey !== null && handleClick('text', 0)}
-        onMouseOver={() => setMouseOverDesc('Enter any QMK Keycode')}
+        onMouseOver={() => setMouseOverDesc(t('Enter any QMK Keycode'))}
         onMouseOut={() => setMouseOverDesc(null)}
       >
         Any

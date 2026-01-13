@@ -25,6 +25,7 @@ import {
   getSelectedCustomMenuData,
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
+import {useTranslation} from 'react-i18next';
 
 type Category = {
   label: string;
@@ -163,6 +164,7 @@ function submenuGenerator(
 }
 
 export const Pane: React.FC<Props> = (props: any) => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
@@ -221,7 +223,7 @@ export const Pane: React.FC<Props> = (props: any) => {
                 cursor: menu.isHidden ? 'not-allowed' : 'pointer',
               }}
             >
-              {menu.label}
+              {t(menu.label)}
             </SubmenuRow>
           ))}
         </MenuContainer>

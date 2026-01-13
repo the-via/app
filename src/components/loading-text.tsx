@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 
 const LoadingText = styled.div`
   font-size: 30px;
@@ -15,9 +16,10 @@ type Props = {
 };
 
 export default function (props: Props) {
+  const {t} = useTranslation();
   return (
     <LoadingText data-tid="loading-message">
-      {props.isSearching ? LoadingLabel.Searching : LoadingLabel.Loading}
+      {t(props.isSearching ? LoadingLabel.Searching : LoadingLabel.Loading)}
     </LoadingText>
   );
 }

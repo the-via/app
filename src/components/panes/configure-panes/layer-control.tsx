@@ -7,6 +7,7 @@ import {
   setLayer,
 } from 'src/store/keymapSlice';
 import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 
 const Container = styled.div`
   position: absolute;
@@ -42,6 +43,7 @@ const LayerButton = styled.button<{$selected?: boolean}>`
 `;
 
 export const LayerControl = () => {
+  const {t} = useTranslation();
   const dispatch = useDispatch();
   const numberOfLayers = useAppSelector(getNumberOfLayers);
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
@@ -65,7 +67,7 @@ export const LayerControl = () => {
 
   return (
     <Container>
-      <Label>Layer</Label>
+      <Label>{t('Layer')}</Label>
       {Layers}
     </Container>
   );

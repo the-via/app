@@ -30,6 +30,7 @@ import {
 } from 'src/store/definitionsSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardValue} from 'src/utils/keyboard-api';
+import {useTranslation} from 'react-i18next';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -88,6 +89,7 @@ interface HomeProps {
 }
 
 export const Home: React.FC<HomeProps> = (props) => {
+  const {t} = useTranslation();
   const {hasHIDSupport} = props;
 
   const dispatch = useAppDispatch();
@@ -173,7 +175,7 @@ export const Home: React.FC<HomeProps> = (props) => {
     <ErrorHome ref={homeElem} tabIndex={0}>
       <UsbError>
         <UsbErrorIcon>❌</UsbErrorIcon>
-        <UsbErrorHeading>USB Detection Error</UsbErrorHeading>
+        <UsbErrorHeading>{t('USB Detection Error')}</UsbErrorHeading>
         <p>
           Looks like there was a problem getting USB detection working. Right
           now, we only support{' '}
