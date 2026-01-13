@@ -146,7 +146,7 @@ export const Settings = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>{t('Slider Modes')}</Label>
+              <Label>{t('Slider Mode')}</Label>
               <Detail>
                 <AccentSelect
                   defaultValue={showSliderModeDefaultValue}
