@@ -261,5 +261,14 @@
     "Layer 4": "Capa 4",
     "Layer 5": "Capa 5",
     "Layer 6": "Capa 6",
-    "Layer 7": "Capa 7"
+    "Layer 7": "Capa 7",
+    "Slider Mode": "Modo de control deslizante",
+    "Slider Only": "Solo control deslizante",
+    "Slider & Show Value": "Control deslizante y mostrar valor",
+    "Slider & Input Field": "Control deslizante y campo de entrada",
+    "Disabled": "Desactivado",
+    "Last Priority": "Última prioridad",
+    "Neutral": "Neutral",
+    "First Key Priority": "Prioridad de primera tecla",
+    "Second Key Priority": "Prioridad de segunda tecla"
 }

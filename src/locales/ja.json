@@ -270,5 +270,14 @@
   "Layer 4": "レイヤー 4",
   "Layer 5": "レイヤー 5",
   "Layer 6": "レイヤー 6",
-  "Layer 7": "レイヤー 7"
+  "Layer 7": "レイヤー 7",
+  "Slider Mode": "スライダーモード",
+  "Slider Only": "スライダーのみ",
+  "Slider & Show Value": "スライダーと値の表示",
+  "Slider & Input Field": "スライダーと入力フィールド",
+  "Disabled": "無効",
+  "Last Priority": "後着優先",
+  "Neutral": "ニュートラル",
+  "First Key Priority": "第1キー優先",
+  "Second Key Priority": "第2キー優先"
 }

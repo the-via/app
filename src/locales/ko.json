@@ -267,5 +267,14 @@
     "Layer 4": "레이어 4",
     "Layer 5": "레이어 5",
     "Layer 6": "레이어 6",
-    "Layer 7": "레이어 7"
+    "Layer 7": "레이어 7",
+    "Slider Mode": "슬라이더 모드",
+    "Slider Only": "슬라이더만",
+    "Slider & Show Value": "슬라이더 및 값 표시",
+    "Slider & Input Field": "슬라이더 및 입력 필드",
+    "Disabled": "비활성화",
+    "Last Priority": "마지막 우선순위",
+    "Neutral": "중립",
+    "First Key Priority": "첫 번째 키 우선순위",
+    "Second Key Priority": "두 번째 키 우선순위"
 }

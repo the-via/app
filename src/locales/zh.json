@@ -266,5 +266,14 @@
   "Layer 4": "层 4",
   "Layer 5": "层 5",
   "Layer 6": "层 6",
-  "Layer 7": "层 7"
+  "Layer 7": "层 7",
+  "Slider Mode": "滑块模式",
+  "Slider Only": "仅滑块",
+  "Slider & Show Value": "滑块与数值显示",
+  "Slider & Input Field": "滑块与输入框",
+  "Disabled": "已禁用",
+  "Last Priority": "末尾优先级",
+  "Neutral": "中立",
+  "First Key Priority": "第一按键优先级",
+  "Second Key Priority": "第二按键优先级"
 }

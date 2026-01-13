@@ -261,5 +261,14 @@
     "Layer 4": "Ebene 4",
     "Layer 5": "Ebene 5",
     "Layer 6": "Ebene 6",
-    "Layer 7": "Ebene 7"
+    "Layer 7": "Ebene 7",
+    "Slider Mode": "Slider-Modus",
+    "Slider Only": "Nur Schieberegler",
+    "Slider & Show Value": "Schieberegler & Wert anzeigen",
+    "Slider & Input Field": "Schieberegler & Eingabefeld",
+    "Disabled": "Deaktiviert",
+    "Last Priority": "Letzte Priorität",
+    "Neutral": "Neutral",
+    "First Key Priority": "Erste Tastenpriorität",
+    "Second Key Priority": "Zweite Tastenpriorität"
 }
