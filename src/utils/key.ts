@@ -336,6 +336,16 @@ export function getShortNameForKeycode(keycode: IKeycode, size = 100) {
   return name;
 }
 
+export function byteHasShortname(
+  byte: number,
+  basicKeyToByte: Record<string, number>,
+  byteToKey: Record<number, string>,
+) {
+  const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
+  const basicKeycode = keycodesList.find(({code}) => code === keycode);
+  return basicKeycode?.shortName;
+}
+
 export function getOtherMenu(
   basicKeyToByte: Record<string, number>,
 ): IKeycodeMenu {
