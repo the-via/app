@@ -9,6 +9,8 @@ import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
 import {ErrorLink, ErrorsPaneConfig} from '../panes/errors';
 import {ExternalLinks} from './external-links';
+import {useTranslation} from 'react-i18next';
+import {LanguageSelect} from './language-select';
 
 const Container = styled.div`
   width: 100vw;
@@ -29,6 +31,7 @@ const GlobalContainer = styled(Container)`
 `;
 
 export const UnconnectedGlobalMenu = () => {
+  const {t, i18n} = useTranslation();
   const showDesignTab = useAppSelector(getShowDesignTab);
 
   const [location] = useLocation();
@@ -42,7 +45,7 @@ export const UnconnectedGlobalMenu = () => {
           <Link key={pane.key} to={pane.path}>
             <CategoryIconContainer $selected={pane.path === location}>
               <FontAwesomeIcon size={'xl'} icon={pane.icon} />
-              <CategoryMenuTooltip>{pane.title}</CategoryMenuTooltip>
+              <CategoryMenuTooltip>{t(pane.title)}</CategoryMenuTooltip>
             </CategoryIconContainer>
           </Link>
         );
@@ -55,6 +58,7 @@ export const UnconnectedGlobalMenu = () => {
       <GlobalContainer>
         <ErrorLink />
         {Panes}
+        <LanguageSelect />
         <ExternalLinks />
       </GlobalContainer>
     </React.Fragment>

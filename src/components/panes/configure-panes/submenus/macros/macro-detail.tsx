@@ -12,6 +12,7 @@ import {
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {getMacroAPI} from 'src/utils/macro-api';
+import {useTranslation} from 'react-i18next';
 
 const ProgressBarContainer = styled.div`
   position: relative;
@@ -93,6 +94,7 @@ type Props = {
 };
 
 const printBytesUsed = (bytesUsed: number, bufferSize: number) => {
+  const {t} = useTranslation();
   const units = ['Bytes', 'kB', 'MB', 'GB'];
   const scale = Math.floor(Math.log10(bufferSize) / 3);
   const suffix = units[scale];
@@ -102,7 +104,7 @@ const printBytesUsed = (bytesUsed: number, bufferSize: number) => {
 
   return `${convertedBytesUsed.toFixed(scale)} / ${convertedBufferSize.toFixed(
     scale,
-  )} ${suffix} space used`;
+  )} ${suffix} ${t('space used')}`;
 };
 
 const BufferSizeUsage = () => {

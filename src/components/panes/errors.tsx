@@ -31,6 +31,7 @@ import {
   CategoryIconContainer,
 } from './grid';
 import {Pane} from './pane';
+import { useTranslation } from 'react-i18next';
 
 const Container = styled.div`
   display: flex;
@@ -52,6 +53,7 @@ const ErrorListContainer: React.FC<
     hasErrors: boolean;
   }>
 > = (props) => {
+  const {t} = useTranslation();
   const {clear, save, hasErrors} = props;
   return (
     <>
@@ -62,7 +64,7 @@ const ErrorListContainer: React.FC<
             color="var(--color_label)"
             icon={faCancel}
           />
-          <IconButtonTooltip>Clear</IconButtonTooltip>
+          <IconButtonTooltip>{t('Clear')}</IconButtonTooltip>
         </IconButtonContainer>
         <IconButtonContainer onClick={save} disabled={!hasErrors}>
           <FontAwesomeIcon
@@ -70,7 +72,7 @@ const ErrorListContainer: React.FC<
             color="var(--color_label)"
             icon={faDownload}
           />
-          <IconButtonTooltip>Download</IconButtonTooltip>
+          <IconButtonTooltip>{t('Download')}</IconButtonTooltip>
         </IconButtonContainer>
       </IconButtonGroupContainer>
       {props.children}

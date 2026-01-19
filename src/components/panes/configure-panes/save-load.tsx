@@ -23,6 +23,7 @@ import {
   getSelectedKeyboardAPI,
 } from 'src/store/devicesSlice';
 import {getExpressions, saveMacros} from 'src/store/macrosSlice';
+import {useTranslation} from 'react-i18next';
 
 type ViaSaveFile = {
   name: string;
@@ -48,6 +49,7 @@ const Container = styled.div`
 `;
 
 export const Pane: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
@@ -157,19 +159,22 @@ export const Pane: FC = () => {
     setSuccessMessage(null);
     const reader = new FileReader();
 
-    reader.onabort = () => setErrorMessage('File reading was cancelled.');
-    reader.onerror = () => setErrorMessage('Failed to read file.');
+    reader.onabort = () => setErrorMessage(t('File reading was cancelled.'));
+    reader.onerror = () => setErrorMessage(t('Failed to read file.'));
 
     reader.onload = async () => {
       const saveFile = JSON.parse((reader as any).result.toString());
       if (!isViaSaveFile(saveFile)) {
-        setErrorMessage('Could not load file: invalid data.');
+        setErrorMessage(t('Could not load file: invalid data.'));
         return;
       }
 
       if (saveFile.vendorProductId !== selectedDefinition.vendorProductId) {
         setErrorMessage(
-          `Could not import layout. This file was created for a different keyboard: ${saveFile.name}`,
+          t(
+            'Could not import layout. This file was created for a different keyboard: {{name}}',
+            {name: saveFile.name},
+          ),
         );
         return;
       }
@@ -180,7 +185,9 @@ export const Pane: FC = () => {
         ) > -1
       ) {
         setErrorMessage(
-          'Could not import layout: incorrect number of keys in one or more layers.',
+          t(
+            'Could not import layout: incorrect number of keys in one or more layers.',
+          ),
         );
         return;
       }
@@ -188,7 +195,7 @@ export const Pane: FC = () => {
       if (macros.isFeatureSupported && saveFile.macros) {
         if (saveFile.macros.length !== expressions.length) {
           setErrorMessage(
-            'Could not import layout: incorrect number of macros.',
+            t('Could not import layout: incorrect number of macros.'),
           );
           return;
         }
@@ -236,7 +243,7 @@ export const Pane: FC = () => {
         );
       }
 
-      setSuccessMessage('Successfully updated layout!');
+      setSuccessMessage(t('Successfully updated layout!'));
     };
 
     reader.readAsBinaryString(file);
@@ -247,15 +254,17 @@ export const Pane: FC = () => {
       <SaveLoadPane>
         <Container>
           <ControlRow>
-            <Label>Save Current Layout</Label>
+            <Label>{t('Save Current Layout')}</Label>
             <Detail>
-              <AccentButton onClick={saveLayout}>Save</AccentButton>
+              <AccentButton onClick={saveLayout}>{t('Save')}</AccentButton>
             </Detail>
           </ControlRow>
           <ControlRow>
-            <Label>Load Saved Layout</Label>
+            <Label>{t('Load Saved Layout')}</Label>
             <Detail>
-              <AccentUploadButton onLoad={loadLayout}>Load</AccentUploadButton>
+              <AccentUploadButton onLoad={loadLayout}>
+                {t('Load')}
+              </AccentUploadButton>
             </Detail>
           </ControlRow>
           {errorMessage ? <ErrorMessage>{errorMessage}</ErrorMessage> : null}

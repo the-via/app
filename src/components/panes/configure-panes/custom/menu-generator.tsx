@@ -7,7 +7,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import React, {useState} from 'react';
 import styled from 'styled-components';
-import {OverflowCell, SubmenuCell, SubmenuRow} from '../../grid';
+import {
+  OverflowCell,
+  SubmenuOverflowCell,
+  SubmenuCell,
+  SubmenuRow,
+} from '../../grid';
 import {CenterPane} from '../../pane';
 import {title, component} from '../../../icons/lightbulb';
 import {VIACustomItem} from './custom-control';
@@ -25,6 +30,7 @@ import {
   getSelectedCustomMenuData,
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
+import {useTranslation} from 'react-i18next';
 
 type Category = {
   label: string;
@@ -129,11 +135,17 @@ function submenuGenerator(
     return [];
   }
 
+  const {t} = useTranslation();
+
   const isHidden =
     'showIf' in elem &&
     !evalExpr(elem.showIf as string, props.selectedCustomMenuData);
 
   if ('label' in elem) {
+    function t(arg0: string): React.ReactNode | Iterable<React.ReactNode> {
+      throw new Error('Function not implemented.');
+    }
+
     return {
       label: elem.label,
       Menu: isHidden
@@ -145,7 +157,7 @@ function submenuGenerator(
                 color: 'var(--color_label)',
               }}
             >
-              This feature is not available for this firmware version.
+              {t('This feature is not available for this firmware version.')}
             </div>
           )
         : MenuBuilder(elem),
@@ -163,6 +175,7 @@ function submenuGenerator(
 }
 
 export const Pane: React.FC<Props> = (props: any) => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
@@ -199,7 +212,7 @@ export const Pane: React.FC<Props> = (props: any) => {
                 color: 'var(--color_label)',
               }}
             >
-              No features available for this firmware version.
+              {t('No features available for this firmware version.')}
             </div>
           </Container>
         </CustomPane>
@@ -209,23 +222,23 @@ export const Pane: React.FC<Props> = (props: any) => {
 
   return (
     <>
-      <SubmenuCell>
+      <SubmenuOverflowCell>
         <MenuContainer>
           {menus.map((menu) => (
             <SubmenuRow
               $selected={selectedCategory.label === menu.label}
-              onClick={() => setSelectedCategory(menu)}
+              onClick={() => !menu.isHidden && setSelectedCategory(menu)}
               key={menu.label}
               style={{
                 opacity: menu.isHidden ? 0.5 : 1,
                 cursor: menu.isHidden ? 'not-allowed' : 'pointer',
               }}
             >
-              {menu.label}
+              {t(menu.label)}
             </SubmenuRow>
           ))}
         </MenuContainer>
-      </SubmenuCell>
+      </SubmenuOverflowCell>
       <OverflowCell>
         <CustomPane>
           <Container>{SelectedMenu(childProps)}</Container>

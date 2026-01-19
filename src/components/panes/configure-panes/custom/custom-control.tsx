@@ -10,6 +10,7 @@ import type {LightingData} from '../../../../types/types';
 import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
+import {useTranslation} from 'react-i18next';
 
 type Props = {
   lightingData: LightingData;
@@ -28,21 +29,24 @@ type ControlMeta = [
 type AdvancedControlProps = Props & {meta: ControlMeta};
 
 export const VIACustomItem = React.memo(
-  (props: VIACustomControlProps & {_id: string}) => (
-    <ControlRow id={props._id}>
-      <Label>{props.label}</Label>
-      <Detail>
-        {'type' in props ? (
-          <VIACustomControl
-            {...props}
-            value={props.value && Array.from(props.value)}
-          />
-        ) : (
-          props.content
-        )}
-      </Detail>
-    </ControlRow>
-  ),
+  (props: VIACustomControlProps & {_id: string}) => {
+    const {t} = useTranslation();
+    return (
+      <ControlRow id={props._id}>
+        <Label>{t(props.label)}</Label>
+        <Detail>
+          {'type' in props ? (
+            <VIACustomControl
+              {...props}
+              value={props.value && Array.from(props.value)}
+            />
+          ) : (
+            props.content
+          )}
+        </Detail>
+      </ControlRow>
+    );
+  },
 );
 
 type ControlGetSet = {
@@ -76,6 +80,7 @@ const getRangeBytes = (value: number, max: number) => {
 };
 
 const VIACustomControl = (props: VIACustomControlProps) => {
+  const {t} = useTranslation();
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {
@@ -83,10 +88,10 @@ const VIACustomControl = (props: VIACustomControlProps) => {
       const buttonOption: any[] = options || [1];
       return (
         <AccentButton
-          onClick={() => 
-            props.updateValue(name, ...command, buttonOption[0])
-          }
-        >Click</AccentButton>
+          onClick={() => props.updateValue(name, ...command, buttonOption[0])}
+        >
+          {t('Click')}
+        </AccentButton>
       );
     }
     case 'range': {

@@ -16,6 +16,8 @@ import {getLightingDefinition, isVIADefinitionV2} from '@the-via/reader';
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
+import {useTranslation} from 'react-i18next';
+import { t } from 'i18next';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -47,7 +49,7 @@ export const Pane: FC = () => {
   const getMenus = () => {
     if (!isVIADefinitionV2(selectedDefinition)) {
       throw new Error(
-        'This lighting component is only compatible with v2 definitions',
+        t('This lighting component is only compatible with v2 definitions'),
       );
     }
 

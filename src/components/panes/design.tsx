@@ -59,6 +59,7 @@ import {
   getDesignDefinitionVersion,
   updateDesignDefinitionVersion,
 } from 'src/store/settingsSlice';
+import {useTranslation} from 'react-i18next';
 
 let designWarningSeen = Number(localStorage.getItem('designWarningSeen') || 0);
 let hideDesignWarning =
@@ -226,6 +227,7 @@ function onDrop(
 }
 
 export const DesignTab: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useDispatch();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getDesignDefinitionVersion);
@@ -298,7 +300,7 @@ export const DesignTab: FC = () => {
             <Row $selected={true}>
               <IconContainer>
                 <FontAwesomeIcon icon={faBook} />
-                <MenuTooltip>Add Definition</MenuTooltip>
+                <MenuTooltip>{t('Add Definition')}</MenuTooltip>
               </IconContainer>
             </Row>
           </MenuContainer>
@@ -306,7 +308,7 @@ export const DesignTab: FC = () => {
         <SpanOverflowCell>
           <Container>
             <ControlRow>
-              <Label>Load Draft Definition</Label>
+              <Label>{t('Load Draft Definition')}</Label>
               <Detail>
                 <AccentUploadButton
                   multiple
@@ -320,12 +322,12 @@ export const DesignTab: FC = () => {
                     );
                   }}
                 >
-                  Load
+                  {t('Load')}
                 </AccentUploadButton>
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Use V2 definitions (deprecated)</Label>
+              <Label>{t('Use V2 definitions (deprecated)')}</Label>
               <Detail>
                 <AccentSlider
                   isChecked={definitionVersion === 'v2'}
@@ -338,7 +340,7 @@ export const DesignTab: FC = () => {
             {definition && (
               <>
                 <ControlRow>
-                  <Label>Shown Keyboard Definition</Label>
+                  <Label>{t('Shown Keyboard Definition')}</Label>
                   <Detail>
                     <AccentSelect
                       onChange={(option: any) => {
@@ -369,7 +371,7 @@ export const DesignTab: FC = () => {
             )}
             {definition && (
               <ControlRow>
-                <Label>Show Matrix</Label>
+                <Label>{t('Show Matrix')}</Label>
                 <Detail>
                   <AccentSlider
                     isChecked={showMatrix}
@@ -386,9 +388,9 @@ export const DesignTab: FC = () => {
               </IndentedControlRow>
             ))}
             <ControlRow>
-              <Label>Draft Definitions</Label>
+              <Label>{t('Draft Definitions')}</Label>
               <Detail>
-                {Object.values(versionDefinitions).length} Definitions
+                {Object.values(versionDefinitions).length} {t('Definitions')}
               </Detail>
             </ControlRow>
             {versionDefinitions.map((definition) => {

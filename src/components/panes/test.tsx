@@ -36,6 +36,7 @@ import {useProgress} from '@react-three/drei';
 import {AccentSelect} from '../inputs/accent-select';
 import {AccentRange} from '../inputs/accent-range';
 import {TestKeyboardSoundsMode} from '../void/test-keyboard-sounds';
+import {useTranslation} from 'react-i18next';
 
 const Container = styled.div`
   display: flex;
@@ -57,6 +58,7 @@ export const TestContext = React.createContext([
 ] as const);
 
 export const Test: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useDispatch();
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -130,7 +132,7 @@ export const Test: FC = () => {
             <Row $selected={true}>
               <IconContainer>
                 <FontAwesomeIcon icon={faCircleQuestion} />
-                <MenuTooltip>Check Key</MenuTooltip>
+                <MenuTooltip>{t('Check Key')}</MenuTooltip>
               </IconContainer>
             </Row>
           </MenuContainer>
@@ -138,16 +140,16 @@ export const Test: FC = () => {
         <SpanOverflowCell>
           <Container>
             <ControlRow>
-              <Label>Reset Keyboard</Label>
+              <Label>{t('Reset Keyboard')}</Label>
               <Detail>
                 <AccentButton onClick={testContextObj.clearTestKeys}>
-                  Reset
+                  {t('Reset')}
                 </AccentButton>
               </Detail>
             </ControlRow>
             {canUseMatrixState && selectedDefinition ? (
               <ControlRow>
-                <Label>Test Matrix</Label>
+                <Label>{t('Test Matrix')}</Label>
                 <Detail>
                   <AccentSlider
                     isChecked={isTestMatrixEnabled}
@@ -160,7 +162,7 @@ export const Test: FC = () => {
               </ControlRow>
             ) : null}
             <ControlRow>
-              <Label>Key Sounds</Label>
+              <Label>{t('Key Sounds')}</Label>
               <Detail>
                 <AccentSlider
                   isChecked={testKeyboardSoundsSettings.isEnabled}
@@ -175,7 +177,7 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Volume</Label>
+              <Label>{t('Volume')}</Label>
               <Detail>
                 <AccentRange
                   max={100}
@@ -192,7 +194,7 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Transpose</Label>
+              <Label>{t('Transpose')}</Label>
               <Detail>
                 <AccentRange
                   max={24}
@@ -209,7 +211,7 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Waveform</Label>
+              <Label>{t('Waveform')}</Label>
               <Detail>
                 <AccentSelect
                   isSearchable={false}
@@ -227,7 +229,7 @@ export const Test: FC = () => {
               </Detail>
             </ControlRow>
             <ControlRow>
-              <Label>Mode</Label>
+              <Label>{t('Mode')}</Label>
               <Detail>
                 <AccentSelect
                   isSearchable={false}
