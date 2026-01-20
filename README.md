@@ -50,6 +50,47 @@ Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch 
 
 This project is tested with [BrowserStack](https://www.browserstack.com/).
 
+## Running with Docker Compose
+
+To run the VIA web application using `docker compose`, follow these steps:
+
+1. **Prerequisites**
+   - [Docker](https://docs.docker.com/get-docker/) installed
+   - [Docker Compose](https://docs.docker.com/compose/install/) installed
+
+2. **Start the application**
+   ```bash
+   docker compose up
+   ```
+
+3. **Access the application**
+   Open your browser and navigate to [http://localhost:5173](http://localhost:5173)
+
+4. **Stop the application**
+   ```bash
+   docker compose down
+   ```
+
+### Docker Compose Configuration
+
+The Docker Compose setup includes:
+- Node.js 24 Alpine base image
+- Vite development server with host binding
+- Port mapping for local development (localhost:5173)
+- Automatic restart policy (`unless-stopped`)
+- Optimized build process for development environment
+
+### Building from Source
+
+If you need to rebuild the container after making changes:
+```bash
+docker compose build --no-cache
+docker compose up
+```
+
+This approach ensures a consistent environment and eliminates dependency issues
+during local development.
+
 ## Looking for an offline app?
 
 @cebby2420 has kindly made a desktop app that does so.
