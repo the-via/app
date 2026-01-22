@@ -214,6 +214,8 @@ export default {
   KC_MRWD: 0x00bc,
   KC_BRIU: 0x00bd,
   KC_BRID: 0x00be,
+  KC_MCTL: 0x00c1,
+  KC_LPAD: 0x00c2,
   KC_LCTL: 0x00e0,
   KC_LSFT: 0x00e1,
   KC_LALT: 0x00e2,
