@@ -170,8 +170,7 @@ export const Settings = () => {
               <Label>{t('Keycap Theme')}</Label>
               <Detail>
                 <AccentSelect
-                defaultValue={themeDefaultValue}
-                  value={themeName}
+                  defaultValue={themeDefaultValue}
                   options={themeSelectOptions}
                   onChange={(option: any) => {
                     option && dispatch(updateThemeName(option.value));
