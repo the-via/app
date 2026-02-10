@@ -883,6 +883,18 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
           shortName: 'Scr -',
           title: 'Screen Brightness Down',
         },
+        {
+          name: 'Mission Control',
+          code: 'KC_MCTL',
+          shortName: 'Mctl',
+          title: 'Open Mission Control (macOS)',
+        },
+        {
+          name: 'Launchpad',
+          code: 'KC_LPAD',
+          shortName: 'Lpad',
+          title: 'Open Launchpad (macOS)',
+        },
         {name: 'F13', code: 'KC_F13'},
         {name: 'F14', code: 'KC_F14'},
         {name: 'F15', code: 'KC_F15'},
