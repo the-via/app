@@ -32,11 +32,19 @@ bun run preview
 # Force update via-keyboards dependency from GitHub
 bun run refresh-kbs
 
+# Run tests
+bun run test
+
+# Run tests in watch mode
+bun run test:watch
+
 # Find unused code
 bun run find-deadcode
 ```
 
-No test framework is configured. There are no unit tests.
+## Testing
+
+Vitest is used for unit testing. Tests live in `src/utils/__tests__/*.test.ts`. Only pure functions (no browser/hardware dependencies) are tested. Run `bun run test` to execute all tests.
 
 ## Architecture
 

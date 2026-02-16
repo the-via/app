@@ -89,8 +89,11 @@ bun run build:kbs
 # Start development server
 bun run dev
 
-# Run tests (coming soon — see specs/001-sdd-testing-infrastructure/)
-# bun run test
+# Run tests
+bun run test
+
+# Run tests in watch mode
+bun run test:watch
 
 # Format code
 bun run format

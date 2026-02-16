@@ -14,9 +14,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Install Vitest dev dependencies (`vitest`, `@vitest/ui`)
-- [ ] T002 Create `vitest.config.ts` — reuse Vite config, set `src/` path alias, exclude jsdom (pure function tests only)
-- [ ] T003 Add `test`, `test:watch`, `test:ui` scripts to `package.json`
+- [x] T001 Install Vitest dev dependencies (`vitest`, `@vitest/ui`)
+- [x] T002 Create `vitest.config.ts` — reuse Vite config, set `src/` path alias, exclude jsdom (pure function tests only)
+- [x] T003 Add `test`, `test:watch`, `test:ui` scripts to `package.json`
 
 ---
 
@@ -47,7 +47,7 @@
 
 ### color-math.ts tests
 
-- [ ] T008 [P] [US2] Create `src/utils/__tests__/color-math.test.ts`:
+- [x] T008 [P] [US2] Create `src/utils/__tests__/color-math.test.ts`:
   - `getRGBPrime`: correct RGB prime for each of 6 hue ranges (0-60, 60-120, ..., 300-360)
   - `getColorByte`: hex string (#FF0000, #00FF00, #0000FF, #000000, #FFFFFF) → [r,g,b]
   - `getBrightenedColor` / `getDarkenedColor`: brightness adjustment, default & custom multiplier
@@ -57,7 +57,7 @@
 
 ### advanced-keys.ts tests
 
-- [ ] T009 [P] [US2] Create `src/utils/__tests__/advanced-keys.test.ts`:
+- [x] T009 [P] [US2] Create `src/utils/__tests__/advanced-keys.test.ts`:
   - `advancedStringToKeycode`: parse MT, LT, LM, MO, TO, DF, TG, OSL, OSM, TT, CUSTOM, MACRO
   - `advancedKeycodeToString`: bytecode → string reverse conversion
   - Modifier combinations: `MOD_LCTL|MOD_LSFT`, left/right modifier distinction
@@ -66,7 +66,7 @@
 
 ### key.ts tests
 
-- [ ] T010 [P] [US2] Create `src/utils/__tests__/key.test.ts`:
+- [x] T010 [P] [US2] Create `src/utils/__tests__/key.test.ts`:
   - Predicates: `isAlpha` (A-Z, a-z, digits, empty), `isArrowKey` (4 arrows, unicode variants), `isNumpadNumber`, `isNumpadSymbol`, `isMultiLegend`, `isNumericOrShiftedSymbol`, `isNumericSymbol`
   - Byte functions: `getCustomKeycodeIndex`, `getMacroKeycodeIndex` — boundary value tests
   - Range checks: `isCustomKeycodeByte`, `isMacroKeycodeByte` — in/out of range values
@@ -74,7 +74,7 @@
 
 ### key-to-byte tests
 
-- [ ] T011 [P] [US2] Create `src/utils/__tests__/dictionary-store.test.ts`:
+- [x] T011 [P] [US2] Create `src/utils/__tests__/dictionary-store.test.ts`:
   - `getBasicKeyDict(13)` → returns v12 dictionary
   - `getBasicKeyDict(12)` → returns v12 dictionary
   - `getBasicKeyDict(11)` → returns v11 dictionary (different `_QK_MOD_TAP` value)
@@ -92,7 +92,7 @@
 
 **Goal**: Add test step to `pr-build.yml`
 
-- [ ] T012 [US3] Modify `.github/workflows/pr-build.yml` — add `bun run test` step before `bun run build`
+- [x] T012 [US3] Modify `.github/workflows/pr-build.yml` — add `bun run test` step before `bun run build`
 
 **Checkpoint**: CI runs tests and reports results on PR creation
 
@@ -102,9 +102,9 @@
 
 **Purpose**: Documentation updates and cleanup
 
-- [ ] T013 [P] Update `CLAUDE.md` — add `bun run test`, `bun run test:watch` commands, describe test conventions
+- [x] T013 [P] Update `CLAUDE.md` — add `bun run test`, `bun run test:watch` commands, describe test conventions
 - [ ] T014 [P] Update `README.md` — add Testing section (if applicable)
-- [ ] T015 Formatting check — run `bun run format` to ensure all new files comply with Prettier rules
+- [x] T015 Formatting check — run `bun run format` to ensure all new files comply with Prettier rules
 
 ---
 
