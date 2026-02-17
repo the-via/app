@@ -153,6 +153,29 @@ export const reloadConnectedDevices =
       });
     }
 
+    const keycodeVersions = await Promise.all(
+      recognisedDevices.map((device) =>
+        new KeyboardAPI(device.path).getKeycodeVersion(),
+      ),
+    );
+
+    const recognisedDevicesWithBadKeycodeVersion = recognisedDevices.filter(
+      (_, i) => keycodeVersions[i] === -1,
+    );
+    
+    if (recognisedDevicesWithBadKeycodeVersion.length) {
+      // Should we exit early??
+      recognisedDevicesWithBadKeycodeVersion.forEach((device: WebVIADevice) => {
+        const deviceInfo = extractDeviceInfo(device);
+        dispatch(
+          logAppError({
+            message: 'Received invalid keycode version from device',
+            deviceInfo,
+          }),
+        );
+      });
+    }
+    
     const authorizedDevices: AuthorizedDevice[] = recognisedDevices
       .filter((_, i) => protocolVersions[i] !== -1)
       .map((device, idx) => {
@@ -163,6 +186,7 @@ export const reloadConnectedDevices =
           productId,
           vendorId,
           protocol,
+          keycodeVersion: protocol >= 13 ? keycodeVersions[idx] : 0,
           productName,
           hasResolvedDefinition: false,
           requiredDefinitionVersion: protocol >= 11 ? 'v3' : 'v2',
@@ -174,6 +198,8 @@ export const reloadConnectedDevices =
       });
 
     await dispatch(reloadDefinitions(authorizedDevices));
+
+
 
     const newDefinitions = getDefinitions(getState());
     const connectedDevices = authorizedDevices
