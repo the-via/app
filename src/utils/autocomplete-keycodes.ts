@@ -195,6 +195,10 @@ const autocompleteKeycodes = {
   KC_WWW_FAVORITES: true,
   KC_MFFD: true,
   KC_MRWD: true,
+  KC_CPNL: true,
+  KC_ASST: true,
+  KC_MCTL: true,
+  KC_LPAD: true,
 };
 
 export const getAutocompleteKeycodes = () =>
