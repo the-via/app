@@ -512,7 +512,7 @@ export class KeyboardAPI {
       );
     }
     const allBytes = await Promise.all(bytesP);
-    return allBytes.flatMap((bytes) => bytes.slice(4));
+    return allBytes.flatMap((bytes) => bytes.slice(4, size + 4));
   }
 
   // From protocol: id_dynamic_keymap_macro_set_buffer <offset> <size> <data>
