@@ -111,47 +111,38 @@ export const Pane: FC = () => {
   };
 
   const saveLayout = async () => {
-    const {name, vendorProductId} = selectedDefinition;
+    const { name, vendorProductId } = selectedDefinition;
+
+    const encoderValues = await getEncoderValues();
+    const saveFile: ViaSaveFile = {
+      name,
+      vendorProductId,
+      macros: [...expressions],
+      layers: rawLayers.map(
+        (layer: { keymap: number[] }) =>
+          layer.keymap.map(
+            (keyByte: number) =>
+              getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+          ), // TODO: should empty string be empty keycode instead?
+      ),
+      encoders: encoderValues,
+    };
+
+    const content = stringify(saveFile);
+    const blob = new Blob([content], { type: 'application/json' });
+
+    const url = URL.createObjectURL(blob);
+
     const suggestedName =
       name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + '.layout.json';
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName,
-      });
-      const encoderValues = await getEncoderValues();
-      const saveFile: ViaSaveFile = {
-        name,
-        vendorProductId,
-        macros: [...expressions],
-        layers: rawLayers.map(
-          (layer: {keymap: number[]}) =>
-            layer.keymap.map(
-              (keyByte: number) =>
-                getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
-            ), // TODO: should empty string be empty keycode instead?
-        ),
-        encoders: encoderValues,
-      };
-
-      const content = stringify(saveFile);
-      const blob = new Blob([content], {type: 'application/json'});
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-    } catch (err) {
-      console.log('User cancelled save file request');
-    }
-
-    /*
-    const url = URL.createObjectURL(blob);
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = defaultFilename;
+    link.download = suggestedName;
 
     link.click();
     URL.revokeObjectURL(url);
-*/
+
   };
 
   const loadLayout = ([file]: Blob[]) => {
