@@ -74,12 +74,18 @@ export function getByteForCode(
   const byte: number | undefined = basicKeyToByte[code];
   if (byte !== undefined) {
     return byte;
+  } else if (isHexCode(code)) {
+    return Number(code)
   } else if (isLayerCode(code)) {
     return getByteForLayerCode(code, basicKeyToByte);
   } else if (advancedStringToKeycode(code, basicKeyToByte) !== null) {
     return advancedStringToKeycode(code, basicKeyToByte);
   }
   throw `Could not find byte for ${code}`;
+}
+
+function isHexCode(code: string) {
+  return code.startsWith('0x')
 }
 
 function isLayerCode(code: string) {
