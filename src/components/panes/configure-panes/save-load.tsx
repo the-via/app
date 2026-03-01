@@ -179,6 +179,13 @@ export const Pane: FC = () => {
         return;
       }
 
+      if (saveFile.layers.length != rawLayers.length) {
+        setErrorMessage(
+          `Could not import layout: incorrect number of layers (got ${saveFile.layers.length}, expected ${rawLayers.length}).`,
+        );
+        return;
+      }
+
       if (
         saveFile.layers.findIndex(
           (layer, idx) => layer.length !== rawLayers[idx].keymap.length,
