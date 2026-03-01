@@ -79,6 +79,14 @@ const topLevelMacroToValue = {
   MACRO: '_QK_MACRO', // MACRO(n)
 };
 
+// QMK Unicode constants
+const QK_UNICODE = 0x8000;
+const QK_UNICODE_MAX = 0xFFFF;
+const QK_UNICODEMAP = 0x8000;
+const QK_UNICODEMAP_MAX = 0xBFFF;
+const QK_UNICODEMAP_PAIR = 0xC000;
+const QK_UNICODEMAP_PAIR_MAX = 0xFFFF;
+
 const modifierKeyToValue = {
   LCTL: modCodes.QK_LCTL,
   C: modCodes.QK_LCTL,
@@ -163,6 +171,12 @@ export const advancedStringToKeycode = (
     return parseTopLevelMacro(parts, basicKeyToByte);
   } else if (Object.keys(modifierKeyToValue).includes(parts[0])) {
     return parseModifierCode(parts, basicKeyToByte);
+  } else if (parts[0] === 'UC') {
+    return parseUnicodeCode(parts);
+  } else if (parts[0] === 'UM') {
+    return parseUnicodeMapCode(parts);
+  } else if (parts[0] === 'UP') {
+    return parseUnicodePairCode(parts);
   }
   return 0;
 };
@@ -172,6 +186,26 @@ export const advancedKeycodeToString = (
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
 ): string | null => {
+  // Check if it's a Unicode keycode first
+  if (inputKeycode >= QK_UNICODE && inputKeycode <= QK_UNICODE_MAX) {
+    // Unicode Map (UM)
+    if (inputKeycode >= QK_UNICODEMAP && inputKeycode <= QK_UNICODEMAP_MAX) {
+      const index = inputKeycode & 0x3FFF;
+      return `UM(${index})`;
+    }
+    // Unicode Pair (UP)
+    else if (inputKeycode >= QK_UNICODEMAP_PAIR && inputKeycode <= QK_UNICODEMAP_PAIR_MAX) {
+      const lowerIndex = inputKeycode & 0x7F;
+      const upperIndex = (inputKeycode >> 7) & 0x7F;
+      return `UP(${lowerIndex}, ${upperIndex})`;
+    }
+    // Basic Unicode (UC)
+    else {
+      const codePoint = inputKeycode & 0x7FFF;
+      return `UC(0x${codePoint.toString(16).toUpperCase().padStart(4, '0')})`;
+    }
+  }
+
   let valueToRange: [number, string][] = Object.entries(
     quantumRanges(basicKeyToByte),
   ).map(([key, value]) => [value, key]);
@@ -398,6 +432,76 @@ const parseModifierCode = (
     return 0;
   }
   return bytes.reduce((acc, byte) => acc | byte, 0);
+};
+
+const parseUnicodeCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  let codePoint = 0;
+  
+  // Parse hex value (with or without 0x prefix)
+  if (parameter.startsWith('0X')) {
+    codePoint = parseInt(parameter, 16);
+  } else if (/^[0-9A-F]+$/i.test(parameter)) {
+    // Plain hex without 0x prefix
+    codePoint = parseInt(parameter, 16);
+  } else {
+    return 0;
+  }
+  
+  // Validate code point is within QMK's supported range (0 to 0x7FFF)
+  if (codePoint < 0 || codePoint > 0x7FFF) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode keycode (QK_UNICODE | codePoint)
+  return QK_UNICODE | codePoint;
+};
+
+const parseUnicodeMapCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  const index = parseInt(parameter, 10);
+  
+  // Validate index is within valid range (0 to 0x3FFF = 16383)
+  if (isNaN(index) || index < 0 || index > 0x3FFF) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode Map keycode (QK_UNICODEMAP | index)
+  return QK_UNICODEMAP | index;
+};
+
+const parseUnicodePairCode = (inputParts: string[]): number => {
+  if (inputParts.length < 2 || !inputParts[1]) {
+    return 0;
+  }
+  
+  const parameter = inputParts[1].trim();
+  const indices = parameter.split(',').map(s => s.trim());
+  
+  if (indices.length !== 2) {
+    return 0;
+  }
+  
+  const lowerIndex = parseInt(indices[0], 10);
+  const upperIndex = parseInt(indices[1], 10);
+  
+  // Validate indices are within valid range (0 to 0x7F = 127)
+  if (isNaN(lowerIndex) || lowerIndex < 0 || lowerIndex > 0x7F ||
+      isNaN(upperIndex) || upperIndex < 0 || upperIndex > 0x7F) {
+    return 0;
+  }
+  
+  // Return the QMK Unicode Pair keycode
+  // UP(i, j) = QK_UNICODEMAP_PAIR | (i & 0x7F) | ((j & 0x7F) << 7)
+  return QK_UNICODEMAP_PAIR | (lowerIndex & 0x7F) | ((upperIndex & 0x7F) << 7);
 };
 
 export const anyKeycodeToString = (
