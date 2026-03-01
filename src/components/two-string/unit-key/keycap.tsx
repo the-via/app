@@ -301,6 +301,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     idx,
     mode,
   ]);
+  const primaryTooltip = macroData || (label && label.tooltipLabel)
+  const secondaryTooltip = label?.keyCode
   return shouldRotate ? (
     <EncoderKey
       onClick={onClick}
@@ -405,10 +407,10 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
             <canvas ref={canvasRef} style={{}} />
           </CanvasContainer>
         </GlowContainer>
-        {(macroData || overflowsTexture) && (
+        {(macroData || overflowsTexture || (label?.tooltipLabel) || (label?.keyCode)) && (
           <TooltipContainer $rotate={rotation[2]}>
             <Keycap2DTooltip>
-              {macroData || (label && label.tooltipLabel)}
+              {primaryTooltip || secondaryTooltip}{secondaryTooltip && primaryTooltip && ` (${secondaryTooltip})`}
             </Keycap2DTooltip>
           </TooltipContainer>
         )}
