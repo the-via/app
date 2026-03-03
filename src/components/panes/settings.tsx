@@ -213,6 +213,10 @@ export const Settings = () => {
                 <Label>{t('VIA Firmware Protocol')}</Label>
                 <Detail>{selectedDevice.protocol}</Detail>
               </ControlRow>
+              <ControlRow>
+                <Label>Keycode Version</Label>
+                <Detail>{selectedDevice.keycodeVersion}</Detail>
+              </ControlRow>
             </DiagnosticContainer>
           ) : null}
         </SpanOverflowCell>

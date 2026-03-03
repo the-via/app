@@ -115,8 +115,8 @@ const BufferSizeUsage = () => {
   if (!connectedDevice || !api) {
     return null;
   }
-  const {protocol} = connectedDevice;
-  const macroApi = getMacroAPI(protocol, api);
+  const {protocol, keycodeVersion} = connectedDevice;
+  const macroApi = getMacroAPI(protocol, keycodeVersion, api);
   const bytesUsed = macroApi.rawKeycodeSequencesToMacroBytes(ast).length;
   return (
     <ProgressBarContainer>

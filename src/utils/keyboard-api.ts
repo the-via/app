@@ -39,6 +39,8 @@ enum APICommand {
   DYNAMIC_KEYMAP_SET_BUFFER = 0x13,
   DYNAMIC_KEYMAP_GET_ENCODER = 0x14,
   DYNAMIC_KEYMAP_SET_ENCODER = 0x15,
+  
+  GET_KEYCODE_VERSION = 0x15,
 
   // DEPRECATED:
   BACKLIGHT_CONFIG_SET_VALUE = 0x07,
@@ -101,6 +103,16 @@ export const shiftTo16Bit = ([hi, lo]: [number, number]): number =>
   (hi << 8) | lo;
 
 export const shiftFrom16Bit = (value: number): [number, number] => [
+  value >> 8,
+  value & 255,
+];
+
+export const shiftTo32Bit = ([msb, hi, lo, lsb]: [number, number, number, number]): number =>
+  (msb << 24) | (hi << 16) | (lo << 8) | lsb;
+
+export const shiftFrom32Bit = (value: number): [number, number, number, number] => [
+  value >> 24,
+  value >> 16,
   value >> 8,
   value & 255,
 ];
@@ -170,6 +182,15 @@ export class KeyboardAPI {
     try {
       const [, hi, lo] = await this.hidCommand(APICommand.GET_PROTOCOL_VERSION);
       return shiftTo16Bit([hi, lo]);
+    } catch (e) {
+      return -1;
+    }
+  }
+  
+  async getKeycodeVersion() {
+    try  {
+      const [, msb, hi, lo, lsb] = await this.hidCommand(APICommand.GET_KEYCODE_VERSION);
+      return shiftTo32Bit([msb, hi, lo, lsb]);
     } catch (e) {
       return -1;
     }

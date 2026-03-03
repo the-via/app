@@ -65,14 +65,14 @@ export default macrosSlice.reducer;
 export const loadMacros =
   (connectedDevice: ConnectedDevice): AppThunk =>
   async (dispatch, getState) => {
-    const {protocol} = connectedDevice;
+    const {protocol, keycodeVersion} = connectedDevice;
     if (protocol < 8) {
       dispatch(setMacrosNotSupported());
     } else {
       try {
         const state = getState();
         const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
-        const macroApi = getMacroAPI(protocol, api);
+        const macroApi = getMacroAPI(protocol, keycodeVersion, api);
         if (macroApi) {
           const sequences = await macroApi.readRawKeycodeSequences();
           const macroBufferSize = await api.getMacroBufferSize();
@@ -92,8 +92,8 @@ export const saveMacros =
   async (dispatch, getState) => {
     const state = getState();
     const api = getSelectedKeyboardAPI(state) as KeyboardAPI;
-    const {protocol} = connectedDevice;
-    const macroApi = getMacroAPI(protocol, api);
+    const {protocol, keycodeVersion} = connectedDevice;
+    const macroApi = getMacroAPI(protocol, keycodeVersion, api);
     if (macroApi) {
       const sequences = macros.map((expression) => {
         const optimizedSequence = expressionToSequence(expression);
