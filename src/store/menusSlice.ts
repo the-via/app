@@ -6,6 +6,7 @@ import {
   isVIAMenu,
   VIAMenu,
 } from '@the-via/reader';
+import {evalExpr, parseExpr} from '@the-via/pelpi';
 import {
   makeCustomMenu,
   makeCustomMenus,
@@ -123,7 +124,10 @@ export const updateV3MenuData =
       throw new Error('V3 menus are only compatible with V3 VIA definitions.');
     }
     const menus = getV3Menus(state);
-    const commands = menus.flatMap(extractCommands);
+    const firmwareVersion = getSelectedFirmwareVersion(state);
+    const commands = menus.flatMap((menu) =>
+      extractCommands(menu, firmwareVersion),
+    );
     const {protocol, path} = connectedDevice;
 
     if (commands.length !== 0 && protocol >= 11) {
@@ -159,8 +163,6 @@ export const updateV3MenuData =
         props.__perKeyRGB = perKeyRGB;
       }
 
-      const firmwareVersion = getSelectedFirmwareVersion(state);
-
       dispatch(
         updateSelectedCustomMenuData({
           devicePath: path,
@@ -175,16 +177,44 @@ export const updateV3MenuData =
     }
   };
 
+// Returns true if the showIf expression references only id_firmware_version
+const isFirmwareOnlyExpr = (showIf: string): boolean => {
+  try {
+    const {state} = parseExpr(showIf);
+    const keys = Object.keys(state);
+    return (
+      keys.length > 0 && keys.every((key) => key === 'id_firmware_version')
+    );
+  } catch {
+    return false;
+  }
+};
+
 // TODO: properly type the input and add proper type guards
-const extractCommands = (menuOrControls: any) => {
+const extractCommands = (
+  menuOrControls: any,
+  firmwareVersion?: number,
+): any[] => {
   if (typeof menuOrControls === 'string') {
+    return [];
+  }
+  // Prune firmware-gated branches early when firmware version is known
+  if (
+    firmwareVersion !== undefined &&
+    'showIf' in menuOrControls &&
+    typeof menuOrControls.showIf === 'string' &&
+    isFirmwareOnlyExpr(menuOrControls.showIf) &&
+    !evalExpr(menuOrControls.showIf, {id_firmware_version: [firmwareVersion]})
+  ) {
     return [];
   }
   return 'type' in menuOrControls
     ? [menuOrControls.content]
     : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
-    ? menuOrControls.content.flatMap(extractCommands)
-    : [];
+      ? menuOrControls.content.flatMap((item: any) =>
+          extractCommands(item, firmwareVersion),
+        )
+      : [];
 };
 
 export const getCommonMenusDataMap = (state: RootState) =>
@@ -239,7 +269,8 @@ export const getV3MenuComponents = createSelector(
 export const getCustomCommands = createSelector(
   getSelectedDefinition,
   getV3Menus,
-  (definition, v3Menus) => {
+  getSelectedFirmwareVersion,
+  (definition, v3Menus, firmwareVersion) => {
     if (!definition) {
       return [];
     }
@@ -251,12 +282,14 @@ export const getCustomCommands = createSelector(
       return [];
     }
 
-    return menus.flatMap(extractCommands).reduce((p, n) => {
-      return {
-        ...p,
-        [n[0]]: n.slice(1),
-      };
-    }, {});
+    return menus
+      .flatMap((menu: any) => extractCommands(menu, firmwareVersion))
+      .reduce((p, n) => {
+        return {
+          ...p,
+          [n[0]]: n.slice(1),
+        };
+      }, {});
   },
 );
 
