@@ -74,6 +74,7 @@ export const {
 
 export default menusSlice.reducer;
 
+const customMenuCommitTimeouts: Record<number, NodeJS.Timeout> = {};
 export const updateCustomMenuValue =
   (command: string, ...rest: number[]): AppThunk =>
   async (dispatch, getState) => {
@@ -101,7 +102,15 @@ export const updateCustomMenuValue =
     api.setCustomMenuValue(...rest.slice(0));
 
     const channel = rest[0];
-    api.commitCustomMenu(channel);
+    
+    // Delete any existing menu commit timeouts
+    clearTimeout(customMenuCommitTimeouts[channel]);
+
+    // Create and store timeout for commiting the custom menu
+    const customMenuTimeoutMs: number = 250;
+    customMenuCommitTimeouts[channel] = setTimeout(() => {
+      api.commitCustomMenu(channel);
+    }, customMenuTimeoutMs);
   };
 
 // COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
