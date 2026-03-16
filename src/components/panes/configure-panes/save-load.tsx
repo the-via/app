@@ -110,48 +110,70 @@ export const Pane: FC = () => {
     }
   };
 
+  // `showSaveFilePicker` (File System Access API) isn't supported everywhere and can
+  // fail without showing a prompt in some contexts. Prefer it when available, but
+  // fall back to a standard Blob download so "Save" always works.
+  const saveBlobAsFile = async (blob: Blob, suggestedName: string) => {
+    const showSaveFilePicker = window.showSaveFilePicker;
+    if (typeof showSaveFilePicker === 'function') {
+      try {
+        const handle = await showSaveFilePicker({
+          suggestedName,
+          types: [
+            {
+              description: 'JSON',
+              accept: {'application/json': ['.json']},
+            },
+          ],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        return;
+      } catch (err) {
+        if ((err as any)?.name === 'AbortError') {
+          return;
+        }
+        console.error(err);
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    try {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = suggestedName;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+  };
+
   const saveLayout = async () => {
     const {name, vendorProductId} = selectedDefinition;
     const suggestedName =
       name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase() + '.layout.json';
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName,
-      });
-      const encoderValues = await getEncoderValues();
-      const saveFile: ViaSaveFile = {
-        name,
-        vendorProductId,
-        macros: [...expressions],
-        layers: rawLayers.map(
-          (layer: {keymap: number[]}) =>
-            layer.keymap.map(
-              (keyByte: number) =>
-                getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
-            ), // TODO: should empty string be empty keycode instead?
-        ),
-        encoders: encoderValues,
-      };
+    const encoderValues = await getEncoderValues();
+    const saveFile: ViaSaveFile = {
+      name,
+      vendorProductId,
+      macros: [...expressions],
+      layers: rawLayers.map(
+        (layer: {keymap: number[]}) =>
+          layer.keymap.map(
+            (keyByte: number) =>
+              getCodeForByte(keyByte, basicKeyToByte, byteToKey) || '',
+          ), // TODO: should empty string be empty keycode instead?
+      ),
+      encoders: encoderValues,
+    };
 
-      const content = stringify(saveFile);
-      const blob = new Blob([content], {type: 'application/json'});
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-    } catch (err) {
-      console.log('User cancelled save file request');
-    }
-
-    /*
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = defaultFilename;
-
-    link.click();
-    URL.revokeObjectURL(url);
-*/
+    const content = stringify(saveFile);
+    const blob = new Blob([content], {type: 'application/json'});
+    await saveBlobAsFile(blob, suggestedName);
   };
 
   const loadLayout = ([file]: Blob[]) => {
