@@ -121,7 +121,7 @@ const makeReaderPromise = (file: File): Promise<[string, string]> => {
     };
     reader.onerror = rej;
     reader.onabort = rej;
-    reader.readAsBinaryString(file);
+    reader.readAsText(file, "UTF-8")
   });
 };
 
