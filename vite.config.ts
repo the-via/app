@@ -12,13 +12,7 @@ const hash = fs.readFileSync('public/definitions/hash.json', 'utf8');
 export default defineConfig({
   plugins: [
     VitePWA({
-      includeAssets: [
-        'favicon.ico',
-        'apple-touch-icon.png',
-        'favicon-16x16.png',
-        'favicon-32x32.png',
-        'safari-pinned-tab.svg',
-      ],
+      manifestFilename: 'site.webmanifest',
       manifest: {
         name: "VIA",
         short_name: "VIA",
@@ -41,7 +35,13 @@ export default defineConfig({
         background_color: "#dadada",
         display: "standalone"
       },
-      manifestFilename: 'site.webmanifest',
+      includeAssets: [
+        'favicon.ico',
+        'apple-touch-icon.png',
+        'favicon-16x16.png',
+        'favicon-32x32.png',
+        'safari-pinned-tab.svg',
+      ],
       workbox: {
         runtimeCaching: [
           {
