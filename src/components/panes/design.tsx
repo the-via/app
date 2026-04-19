@@ -173,7 +173,7 @@ function importDefinitions(
                   []
             ).map(
               (e) =>
-                `${fileName} ${e.dataPath ? e.dataPath + ': ' : 'Object: '}${
+                `${fileName} ${e.instancePath ? e.instancePath + ': ' : 'Object: '}${
                   e.message
                 }`,
             );
