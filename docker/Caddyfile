@@ -5,7 +5,6 @@
 	servers :8080 {
 		protocols h1 h2c
 	}
-	storage file_system /storage
 	log {
 		level WARN
 	}

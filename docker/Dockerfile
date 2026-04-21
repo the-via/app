@@ -37,12 +37,12 @@ COPY --chmod=0644 docker/Caddyfile /config/Caddyfile
 
 ARG APP_UID=1000 APP_GID=1000
 USER ${APP_UID}:${APP_GID}
-WORKDIR /storage
+WORKDIR /data
 
 WORKDIR /app
 COPY --from=npm-builder --chmod=u=rwX,go=rX /build/dist .
 
-ENV XDG_DATA_HOME=/storage XDG_CONFIG_HOME=/config
+ENV XDG_DATA_HOME=/data XDG_CONFIG_HOME=/config
 
 WORKDIR /config
 ENTRYPOINT [ "/usr/bin/caddy", "run", "/config/Caddyfile" ]
