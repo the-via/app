@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {AccentButton, PrimaryAccentButton} from './accent-button';
 import {AutocompleteItem} from './autocomplete-keycode';
@@ -45,6 +45,7 @@ type KeycodeModalProps = {
   onChange?: (val: number) => void;
   onExit: () => void;
   onConfirm: (keycode: number) => void;
+  onOpenChange?: (open: boolean) => void;
 };
 
 function isHex(input: string): boolean {
@@ -148,31 +149,66 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
     byteToKey,
   );
 
+  const suppressNextKeyHandlerRef = useRef(false);
+  const [isOpen, setIsOpen] = useState(defaultInput === '');
+
   const {
     getMenuProps,
     getInputProps,
     highlightedIndex,
     inputValue,
     getItemProps,
-    isOpen,
   } = useCombobox({
     items: inputItems,
-    initialIsOpen: defaultInput === '',
+    isOpen,
+    onIsOpenChange: ({isOpen}) => setIsOpen(isOpen ?? false),
     defaultInputValue: defaultInput,
     itemToString: (item) => item?.code ?? '',
+    onStateChange: ({type}) => {
+      if (
+        isOpen &&
+        (type === useCombobox.stateChangeTypes.InputKeyDownEscape ||
+          type === useCombobox.stateChangeTypes.InputKeyDownEnter)
+      ) {
+        suppressNextKeyHandlerRef.current = true;
+      }
+    },
     onInputValueChange: ({inputValue}) => {
-      setInputItems(
-        supportedInputItems.filter(({label, code}) =>
-          [label, code]
-            .flatMap((s) => s.split(/\s+/))
-            .map((s) => s.toLowerCase())
-            .some((s) => s.startsWith((inputValue ?? '').toLowerCase())),
-        ),
+      const items = supportedInputItems.filter(({label, code}) =>
+        [label, code]
+          .flatMap((s) => s.split(/\s+/))
+          .map((s) => s.toLowerCase())
+          .some((s) => s.startsWith((inputValue ?? '').toLowerCase())),
       );
+      setInputItems(items);
+      if (items.length === 0) {
+        suppressNextKeyHandlerRef.current = false;
+        setIsOpen(false);
+      }
     },
   });
 
   const isValid = inputIsValid(inputValue, basicKeyToByte);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (suppressNextKeyHandlerRef.current) {
+        suppressNextKeyHandlerRef.current = false;
+        return;
+      }
+      if (e.key === 'Enter' && isValid && highlightedIndex === -1) {
+        props.onConfirm(
+          keycodeFromInput(inputValue as any, basicKeyToByte) as any,
+        );
+      }
+      if (e.key === 'Escape') {
+        props.onExit();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isValid, highlightedIndex, inputValue, basicKeyToByte, props]);
+
   return (
     <ModalBackground>
       <ModalContainer>
