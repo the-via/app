@@ -171,6 +171,9 @@ const ExtendedHID = {
 
     async write(arr: number[]) {
       await this.openPromise;
+      if (this._hidDevice && !this._hidDevice._device.opened) {
+        await this.open();
+      }
       const data = new Uint8Array(arr.slice(1));
       await this._hidDevice?._device.sendReport(0, data);
     }
