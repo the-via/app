@@ -1032,6 +1032,7 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
         {name: 'RGB Mode Knight', code: 'RGB_M_K', shortName: 'Mode K', title: 'Knight Rider animation mode'},
         {name: 'RGB Mode Xmas', code: 'RGB_M_X', shortName: 'Mode X', title: 'Christmas animation mode'},
         {name: 'RGB Mode Grad', code: 'RGB_M_G', shortName: 'Mode G', title: 'Static gradient mode'},
+        {name: 'RGB Mode Test', code: 'RGB_MODE_RGBTEST', shortName: 'Mode T', title: 'Red, Green, Blue test animation mode'},
         {name: 'RGB Matrix Toggle', code: 'RM_TOGG', shortName: 'RM Tog', title: 'Toggle RGB Matrix on or off'},
         {name: 'RGB Matrix On', code: 'RM_ON', shortName: 'RM On', title: 'Turn on RGB Matrix'},
         {name: 'RGB Matrix Off', code: 'RM_OFF', shortName: 'RM Off', title: 'Turn off RGB Matrix'},
