@@ -25,7 +25,7 @@ export const getRecognisedDevices = async (
 ) => {
   const usbDevices = await scanDevices(forceRequest);
   return usbDevices.filter((device) => {
-    const validVendorProduct = idExists(device, vpidMap);
+    const validVendorProduct = forceRequest || idExists(device, vpidMap);
     // attempt connection
     return validVendorProduct && canConnect(device);
   });

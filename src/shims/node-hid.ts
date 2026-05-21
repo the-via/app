@@ -52,7 +52,7 @@ export const tryForgetDevice = (device: ConnectedDevice | AuthorizedDevice) => {
 const ExtendedHID = {
   _cache: {} as {[key: string]: WebVIADevice},
   requestDevice: async () => {
-    const requestedDevice = await navigator.hid.requestDevice({
+    const requestedDevices = await navigator.hid.requestDevice({
       filters: [
         {
           usagePage: 0xff60,
@@ -60,8 +60,8 @@ const ExtendedHID = {
         },
       ],
     });
-    requestedDevice.forEach(tagDevice);
-    return requestedDevice[0];
+    requestedDevices.forEach(tagDevice);
+    return requestedDevices;
   },
   getFilteredDevices: async () => {
     try {
@@ -76,12 +76,26 @@ const ExtendedHID = {
     // TODO: This is a hack to avoid spamming the requestDevices popup
     if (devices.length === 0 || requestAuthorize) {
       try {
-        await ExtendedHID.requestDevice();
+        const requestedDevices = await ExtendedHID.requestDevice();
+        devices = [...devices];
+        requestedDevices.forEach((requestedDevice) => {
+          if (
+            !devices.some(
+              (device) =>
+                device.productId === requestedDevice.productId &&
+                device.vendorId === requestedDevice.vendorId,
+            )
+          ) {
+            devices.push(requestedDevice);
+          }
+        });
       } catch (e) {
         // The request seems to fail when the last authorized device is disconnected.
         return [];
       }
-      devices = await ExtendedHID.getFilteredDevices();
+      if (devices.length === 0) {
+        devices = await ExtendedHID.getFilteredDevices();
+      }
     }
     return devices.map(tagDevice);
   },

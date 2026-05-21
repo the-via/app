@@ -197,6 +197,17 @@ export const reloadConnectedDevices =
     });
     dispatch(updateConnectedDevices(connectedDevices));
 
+    if (authorizedDevices.length > 0 && validDevicesArr.length === 0) {
+      const deviceInfo = extractDeviceInfo(authorizedDevices[0]);
+      dispatch(
+        logAppError({
+          message:
+            'A HID device was authorized, but VIA could not find a matching keyboard definition for it.',
+          deviceInfo,
+        }),
+      );
+    }
+
     // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
     // If we haven't chosen a selected device yet and there is a valid device, try that
     if (
