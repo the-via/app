@@ -1,0 +1,18 @@
+{
+  "name": "MAG60",
+  "vendorProductId": 68722784,
+  "firmwareVersion": 0,
+  "menus": [],
+  "keycodes": [],
+  "matrix": {
+    "rows": 5,
+    "cols": 14
+  },
+  "layouts": {
+    "labels": ["Default"],
+    "width": 14,
+    "height": 5,
+    "optionKeys": {},
+    "keys": []
+  }
+}
