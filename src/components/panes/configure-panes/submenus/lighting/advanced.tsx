@@ -116,8 +116,8 @@ export const AdvancedPane: FC = () => {
       <>
         {RGBControls.filter(
           (control) => supportedLightingValues.indexOf(control[0]) !== -1,
-        ).map((meta: AdvancedControlMeta) => (
-          <LightingControl meta={meta} />
+        ).map((meta) => (
+          <LightingControl key={meta[0]} meta={meta} />
         ))}
       </>
     );
