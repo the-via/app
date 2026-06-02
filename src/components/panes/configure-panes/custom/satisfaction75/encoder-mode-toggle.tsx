@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 
 const MODES = {
   ENC_MODE_VOLUME: 0,
@@ -39,9 +40,15 @@ type Props = {
   onChange: (value: number) => void;
 };
 
-export class EncoderModeToggle extends React.Component<Props> {
-  handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-    const {enabledModes, onChange} = this.props;
+export const EncoderModeToggle: React.FC<Props> = ({
+  enabledModes,
+  onChange,
+}) => {
+  const {t} = useTranslation();
+
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event,
+  ) => {
     const {
       target: {checked: value, name},
     } = event;
@@ -52,35 +59,32 @@ export class EncoderModeToggle extends React.Component<Props> {
     onChange(newEnabledModes);
   };
 
-  isChecked = (modeIdx: number): boolean =>
-    ((1 << modeIdx) & this.props.enabledModes) > 0;
+  const isChecked = (modeIdx: number): boolean =>
+    ((1 << modeIdx) & enabledModes) > 0;
 
-  render() {
-    return (
-      <CenteredColumnDiv>
-        <h3>Enabled Encoder Modes:</h3>
-        <p>Only the selected encoder modes will be available on the keyboard</p>
-        <ColumnDiv>
-          {Object.entries(MODES).map(([key, value]) => (
-            <label
-              key={value}
-              htmlFor={MODE_LABELS[key as keyof typeof MODE_LABELS]}
-            >
-              <input
-                name={key}
-                id={MODE_LABELS[key as keyof typeof MODE_LABELS]}
-                type="checkbox"
-                checked={this.isChecked(value)}
-                onChange={this.handleInputChange}
-                key={value}
-              />
-              {MODE_LABELS[key as keyof typeof MODE_LABELS]}
-            </label>
-          ))}
-        </ColumnDiv>
-      </CenteredColumnDiv>
-    );
-  }
-}
+  return (
+    <CenteredColumnDiv>
+      <h3>{t('Enabled Encoder Modes:')}</h3>
+      <p>{t('Only the selected encoder modes will be available on the keyboard')}</p>
+      <ColumnDiv>
+        {Object.entries(MODES).map(([key, value]) => (
+          <label
+            key={value}
+            htmlFor={MODE_LABELS[key as keyof typeof MODE_LABELS]}
+          >
+            <input
+              name={key}
+              id={MODE_LABELS[key as keyof typeof MODE_LABELS]}
+              type="checkbox"
+              checked={isChecked(value)}
+              onChange={handleInputChange}
+            />
+            {t(MODE_LABELS[key as keyof typeof MODE_LABELS])}
+          </label>
+        ))}
+      </ColumnDiv>
+    </CenteredColumnDiv>
+  );
+};
 
 export default EncoderModeToggle;

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Pane} from './pane';
 import styled from 'styled-components';
 import {
@@ -16,6 +16,7 @@ import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getShowDesignTab,
+  getShowDesignTabConfirmationNotice,
   getDisableFastRemap,
   getShowSliderValuesMode,
   toggleCreatorMode,
@@ -27,6 +28,7 @@ import {
   updateThemeName,
   getRenderMode,
   updateRenderMode,
+  setShowDesignTabConfirmationNotice,
 } from 'src/store/settingsSlice';
 import {AccentSelect} from '../inputs/accent-select';
 import {THEMES} from 'src/utils/themes';
@@ -38,6 +40,7 @@ import {getSelectedConnectedDevice} from 'src/store/devicesSlice';
 import {ErrorMessage} from '../styled';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
 import {useTranslation} from 'react-i18next';
+import {MessageDialog} from '../inputs/message-dialog';
 
 const Container = styled.div`
   display: flex;
@@ -60,6 +63,9 @@ export const Settings = () => {
   const {t} = useTranslation();
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
+  const showDesignTabConfirmationNotice = useAppSelector(
+    getShowDesignTabConfirmationNotice,
+  );
   const disableFastRemap = useAppSelector(getDisableFastRemap);
   const ShowSliderValuesMode = useAppSelector(getShowSliderValuesMode);
   const themeMode = useAppSelector(getThemeMode);
@@ -68,9 +74,17 @@ export const Settings = () => {
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);
 
   const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [showDesignTabNotice, setShowDesignTabNotice] = useState(false);
+
+  useEffect(() => {
+    if (showDesignTabConfirmationNotice) {
+      setShowDesignTabNotice(true);
+      dispatch(setShowDesignTabConfirmationNotice(false));
+    }
+  }, [dispatch, showDesignTabConfirmationNotice]);
 
   const themeSelectOptions = Object.keys(THEMES).map((k) => ({
-    label: k.replaceAll('_', ' '),
+    label: t(k.replaceAll('_', ' ')),
     value: k,
   }));
   const themeDefaultValue = themeSelectOptions.find(
@@ -100,15 +114,15 @@ export const Settings = () => {
   const renderModeOptions = webGLIsAvailable
     ? [
         {
-          label: '2D',
+          label: t('2D'),
           value: '2D',
         },
         {
-          label: '3D',
+          label: t('3D'),
           value: '3D',
         },
       ]
-    : [{label: '2D', value: '2D'}];
+    : [{label: t('2D'), value: '2D'}];
   const renderModeDefaultValue = renderModeOptions.find(
     (opt) => opt.value === renderMode,
   );
@@ -207,6 +221,15 @@ export const Settings = () => {
               </Detail>
             </ControlRow>
           </Container>
+          <MessageDialog
+            isOpen={showDesignTabNotice}
+            onConfirm={() => setShowDesignTabNotice(false)}
+            confirmLabel="OK"
+          >
+            {t(
+              "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.",
+            )}
+          </MessageDialog>
           {showDiagnostics && selectedDevice ? (
             <DiagnosticContainer>
               <ControlRow>

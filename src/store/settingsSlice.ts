@@ -18,6 +18,7 @@ type SettingsState = Settings & {
   isTestMatrixEnabled: boolean;
   restartRequired: boolean;
   allowGlobalHotKeys: boolean;
+  showDesignTabConfirmationNotice: boolean;
 };
 
 const initialState: SettingsState = {
@@ -25,6 +26,7 @@ const initialState: SettingsState = {
   isTestMatrixEnabled: false,
   restartRequired: false,
   allowGlobalHotKeys: false,
+  showDesignTabConfirmationNotice: false,
 };
 
 const toggleBool = (
@@ -53,6 +55,13 @@ const settingsSlice = createSlice({
     },
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
+    },
+    setShowDesignTab: (state, action: PayloadAction<boolean>) => {
+      state.showDesignTab = action.payload;
+      setSettings(state);
+    },
+    setShowDesignTabConfirmationNotice: (state, action: PayloadAction<boolean>) => {
+      state.showDesignTabConfirmationNotice = action.payload;
     },
     toggleThemeMode: (state) => {
       const newThemeMode = state.themeMode === 'light' ? 'dark' : 'light';
@@ -114,7 +123,9 @@ export const {
   toggleFastRemap,
   updateShowSliderValuesMode,
   toggleCreatorMode,
+  setShowDesignTab,
   setTestMatrixEnabled,
+  setShowDesignTabConfirmationNotice,
   setTestKeyboardSoundsSettings,
   setMacroEditorSettings,
   toggleThemeMode,
@@ -137,6 +148,8 @@ export const getShowSliderValuesMode = (state: RootState) =>
   webGLIsAvailable ? state.settings.ShowSliderValuesMode : 'Slider Only';
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
+export const getShowDesignTabConfirmationNotice = (state: RootState) =>
+  state.settings.showDesignTabConfirmationNotice;
 export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>

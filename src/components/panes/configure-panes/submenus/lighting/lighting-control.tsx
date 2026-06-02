@@ -16,10 +16,12 @@ import {
 import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {useAppDispatch} from 'src/store/hooks';
+import {useTranslation} from 'react-i18next';
+import type {TFunction} from 'i18next';
 
 export type ControlMeta = [
   LightingValue,
-  string | React.FC<AdvancedControlProps>,
+  string | ((props: AdvancedControlProps & {t: TFunction}) => React.ReactNode),
   {type: string} & Partial<{
     min: number;
     max: number;
@@ -28,6 +30,7 @@ export type ControlMeta = [
 ];
 type AdvancedControlProps = {meta: ControlMeta};
 export const LightingControl = (props: AdvancedControlProps) => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const definition = useAppSelector(getSelectedDefinition);
@@ -37,7 +40,8 @@ export const LightingControl = (props: AdvancedControlProps) => {
     return null;
   }
 
-  const labelContent = typeof label === 'string' ? label : label(props);
+  const labelContent =
+    typeof label === 'string' ? t(label) : label({...props, t});
   switch (meta.type) {
     case 'slider':
       return (
@@ -86,7 +90,7 @@ export const LightingControl = (props: AdvancedControlProps) => {
       const options = ((meta as any).getOptions(definition) as string[]).map(
         (label, value) => ({
           value,
-          label,
+          label: t(label),
         }),
       );
       return (

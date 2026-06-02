@@ -42,7 +42,7 @@ const RGBControls: ControlMeta[] = [
   ],
   [
     LightingValue.BACKLIGHT_DISABLE_AFTER_TIMEOUT,
-    () => {
+    ({t}) => {
       const lightingData = useAppSelector(getSelectedLightingData);
       const valArr =
         lightingData &&
@@ -53,9 +53,11 @@ const RGBControls: ControlMeta[] = [
 
       return (
         <span>
-          LED Sleep Timeout:{' '}
+          {t('LED Sleep Timeout')}:{' '}
           <AccentText>
-            {!valArr[0] ? 'Never' : `After ${valArr[0]} mins`}
+            {!valArr[0]
+              ? t('Never')
+              : t('After {{mins}} mins', {mins: valArr[0]})}
           </AccentText>
         </span>
       );

@@ -143,7 +143,7 @@ const VIACustomControl = (props: VIACustomControlProps) => {
             typeof option === 'string' ? [option, idx] : option;
           return {
             value: value || idx,
-            label,
+            label: t(label),
           };
         },
       );
