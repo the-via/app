@@ -66,7 +66,7 @@ function isSlice(
   return !('label' in elem);
 }
 
-function categoryGenerator(props: any): Category[] {
+function categoryGenerator(props: any, t: (key: string) => string): Category[] {
   // Safety check:  return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
@@ -81,7 +81,7 @@ function categoryGenerator(props: any): Category[] {
   }
 
   return props.viaMenu.content.flatMap((menu: any) =>
-    submenuGenerator(menu, props),
+    submenuGenerator(menu, props, t),
   );
 }
 
@@ -129,23 +129,18 @@ const MenuBuilder = (elem: any) => (props: any) =>
 function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,
   props: any,
+  t: (key: string) => string,
 ): any {
   // Safety check: return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
   }
 
-  const {t} = useTranslation();
-
   const isHidden =
     'showIf' in elem &&
     !evalExpr(elem.showIf as string, props.selectedCustomMenuData);
 
   if ('label' in elem) {
-    function t(arg0: string): React.ReactNode | Iterable<React.ReactNode> {
-      throw new Error('Function not implemented.');
-    }
-
     return {
       label: elem.label,
       Menu: isHidden
@@ -169,7 +164,11 @@ function submenuGenerator(
       return [];
     }
     return elem.content.flatMap((e) =>
-      submenuGenerator(e as TagWithId<VIASubmenu, VIASubmenuSlice>, props),
+      submenuGenerator(
+        e as TagWithId<VIASubmenu, VIASubmenuSlice>,
+        props,
+        t,
+      ),
     );
   }
 }
@@ -188,7 +187,7 @@ export const Pane: React.FC<Props> = (props: any) => {
       dispatch(updateCustomMenuValue(command, ...rest)),
   };
 
-  const menus = categoryGenerator(childProps);
+  const menus = categoryGenerator(childProps, t);
 
   const [selectedCategory, setSelectedCategory] = useState(
     menus[0] || {label: '', Menu: () => <div />},

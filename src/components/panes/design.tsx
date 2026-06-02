@@ -58,8 +58,11 @@ import {formatNumberAsHex} from 'src/utils/format';
 import {
   getDesignDefinitionVersion,
   updateDesignDefinitionVersion,
+  setShowDesignTab,
+  setShowDesignTabConfirmationNotice,
 } from 'src/store/settingsSlice';
 import {useTranslation} from 'react-i18next';
+import {useLocation} from 'wouter';
 
 let designWarningSeen = Number(localStorage.getItem('designWarningSeen') || 0);
 let hideDesignWarning =
@@ -229,6 +232,7 @@ function onDrop(
 export const DesignTab: FC = () => {
   const {t} = useTranslation();
   const dispatch = useDispatch();
+  const [, setLocation] = useLocation();
   const localDefinitions = Object.values(useAppSelector(getCustomDefinitions));
   const definitionVersion = useAppSelector(getDesignDefinitionVersion);
   const selectedDefinitionIndex = useAppSelector(getSelectedDefinitionIndex);
@@ -263,16 +267,21 @@ export const DesignTab: FC = () => {
     >
       <MessageDialog
         isOpen={!hideDesignWarning}
-        onClose={() => {
+        onConfirm={() => {
           sessionStorage.setItem('hideDesignWarning', '1');
           hideDesignWarning = '1';
           designWarningSeen = designWarningSeen + 1;
           localStorage.setItem('designWarningSeen', `${designWarningSeen}`);
         }}
+        onCancel={() => {
+          dispatch(setShowDesignTab(false));
+          dispatch(setShowDesignTabConfirmationNotice(true));
+          setLocation('/settings');
+        }}
       >
-        This feature is intended for development purposes. If your keyboard is
-        not recognized automatically by VIA, please contact your keyboard's
-        manufacturer or vendor.
+        {t(
+          "This feature is intended for development purposes. If your keyboard is not recognized automatically by VIA, please contact your keyboard's manufacturer or vendor.",
+        )}
       </MessageDialog>
       <SinglePaneFlexCell ref={flexRef}>
         {!definition && (

@@ -2,6 +2,7 @@ import {FC, useState, useEffect} from 'react';
 import {Detail, Label, ControlRow, SpanOverflowCell} from '../grid';
 import {CenterPane} from '../pane';
 import styled from 'styled-components';
+import {useTranslation} from 'react-i18next';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {PelpiKeycodeInput} from 'src/components/inputs/pelpi/keycode-input';
 import {getSelectedKeyDefinitions} from 'src/store/definitionsSlice';
@@ -31,16 +32,8 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
-const renderEncoderError = () => {
-  return (
-    <ErrorMessage>
-      Your current firmware does not support rotary encoders. Install the latest
-      firmware for your device.
-    </ErrorMessage>
-  );
-};
-
 export const Pane: FC = () => {
+  const {t} = useTranslation();
   const [cwValue, setCWValue] = useState<number>();
   const [ccwValue, setCCWValue] = useState<number>();
   const selectedKey = useAppSelector(getSelectedKey);
@@ -110,14 +103,22 @@ export const Pane: FC = () => {
     ccwValue === undefined ||
     cwValue === undefined
   ) {
-    return <SpanOverflowCell>{renderEncoderError()}</SpanOverflowCell>;
+    return (
+      <SpanOverflowCell>
+        <ErrorMessage>
+          {t(
+            'Your current firmware does not support rotary encoders. Install the latest firmware for your device.',
+          )}
+        </ErrorMessage>
+      </SpanOverflowCell>
+    );
   }
   return (
     <SpanOverflowCell>
       <Encoder>
         <Container>
           <ControlRow>
-            <Label>Rotate Counterclockwise</Label>
+            <Label>{t('Rotate Counterclockwise')}</Label>
             <Detail>
               <PelpiKeycodeInput
                 value={ccwValue}
@@ -127,7 +128,7 @@ export const Pane: FC = () => {
             </Detail>
           </ControlRow>
           <ControlRow>
-            <Label>Rotate Clockwise</Label>
+            <Label>{t('Rotate Clockwise')}</Label>
             <Detail>
               <PelpiKeycodeInput
                 value={cwValue}
@@ -138,7 +139,7 @@ export const Pane: FC = () => {
           </ControlRow>
           {canClick && (
             <ControlRow>
-              <Label>Press Encoder</Label>
+              <Label>{t('Press Encoder')}</Label>
               <Detail>
                 <PelpiKeycodeInput
                   value={val}

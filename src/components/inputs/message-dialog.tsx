@@ -2,6 +2,7 @@ import {PropsWithChildren, useCallback, useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {AccentButton} from './accent-button';
 import {ModalContainer, PromptText} from './dialog-base';
+import {useTranslation} from 'react-i18next';
 
 const MessageDialogContainer = styled.dialog`
   padding: 0;
@@ -29,18 +30,18 @@ const Controls = styled.div`
 export const MessageDialog: React.FC<
   PropsWithChildren<{
     isOpen: boolean;
-    onClose?(): void;
+    onConfirm?(): void;
+    onCancel?(): void;
+    confirmLabel?: string;
   }>
 > = (props) => {
+  const {t} = useTranslation();
   const ref = useRef<HTMLDialogElement>(null);
-  const closeModalWithCallback = useCallback(() => {
+  const closeModal = useCallback(() => {
     if (ref.current) {
       ref.current.close();
     }
-    if (props.onClose) {
-      props.onClose();
-    }
-  }, [ref.current, props.onClose]);
+  }, [ref.current]);
   useEffect(() => {
     if (ref.current) {
       if (props.isOpen) {
@@ -50,15 +51,28 @@ export const MessageDialog: React.FC<
       }
     }
     return () => {
-      closeModalWithCallback();
+      closeModal();
     };
   }, [props.isOpen]);
   return (
-    <MessageDialogContainer ref={ref}>
+    <MessageDialogContainer
+      ref={ref}
+      onCancel={(evt) => {
+        evt.preventDefault();
+        props.onCancel?.();
+      }}
+    >
       <ModalContainer>
         <PromptText>{props.children}</PromptText>
         <Controls>
-          <AccentButton onClick={closeModalWithCallback}>Confirm</AccentButton>
+          <AccentButton
+            onClick={() => {
+              props.onConfirm?.();
+              closeModal();
+            }}
+          >
+            {t(props.confirmLabel || 'Confirm')}
+          </AccentButton>
         </Controls>
       </ModalContainer>
     </MessageDialogContainer>

@@ -20,6 +20,7 @@ import {
   PromptText,
   RowDiv,
 } from './dialog-base';
+import {useTranslation} from 'react-i18next';
 
 const AutocompleteContainer = styled.ul`
   position: fixed;
@@ -133,6 +134,7 @@ const getInputItems = (arr: IKeycode[]) =>
 
 // Connect component with redux here:
 export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
+  const {t} = useTranslation();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
   if (!selectedDefinition) {
@@ -177,7 +179,7 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
     <ModalBackground>
       <ModalContainer>
         <PromptText>
-          Please enter your desired QMK keycode or hex code:
+          {t('Please enter your desired QMK keycode or hex code:')}
         </PromptText>
         <div>
           <div>
@@ -209,7 +211,7 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
           </AutocompleteContainer>
         </div>
         <RowDiv>
-          <AccentButton onClick={props.onExit}>Cancel</AccentButton>
+          <AccentButton onClick={props.onExit}>{t('Cancel')}</AccentButton>
           <PrimaryAccentButton
             disabled={!isValid}
             onClick={() => {
@@ -218,7 +220,7 @@ export const KeycodeModal: React.FC<KeycodeModalProps> = (props) => {
               );
             }}
           >
-            Confirm
+            {t('Confirm')}
           </PrimaryAccentButton>
         </RowDiv>
       </ModalContainer>
