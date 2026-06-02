@@ -175,10 +175,13 @@ function importDefinitions(
                   isVIADefinitionV3.errors ||
                   []
             ).map(
-              (e) =>
-                `${fileName} ${e.instancePath ? e.instancePath + ': ' : 'Object: '}${
-                  e.message
-                }`,
+              (e) => {
+                const path =
+                  (e as {instancePath?: string; dataPath?: string}).instancePath ||
+                  (e as {instancePath?: string; dataPath?: string}).dataPath;
+
+                return `${fileName} ${path ? path + ': ' : 'Object: '}${e.message}`;
+              },
             );
           }
         } catch (err: any) {
