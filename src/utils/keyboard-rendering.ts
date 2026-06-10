@@ -22,6 +22,7 @@ import {
   isArrowKey,
   isMacroKeycodeByte,
   getMacroKeycodeIndex,
+  byteHasShortname,
 } from './key';
 
 export const CSSVarObject = {
@@ -462,6 +463,7 @@ export const getLabel = (
 
   // Full name
   let tooltipLabel: string = '';
+  let shortName: string | undefined;
   if (
     isCustomKeycodeByte(keycodeByte, basicKeyToByte) &&
     selectedDefinition?.customKeycodes &&
@@ -477,12 +479,16 @@ export const getLabel = (
       selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode,
       700,
     );
+    shortName = (
+      selectedDefinition.customKeycodes[customKeycodeIdx] as IKeycode
+    ).shortName;
   } else if (keycodeByte) {
     label =
       getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
       '';
     tooltipLabel =
       getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
+    shortName = byteHasShortname(keycodeByte, basicKeyToByte, byteToKey);
   }
   let macroExpression: string | undefined;
   if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
@@ -529,6 +535,7 @@ export const getLabel = (
       key: (label || '') + (macroExpression || ''),
       size: size,
       offset: offset,
+      shortName,
     };
   }
 };
