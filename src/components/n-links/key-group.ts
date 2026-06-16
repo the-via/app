@@ -72,6 +72,7 @@ export function getLabels<T>(
   macroExpressions: string[],
   basicKeyToByte: ReturnType<typeof getBasicKeyDict>,
   byteToKey: ReturnType<typeof getByteToKey>,
+  keycodeLUT?: Record<string, {name: string; title?: string}>,
 ) {
   return !props.matrixKeycodes.length
     ? []
@@ -83,6 +84,7 @@ export function getLabels<T>(
           props.definition,
           basicKeyToByte,
           byteToKey,
+          keycodeLUT,
         ),
       );
 }
