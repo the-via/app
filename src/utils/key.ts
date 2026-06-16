@@ -29,9 +29,9 @@ export interface IKeycodeMenu {
   detailed?: string;
 }
 
-// Tests if label is an alpha
+// Tests if label is an alpha (including Unicode letters)
 export function isAlpha(label: string) {
-  return /[A-Za-z]/.test(label) && label.length === 1;
+  return label.length === 1 && /\p{L}/u.test(label);
 }
 
 // Test if label is a numpad number
