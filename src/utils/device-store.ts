@@ -35,6 +35,7 @@ const defaultStoreData = {
     themeMode: 'dark' as const,
     designDefinitionVersion: 'v3' as const,
     themeName: 'OLIVIA_DARK',
+    hostKeyboardLayout: 'keymap_us',
     macroEditor: {
       smartOptimizeEnabled: true,
       recordDelaysEnabled: false,

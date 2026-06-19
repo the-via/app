@@ -12,7 +12,6 @@ import {makeSRGBTheme} from 'src/utils/keyboard-rendering';
 import {updateCSSVariables} from 'src/utils/color-math';
 import {webGLIsAvailable} from 'src/utils/test-webgl';
 import {DefinitionVersion} from '@the-via/reader';
-import {DEFAULT_HOST_KEYBOARD_LAYOUT} from 'src/utils/keymap-extras';
 
 // TODO: why are these settings mixed? Is it because we only want some of them cached? SHould we rename to "CachedSettings"?
 type SettingsState = Settings & {
@@ -20,7 +19,6 @@ type SettingsState = Settings & {
   restartRequired: boolean;
   allowGlobalHotKeys: boolean;
   showDesignTabConfirmationNotice: boolean;
-  hostKeyboardLayout: string;
 };
 
 const initialState: SettingsState = {
@@ -29,7 +27,6 @@ const initialState: SettingsState = {
   restartRequired: false,
   allowGlobalHotKeys: false,
   showDesignTabConfirmationNotice: false,
-  hostKeyboardLayout: DEFAULT_HOST_KEYBOARD_LAYOUT,
 };
 
 const toggleBool = (
@@ -121,6 +118,7 @@ const settingsSlice = createSlice({
     },
     updateHostKeyboardLayout: (state, action: PayloadAction<string>) => {
       state.hostKeyboardLayout = action.payload;
+      setSettings(state);
     },
   },
 });
