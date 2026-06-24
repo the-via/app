@@ -28,6 +28,7 @@ import fullKeyboardDefinition from '../../../utils/test-keyboard-definition.json
 import {TestContext} from '../../panes/test';
 import {getKeyboardCanvas} from './configure';
 const EMPTY_ARR = [] as any[];
+const EMPTY_KEYMAP: number[] = [];
 export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
   const dispatch = useAppDispatch();
   const [path] = useLocation();
@@ -41,7 +42,7 @@ export const Test = (props: {dimensions?: DOMRect; nDimension: NDimension}) => {
     getTestKeyboardSoundsSettings,
   );
   const selectedMatrixKeycodes = useAppSelector(
-    (state) => getSelectedKeymap(state) || [],
+    (state) => getSelectedKeymap(state) || EMPTY_KEYMAP,
   );
 
   const [globalPressedKeys, setGlobalPressedKeys] = useGlobalKeys(

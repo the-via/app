@@ -58,6 +58,8 @@ export const AccentRange: React.FC<
     onChange: (x: number) => void;
   }
 > = (props) => {
+  const {defaultValue, ...inputProps} = props;
+
   // Get the display mode from Redux store (0, 1, or 2)
   const displayMode = useAppSelector(getShowSliderValuesMode);
 
@@ -104,7 +106,7 @@ export const AccentRange: React.FC<
 
       {/* Always show slider */}
       <SliderInput
-        {...props}
+        {...inputProps}
         $mode={numericMode} /* Pass numeric mode here too */
         value={currentValue}
         onChange={handleSliderChange}
@@ -113,7 +115,7 @@ export const AccentRange: React.FC<
       {/* Mode 2: Show input field */}
       {numericMode === 2 && (
         <StyledNumberInput
-          {...props}
+          {...inputProps}
           type="number"
           value={currentValue}
           onChange={handleNumberInputChange}
