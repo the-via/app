@@ -347,7 +347,11 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
         );
         setOverflowsTexture(!!doesOverflow);
       }
-      textureRef.current!.needsUpdate = true;
+      if (!textureRef.current) {
+        textureRef.current = new THREE.CanvasTexture(canvasRef.current);
+      } else {
+        textureRef.current.needsUpdate = true;
+      }
     }
   }, [
     canvasRef.current,
@@ -358,6 +362,7 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
     color && color.t,
     color && color.c,
     shouldRotate,
+    textureOffsetX,
   ]);
   useEffect(redraw, [label && label.key, color && color.c, color && color.t]);
 
@@ -377,8 +382,8 @@ export const Keycap: React.FC<ThreeFiberKeycapProps> = React.memo((props) => {
         ? KeycapState.Pressed
         : KeycapState.Unpressed
       : hovered || selected
-      ? KeycapState.Unpressed
-      : KeycapState.Pressed;
+      ? KeycapState.Pressed
+      : KeycapState.Unpressed;
   const [keycapZ, rotationZ] =
     pressedState === KeycapState.Pressed
       ? [zDown, rotation[2]]

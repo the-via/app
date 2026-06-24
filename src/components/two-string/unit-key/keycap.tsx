@@ -49,22 +49,12 @@ const paintDebugLines = (canvas: HTMLCanvasElement) => {
 };
 
 const paintKeycapLabel = (
-  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+  canvasWidth: number,
+  canvasHeight: number,
   legendColor: string,
   label: any,
 ) => {
-  const context = canvas.getContext('2d');
-  if (context == null) {
-    return;
-  }
-  const dpi = devicePixelRatio;
-  const [canvasWidth, canvasHeight] = [canvas.width, canvas.height];
-  canvas.width = canvasWidth * dpi;
-  canvas.height = canvasHeight * dpi;
-  canvas.style.width = `${canvasWidth}px`;
-  canvas.style.height = `${canvasHeight}px`;
-
-  context.scale(dpi, dpi);
   const fontFamily =
     'Fira Sans, Arial Rounded MT, Arial Rounded MT Bold, Arial';
   // Margins from face edge to where text is drawn
@@ -76,9 +66,9 @@ const paintKeycapLabel = (
   // Define a clipping path for the top face, so text is not drawn on the side.
   context.beginPath();
   context.moveTo(0, 0);
-  context.lineTo(canvas.width, 0);
-  context.lineTo(canvas.width, canvas.height);
-  context.lineTo(0, canvas.height);
+  context.lineTo(canvasWidth, 0);
+  context.lineTo(canvasWidth, canvasHeight);
+  context.lineTo(0, canvasHeight);
   context.lineTo(0, 0);
   context.clip();
 
@@ -134,21 +124,25 @@ const paintKeycap = (
   legendColor: string,
   label: any,
 ) => {
-  const [canvasWidth, canvasHeight] = [
-    CSSVarObject.keyWidth,
-    CSSVarObject.keyHeight,
-  ];
-  canvas.width =
-    canvasWidth * textureWidth -
+  const logicalWidth =
+    CSSVarObject.keyWidth * textureWidth -
     CSSVarObject.faceXPadding.reduce((x, y) => x + y, 0);
-  canvas.height =
-    canvasHeight * textureHeight -
+  const logicalHeight =
+    CSSVarObject.keyHeight * textureHeight -
     CSSVarObject.faceYPadding.reduce((x, y) => x + y, 0);
+  const dpi = window.devicePixelRatio || 1;
+
+  canvas.width = Math.ceil(logicalWidth * dpi);
+  canvas.height = Math.ceil(logicalHeight * dpi);
+  canvas.style.width = `${logicalWidth}px`;
+  canvas.style.height = `${logicalHeight}px`;
 
   const context = canvas.getContext('2d');
   if (context == null) {
     return;
   }
+  context.setTransform(dpi, 0, 0, dpi, 0, 0);
+  context.clearRect(0, 0, logicalWidth, logicalHeight);
 
   // Fill the canvas with the keycap background color
   //context.fillStyle = bgColor;
@@ -162,7 +156,13 @@ const paintKeycap = (
     paintDebugLines(canvas);
   }
 
-  return paintKeycapLabel(canvas, legendColor, label);
+  return paintKeycapLabel(
+    context,
+    logicalWidth,
+    logicalHeight,
+    legendColor,
+    label,
+  );
 };
 
 export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {

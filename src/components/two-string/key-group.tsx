@@ -73,18 +73,20 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {
+      const {key, ...keycapProps} = getKeycapSharedProps(
+        k,
+        i,
+        props,
+        keysKeys,
+        selectedKeyIndex,
+        labels,
+        skipFontCheck,
+      );
       return k.d ? null : (
         <Keycap
+          key={key}
           {...getComboKeyProps(k)}
-          {...getKeycapSharedProps(
-            k,
-            i,
-            props,
-            keysKeys,
-            selectedKeyIndex,
-            labels,
-            skipFontCheck,
-          )}
+          {...keycapProps}
         />
       );
     });
