@@ -20,6 +20,11 @@ import * as Macros from './configure-panes/macros';
 import * as SaveLoad from './configure-panes/save-load';
 import * as Layouts from './configure-panes/layouts';
 import * as RotaryEncoder from './configure-panes/custom/satisfaction75';
+import * as AgarMiniEcTools from './configure-panes/custom/agar-mini-ec';
+import {
+  AGAR_MINI_EC_PRODUCT_ID,
+  AGAR_MINI_EC_VENDOR_ID,
+} from './configure-panes/custom/agar-mini-ec/api';
 import {makeCustomMenus} from './configure-panes/custom/menu-generator';
 import {LayerControl} from './configure-panes/layer-control';
 import {Badge} from './configure-panes/badge';
@@ -42,6 +47,12 @@ import {useAppDispatch} from 'src/store/hooks';
 import {MenuTooltip} from '../inputs/tooltip';
 import {getRenderMode, getSelectedTheme} from 'src/store/settingsSlice';
 import {useTranslation} from 'react-i18next';
+import {getVendorProductId} from 'src/utils/hid-keyboards';
+
+const AGAR_MINI_EC_VENDOR_PRODUCT_ID = getVendorProductId(
+  AGAR_MINI_EC_VENDOR_ID,
+  AGAR_MINI_EC_PRODUCT_ID,
+);
 
 const MenuContainer = styled.div`
   padding: 15px 10px 20px 10px;
@@ -54,6 +65,7 @@ const Rows = [
   Lighting,
   SaveLoad,
   RotaryEncoder,
+  AgarMiniEcTools,
   ...makeCustomMenus([]),
 ];
 function getCustomPanes(customFeatures: CustomFeaturesV2[]) {
@@ -76,7 +88,7 @@ const getRowsForKeyboard = (): typeof Rows => {
   } else if (isVIADefinitionV2(selectedDefinition)) {
     return getRowsForKeyboardV2(selectedDefinition, showMacros, numberOfLayers);
   } else if (isVIADefinitionV3(selectedDefinition)) {
-    return [
+    const rows = [
       ...filterInferredRows(selectedDefinition, showMacros, numberOfLayers, [
         Keycode,
         Layouts,
@@ -85,6 +97,9 @@ const getRowsForKeyboard = (): typeof Rows => {
       ]),
       ...v3Menus,
     ];
+    return selectedDefinition.vendorProductId === AGAR_MINI_EC_VENDOR_PRODUCT_ID
+      ? [...rows, AgarMiniEcTools]
+      : rows;
   } else {
     return [];
   }
@@ -132,6 +147,9 @@ const getRowsForKeyboardV2 = (
     }
     if (customFeatures) {
       rows = [...rows, ...getCustomPanes(customFeatures)];
+    }
+    if (selectedDefinition.vendorProductId === AGAR_MINI_EC_VENDOR_PRODUCT_ID) {
+      rows = [...rows, AgarMiniEcTools];
     }
   }
   return filterInferredRows(

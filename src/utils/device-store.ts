@@ -9,6 +9,10 @@ import {
 import {TestKeyboardSoundsMode} from 'src/components/void/test-keyboard-sounds';
 import {THEMES} from 'src/utils/themes';
 import {Store} from '../shims/via-app-store';
+import {
+  LOCAL_KEYBOARD_DEFINITIONS,
+  LOCAL_SUPPORTED_IDS,
+} from 'src/definitions/local-keyboards';
 import type {
   AuthorizedDevice,
   DefinitionIndex,
@@ -100,7 +104,10 @@ export async function syncStore(): Promise<DefinitionIndex> {
     const newIndex = {
       ...json,
       hash,
-      supportedVendorProductIdMap: vpidMap,
+      supportedVendorProductIdMap: {
+        ...vpidMap,
+        ...LOCAL_SUPPORTED_IDS,
+      },
     };
     deviceStore.set('definitionIndex', newIndex);
     deviceStore.set('definitions', {});
@@ -120,6 +127,11 @@ export const getMissingDefinition = async <
   version: K,
 ): Promise<[DefinitionVersionMap[K], K]> => {
   const vpid = getVendorProductId(device.vendorId, device.productId);
+  const localDefinition = LOCAL_KEYBOARD_DEFINITIONS[vpid]?.[version];
+  if (localDefinition) {
+    return [localDefinition as DefinitionVersionMap[K], version];
+  }
+
   const url = `/definitions/${version}/${vpid}.json`;
   const response = await fetch(url);
   const json: DefinitionVersionMap[K] = await response.json();
@@ -151,10 +163,16 @@ export const getMissingDefinition = async <
 };
 
 export const getSupportedIdsFromStore = (): VendorProductIdMap =>
-  deviceStore.get('definitionIndex')?.supportedVendorProductIdMap;
+  ({
+    ...(deviceStore.get('definitionIndex')?.supportedVendorProductIdMap || {}),
+    ...LOCAL_SUPPORTED_IDS,
+  });
 
 export const getDefinitionsFromStore = (): KeyboardDictionary =>
-  deviceStore.get('definitions');
+  ({
+    ...(deviceStore.get('definitions') || {}),
+    ...LOCAL_KEYBOARD_DEFINITIONS,
+  });
 
 export const getThemeFromStore = (): ThemeDefinition =>
   THEMES[getThemeNameFromStore() as keyof typeof THEMES] ||
