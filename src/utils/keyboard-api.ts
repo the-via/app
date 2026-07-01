@@ -145,6 +145,7 @@ export const canConnect = (device: Device) => {
 
 export class KeyboardAPI {
   kbAddr: HIDAddress;
+  private _reportSize?: number;
 
   constructor(path: string) {
     this.kbAddr = path;
@@ -642,9 +643,20 @@ export class KeyboardAPI {
     return cache[this.kbAddr].hid;
   }
 
+  async getReportSize(): Promise<number> {
+    if (this._reportSize !== undefined) {
+      return this._reportSize;
+    }
+    let size = await this.getHID().getReportSize();
+
+    this._reportSize = size;
+    return size;
+  }
+
   async _hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {
     const commandBytes = [...[COMMAND_START, command], ...bytes];
-    const paddedArray = new Array(33).fill(0);
+    const arraySize = await this.getReportSize() + 1;
+    const paddedArray = new Array(arraySize).fill(0);
     commandBytes.forEach((val, idx) => {
       paddedArray[idx] = val;
     });

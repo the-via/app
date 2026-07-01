@@ -177,8 +177,28 @@ const ExtendedHID = {
       const data = new Uint8Array(arr.slice(1));
       await this._hidDevice?._device.sendReport(0, data);
     }
+
+    async getReportSize(): Promise<number> {
+      const device = this._hidDevice?._device;
+
+      // Look explicitely for a VIA collection. There may be others. 
+      const viaCollection = device?.collections
+        .find(c => c.usagePage === 0xFF60 && c.usage === 0x61);
+
+      // Sum up lengths of all the fields of the to get the size of output report item
+      const bits = (viaCollection?.outputReports?.[0]?.items ?? []).reduce(
+        (sum: number, item: HIDReportItem) =>
+          sum + (item.reportSize ?? 0) * (item.reportCount ?? 0),
+        0
+      );
+      
+      return bits > 0 ? Math.ceil(bits / 8) : 32; // fallback for standard VIA keyboards
+    }
+
   },
 };
+
+  
 
 const promisify = (cb: Function) => () => {
   return new Promise((res, rej) => {
