@@ -116,6 +116,10 @@ const settingsSlice = createSlice({
     enableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = true;
     },
+    updateHostKeyboardLayout: (state, action: PayloadAction<string>) => {
+      state.hostKeyboardLayout = action.payload;
+      setSettings(state);
+    },
   },
 });
 
@@ -134,6 +138,7 @@ export const {
   updateRenderMode,
   updateThemeName,
   updateDesignDefinitionVersion,
+  updateHostKeyboardLayout,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
@@ -172,3 +177,6 @@ export const getSelectedSRGBTheme = createSelector(
     return makeSRGBTheme(selectedTheme);
   },
 );
+
+export const getHostKeyboardLayout = (state: RootState) =>
+  state.settings.hostKeyboardLayout;

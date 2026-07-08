@@ -29,9 +29,9 @@ export interface IKeycodeMenu {
   detailed?: string;
 }
 
-// Tests if label is an alpha
+// Tests if label is an alpha (including Unicode letters)
 export function isAlpha(label: string) {
-  return /[A-Za-z]/.test(label) && label.length === 1;
+  return label.length === 1 && /\p{L}/u.test(label);
 }
 
 // Test if label is a numpad number
@@ -309,8 +309,16 @@ export function getLabelForByte(
   size = 100,
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
+  keycodeLUT?: Record<string, {name: string; title?: string}>,
 ) {
   const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
+  if (keycodeLUT && keycode && keycodeLUT[keycode]) {
+    const lutEntry = keycodeLUT[keycode];
+    return getShortNameForKeycode(
+      {code: keycode, name: lutEntry.name, title: lutEntry.title},
+      size,
+    );
+  }
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
     return keycode;

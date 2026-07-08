@@ -40,7 +40,9 @@ import {
   disableGlobalHotKeys,
   enableGlobalHotKeys,
   getDisableFastRemap,
+  getHostKeyboardLayout,
 } from 'src/store/settingsSlice';
+import {keymapExtras} from 'src/utils/keymap-extras';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {useTranslation} from 'react-i18next';
 const KeycodeList = styled.div`
@@ -154,6 +156,8 @@ export const KeycodePane: FC = () => {
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const {basicKeyToByte} = useAppSelector(getBasicKeyToByte);
   const macroCount = useAppSelector(getMacroCount);
+  const hostKeyboardLayout = useAppSelector(getHostKeyboardLayout);
+  const keycodeLUT = keymapExtras[hostKeyboardLayout]?.keycodeLUT;
 
   const KeycodeCategories = useMemo(
     () => generateKeycodeCategories(basicKeyToByte, macroCount),
@@ -279,7 +283,10 @@ export const KeycodePane: FC = () => {
   };
 
   const renderKeycode = (keycode: IKeycode, index: number) => {
-    const {code, title, name} = keycode;
+    const {code} = keycode;
+    const lutEntry = keycodeLUT && code ? keycodeLUT[code] : undefined;
+    const name = lutEntry ? lutEntry.name : keycode.name;
+    const title = lutEntry?.title ?? keycode.title;
     return (
       <Keycode
         key={code}
