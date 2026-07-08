@@ -4,6 +4,7 @@ import {
   isVIADefinitionV2,
   isVIADefinitionV3,
   isVIAMenu,
+  DisplayLabel,
   VIAMenu,
 } from '@the-via/reader';
 import {evalExpr, parseExpr} from '@the-via/pelpi';
@@ -11,7 +12,12 @@ import {
   makeCustomMenu,
   makeCustomMenus,
 } from 'src/components/panes/configure-panes/custom/menu-generator';
-import {KeyboardAPI} from 'src/utils/keyboard-api';
+import {
+  KeyboardAPI,
+  UISyncCustomMenuCommandTarget,
+  UISyncRequest,
+  UISyncRequestType,
+} from 'src/utils/keyboard-api';
 import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
@@ -32,6 +38,14 @@ type MenusState = {
   commonMenusMap: CommonMenusMap;
   showKeyPainter: boolean;
 };
+
+type PendingCustomMenuSync = {
+  isSyncing: boolean;
+  syncAll: boolean;
+  ids: Set<string>;
+};
+
+const pendingCustomMenuSyncs: Record<string, PendingCustomMenuSync> = {};
 
 const initialState: MenusState = {
   customMenuDataMap: {},
@@ -104,8 +118,153 @@ export const updateCustomMenuValue =
     api.commitCustomMenu(channel);
   };
 
+const readCustomMenuValues = async (
+  api: KeyboardAPI,
+  commands: Record<string, number[]>,
+  ids?: string[],
+): Promise<CustomMenuData> => {
+  const idsToSync = (ids ?? Object.keys(commands)).filter((id) => commands[id]);
+  const commandPromises = idsToSync.map((id) => ({
+    id,
+    promise: api.getCustomMenuValue(commands[id]),
+  }));
+  const results = await Promise.all(
+    commandPromises.map(({promise}) => promise),
+  );
+
+  return commandPromises.reduce<CustomMenuData>(
+    (res, {id}, idx) => ({
+      ...res,
+      [id]: results[idx].slice(1),
+    }),
+    {},
+  );
+};
+
+const commandMatchesTarget = (
+  command: number[],
+  target: UISyncCustomMenuCommandTarget,
+) => command[0] === target.channelId && command[1] === target.commandId;
+
+const commandMatchesId = (command: number[], commandId: number) =>
+  command[1] === commandId;
+
+export const syncCustomMenuValues =
+  (ids?: string[]): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI | undefined;
+    const connectedDevice = getSelectedConnectedDevice(state);
+    const menuData = getSelectedCustomMenuData(state) || {};
+    const commands = getCustomCommands(state) as Record<string, number[]>;
+
+    if (!api || !connectedDevice || !commands) {
+      return;
+    }
+
+    await api.waitForCommandQueueIdle();
+    const syncedMenuData = await readCustomMenuValues(api, commands, ids);
+    dispatch(
+      updateSelectedCustomMenuData({
+        devicePath: connectedDevice.path,
+        menuData: {
+          ...menuData,
+          ...syncedMenuData,
+        },
+      }),
+    );
+  };
+
+const enqueueCustomMenuSync = (devicePath: string, ids?: string[]) => {
+  const pending = (pendingCustomMenuSyncs[devicePath] = pendingCustomMenuSyncs[
+    devicePath
+  ] || {
+    isSyncing: false,
+    syncAll: false,
+    ids: new Set<string>(),
+  });
+
+  if (ids === undefined) {
+    pending.syncAll = true;
+    pending.ids.clear();
+  } else if (!pending.syncAll) {
+    ids.forEach((id) => pending.ids.add(id));
+  }
+
+  return pending;
+};
+
+const runPendingCustomMenuSyncs =
+  (devicePath: string): AppThunk =>
+  async (dispatch, getState) => {
+    const pending = pendingCustomMenuSyncs[devicePath];
+    if (!pending || pending.isSyncing) {
+      return;
+    }
+
+    pending.isSyncing = true;
+    try {
+      while (pending.syncAll || pending.ids.size) {
+        const ids = pending.syncAll ? undefined : Array.from(pending.ids);
+        pending.syncAll = false;
+        pending.ids.clear();
+
+        await dispatch(syncCustomMenuValues(ids));
+
+        const selectedDevice = getSelectedConnectedDevice(getState());
+        if (!selectedDevice || selectedDevice.path !== devicePath) {
+          pending.syncAll = false;
+          pending.ids.clear();
+          break;
+        }
+      }
+    } finally {
+      pending.isSyncing = false;
+    }
+  };
+
+export const syncCustomMenuValuesFromRequest =
+  (request: UISyncRequest): AppThunk =>
+  async (dispatch, getState) => {
+    const connectedDevice = getSelectedConnectedDevice(getState());
+    if (!connectedDevice) {
+      return;
+    }
+
+    if (request.type === UISyncRequestType.CUSTOM_MENU_ALL) {
+      enqueueCustomMenuSync(connectedDevice.path);
+      await dispatch(runPendingCustomMenuSyncs(connectedDevice.path));
+      return;
+    }
+
+    const commands = getCustomCommands(getState()) as Record<string, number[]>;
+    const ids =
+      request.type === UISyncRequestType.CUSTOM_MENU_COMMANDS
+        ? Object.entries(commands)
+            .filter(([, command]) =>
+              request.targets.some((target) =>
+                commandMatchesTarget(command, target),
+              ),
+            )
+            .map(([id]) => id)
+        : Object.entries(commands)
+            .filter(([, command]) =>
+              request.commandIds.some((commandId) =>
+                commandMatchesId(command, commandId),
+              ),
+            )
+            .map(([id]) => id);
+
+    if (ids.length) {
+      enqueueCustomMenuSync(connectedDevice.path, ids);
+      await dispatch(runPendingCustomMenuSyncs(connectedDevice.path));
+    }
+  };
+
 // COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
-const tryResolveCommonMenu = (id: VIAMenu | string): VIAMenu | VIAMenu[] => {
+type V3Menu = VIAMenu<DisplayLabel>;
+
+const tryResolveCommonMenu = (id: V3Menu | string): V3Menu | V3Menu[] => {
   // Only convert to menu object if it is found in common menus, else return
   if (typeof id === 'string') {
     return commonMenus[id as keyof typeof commonMenus];
@@ -209,7 +368,10 @@ const extractCommands = (
     return [];
   }
   return 'type' in menuOrControls
-    ? [menuOrControls.content]
+    ? Array.isArray(menuOrControls.content) &&
+      menuOrControls.content.length === 3
+      ? [menuOrControls.content]
+      : []
     : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
       ? menuOrControls.content.flatMap((item: any) =>
           extractCommands(item, firmwareVersion),

@@ -10,6 +10,10 @@ const globalBuffer: {
 const eventWaitBuffer: {
   [path: string]: ((a: Uint8Array) => void)[];
 } = {};
+type InputReportHandler = (message: Uint8Array) => boolean;
+const inputReportHandlers: {
+  [path: string]: InputReportHandler[];
+} = {};
 const filterHIDDevices = (devices: HIDDevice[]) =>
   devices.filter((device) =>
     device.collections?.some(
@@ -106,6 +110,7 @@ const ExtendedHID = {
         this.productName = this._hidDevice.productName;
         globalBuffer[this.path] = globalBuffer[this.path] || [];
         eventWaitBuffer[this.path] = eventWaitBuffer[this.path] || [];
+        inputReportHandlers[this.path] = inputReportHandlers[this.path] || [];
         if (!this._hidDevice._device.opened) {
           this.open();
         }
@@ -125,21 +130,38 @@ const ExtendedHID = {
     setupListeners() {
       if (this._hidDevice) {
         this._hidDevice._device.addEventListener('inputreport', (e) => {
+          const message = new Uint8Array(e.data.buffer);
+          const wasHandled = inputReportHandlers[this.path].some((handler) =>
+            handler(message),
+          );
+          if (wasHandled) {
+            return;
+          }
           if (eventWaitBuffer[this.path].length !== 0) {
             // It should be impossible to have a handler in the buffer
             // that has a ts that happened after the current message
             // came in
             (eventWaitBuffer[this.path].shift() as any)(
-              new Uint8Array(e.data.buffer),
+              message,
             );
           } else {
             globalBuffer[this.path].push({
               currTime: Date.now(),
-              message: new Uint8Array(e.data.buffer),
+              message,
             });
           }
         });
       }
+    }
+
+    addInputReportHandler(handler: InputReportHandler) {
+      inputReportHandlers[this.path] = inputReportHandlers[this.path] || [];
+      inputReportHandlers[this.path].push(handler);
+      return () => {
+        inputReportHandlers[this.path] = inputReportHandlers[this.path].filter(
+          (registeredHandler) => registeredHandler !== handler,
+        );
+      };
     }
 
     read(fn: (err?: Error, data?: ArrayBuffer) => void) {
