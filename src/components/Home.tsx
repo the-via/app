@@ -28,6 +28,7 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import {syncCustomMenuValuesFromRequest} from 'src/store/menusSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardValue} from 'src/utils/keyboard-api';
 import {useTranslation} from 'react-i18next';
@@ -169,6 +170,16 @@ export const Home: React.FC<HomeProps> = (props) => {
     // if (Object.values(connectedDevices).length > 1) {
     //   toggleLights();
     // }
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    return api.addUISyncRequestHandler((request) => {
+      dispatch(syncCustomMenuValuesFromRequest(request));
+    });
   }, [api]);
 
   return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
