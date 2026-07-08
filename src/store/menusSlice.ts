@@ -4,6 +4,7 @@ import {
   isVIADefinitionV2,
   isVIADefinitionV3,
   isVIAMenu,
+  DisplayLabel,
   VIAMenu,
 } from '@the-via/reader';
 import {evalExpr, parseExpr} from '@the-via/pelpi';
@@ -122,9 +123,7 @@ const readCustomMenuValues = async (
   commands: Record<string, number[]>,
   ids?: string[],
 ): Promise<CustomMenuData> => {
-  const idsToSync = (ids ?? Object.keys(commands)).filter(
-    (id) => commands[id],
-  );
+  const idsToSync = (ids ?? Object.keys(commands)).filter((id) => commands[id]);
   const commandPromises = idsToSync.map((id) => ({
     id,
     promise: api.getCustomMenuValue(commands[id]),
@@ -177,12 +176,13 @@ export const syncCustomMenuValues =
   };
 
 const enqueueCustomMenuSync = (devicePath: string, ids?: string[]) => {
-  const pending = (pendingCustomMenuSyncs[devicePath] =
-    pendingCustomMenuSyncs[devicePath] || {
-      isSyncing: false,
-      syncAll: false,
-      ids: new Set<string>(),
-    });
+  const pending = (pendingCustomMenuSyncs[devicePath] = pendingCustomMenuSyncs[
+    devicePath
+  ] || {
+    isSyncing: false,
+    syncAll: false,
+    ids: new Set<string>(),
+  });
 
   if (ids === undefined) {
     pending.syncAll = true;
@@ -262,7 +262,9 @@ export const syncCustomMenuValuesFromRequest =
   };
 
 // COMMON MENU IDENTIFIER RESOLVES INTO ACTUAL MODULE
-const tryResolveCommonMenu = (id: VIAMenu | string): VIAMenu | VIAMenu[] => {
+type V3Menu = VIAMenu<DisplayLabel>;
+
+const tryResolveCommonMenu = (id: V3Menu | string): V3Menu | V3Menu[] => {
   // Only convert to menu object if it is found in common menus, else return
   if (typeof id === 'string') {
     return commonMenus[id as keyof typeof commonMenus];
@@ -366,7 +368,10 @@ const extractCommands = (
     return [];
   }
   return 'type' in menuOrControls
-    ? [menuOrControls.content]
+    ? Array.isArray(menuOrControls.content) &&
+      menuOrControls.content.length === 3
+      ? [menuOrControls.content]
+      : []
     : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'
       ? menuOrControls.content.flatMap((item: any) =>
           extractCommands(item, firmwareVersion),

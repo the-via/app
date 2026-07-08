@@ -40,7 +40,7 @@ const SliderInput = styled.input.attrs({type: 'range'})<any>`
   flex: none;
 `;
 
-const ValueDisplay = styled.span`
+export const RangeValueDisplay = styled.span`
   text-align: right;
   font-size: 20px;
   color: var(--color_label_highlighted);
@@ -66,10 +66,10 @@ export const AccentRange: React.FC<
     displayMode === 'Slider Only'
       ? 0
       : displayMode === 'Slider & Show Value'
-      ? 1
-      : displayMode === 'Slider & Input Field'
-      ? 2
-      : 0;
+        ? 1
+        : displayMode === 'Slider & Input Field'
+          ? 2
+          : 0;
 
   const [currentValue, setCurrentValue] = useState<number>(
     Number(props.defaultValue || props.value || props.min || 0),
@@ -100,7 +100,9 @@ export const AccentRange: React.FC<
   return (
     <Container $mode={numericMode}>
       {/* Mode 1: Show value display */}
-      {numericMode === 1 && <ValueDisplay>{currentValue}</ValueDisplay>}
+      {numericMode === 1 && (
+        <RangeValueDisplay>{currentValue}</RangeValueDisplay>
+      )}
 
       {/* Always show slider */}
       <SliderInput

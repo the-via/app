@@ -117,7 +117,11 @@ const MenuComponent = React.memo((props: any) => (
         <VIACustomItem
           {...itemProps}
           updateValue={props.updateCustomMenuValue}
-          value={props.selectedCustomMenuData[itemProps.content[0]]}
+          value={
+            Array.isArray(itemProps.content) && itemProps.content.length === 3
+              ? props.selectedCustomMenuData[itemProps.content[0]]
+              : undefined
+          }
         />
       ))}
   </>

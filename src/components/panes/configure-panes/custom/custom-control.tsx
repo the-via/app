@@ -3,7 +3,7 @@ import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
 import {AccentButton} from '../../../inputs/accent-button';
 import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
-import {AccentRange} from '../../../inputs/accent-range';
+import {AccentRange, RangeValueDisplay} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
 import type {VIADefinitionV2, VIADefinitionV3, VIAItem} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
@@ -79,11 +79,33 @@ const getRangeBytes = (value: number, max: number) => {
   }
 };
 
+const decodeNullTerminatedUTF8 = (value?: number[]) => {
+  if (!value || value.length === 0) {
+    return '';
+  }
+
+  const terminatorIdx = value.indexOf(0);
+  const bytes = value.slice(
+    0,
+    terminatorIdx === -1 ? undefined : terminatorIdx,
+  );
+  return new TextDecoder().decode(new Uint8Array(bytes));
+};
+
 const VIACustomControl = (props: VIACustomControlProps) => {
   const {t} = useTranslation();
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {
+    case 'label': {
+      return (
+        <RangeValueDisplay>
+          {content.length === 1
+            ? t(content[0])
+            : decodeNullTerminatedUTF8(value)}
+        </RangeValueDisplay>
+      );
+    }
     case 'button': {
       const buttonOption: any[] = options || [1];
       return (
