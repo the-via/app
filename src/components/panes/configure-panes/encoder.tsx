@@ -32,6 +32,8 @@ const Container = styled.div`
   padding: 0 12px;
 `;
 
+const EMPTY_KEYMAP: number[] = [];
+
 export const Pane: FC = () => {
   const {t} = useTranslation();
   const [cwValue, setCWValue] = useState<number>();
@@ -42,7 +44,7 @@ export const Pane: FC = () => {
     getSelectedKeyDefinitions,
   );
   const matrixKeycodes = useAppSelector(
-    (state) => getSelectedKeymap(state) || [],
+    (state) => getSelectedKeymap(state) || EMPTY_KEYMAP,
   );
   const layer = useAppSelector(getSelectedLayerIndex);
   const selectedDevice = useAppSelector(getSelectedConnectedDevice);

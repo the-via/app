@@ -18,6 +18,8 @@ import {KeyboardCanvas as StringKeyboardCanvas} from '../../two-string/keyboard-
 export const getKeyboardCanvas = (dimension: '2D' | '3D') =>
   dimension === '2D' ? StringKeyboardCanvas : FiberKeyboardCanvas;
 
+const EMPTY_KEYMAP: number[] = [];
+
 export const ConfigureKeyboard = (props: {
   selectable?: boolean;
   dimensions?: DOMRect;
@@ -25,7 +27,7 @@ export const ConfigureKeyboard = (props: {
 }) => {
   const {selectable, dimensions} = props;
   const matrixKeycodes = useAppSelector(
-    (state) => getSelectedKeymap(state) || [],
+    (state) => getSelectedKeymap(state) || EMPTY_KEYMAP,
   );
   const keys: (VIAKey & {ei?: number})[] = useAppSelector(
     getSelectedKeyDefinitions,
