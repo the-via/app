@@ -503,8 +503,7 @@ export const getLabel = (
       }
     );
   } else if (isMultiLegend(label)) {
-    const topLabel = label[0];
-    const bottomLabel = label[label.length - 1];
+    const [topLabel, bottomLabel] = label.split('\n');
     return (
       bottomLabel && {
         topLabel,

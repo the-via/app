@@ -48,10 +48,9 @@ export function isNumpadSymbol(label: string) {
   return label.length === 1 && centeredSymbol.includes(label[0]);
 }
 
-// Test if label is a multi-legend, e.g. "!\n1"
+// Test if label contains two explicitly separated legends, e.g. "!\n1".
 export function isMultiLegend(label: string) {
-  const topLegend = '~!@#$%^&*()_+|{}:"<>?'.split('');
-  return label.length !== 1 && topLegend.includes(label[0]);
+  return /^[^\n]+\n[^\n]+$/.test(label);
 }
 
 // Tests if label is a number
