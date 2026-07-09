@@ -22,30 +22,6 @@ jobs:
         run: bun run refresh-kbs
       - name: Build
         run: bun run build
-      - name: Configure Cloudflare Pages routing
-        run: |
-          cat > dist/_redirects <<'EOF'
-          /test /index.html 200
-          /design /index.html 200
-          /settings /index.html 200
-          /debug /index.html 200
-          /errors /index.html 200
-          EOF
-
-          cat > dist/404.html <<'EOF'
-          <!doctype html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>Not Found</title>
-            </head>
-            <body>
-              <h1>Not Found</h1>
-              <p>The requested file could not be found.</p>
-            </body>
-          </html>
-          EOF
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
