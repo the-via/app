@@ -16,7 +16,8 @@ export const ModalBackground = styled.div`
 export const ModalContainer = styled.div`
   border: 2px solid var(--color_accent);
   min-width: 460px;
-  max-width: 550px;
+  width: max-content;
+  max-width: calc(100vw - 40px);
   min-height: 170px;
   gap: 20px;
   background-color: var(--bg_menu);
@@ -34,6 +35,9 @@ export const PromptText = styled.div`
   user-select: none;
   color: var(--color_label);
   font-size: 20px;
+  line-height: 1.4;
+  max-width: calc(100vw - 80px);
+  white-space: pre-line;
   text-align: center;
 `;
 

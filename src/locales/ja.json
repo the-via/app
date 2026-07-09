@@ -359,6 +359,10 @@
   "Searching for devices…": "デバイスを検索中...",
   "This feature is not available for this firmware version": "この機能はこのファームウェアバージョンでは利用できません。",
   "Please enter your desired QMK keycode or hex code:": "希望するQMKキーコードまたは16進コードを入力してください:",
-  "This feature is intended for development purposes. If your keyboard is not recognized automatically by VIA, please contact your keyboard's manufacturer or vendor.": "この機能は開発目的向けです。VIAでキーボードが自動認識されない場合は、キーボードのメーカーまたは販売元にお問い合わせください。",
+  "Use the Design tab to sideload a keyboard definition JSON file provided by your keyboard's manufacturer or vendor.\n\nThis feature is intended for development and troubleshooting.": "デザインタブを使用して、キーボードのメーカーまたは販売元から提供されたキーボード定義 JSON ファイルをサイドロードしてください。\n\nこの機能は開発とトラブルシューティングを目的としています。",
+  "VIA can see {{deviceName}} through WebHID.\nVID: {{vid}} | PID: {{pid}}\n\nIt does not respond like a VIA-enabled keyboard. If this keyboard should support VIA, make sure it is running VIA-compatible firmware.": "VIA は WebHID 経由で {{deviceName}} を認識できます。\nVID: {{vid}} | PID: {{pid}}\n\nVIA 対応キーボードとして応答していません。このキーボードが VIA に対応しているはずの場合は、VIA 互換ファームウェアが書き込まれていることを確認してください。",
+  "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.": "VIA は {{deviceName}} の {{definitionVersion}} 定義を見つけられませんでした。\nVID: {{vid}} | PID: {{pid}}\n\nこれは次を意味します:\n- このキーボードはリモート定義データベースで公式にサポートされていません\n- このキーボードの定義ファイルはデザインタブからサイドロードされていません\n\nデータベースへの追加についてキーボードのメーカーまたは販売元に問い合わせるか、メーカーまたは販売元から提供された JSON 定義をデザインタブでアップロードしてください。",
+  "this device": "このデバイス",
+  "this keyboard": "このキーボード",
   "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "\"確認\"をクリックしていません。デザインタブを有効にするには、先に確認が必要です。"
 }

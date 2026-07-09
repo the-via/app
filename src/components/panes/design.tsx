@@ -283,7 +283,7 @@ export const DesignTab: FC = () => {
         }}
       >
         {t(
-          "This feature is intended for development purposes. If your keyboard is not recognized automatically by VIA, please contact your keyboard's manufacturer or vendor.",
+          "Use the Design tab to sideload a keyboard definition JSON file provided by your keyboard's manufacturer or vendor.\n\nThis feature is intended for development and troubleshooting.",
         )}
       </MessageDialog>
       <SinglePaneFlexCell ref={flexRef}>
