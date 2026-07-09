@@ -18,6 +18,7 @@ import {
   UISyncRequest,
   UISyncRequestType,
 } from 'src/utils/keyboard-api';
+import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
 import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
@@ -368,8 +369,7 @@ const extractCommands = (
     return [];
   }
   return 'type' in menuOrControls
-    ? Array.isArray(menuOrControls.content) &&
-      menuOrControls.content.length === 3
+    ? isCustomMenuCommandContent(menuOrControls.content)
       ? [menuOrControls.content]
       : []
     : 'content' in menuOrControls && typeof menuOrControls.content !== 'string'

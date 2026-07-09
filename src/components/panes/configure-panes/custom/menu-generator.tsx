@@ -31,6 +31,7 @@ import {
   updateCustomMenuValue,
 } from 'src/store/menusSlice';
 import {useTranslation} from 'react-i18next';
+import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
 
 type Category = {
   label: string;
@@ -118,7 +119,7 @@ const MenuComponent = React.memo((props: any) => (
           {...itemProps}
           updateValue={props.updateCustomMenuValue}
           value={
-            Array.isArray(itemProps.content) && itemProps.content.length === 3
+            isCustomMenuCommandContent(itemProps.content)
               ? props.selectedCustomMenuData[itemProps.content[0]]
               : undefined
           }
