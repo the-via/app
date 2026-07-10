@@ -3,6 +3,8 @@ import type {
   ConnectedDevice,
   WebVIADevice,
 } from '../types/types';
+
+var lastWriteTimestamp = Date.now();
 // This is a bit cray
 const globalBuffer: {
   [path: string]: {currTime: number; message: Uint8Array}[];
@@ -165,7 +167,7 @@ const ExtendedHID = {
     }
 
     read(fn: (err?: Error, data?: ArrayBuffer) => void) {
-      this.fastForwardGlobalBuffer(Date.now());
+      this.fastForwardGlobalBuffer(lastWriteTimestamp);
       if (globalBuffer[this.path].length > 0) {
         // this should be a noop normally
         fn(undefined, globalBuffer[this.path].shift()?.message as any);
@@ -197,6 +199,7 @@ const ExtendedHID = {
         await this.open();
       }
       const data = new Uint8Array(arr.slice(1));
+      lastWriteTimestamp = Date.now();
       await this._hidDevice?._device.sendReport(0, data);
     }
   },
