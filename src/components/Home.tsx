@@ -223,7 +223,7 @@ export const Home: React.FC<HomeProps> = (props) => {
           }}
         >
           {t(
-            'VIA can see {{deviceName}} through WebHID.\nVID: {{vid}} | PID: {{pid}}\n\nIt does not respond like a VIA-enabled keyboard. If this keyboard should support VIA, make sure it is running VIA-compatible firmware.',
+            "VIA can see {{deviceName}} through WebHID.\nVID: {{vid}} | PID: {{pid}}\n\n{{deviceName}} does not seem to respond like a VIA-enabled keyboard.\n\nIf {{deviceName}} should support VIA, make sure it is running VIA-compatible firmware.\nIf it is, authorization and/or initialization procedures may have failed—unplug the keyboard, reconnect it, and try again.\nIf the problem persists, please contact your keyboard's manufacturer or vendor for assistance.",
             {
               deviceName: invalidProtocolDevice.productName || t('this device'),
               vid: formatNumberAsHex(invalidProtocolDevice.vendorId, 4),
