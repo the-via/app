@@ -5,7 +5,7 @@
     "build": "bun run build:kbs && tsc && vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "refresh-kbs": "bun uninstall --force via-keyboards && bun install --force github:the-via/keyboards",
+    "refresh-kbs": "bun update --force via-keyboards",
     "build:azure": "bun run refresh-kbs && bun run build",
     "preview": "vite preview",
     "build:kbs": "via-keyboards public/definitions",
