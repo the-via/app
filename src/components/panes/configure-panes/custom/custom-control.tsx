@@ -11,6 +11,11 @@ import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
 import {useTranslation} from 'react-i18next';
+import {
+  decodeRangeValue,
+  getRangeBounds,
+  type RangeControlMap,
+} from 'src/utils/range-constraints';
 
 type Props = {
   lightingData: LightingData;
@@ -52,6 +57,9 @@ export const VIACustomItem = React.memo(
 type ControlGetSet = {
   value: number[];
   updateValue: (name: string, ...command: number[]) => void;
+  updateRangeValue: (name: string, value: number) => void;
+  rangeControls: RangeControlMap;
+  menuData: Record<string, number[] | number[][]>;
 };
 
 type VIACustomControlProps = VIAItem & ControlGetSet;
@@ -68,14 +76,6 @@ const getRangeValue = (value: number[], max: number) => {
     return shiftTo16Bit([value[0], value[1]]);
   } else {
     return value[0];
-  }
-};
-
-const getRangeBytes = (value: number, max: number) => {
-  if (max > 255) {
-    return shiftFrom16Bit(value);
-  } else {
-    return [value];
   }
 };
 
@@ -117,18 +117,27 @@ const VIACustomControl = (props: VIACustomControlProps) => {
       );
     }
     case 'range': {
+      const logicalValues = Object.entries(props.rangeControls).reduce<
+        Record<string, number>
+      >((values, [id, range]) => {
+        const rawValue = props.menuData[id];
+        if (Array.isArray(rawValue) && typeof rawValue[0] === 'number') {
+          values[id] = decodeRangeValue(rawValue as number[], range.options[1]);
+        }
+        return values;
+      }, {});
+      const bounds = getRangeBounds(
+        name,
+        props.rangeControls,
+        logicalValues,
+        true,
+      );
       return (
         <AccentRange
-          min={options[0]}
-          max={options[1]}
-          defaultValue={getRangeValue(props.value, options[1])}
-          onChange={(val: number) =>
-            props.updateValue(
-              name,
-              ...command,
-              ...getRangeBytes(val, options[1]),
-            )
-          }
+          min={bounds.min}
+          max={bounds.max}
+          value={getRangeValue(props.value, options[1])}
+          onChange={(val: number) => props.updateRangeValue(name, val)}
         />
       );
     }

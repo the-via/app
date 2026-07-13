@@ -5,10 +5,10 @@
     "build": "bun run build:kbs && tsc && vite build",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
-    "refresh-kbs": "bun uninstall --force via-keyboards && bun install --force github:the-via/keyboards",
+    "refresh-kbs": "bun update --force via-keyboards",
     "build:azure": "bun run refresh-kbs && bun run build",
     "preview": "vite preview",
-    "build:kbs": "via-keyboards public/definitions",
+    "build:kbs": "node --import tsx node_modules/via-keyboards/scripts/build-all.ts public/definitions",
     "find-deadcode": "ts-prune"
   },
   "engines": {
@@ -30,7 +30,7 @@
     "@react-three/fiber": "^8.17.9",
     "@reduxjs/toolkit": "^2.3.0",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.14.0",
+    "@the-via/reader": "^1.14.1",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^7.2.1",
     "i18next": "^23.10.1",
