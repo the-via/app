@@ -19,6 +19,12 @@ import {
   UISyncRequestType,
 } from 'src/utils/keyboard-api';
 import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
+import {
+  collectRangeControls,
+  decodeRangeValue,
+  encodeRangeValue,
+  resolveRangeChange,
+} from 'src/utils/range-constraints';
 import type {CommonMenusMap, ConnectedDevice} from '../types/types';
 import {getSelectedDefinition} from './definitionsSlice';
 import {
@@ -117,6 +123,69 @@ export const updateCustomMenuValue =
 
     const channel = rest[0];
     api.commitCustomMenu(channel);
+  };
+
+export const updateCustomMenuRangeValue =
+  (command: string, requestedValue: number): AppThunk =>
+  async (dispatch, getState) => {
+    const state = getState();
+    const connectedDevice = getSelectedConnectedDevice(state);
+    const api = getSelectedKeyboardAPI(state) as KeyboardAPI | undefined;
+    const menuData = getSelectedCustomMenuData(state);
+    const rangeControls = getCustomRangeControls(state);
+    const control = rangeControls[command];
+
+    if (!connectedDevice || !api || !menuData || !control) {
+      return;
+    }
+
+    const logicalValues = Object.entries(rangeControls).reduce<
+      Record<string, number>
+    >((values, [id, range]) => {
+      const rawValue = menuData[id];
+      if (Array.isArray(rawValue) && typeof rawValue[0] === 'number') {
+        values[id] = decodeRangeValue(rawValue as number[], range.options[1]);
+      }
+      return values;
+    }, {});
+    const resolvedValues = resolveRangeChange(
+      command,
+      requestedValue,
+      rangeControls,
+      logicalValues,
+    );
+    const updates = Object.entries(resolvedValues).filter(
+      ([id, value]) => logicalValues[id] !== value && rangeControls[id],
+    );
+
+    if (!updates.length) {
+      return;
+    }
+
+    const updatedMenuData = {...menuData};
+    updates.forEach(([id, value]) => {
+      updatedMenuData[id] = encodeRangeValue(
+        value,
+        rangeControls[id].options[1],
+      );
+    });
+    dispatch(
+      updateSelectedCustomMenuData({
+        menuData: updatedMenuData,
+        devicePath: connectedDevice.path,
+      }),
+    );
+
+    const channels = new Set<number>();
+    for (const [id, value] of updates) {
+      const [, channel, commandId] = rangeControls[id].content;
+      const bytes = encodeRangeValue(value, rangeControls[id].options[1]);
+      await api.setCustomMenuValue(channel, commandId, ...bytes);
+      channels.add(channel);
+    }
+    for (const channel of channels) {
+      await api.commitCustomMenu(channel);
+    }
   };
 
 const readCustomMenuValues = async (
@@ -452,6 +521,20 @@ export const getCustomCommands = createSelector(
           [n[0]]: n.slice(1),
         };
       }, {});
+  },
+);
+
+export const getCustomRangeControls = createSelector(
+  getSelectedDefinition,
+  getV3Menus,
+  (definition, v3Menus) => {
+    if (!definition) {
+      return {};
+    }
+    const menus = isVIADefinitionV2(definition)
+      ? definition.customMenus || []
+      : v3Menus;
+    return collectRangeControls(menus);
   },
 );
 

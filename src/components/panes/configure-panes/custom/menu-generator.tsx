@@ -28,7 +28,9 @@ import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedCustomMenuData,
+  getCustomRangeControls,
   updateCustomMenuValue,
+  updateCustomMenuRangeValue,
 } from 'src/store/menusSlice';
 import {useTranslation} from 'react-i18next';
 import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
@@ -118,6 +120,9 @@ const MenuComponent = React.memo((props: any) => (
         <VIACustomItem
           {...itemProps}
           updateValue={props.updateCustomMenuValue}
+          updateRangeValue={props.updateCustomMenuRangeValue}
+          rangeControls={props.rangeControls}
+          menuData={props.selectedCustomMenuData}
           value={
             isCustomMenuCommandContent(itemProps.content)
               ? props.selectedCustomMenuData[itemProps.content[0]]
@@ -128,8 +133,9 @@ const MenuComponent = React.memo((props: any) => (
   </>
 ));
 
-const MenuBuilder = (elem: any) => (props: any) =>
-  <MenuComponent {...props} key={elem._id} elem={elem} />;
+const MenuBuilder = (elem: any) => (props: any) => (
+  <MenuComponent {...props} key={elem._id} elem={elem} />
+);
 
 function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,
@@ -169,11 +175,7 @@ function submenuGenerator(
       return [];
     }
     return elem.content.flatMap((e) =>
-      submenuGenerator(
-        e as TagWithId<VIASubmenu, VIASubmenuSlice>,
-        props,
-        t,
-      ),
+      submenuGenerator(e as TagWithId<VIASubmenu, VIASubmenuSlice>, props, t),
     );
   }
 }
@@ -183,13 +185,17 @@ export const Pane: React.FC<Props> = (props: any) => {
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
+  const rangeControls = useAppSelector(getCustomRangeControls);
 
   const childProps = {
     ...props,
     selectedDefinition,
     selectedCustomMenuData,
+    rangeControls,
     updateCustomMenuValue: (command: string, ...rest: number[]) =>
       dispatch(updateCustomMenuValue(command, ...rest)),
+    updateCustomMenuRangeValue: (command: string, value: number) =>
+      dispatch(updateCustomMenuRangeValue(command, value)),
   };
 
   const menus = categoryGenerator(childProps, t);
@@ -261,8 +267,7 @@ export type IntersectKey<A, B extends keyof A, C> = A & {
   [K in B]: MapIntoArr<A[B], C>;
 };
 export type TagWithId<A, B extends {content: any}> =
-  | (IdTag & A)
-  | IntersectKey<B, 'content', IdTag>;
+  (IdTag & A) | IntersectKey<B, 'content', IdTag>;
 
 export const MenuContainer = styled.div`
   padding: 15px 10px 20px 10px;

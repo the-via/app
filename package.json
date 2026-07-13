@@ -30,7 +30,7 @@
     "@react-three/fiber": "^8.17.9",
     "@reduxjs/toolkit": "^2.3.0",
     "@the-via/pelpi": "^0.0.3",
-    "@the-via/reader": "^1.14.0",
+    "@the-via/reader": "^1.14.1",
     "@webscopeio/react-textarea-autocomplete": "^4.9.2",
     "downshift": "^7.2.1",
     "i18next": "^23.10.1",
