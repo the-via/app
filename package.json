@@ -8,7 +8,7 @@
     "refresh-kbs": "bun update --force via-keyboards",
     "build:azure": "bun run refresh-kbs && bun run build",
     "preview": "vite preview",
-    "build:kbs": "via-keyboards public/definitions",
+    "build:kbs": "node --import tsx node_modules/via-keyboards/scripts/build-all.ts public/definitions",
     "find-deadcode": "ts-prune"
   },
   "engines": {
