@@ -17,7 +17,6 @@ import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import { t } from 'i18next';
 
 export const Category = {
   General: {label: 'General', Menu: GeneralPane},
@@ -42,6 +41,7 @@ const MenuContainer = styled.div`
 `;
 
 export const Pane: FC = () => {
+  const {t} = useTranslation();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
 
   const [selectedCategory, setSelectedCategory] = useState(Category.General);
@@ -83,7 +83,7 @@ export const Pane: FC = () => {
               onClick={() => setSelectedCategory(menu)}
               key={menu.label}
             >
-              {menu.label}
+              {t(menu.label)}
             </SubmenuRow>
           ))}
         </MenuContainer>

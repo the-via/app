@@ -13,6 +13,7 @@ import {useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import type {FC} from 'react';
 import {useAppDispatch} from 'src/store/hooks';
+import {useTranslation} from 'react-i18next';
 export const LayoutConfigValues = [
   LightingValue.BACKLIGHT_USE_7U_SPACEBAR,
   LightingValue.BACKLIGHT_USE_ISO_ENTER,
@@ -35,6 +36,7 @@ const BooleanControls: [LightingValue, string][] = [
 ];
 
 export const Pane: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -45,7 +47,7 @@ export const Pane: FC = () => {
 
   if (!isVIADefinitionV2(selectedDefinition)) {
     throw new Error(
-      'This lighting component is only compatible with v2 definitions',
+      t('This lighting component is only compatible with v2 definitions'),
     );
   }
 
@@ -63,7 +65,7 @@ export const Pane: FC = () => {
           const isChecked = valArr && valArr[0];
           return (
             <ControlRow key={command}>
-              <Label>{label}</Label>
+              <Label>{t(label)}</Label>
               <Detail>
                 <AccentSlider
                   isChecked={!!isChecked}

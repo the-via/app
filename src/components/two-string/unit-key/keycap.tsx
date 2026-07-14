@@ -222,10 +222,13 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     color && color.t,
   ]);
 
+  const redrawRef = React.useRef(redraw);
+  redrawRef.current = redraw;
   useEffect(() => {
-    document.fonts.addEventListener('loadingdone', redraw);
+    const handler = () => redrawRef.current();
+    document.fonts.addEventListener('loadingdone', handler);
     return () => {
-      document.fonts.removeEventListener('loadingdone', redraw);
+      document.fonts.removeEventListener('loadingdone', handler);
     };
   }, []);
 

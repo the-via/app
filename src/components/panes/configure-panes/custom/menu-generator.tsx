@@ -28,9 +28,12 @@ import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
 import {
   getSelectedCustomMenuData,
+  getCustomRangeControls,
   updateCustomMenuValue,
+  updateCustomMenuRangeValue,
 } from 'src/store/menusSlice';
 import {useTranslation} from 'react-i18next';
+import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
 
 type Category = {
   label: string;
@@ -66,7 +69,7 @@ function isSlice(
   return !('label' in elem);
 }
 
-function categoryGenerator(props: any): Category[] {
+function categoryGenerator(props: any, t: (key: string) => string): Category[] {
   // Safety check:  return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
@@ -81,7 +84,7 @@ function categoryGenerator(props: any): Category[] {
   }
 
   return props.viaMenu.content.flatMap((menu: any) =>
-    submenuGenerator(menu, props),
+    submenuGenerator(menu, props, t),
   );
 }
 
@@ -117,35 +120,38 @@ const MenuComponent = React.memo((props: any) => (
         <VIACustomItem
           {...itemProps}
           updateValue={props.updateCustomMenuValue}
-          value={props.selectedCustomMenuData[itemProps.content[0]]}
+          updateRangeValue={props.updateCustomMenuRangeValue}
+          rangeControls={props.rangeControls}
+          menuData={props.selectedCustomMenuData}
+          value={
+            isCustomMenuCommandContent(itemProps.content)
+              ? props.selectedCustomMenuData[itemProps.content[0]]
+              : undefined
+          }
         />
       ))}
   </>
 ));
 
-const MenuBuilder = (elem: any) => (props: any) =>
-  <MenuComponent {...props} key={elem._id} elem={elem} />;
+const MenuBuilder = (elem: any) => (props: any) => (
+  <MenuComponent {...props} key={elem._id} elem={elem} />
+);
 
 function submenuGenerator(
   elem: TagWithId<VIASubmenu, VIASubmenuSlice>,
   props: any,
+  t: (key: string) => string,
 ): any {
   // Safety check: return empty if data not loaded yet
   if (!props.selectedCustomMenuData) {
     return [];
   }
 
-  const {t} = useTranslation();
-
   const isHidden =
     'showIf' in elem &&
     !evalExpr(elem.showIf as string, props.selectedCustomMenuData);
 
   if ('label' in elem) {
-    function t(arg0: string): React.ReactNode | Iterable<React.ReactNode> {
-      throw new Error('Function not implemented.');
-    }
-
     return {
       label: elem.label,
       Menu: isHidden
@@ -169,7 +175,7 @@ function submenuGenerator(
       return [];
     }
     return elem.content.flatMap((e) =>
-      submenuGenerator(e as TagWithId<VIASubmenu, VIASubmenuSlice>, props),
+      submenuGenerator(e as TagWithId<VIASubmenu, VIASubmenuSlice>, props, t),
     );
   }
 }
@@ -179,16 +185,20 @@ export const Pane: React.FC<Props> = (props: any) => {
   const dispatch = useAppDispatch();
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const selectedCustomMenuData = useAppSelector(getSelectedCustomMenuData);
+  const rangeControls = useAppSelector(getCustomRangeControls);
 
   const childProps = {
     ...props,
     selectedDefinition,
     selectedCustomMenuData,
+    rangeControls,
     updateCustomMenuValue: (command: string, ...rest: number[]) =>
       dispatch(updateCustomMenuValue(command, ...rest)),
+    updateCustomMenuRangeValue: (command: string, value: number) =>
+      dispatch(updateCustomMenuRangeValue(command, value)),
   };
 
-  const menus = categoryGenerator(childProps);
+  const menus = categoryGenerator(childProps, t);
 
   const [selectedCategory, setSelectedCategory] = useState(
     menus[0] || {label: '', Menu: () => <div />},
@@ -257,8 +267,7 @@ export type IntersectKey<A, B extends keyof A, C> = A & {
   [K in B]: MapIntoArr<A[B], C>;
 };
 export type TagWithId<A, B extends {content: any}> =
-  | (IdTag & A)
-  | IntersectKey<B, 'content', IdTag>;
+  (IdTag & A) | IntersectKey<B, 'content', IdTag>;
 
 export const MenuContainer = styled.div`
   padding: 15px 10px 20px 10px;

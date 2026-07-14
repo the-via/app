@@ -29,9 +29,9 @@ export interface IKeycodeMenu {
   detailed?: string;
 }
 
-// Tests if label is an alpha
+// Tests if label is an alpha (including Unicode letters)
 export function isAlpha(label: string) {
-  return /[A-Za-z]/.test(label) && label.length === 1;
+  return label.length === 1 && /\p{L}/u.test(label);
 }
 
 // Test if label is a numpad number
@@ -48,10 +48,9 @@ export function isNumpadSymbol(label: string) {
   return label.length === 1 && centeredSymbol.includes(label[0]);
 }
 
-// Test if label is a multi-legend, e.g. "!\n1"
+// Test if label contains two explicitly separated legends, e.g. "!\n1".
 export function isMultiLegend(label: string) {
-  const topLegend = '~!@#$%^&*()_+|{}:"<>?'.split('');
-  return label.length !== 1 && topLegend.includes(label[0]);
+  return /^[^\n]+\n[^\n]+$/.test(label);
 }
 
 // Tests if label is a number
@@ -309,8 +308,16 @@ export function getLabelForByte(
   size = 100,
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
+  keycodeLUT?: Record<string, {name: string; title?: string}>,
 ) {
   const keycode = getCodeForByte(byte, basicKeyToByte, byteToKey);
+  if (keycodeLUT && keycode && keycodeLUT[keycode]) {
+    const lutEntry = keycodeLUT[keycode];
+    return getShortNameForKeycode(
+      {code: keycode, name: lutEntry.name, title: lutEntry.title},
+      size,
+    );
+  }
   const basicKeycode = keycodesList.find(({code}) => code === keycode);
   if (!basicKeycode) {
     return keycode;
@@ -841,6 +848,61 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
           shortName: 'NKRO',
           title: 'Toggle NKRO',
         },
+        // Add frequently used magic keys for GUI
+        {
+          name: 'Swap Ctrl GUI',
+          code: 'MAGIC_SWAP_CTL_GUI',
+          shortName: 'CG Swap',
+          title: 'Swap Ctrl and GUI',
+        },
+        {
+          name: 'Unswap Ctrl GUI',
+          code: 'MAGIC_UNSWAP_CTL_GUI',
+          shortName: 'CG Unswap',
+          title: 'Unswap Ctrl and GUI',
+        },
+        {
+          name: 'Toggle Ctrl GUI',
+          code: 'MAGIC_TOGGLE_CTL_GUI',
+          shortName: 'CG Togg',
+          title: 'Toggle Ctrl and GUI swapped/unswapped',
+        },
+        {
+          name: 'Swap Alt GUI',
+          code: 'MAGIC_SWAP_ALT_GUI',
+          shortName: 'AG Swap',
+          title: 'Swap Alt and GUI',
+        },
+        {
+          name: 'Unswap Alt GUI',
+          code: 'MAGIC_UNSWAP_ALT_GUI',
+          shortName: 'AG Unswap',
+          title: 'Unswap Alt and GUI',
+        },
+        {
+          name: 'Toggle Alt GUI',
+          code: 'MAGIC_TOGGLE_ALT_GUI',
+          shortName: 'AG Togg',
+          title: 'Toggle Alt and GUI swapped/unswapped',
+        },
+        {
+          name: 'Enable GUI',
+          code: 'MAGIC_GUI_ON',
+          shortName: 'GUI On',
+          title: 'Enable GUI keys',
+        },
+        {
+          name: 'Disable GUI',
+          code: 'MAGIC_GUI_OFF',
+          shortName: 'GUI Off',
+          title: 'Disable GUI keys',
+        },
+        {
+          name: 'Toggle GUI',
+          code: 'MAGIC_TOGGLE_GUI',
+          shortName: 'GUI Togg',
+          title: 'Toggle GUI keys enabled/disabled',
+        },
         // I don't even think the locking stuff is enabled...
         {name: 'Locking Num Lock', code: 'KC_LNUM'},
         {name: 'Locking Caps Lock', code: 'KC_LCAP'},
@@ -882,6 +944,18 @@ export function getKeycodes(numMacros = 16): IKeycodeMenu[] {
           code: 'KC_BRID',
           shortName: 'Scr -',
           title: 'Screen Brightness Down',
+        },
+        {
+          name: 'Mission Control',
+          code: 'KC_MCTL',
+          shortName: 'Mctl',
+          title: 'Open Mission Control (macOS)',
+        },
+        {
+          name: 'Launchpad',
+          code: 'KC_LPAD',
+          shortName: 'Lpad',
+          title: 'Open Launchpad (macOS)',
         },
         {name: 'F13', code: 'KC_F13'},
         {name: 'F14', code: 'KC_F14'},
