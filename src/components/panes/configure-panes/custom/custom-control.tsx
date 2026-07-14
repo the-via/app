@@ -3,7 +3,7 @@ import {PelpiKeycodeInput} from '../../../inputs/pelpi/keycode-input';
 import {AccentButton} from '../../../inputs/accent-button';
 import {AccentSlider} from '../../../inputs/accent-slider';
 import {AccentSelect} from '../../../inputs/accent-select';
-import {AccentRange} from '../../../inputs/accent-range';
+import {AccentRange, RangeValueDisplay} from '../../../inputs/accent-range';
 import {ControlRow, Label, Detail} from '../../grid';
 import type {VIADefinitionV2, VIADefinitionV3, VIAItem} from '@the-via/reader';
 import type {LightingData} from '../../../../types/types';
@@ -11,6 +11,11 @@ import {ArrayColorPicker} from '../../../inputs/color-picker';
 import {ConnectedColorPalettePicker} from 'src/components/inputs/color-palette-picker';
 import {shiftFrom16Bit, shiftTo16Bit} from 'src/utils/keyboard-api';
 import {useTranslation} from 'react-i18next';
+import {
+  decodeRangeValue,
+  getRangeBounds,
+  type RangeControlMap,
+} from 'src/utils/range-constraints';
 
 type Props = {
   lightingData: LightingData;
@@ -52,6 +57,9 @@ export const VIACustomItem = React.memo(
 type ControlGetSet = {
   value: number[];
   updateValue: (name: string, ...command: number[]) => void;
+  updateRangeValue: (name: string, value: number) => void;
+  rangeControls: RangeControlMap;
+  menuData: Record<string, number[] | number[][]>;
 };
 
 type VIACustomControlProps = VIAItem & ControlGetSet;
@@ -71,12 +79,17 @@ const getRangeValue = (value: number[], max: number) => {
   }
 };
 
-const getRangeBytes = (value: number, max: number) => {
-  if (max > 255) {
-    return shiftFrom16Bit(value);
-  } else {
-    return [value];
+const decodeNullTerminatedUTF8 = (value?: number[]) => {
+  if (!value || value.length === 0) {
+    return '';
   }
+
+  const terminatorIdx = value.indexOf(0);
+  const bytes = value.slice(
+    0,
+    terminatorIdx === -1 ? undefined : terminatorIdx,
+  );
+  return new TextDecoder().decode(new Uint8Array(bytes));
 };
 
 const VIACustomControl = (props: VIACustomControlProps) => {
@@ -84,6 +97,15 @@ const VIACustomControl = (props: VIACustomControlProps) => {
   const {content, type, options, value} = props as any;
   const [name, ...command] = content;
   switch (type) {
+    case 'label': {
+      return (
+        <RangeValueDisplay>
+          {content.length === 1
+            ? t(content[0])
+            : decodeNullTerminatedUTF8(value)}
+        </RangeValueDisplay>
+      );
+    }
     case 'button': {
       const buttonOption: any[] = options || [1];
       return (
@@ -95,18 +117,27 @@ const VIACustomControl = (props: VIACustomControlProps) => {
       );
     }
     case 'range': {
+      const logicalValues = Object.entries(props.rangeControls).reduce<
+        Record<string, number>
+      >((values, [id, range]) => {
+        const rawValue = props.menuData[id];
+        if (Array.isArray(rawValue) && typeof rawValue[0] === 'number') {
+          values[id] = decodeRangeValue(rawValue as number[], range.options[1]);
+        }
+        return values;
+      }, {});
+      const bounds = getRangeBounds(
+        name,
+        props.rangeControls,
+        logicalValues,
+        true,
+      );
       return (
         <AccentRange
-          min={options[0]}
-          max={options[1]}
-          defaultValue={getRangeValue(props.value, options[1])}
-          onChange={(val: number) =>
-            props.updateValue(
-              name,
-              ...command,
-              ...getRangeBytes(val, options[1]),
-            )
-          }
+          min={bounds.min}
+          max={bounds.max}
+          value={getRangeValue(props.value, options[1])}
+          onChange={(val: number) => props.updateRangeValue(name, val)}
         />
       );
     }
@@ -143,7 +174,7 @@ const VIACustomControl = (props: VIACustomControlProps) => {
             typeof option === 'string' ? [option, idx] : option;
           return {
             value: value || idx,
-            label,
+            label: t(label),
           };
         },
       );

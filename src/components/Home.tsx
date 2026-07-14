@@ -9,8 +9,12 @@ import {
   LightingValue,
 } from '@the-via/reader';
 import {
+  dismissInvalidProtocolDevice,
+  dismissUnresolvedDefinitionDevice,
   getConnectedDevices,
+  getInvalidProtocolDeviceWarning,
   getSelectedKeyboardAPI,
+  getUnresolvedDefinitionDeviceWarning,
 } from 'src/store/devicesSlice';
 import {
   loadSupportedIds,
@@ -28,9 +32,12 @@ import {
   getSelectedDefinition,
   getSelectedKeyDefinitions,
 } from 'src/store/definitionsSlice';
+import {syncCustomMenuValuesFromRequest} from 'src/store/menusSlice';
 import {OVERRIDE_HID_CHECK} from 'src/utils/override';
 import {KeyboardValue} from 'src/utils/keyboard-api';
 import {useTranslation} from 'react-i18next';
+import {MessageDialog} from './inputs/message-dialog';
+import {formatNumberAsHex} from 'src/utils/format';
 
 const ErrorHome = styled.div`
   background: var(--bg_gradient);
@@ -96,6 +103,12 @@ export const Home: React.FC<HomeProps> = (props) => {
   const selectedKey = useAppSelector(getSelectedKey);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
   const connectedDevices = useAppSelector(getConnectedDevices);
+  const invalidProtocolDevice = useAppSelector(
+    getInvalidProtocolDeviceWarning,
+  );
+  const unresolvedDefinitionDevice = useAppSelector(
+    getUnresolvedDefinitionDeviceWarning,
+  );
   const selectedLayerIndex = useAppSelector(getSelectedLayerIndex);
   const selectedKeyDefinitions = useAppSelector(getSelectedKeyDefinitions);
   const disableFastRemap = useAppSelector(getDisableFastRemap);
@@ -171,6 +184,16 @@ export const Home: React.FC<HomeProps> = (props) => {
     // }
   }, [api]);
 
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    return api.addUISyncRequestHandler((request) => {
+      dispatch(syncCustomMenuValuesFromRequest(request));
+    });
+  }, [api]);
+
   return !hasHIDSupport && !OVERRIDE_HID_CHECK ? (
     <ErrorHome ref={homeElem} tabIndex={0}>
       <UsbError>
@@ -190,6 +213,49 @@ export const Home: React.FC<HomeProps> = (props) => {
       </UsbError>
     </ErrorHome>
   ) : (
-    <>{props.children}</>
+    <>
+      {invalidProtocolDevice && (
+        <MessageDialog
+          isOpen={true}
+          confirmLabel="OK"
+          onConfirm={() => {
+            dispatch(dismissInvalidProtocolDevice(invalidProtocolDevice));
+          }}
+        >
+          {t(
+            "VIA can see {{deviceName}} through WebHID.\nVID: {{vid}} | PID: {{pid}}\n\n{{deviceName}} does not seem to respond like a VIA-enabled keyboard.\n\nIf {{deviceName}} should support VIA, make sure it is running VIA-compatible firmware.\nIf it is, authorization and/or initialization procedures may have failed—unplug the keyboard, reconnect it, and try again.\nIf the problem persists, please contact your keyboard's manufacturer or vendor for assistance.",
+            {
+              deviceName: invalidProtocolDevice.productName || t('this device'),
+              vid: formatNumberAsHex(invalidProtocolDevice.vendorId, 4),
+              pid: formatNumberAsHex(invalidProtocolDevice.productId, 4),
+            },
+          )}
+        </MessageDialog>
+      )}
+      {!invalidProtocolDevice && unresolvedDefinitionDevice && (
+        <MessageDialog
+          isOpen={true}
+          confirmLabel="OK"
+          onConfirm={() => {
+            dispatch(
+              dismissUnresolvedDefinitionDevice(unresolvedDefinitionDevice),
+            );
+          }}
+        >
+          {t(
+            "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.",
+            {
+              definitionVersion:
+                unresolvedDefinitionDevice.requiredDefinitionVersion.toUpperCase(),
+              deviceName:
+                unresolvedDefinitionDevice.productName || t('this keyboard'),
+              vid: formatNumberAsHex(unresolvedDefinitionDevice.vendorId, 4),
+              pid: formatNumberAsHex(unresolvedDefinitionDevice.productId, 4),
+            },
+          )}
+        </MessageDialog>
+      )}
+      {props.children}
+    </>
   );
 };

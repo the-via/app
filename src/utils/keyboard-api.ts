@@ -40,6 +40,8 @@ enum APICommand {
   DYNAMIC_KEYMAP_GET_ENCODER = 0x14,
   DYNAMIC_KEYMAP_SET_ENCODER = 0x15,
 
+  UI_SYNC_REQUEST = 0x16,
+
   // DEPRECATED:
   BACKLIGHT_CONFIG_SET_VALUE = 0x07,
   BACKLIGHT_CONFIG_GET_VALUE = 0x08,
@@ -58,6 +60,68 @@ export enum KeyboardValue {
   FIRMWARE_VERSION = 0x04,
   DEVICE_INDICATION = 0x05,
 }
+
+export enum UISyncRequestType {
+  CUSTOM_MENU_ALL = 0x00,
+  CUSTOM_MENU_COMMANDS = 0x01,
+  CUSTOM_MENU_COMMAND_IDS = 0x02,
+}
+
+export type UISyncCustomMenuCommandTarget = {
+  channelId: number;
+  commandId: number;
+};
+
+export type UISyncRequest =
+  | {type: UISyncRequestType.CUSTOM_MENU_ALL}
+  | {
+      type: UISyncRequestType.CUSTOM_MENU_COMMANDS;
+      targets: UISyncCustomMenuCommandTarget[];
+    }
+  | {
+      type: UISyncRequestType.CUSTOM_MENU_COMMAND_IDS;
+      commandIds: number[];
+    };
+
+const UI_SYNC_REQUEST_VERSION = 0x01;
+
+const parseUISyncRequest = (buffer: Uint8Array): UISyncRequest | undefined => {
+  const [command, version, type, count] = buffer;
+  if (
+    command !== APICommand.UI_SYNC_REQUEST ||
+    version !== UI_SYNC_REQUEST_VERSION
+  ) {
+    return undefined;
+  }
+
+  if (type === UISyncRequestType.CUSTOM_MENU_ALL) {
+    return {type};
+  }
+
+  if (type === UISyncRequestType.CUSTOM_MENU_COMMAND_IDS) {
+    return {
+      type,
+      commandIds: Array.from(buffer.slice(4, 4 + count)),
+    };
+  }
+
+  if (type !== UISyncRequestType.CUSTOM_MENU_COMMANDS) {
+    return undefined;
+  }
+
+  const targets: UISyncCustomMenuCommandTarget[] = [];
+  for (let targetIdx = 0; targetIdx < count; targetIdx++) {
+    const offset = 4 + targetIdx * 2;
+    const channelId = buffer[offset];
+    const commandId = buffer[offset + 1];
+    if (channelId === undefined || commandId === undefined) {
+      break;
+    }
+    targets.push({channelId, commandId});
+  }
+
+  return {type, targets};
+};
 
 // RGB Backlight Value IDs
 // const BACKLIGHT_USE_SPLIT_BACKSPACE = 0x01;
@@ -591,6 +655,21 @@ export class KeyboardAPI {
     });
   }
 
+  isCommandQueueIdle() {
+    return (
+      !this.commandQueueWrapper.isFlushing &&
+      this.commandQueueWrapper.commandQueue.length === 0
+    );
+  }
+
+  async waitForCommandQueueIdle() {
+    if (this.isCommandQueueIdle()) {
+      return;
+    }
+
+    await this.timeout(0);
+  }
+
   async hidCommand(
     command: Command,
     bytes: Array<number> = [],
@@ -640,6 +719,18 @@ export class KeyboardAPI {
 
   getHID() {
     return cache[this.kbAddr].hid;
+  }
+
+  addUISyncRequestHandler(handler: (request: UISyncRequest) => void) {
+    return this.getHID().addInputReportHandler((buffer: Uint8Array) => {
+      const request = parseUISyncRequest(buffer);
+      if (!request) {
+        return false;
+      }
+
+      handler(request);
+      return true;
+    });
   }
 
   async _hidCommand(command: Command, bytes: Array<number> = []): Promise<any> {

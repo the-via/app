@@ -2,6 +2,7 @@ import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppSelector} from 'src/store/hooks';
 import styled from 'styled-components';
 import KeycodeTextInput from '../../../../inputs/keycode-text-input';
+import {useTranslation} from 'react-i18next';
 
 const RowDiv = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export const EncoderCustomConfig = (props: Props) => {
+  const {t} = useTranslation();
   const {
     encoderIdx,
     onChange,
@@ -41,7 +43,7 @@ export const EncoderCustomConfig = (props: Props) => {
 
   return (
     <RowDiv>
-      <LabelText>{title}</LabelText>
+      <LabelText>{t(title)}</LabelText>
       <KeyInput
         defaultValue={cw}
         basicKeyToByte={basicKeyToByte}

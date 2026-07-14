@@ -91,6 +91,7 @@ export type Settings = {
   macroEditor: MacroEditorSettings;
   testKeyboardSoundsSettings: TestKeyboardSoundsSettings;
   designDefinitionVersion: DefinitionVersion;
+  hostKeyboardLayout: string;
 };
 
 export type CommonMenusMap = {

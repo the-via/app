@@ -17,6 +17,8 @@ import {KeyboardAPI} from '../../../../../utils/keyboard-api';
 import {getSelectedKeyboardAPI} from 'src/store/devicesSlice';
 import {useAppSelector} from 'src/store/hooks';
 import {EncoderBehavior} from 'src/types/types';
+import {useTranslation} from 'react-i18next';
+import type {TFunction} from 'i18next';
 
 type EnabledEncoderModes = number;
 type OLEDMode = number;
@@ -61,12 +63,6 @@ const LabelText = styled.span`
   width: 64px;
 `;
 
-const OLED_OPTIONS = [
-  {value: 0, label: 'Default'},
-  {value: 1, label: 'Time'},
-  {value: 2, label: 'Off'},
-];
-
 type State = {
   enabledModes: number;
   defaultOLEDMode: number;
@@ -77,13 +73,17 @@ type State = {
 // TODO: Can we get rid of SatisfactionMenu now that we have v3 definitions?
 export const SatisfactionMenu = () => {
   const api = useAppSelector(getSelectedKeyboardAPI);
+  const {t} = useTranslation();
   if (api) {
-    return <BaseSatisfactionMenu api={api} />;
+    return <BaseSatisfactionMenu api={api} t={t} />;
   }
   return null;
 };
 
-class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
+class BaseSatisfactionMenu extends Component<
+  {api: KeyboardAPI; t: TFunction},
+  State
+> {
   state = {
     enabledModes: 0x1f,
     defaultOLEDMode: 0,
@@ -174,6 +174,11 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
     const {api} = this.props;
     const {enabledModes, defaultOLEDMode, currOLEDMode, encoderBehaviors} =
       this.state;
+    const OLED_OPTIONS = [
+      {value: 0, label: this.props.t('Default')},
+      {value: 1, label: this.props.t('Time')},
+      {value: 2, label: this.props.t('Off')},
+    ];
     if (api) {
       return (
         <MenuContainer>
@@ -184,11 +189,8 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
             />
           </SectionContainer>
           <SectionContainer>
-            <h3>Default OLED Mode:</h3>
-            <p>
-              This is the OLED mode that will be selected by default when you
-              plug in your keyboard.
-            </p>
+            <LocalizedHeading textKey="Default OLED Mode:" />
+            <LocalizedBody textKey="This is the OLED mode that will be selected by default when you plug in your keyboard." />
             <OLEDSelectContainer>
               <Select
                 value={OLED_OPTIONS.find((e) => e.value === defaultOLEDMode)}
@@ -196,8 +198,8 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
                 options={OLED_OPTIONS}
               />
             </OLEDSelectContainer>
-            <h3>Current OLED Mode:</h3>
-            <p>Change your {"keyboard's"} current OLED mode</p>
+            <LocalizedHeading textKey="Current OLED Mode:" />
+            <LocalizedBody textKey="Change your keyboard's current OLED mode" />
             <OLEDSelectContainer>
               <Select
                 value={OLED_OPTIONS.find((e) => e.value === currOLEDMode)}
@@ -208,12 +210,12 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
             </OLEDSelectContainer>
           </SectionContainer>
           <SectionContainer>
-            <h3>Custom Encoder Configuration:</h3>
-            <p>Configure the behavior of encoder custom modes</p>
+            <LocalizedHeading textKey="Custom Encoder Configuration:" />
+            <LocalizedBody textKey="Configure the behavior of encoder custom modes" />
             <CustomEncoderContainer>
-              <LabelText>CW</LabelText>
-              <LabelText>CCW</LabelText>
-              <LabelText>Press</LabelText>
+              <LabelText>{this.props.t('CW')}</LabelText>
+              <LabelText>{this.props.t('CCW')}</LabelText>
+              <LabelText>{this.props.t('Press')}</LabelText>
             </CustomEncoderContainer>
             <EncoderCustomConfig
               title="Custom 0"
@@ -240,3 +242,13 @@ class BaseSatisfactionMenu extends Component<{api: KeyboardAPI}, State> {
     return null;
   }
 }
+
+const LocalizedHeading = ({textKey}: {textKey: string}) => {
+  const {t} = useTranslation();
+  return <h3>{t(textKey)}</h3>;
+};
+
+const LocalizedBody = ({textKey}: {textKey: string}) => {
+  const {t} = useTranslation();
+  return <p>{t(textKey)}</p>;
+};

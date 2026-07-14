@@ -16,8 +16,8 @@ export const LoaderCubey: React.FC<{theme: Theme; visible: boolean}> =
 
     const darkAccent = getDarkenedColor(theme.accent.c, 0.8);
     const colorMap = {
-      'upper-body': new Color(theme.mod.c),
-      'lower-body': new Color(theme.mod.t),
+      'upper-body': new Color(theme.mod.t),
+      'lower-body': new Color(theme.mod.c),
       accent: new Color(darkAccent),
       bowtie: new Color(darkAccent),
     };

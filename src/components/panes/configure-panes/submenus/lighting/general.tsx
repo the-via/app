@@ -16,6 +16,7 @@ import {
   updateCustomColor,
 } from 'src/store/lightingSlice';
 import {getSelectedDefinition} from 'src/store/definitionsSlice';
+import {useTranslation} from 'react-i18next';
 
 const BacklightControls: [
   LightingValue,
@@ -76,6 +77,7 @@ const UnderglowControls: [
 ];
 
 export const GeneralPane: FC = () => {
+  const {t} = useTranslation();
   const dispatch = useAppDispatch();
   const lightingData = useAppSelector(getSelectedLightingData);
   const selectedDefinition = useAppSelector(getSelectedDefinition);
@@ -150,7 +152,7 @@ export const GeneralPane: FC = () => {
 
             return (
               <ControlRow key={val}>
-                <Label>Color {val}</Label>
+                <Label>{t('Color')} {val}</Label>
                 <Detail>
                   <ColorPicker color={color} setColor={setColor} />
                 </Detail>
@@ -161,7 +163,7 @@ export const GeneralPane: FC = () => {
           <LightingControl
             meta={[
               LightingValue.QMK_RGBLIGHT_COLOR,
-              'Underglow Color',
+              t('Underglow Color'),
               {type: 'color'},
             ]}
           />

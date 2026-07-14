@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import styled from 'styled-components';
 import {useAppSelector} from 'src/store/hooks';
 import {getShowSliderValuesMode} from 'src/store/settingsSlice';
@@ -40,7 +40,7 @@ const SliderInput = styled.input.attrs({type: 'range'})<any>`
   flex: none;
 `;
 
-const ValueDisplay = styled.span`
+export const RangeValueDisplay = styled.span`
   text-align: right;
   font-size: 20px;
   color: var(--color_label_highlighted);
@@ -66,25 +66,27 @@ export const AccentRange: React.FC<
     displayMode === 'Slider Only'
       ? 0
       : displayMode === 'Slider & Show Value'
-      ? 1
-      : displayMode === 'Slider & Input Field'
-      ? 2
-      : 0;
+        ? 1
+        : displayMode === 'Slider & Input Field'
+          ? 2
+          : 0;
 
-  const [currentValue, setCurrentValue] = useState<number>(
-    Number(props.defaultValue || props.value || props.min || 0),
+  const currentValue = Number(
+    props.value ?? props.defaultValue ?? props.min ?? 0,
   );
+  const [draftValue, setDraftValue] = useState(String(currentValue));
+  const isEditing = useRef(false);
+  const cancelDraft = useRef(false);
 
   useEffect(() => {
-    const newValue = Number(
-      props.defaultValue || props.value || props.min || 0,
-    );
-    setCurrentValue(newValue);
-  }, [props.defaultValue, props.value, props.min]);
+    if (!isEditing.current) {
+      setDraftValue(String(currentValue));
+    }
+  }, [currentValue]);
 
   const handleChange = (newValue: number) => {
-    setCurrentValue(newValue);
-    props.onChange && props.onChange(newValue);
+    setDraftValue(String(newValue));
+    props.onChange(newValue);
   };
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,14 +95,50 @@ export const AccentRange: React.FC<
   };
 
   const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = +e.target.value;
-    handleChange(newValue);
+    setDraftValue(e.target.value);
+  };
+
+  const handleNumberInputBlur = () => {
+    isEditing.current = false;
+    if (cancelDraft.current) {
+      cancelDraft.current = false;
+      setDraftValue(String(currentValue));
+      return;
+    }
+
+    const parsedValue = Number(draftValue);
+    if (
+      draftValue.trim() === '' ||
+      !Number.isFinite(parsedValue) ||
+      !Number.isInteger(parsedValue)
+    ) {
+      setDraftValue(String(currentValue));
+      return;
+    }
+    if (parsedValue !== currentValue) {
+      handleChange(parsedValue);
+    } else {
+      setDraftValue(String(currentValue));
+    }
+  };
+
+  const handleNumberInputKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    } else if (e.key === 'Escape') {
+      cancelDraft.current = true;
+      e.currentTarget.blur();
+    }
   };
 
   return (
     <Container $mode={numericMode}>
       {/* Mode 1: Show value display */}
-      {numericMode === 1 && <ValueDisplay>{currentValue}</ValueDisplay>}
+      {numericMode === 1 && (
+        <RangeValueDisplay>{currentValue}</RangeValueDisplay>
+      )}
 
       {/* Always show slider */}
       <SliderInput
@@ -115,8 +153,13 @@ export const AccentRange: React.FC<
         <StyledNumberInput
           {...props}
           type="number"
-          value={currentValue}
+          value={draftValue}
+          onFocus={() => {
+            isEditing.current = true;
+          }}
           onChange={handleNumberInputChange}
+          onBlur={handleNumberInputBlur}
+          onKeyDown={handleNumberInputKeyDown}
         />
       )}
     </Container>
