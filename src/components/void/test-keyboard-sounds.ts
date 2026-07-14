@@ -58,6 +58,7 @@ const calculateMidiNote = (
 
 const turnOffAllTheNotes = () => {
   Object.values(notes).forEach((note) => note?.noteOff());
+  notes = {};
 };
 
 export const TestKeyboardSounds: React.FC<{
@@ -93,10 +94,12 @@ export const TestKeyboardSounds: React.FC<{
                   row,
                   col,
                 );
+                notes[index]?.noteOff(true);
                 notes[index] = new Note(midiNote, waveform);
                 notes[index].noteOn();
               } else if (state == TestKeyState.KeyUp) {
                 notes[index]?.noteOff();
+                delete notes[index];
               }
             }
             return [...p2, n2];

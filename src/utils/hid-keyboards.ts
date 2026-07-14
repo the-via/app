@@ -27,6 +27,6 @@ export const getRecognisedDevices = async (
   return usbDevices.filter((device) => {
     const validVendorProduct = idExists(device, vpidMap);
     // attempt connection
-    return validVendorProduct && canConnect(device);
+    return (validVendorProduct || forceRequest) && canConnect(device);
   });
 };

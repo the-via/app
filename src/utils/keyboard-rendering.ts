@@ -455,6 +455,7 @@ export const getLabel = (
   selectedDefinition: VIADefinitionV2 | VIADefinitionV3 | null,
   basicKeyToByte: Record<string, number>,
   byteToKey: Record<number, string>,
+  keycodeLUT?: Record<string, {name: string; title?: string}>,
 ) => {
   let label: string = '';
   let size: number = 1.0;
@@ -479,10 +480,10 @@ export const getLabel = (
     );
   } else if (keycodeByte) {
     label =
-      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey) ??
+      getLabelForByte(keycodeByte, width * 100, basicKeyToByte, byteToKey, keycodeLUT) ??
       '';
     tooltipLabel =
-      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey) ?? '';
+      getLabelForByte(keycodeByte, 700, basicKeyToByte, byteToKey, keycodeLUT) ?? '';
   }
   let macroExpression: string | undefined;
   if (isMacroKeycodeByte(keycodeByte, basicKeyToByte)) {
@@ -502,8 +503,7 @@ export const getLabel = (
       }
     );
   } else if (isMultiLegend(label)) {
-    const topLabel = label[0];
-    const bottomLabel = label[label.length - 1];
+    const [topLabel, bottomLabel] = label.split('\n');
     return (
       bottomLabel && {
         topLabel,

@@ -18,9 +18,19 @@ function getAudioContext(): AudioContext {
 function getGlobalAmp(): GainNode {
   if (globalAmp === undefined) {
     const audioContext = getAudioContext();
+    // Keep the original note gain/volume behavior, but add a compressor at the
+    // output bus to prevent clipping when several key sounds are summed.
+    const compressor = audioContext.createDynamicsCompressor();
+    compressor.threshold.value = -6;
+    compressor.knee.value = 3;
+    compressor.ratio.value = 12;
+    compressor.attack.value = 0.003;
+    compressor.release.value = 0.08;
+
     globalAmp = audioContext.createGain();
     globalAmp.gain.value = globalAmpGain;
-    globalAmp.connect(audioContext.destination);
+    globalAmp.connect(compressor);
+    compressor.connect(audioContext.destination);
   }
   return globalAmp;
 }
@@ -34,13 +44,17 @@ export function setGlobalAmpGain(ampGain: number) {
   }
   // This fixes a crackle sound when changing volume slider quickly
   // while playing a note.
+  const audioContext = getAudioContext();
+  // Cancel pending volume automation so rapid slider changes do not stack
+  // conflicting ramps on the same GainNode.
+  globalAmp.gain.cancelScheduledValues(audioContext.currentTime);
   globalAmp.gain.setValueAtTime(
     globalAmp.gain.value,
-    getAudioContext().currentTime,
+    audioContext.currentTime
   );
   globalAmp.gain.linearRampToValueAtTime(
     globalAmpGain,
-    getAudioContext().currentTime + 0.2,
+    audioContext.currentTime + 0.2,
   );
 }
 
@@ -80,7 +94,7 @@ export class Note {
     );
   }
 
-  noteOff(): void {
+  noteOff(immediate: boolean = false): void {
     // This fixes a click sound if the gain ramp to 0 happens
     // in the middle of sustain, i.e. after the previous
     // gain ramp ends.
@@ -90,8 +104,9 @@ export class Note {
         this.audioContext.currentTime,
       );
     }
+    const releaseTime = immediate ? 0 : ampRelease;
     const stopTime =
-      Math.max(this.audioContext.currentTime, this.ampSustainTime) + ampRelease;
+      Math.max(this.audioContext.currentTime, this.ampSustainTime) + releaseTime;
     this.osc.stop(stopTime);
     this.amp.gain.linearRampToValueAtTime(0, stopTime);
   }

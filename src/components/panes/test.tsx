@@ -86,19 +86,19 @@ export const Test: FC = () => {
 
   const waveformOptions = [
     {
-      label: 'Sine',
+      label: t('Sine'),
       value: 'sine',
     },
     {
-      label: 'Triangle',
+      label: t('Triangle'),
       value: 'triangle',
     },
     {
-      label: 'Sawtooth',
+      label: t('Sawtooth'),
       value: 'sawtooth',
     },
     {
-      label: 'Square',
+      label: t('Square'),
       value: 'square',
     },
   ];
@@ -108,15 +108,15 @@ export const Test: FC = () => {
 
   const modeOptions = [
     {
-      label: 'Wicki-Hayden',
+      label: t('Wicki-Hayden'),
       value: TestKeyboardSoundsMode.WickiHayden,
     },
     {
-      label: 'Chromatic',
+      label: t('Chromatic'),
       value: TestKeyboardSoundsMode.Chromatic,
     },
     {
-      label: 'Random',
+      label: t('Random'),
       value: TestKeyboardSoundsMode.Random,
     },
   ];

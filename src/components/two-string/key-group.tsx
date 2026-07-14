@@ -3,7 +3,8 @@ import {getBasicKeyToByte} from 'src/store/definitionsSlice';
 import {useAppDispatch, useAppSelector} from 'src/store/hooks';
 import {getSelectedKey} from 'src/store/keymapSlice';
 import {getExpressions} from 'src/store/macrosSlice';
-import {getSelectedTheme} from 'src/store/settingsSlice';
+import {getHostKeyboardLayout, getSelectedTheme} from 'src/store/settingsSlice';
+import {keymapExtras} from 'src/utils/keymap-extras';
 import {KeyGroupProps, KeysKeys} from 'src/types/keyboard-rendering';
 import {getRGB} from 'src/utils/color-math';
 import {
@@ -55,6 +56,8 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
     ? getRGBArray(props.keyColors)
     : selectedTheme;
   const {basicKeyToByte, byteToKey} = useAppSelector(getBasicKeyToByte);
+  const hostKeyboardLayout = useAppSelector(getHostKeyboardLayout);
+  const keycodeLUT = keymapExtras[hostKeyboardLayout]?.keycodeLUT;
   const macros = useAppSelector((state) => state.macros);
   const {keys, selectedKey: externalSelectedKey} = props;
   const selectedKeyIndex =
@@ -68,8 +71,8 @@ export const KeyGroup: React.FC<KeyGroupProps<React.MouseEvent>> = (props) => {
     props.onKeycapPointerOver,
   ]);
   const labels = useMemo(() => {
-    return getLabels(props, macroExpressions, basicKeyToByte, byteToKey);
-  }, [keys, props.matrixKeycodes, macros, props.definition]);
+    return getLabels(props, macroExpressions, basicKeyToByte, byteToKey, keycodeLUT);
+  }, [keys, props.matrixKeycodes, macros, props.definition, keycodeLUT]);
   const {width, height} = calculateKeyboardFrameDimensions(keys);
   const elems = useMemo(() => {
     return props.keys.map((k, i) => {

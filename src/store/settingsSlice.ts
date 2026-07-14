@@ -18,6 +18,7 @@ type SettingsState = Settings & {
   isTestMatrixEnabled: boolean;
   restartRequired: boolean;
   allowGlobalHotKeys: boolean;
+  showDesignTabConfirmationNotice: boolean;
 };
 
 const initialState: SettingsState = {
@@ -25,6 +26,7 @@ const initialState: SettingsState = {
   isTestMatrixEnabled: false,
   restartRequired: false,
   allowGlobalHotKeys: false,
+  showDesignTabConfirmationNotice: false,
 };
 
 const toggleBool = (
@@ -53,6 +55,13 @@ const settingsSlice = createSlice({
     },
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
+    },
+    setShowDesignTab: (state, action: PayloadAction<boolean>) => {
+      state.showDesignTab = action.payload;
+      setSettings(state);
+    },
+    setShowDesignTabConfirmationNotice: (state, action: PayloadAction<boolean>) => {
+      state.showDesignTabConfirmationNotice = action.payload;
     },
     toggleThemeMode: (state) => {
       const newThemeMode = state.themeMode === 'light' ? 'dark' : 'light';
@@ -107,6 +116,10 @@ const settingsSlice = createSlice({
     enableGlobalHotKeys: (state) => {
       state.allowGlobalHotKeys = true;
     },
+    updateHostKeyboardLayout: (state, action: PayloadAction<string>) => {
+      state.hostKeyboardLayout = action.payload;
+      setSettings(state);
+    },
   },
 });
 
@@ -114,7 +127,9 @@ export const {
   toggleFastRemap,
   updateShowSliderValuesMode,
   toggleCreatorMode,
+  setShowDesignTab,
   setTestMatrixEnabled,
+  setShowDesignTabConfirmationNotice,
   setTestKeyboardSoundsSettings,
   setMacroEditorSettings,
   toggleThemeMode,
@@ -123,6 +138,7 @@ export const {
   updateRenderMode,
   updateThemeName,
   updateDesignDefinitionVersion,
+  updateHostKeyboardLayout,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
@@ -137,6 +153,8 @@ export const getShowSliderValuesMode = (state: RootState) =>
   webGLIsAvailable ? state.settings.ShowSliderValuesMode : 'Slider Only';
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
+export const getShowDesignTabConfirmationNotice = (state: RootState) =>
+  state.settings.showDesignTabConfirmationNotice;
 export const getRestartRequired = (state: RootState) =>
   state.settings.restartRequired;
 export const getIsTestMatrixEnabled = (state: RootState) =>
@@ -159,3 +177,6 @@ export const getSelectedSRGBTheme = createSelector(
     return makeSRGBTheme(selectedTheme);
   },
 );
+
+export const getHostKeyboardLayout = (state: RootState) =>
+  state.settings.hostKeyboardLayout;
