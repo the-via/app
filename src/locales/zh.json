@@ -364,5 +364,6 @@
   "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.": "VIA 找不到 {{deviceName}} 的 {{definitionVersion}} 定义。\nVID: {{vid}} | PID: {{pid}}\n\n这意味着：\n- 此键盘未通过远程定义数据库获得官方支持\n- 此键盘的定义文件尚未通过“设计”标签页侧载\n\n请联系键盘制造商或供应商将其添加到数据库，或在“设计”标签页上传键盘制造商或供应商提供的 JSON 定义。",
   "this device": "此设备",
   "this keyboard": "此键盘",
-  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "你没有点击“确认”。要启用“设计”标签页，必须先确认。"
+  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "你没有点击“确认”。要启用“设计”标签页，必须先确认。",
+  "Add device": "添加设备"
 }

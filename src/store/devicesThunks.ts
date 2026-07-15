@@ -26,6 +26,7 @@ import {
   getSelectedDevicePath,
   getSupportedIds,
   selectDevice,
+  markDeviceReady,
   setForceAuthorize,
   updateConnectedDevices,
   updateInvalidProtocolDevices,
@@ -92,6 +93,7 @@ const selectConnectedDevice =
 
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
       await dispatch(loadKeymapFromDevice(connectedDevice));
+      dispatch(markDeviceReady(connectedDevice.path));
       selectConnectedDeviceRetry.clear();
     } catch (e) {
       if (selectConnectedDeviceRetry.retriesLeft()) {

@@ -24,6 +24,18 @@ const filterHIDDevices = (devices: HIDDevice[]) =>
     ),
   );
 
+export const QMK_CONSOLE_FILTER = {
+  usagePage: 0xff31,
+  usage: 0x74,
+};
+
+export const isQMKConsoleDevice = (device: HIDDevice) =>
+  device.collections?.some(
+    (collection) =>
+      collection.usage === QMK_CONSOLE_FILTER.usage &&
+      collection.usagePage === QMK_CONSOLE_FILTER.usagePage,
+  ) ?? false;
+
 const getVIAPathIdentifier = () =>
   (self.crypto && self.crypto.randomUUID && self.crypto.randomUUID()) ||
   `via-path:${Math.random()}`;
@@ -64,10 +76,12 @@ const ExtendedHID = {
           usagePage: 0xff60,
           usage: 0x61,
         },
+        QMK_CONSOLE_FILTER,
       ],
     });
-    requestedDevice.forEach(tagDevice);
-    return requestedDevice[0];
+    const viaDevices = filterHIDDevices(requestedDevice);
+    viaDevices.forEach(tagDevice);
+    return viaDevices[0];
   },
   getFilteredDevices: async () => {
     try {

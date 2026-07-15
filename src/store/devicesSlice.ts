@@ -14,6 +14,7 @@ import type {RootState} from './index';
 
 type DevicesState = {
   selectedDevicePath: string | null;
+  readyDevicePath: string | null;
   connectedDevicePaths: ConnectedDevices;
   unresolvedDefinitionDevicePaths: AuthorizedDevices;
   invalidProtocolDevicePaths: Record<string, Device>;
@@ -23,6 +24,7 @@ type DevicesState = {
 
 const initialState: DevicesState = {
   selectedDevicePath: null,
+  readyDevicePath: null,
   connectedDevicePaths: {},
   unresolvedDefinitionDevicePaths: {},
   invalidProtocolDevicePaths: {},
@@ -36,10 +38,16 @@ const deviceSlice = createSlice({
   reducers: {
     // TODO: change to just pass the device path instead of the whole device
     selectDevice: (state, action: PayloadAction<ConnectedDevice | null>) => {
+      state.readyDevicePath = null;
       if (!action.payload) {
         state.selectedDevicePath = null;
       } else {
         state.selectedDevicePath = action.payload.path;
+      }
+    },
+    markDeviceReady: (state, action: PayloadAction<string>) => {
+      if (state.selectedDevicePath === action.payload) {
+        state.readyDevicePath = action.payload;
       }
     },
     setForceAuthorize: (state, action: PayloadAction<boolean>) => {
@@ -74,6 +82,7 @@ const deviceSlice = createSlice({
     },
     clearAllDevices: (state) => {
       state.selectedDevicePath = null;
+      state.readyDevicePath = null;
       state.connectedDevicePaths = {};
       state.unresolvedDefinitionDevicePaths = {};
       state.invalidProtocolDevicePaths = {};
@@ -98,6 +107,7 @@ const deviceSlice = createSlice({
 export const {
   clearAllDevices,
   selectDevice,
+  markDeviceReady,
   updateConnectedDevices,
   updateUnresolvedDefinitionDevices,
   dismissUnresolvedDefinitionDevice,
@@ -128,11 +138,14 @@ export const getInvalidProtocolDeviceWarning = createSelector(
 );
 export const getSelectedDevicePath = (state: RootState) =>
   state.devices.selectedDevicePath;
+export const getIsSelectedDeviceReady = (state: RootState) =>
+  state.devices.selectedDevicePath !== null &&
+  state.devices.readyDevicePath === state.devices.selectedDevicePath;
 export const getSupportedIds = (state: RootState) => state.devices.supportedIds;
 export const getSelectedConnectedDevice = createSelector(
   getConnectedDevices,
   getSelectedDevicePath,
-  (devices, path) => path && devices[path],
+  (devices, path) => (path ? devices[path] : null),
 );
 export const getSelectedKeyboardAPI = createSelector(
   getSelectedDevicePath,
