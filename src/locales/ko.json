@@ -364,5 +364,6 @@
   "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.": "VIA에서 {{deviceName}}의 {{definitionVersion}} 정의를 찾지 못했습니다.\nVID: {{vid}} | PID: {{pid}}\n\n이는 다음을 의미합니다:\n- 이 키보드는 원격 정의 데이터베이스를 통해 공식적으로 지원되지 않습니다\n- 이 키보드의 정의 파일은 디자인 탭을 통해 사이드로드되지 않았습니다\n\n데이터베이스 추가를 위해 키보드 제조사 또는 판매처에 문의하거나, 키보드 제조사 또는 판매처가 제공한 JSON 정의를 디자인 탭에서 업로드하세요.",
   "this device": "이 장치",
   "this keyboard": "이 키보드",
-  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "\"확인\"을 클릭하지 않았습니다. 디자인 탭을 활성화하려면 먼저 확인해야 합니다."
+  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "\"확인\"을 클릭하지 않았습니다. 디자인 탭을 활성화하려면 먼저 확인해야 합니다.",
+  "Add device": "장치 추가"
 }

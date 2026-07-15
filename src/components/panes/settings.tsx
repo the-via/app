@@ -16,10 +16,12 @@ import {useDispatch} from 'react-redux';
 import {useAppSelector} from 'src/store/hooks';
 import {
   getShowDesignTab,
+  getShowConsoleTab,
   getShowDesignTabConfirmationNotice,
   getDisableFastRemap,
   getShowSliderValuesMode,
   toggleCreatorMode,
+  toggleConsoleTab,
   toggleFastRemap,
   updateShowSliderValuesMode,
   getThemeMode,
@@ -63,6 +65,7 @@ export const Settings = () => {
   const {t} = useTranslation();
   const dispatch = useDispatch();
   const showDesignTab = useAppSelector(getShowDesignTab);
+  const showConsoleTab = useAppSelector(getShowConsoleTab);
   const showDesignTabConfirmationNotice = useAppSelector(
     getShowDesignTabConfirmationNotice,
   );
@@ -147,6 +150,15 @@ export const Settings = () => {
                 <AccentSlider
                   onChange={() => dispatch(toggleCreatorMode())}
                   isChecked={showDesignTab}
+                />
+              </Detail>
+            </ControlRow>
+            <ControlRow>
+              <Label>{t('Show HID Console tab')}</Label>
+              <Detail>
+                <AccentSlider
+                  onChange={() => dispatch(toggleConsoleTab())}
+                  isChecked={showConsoleTab}
                 />
               </Detail>
             </ControlRow>

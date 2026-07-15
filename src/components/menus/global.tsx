@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {Link, useLocation} from 'wouter';
 import PANES from '../../utils/pane-config';
 import {useAppSelector} from 'src/store/hooks';
-import {getShowDesignTab} from 'src/store/settingsSlice';
+import {getShowConsoleTab, getShowDesignTab} from 'src/store/settingsSlice';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {CategoryMenuTooltip} from '../inputs/tooltip';
 import {CategoryIconContainer} from '../panes/grid';
@@ -33,6 +33,7 @@ const GlobalContainer = styled(Container)`
 export const UnconnectedGlobalMenu = () => {
   const {t, i18n} = useTranslation();
   const showDesignTab = useAppSelector(getShowDesignTab);
+  const showConsoleTab = useAppSelector(getShowConsoleTab);
 
   const [location] = useLocation();
 
@@ -40,6 +41,7 @@ export const UnconnectedGlobalMenu = () => {
     return PANES.filter((pane) => pane.key !== ErrorsPaneConfig.key).map(
       (pane) => {
         if (pane.key === 'design' && !showDesignTab) return null;
+        if (pane.key === 'console' && !showConsoleTab) return null;
         if (pane.key === 'debug' && !showDebugPane) return null;
         return (
           <Link key={pane.key} to={pane.path}>
@@ -51,7 +53,7 @@ export const UnconnectedGlobalMenu = () => {
         );
       },
     );
-  }, [location, showDesignTab]);
+  }, [location, showConsoleTab, showDesignTab]);
 
   return (
     <React.Fragment>

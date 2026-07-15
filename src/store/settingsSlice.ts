@@ -56,6 +56,9 @@ const settingsSlice = createSlice({
     toggleCreatorMode: (state) => {
       toggleBool(state, 'showDesignTab');
     },
+    toggleConsoleTab: (state) => {
+      toggleBool(state, 'showConsoleTab');
+    },
     setShowDesignTab: (state, action: PayloadAction<boolean>) => {
       state.showDesignTab = action.payload;
       setSettings(state);
@@ -127,6 +130,7 @@ export const {
   toggleFastRemap,
   updateShowSliderValuesMode,
   toggleCreatorMode,
+  toggleConsoleTab,
   setShowDesignTab,
   setTestMatrixEnabled,
   setShowDesignTabConfirmationNotice,
@@ -153,6 +157,8 @@ export const getShowSliderValuesMode = (state: RootState) =>
   webGLIsAvailable ? state.settings.ShowSliderValuesMode : 'Slider Only';
 export const getShowDesignTab = (state: RootState) =>
   state.settings.showDesignTab;
+export const getShowConsoleTab = (state: RootState) =>
+  state.settings.showConsoleTab;
 export const getShowDesignTabConfirmationNotice = (state: RootState) =>
   state.settings.showDesignTabConfirmationNotice;
 export const getRestartRequired = (state: RootState) =>

@@ -1,6 +1,7 @@
 import {
   faBrush,
   faBug,
+  faTerminal,
   faGear,
   faKeyboard,
   faStethoscope,
@@ -11,6 +12,7 @@ import {DesignTab} from '../components/panes/design';
 import {Settings} from '../components/panes/settings';
 import {Test} from '../components/panes/test';
 import {ErrorsPaneConfig} from '../components/panes/errors';
+import {HIDConsole} from '../components/panes/hid-console';
 
 export default [
   {
@@ -33,6 +35,13 @@ export default [
     icon: faBrush,
     path: '/design',
     title: 'Design',
+  },
+  {
+    key: 'console',
+    component: HIDConsole,
+    icon: faTerminal,
+    path: '/console',
+    title: 'HID Console',
   },
   {
     key: 'settings',

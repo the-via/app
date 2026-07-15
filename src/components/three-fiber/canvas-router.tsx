@@ -112,7 +112,7 @@ export const NonSuspenseCanvasRouter = () => {
   const showAuthorizeButton = 'hid' in navigator || OVERRIDE_HID_CHECK;
   const hideCanvasScene =
     !showAuthorizeButton ||
-    ['/settings', '/errors'].includes(path) ||
+    ['/settings', '/errors', '/console'].includes(path) ||
     hideDesignScene ||
     hideConfigureScene;
   const configureKeyboardIsSelectable = useAppSelector(

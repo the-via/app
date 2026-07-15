@@ -364,5 +364,6 @@
   "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.": "VIA could not find a {{definitionVersion}} definition for {{deviceName}}.\nVID: {{vid}} | PID: {{pid}}\n\nThis means that:\n- this keyboard is not officially supported through the remote definition database\n- the definition file of the keyboard has not been sideloaded through the Design tab\n\nPlease contact your keyboard's manufacturer or vendor to add it to the database, or upload the JSON definition provided by your keyboard's manufacturer or vendor in the Design tab.",
   "this device": "this device",
   "this keyboard": "this keyboard",
-  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "You didn't click \"Confirm\". To enable the Design tab, you must confirm first."
+  "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.": "You didn't click \"Confirm\". To enable the Design tab, you must confirm first.",
+  "Add device": "Add device"
 }

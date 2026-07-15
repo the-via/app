@@ -83,6 +83,7 @@ export type TestKeyboardSoundsSettings = {
 
 export type Settings = {
   showDesignTab: boolean;
+  showConsoleTab: boolean;
   disableFastRemap: boolean;
   ShowSliderValuesMode: 'Slider Only' | 'Slider & Show Value' | 'Slider & Input Field';
   renderMode: '3D' | '2D';
