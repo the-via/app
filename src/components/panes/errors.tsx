@@ -99,7 +99,7 @@ const AppErrors: React.FC<{}> = ({}) => {
             {timestamp}
             <ul>
               {error?.split('\n').map((line) => (
-                <li>{line}</li>
+                <li key={line}>{line}</li>
               ))}
             </ul>
             <ul>
