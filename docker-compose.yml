@@ -1,0 +1,15 @@
+# Run `docker-compose up` to build and run the via app in docker
+services:
+  via:
+    build:
+      context: .
+      pull: true
+      dockerfile: Dockerfile
+      tags:
+        - via
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on: []
