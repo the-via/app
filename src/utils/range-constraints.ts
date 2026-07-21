@@ -15,6 +15,15 @@ export const decodeRangeValue = (value: number[], max: number) =>
 export const encodeRangeValue = (value: number, max: number) =>
   max > 255 ? [value >> 8, value & 255] : [value];
 
+export const encodeRangeCommand = (
+  content: readonly [string, number, number, ...number[]],
+  value: number,
+  max: number,
+) => {
+  const [, ...command] = content;
+  return [...command, ...encodeRangeValue(value, max)];
+};
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
 

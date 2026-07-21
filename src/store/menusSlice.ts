@@ -22,6 +22,7 @@ import {isCustomMenuCommandContent} from 'src/utils/custom-menu';
 import {
   collectRangeControls,
   decodeRangeValue,
+  encodeRangeCommand,
   encodeRangeValue,
   resolveRangeChange,
 } from 'src/utils/range-constraints';
@@ -178,9 +179,13 @@ export const updateCustomMenuRangeValue =
 
     const channels = new Set<number>();
     for (const [id, value] of updates) {
-      const [, channel, commandId] = rangeControls[id].content;
-      const bytes = encodeRangeValue(value, rangeControls[id].options[1]);
-      await api.setCustomMenuValue(channel, commandId, ...bytes);
+      const command = encodeRangeCommand(
+        rangeControls[id].content,
+        value,
+        rangeControls[id].options[1],
+      );
+      const channel = command[0];
+      await api.setCustomMenuValue(...command);
       channels.add(channel);
     }
     for (const channel of channels) {
