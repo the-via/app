@@ -203,11 +203,22 @@ export const Pane: FC = () => {
         dispatch(saveMacros(selectedDevice, saveFile.macros));
       }
 
+      let parseErrors: string[] = [];
       const keymap: number[][] = saveFile.layers.map((layer) =>
-        layer.map((key) =>
-          getByteForCode(`${deprecatedKeycodes[key] ?? key}`, basicKeyToByte),
-        ),
+        layer.map((key) => {
+          try {
+            return getByteForCode(`${deprecatedKeycodes[key] ?? key}`, basicKeyToByte);
+          } catch (error) {
+            console.error(error);
+            parseErrors.push(`"${key}"`);
+            return 0;
+          }
+        }),
       );
+
+      if (parseErrors.length > 0) {
+        setErrorMessage(`Unsupported keycodes: ${parseErrors.join(', ')}`);
+      }
 
       // John you drongo, don't trust the compiler, dispatches are totes awaitable for async thunks
       await dispatch(saveRawKeymapToDevice(keymap, selectedDevice));
