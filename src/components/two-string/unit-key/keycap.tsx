@@ -329,6 +329,11 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
   return shouldRotate ? (
     <EncoderKey
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      isInteractive={isInteractive}
+      ariaLabel={ariaLabel}
+      rovingTabIndex={props.rovingTabIndex}
+      containerRef={props.containerRef}
       size={textureWidth * CSSVarObject.keyWidth}
       style={{
         transform: `translate(${
@@ -348,6 +353,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     <ComboKeycap
       {...props}
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      ariaLabel={ariaLabel}
       onPointerDown={onPointerDown}
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
@@ -379,8 +386,9 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
         onKeyDown={onKeyDown}
+        ref={props.containerRef}
         role={isInteractive ? 'button' : undefined}
-        tabIndex={isInteractive ? 0 : undefined}
+        tabIndex={isInteractive ? props.rovingTabIndex ?? 0 : undefined}
         aria-label={ariaLabel}
         aria-pressed={isInteractive ? !!selected : undefined}
         style={{
