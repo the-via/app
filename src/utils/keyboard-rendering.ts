@@ -492,6 +492,8 @@ export const getLabel = (
     tooltipLabel = macroExpression || '';
   }
 
+  const keyCode = byteToKey[keycodeByte];
+
   if (isAlpha(label) || isNumpadNumber(label)) {
     return (
       label && {
@@ -500,6 +502,7 @@ export const getLabel = (
         key: (label || '') + (macroExpression || ''),
         size: size,
         offset: offset,
+        keyCode,
       }
     );
   } else if (isMultiLegend(label)) {
@@ -512,6 +515,7 @@ export const getLabel = (
         key: (label || '') + (macroExpression || ''),
         size: size,
         offset: getLabelOffsets(topLabel, bottomLabel),
+        keyCode,
       }
     );
   } else {
@@ -529,6 +533,7 @@ export const getLabel = (
       key: (label || '') + (macroExpression || ''),
       size: size,
       offset: offset,
+      keyCode,
     };
   }
 };
