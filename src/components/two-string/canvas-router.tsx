@@ -1,4 +1,3 @@
-import {useProgress} from '@react-three/drei';
 import {DefinitionVersionMap, KeyColorType} from '@the-via/reader';
 import React, {useCallback, useEffect, useMemo, useRef} from 'react';
 import {shallowEqual} from 'react-redux';
@@ -62,7 +61,6 @@ export const CanvasRouter = () => {
   const body = useRef(document.body);
   const containerRef = useRef(null);
   const loadProgress = useAppSelector(getLoadProgress);
-  const {progress} = useProgress();
   const dispatch = useAppDispatch();
   const containerDimensions = useSize(containerRef);
   const dimensions = useSize(body);
@@ -81,9 +79,6 @@ export const CanvasRouter = () => {
     [localDefinitions, definitionVersion],
   );
   const hideDesignScene = '/design' === path && !versionDefinitions.length;
-  const hideConfigureScene =
-    '/' === path &&
-    (!selectedDefinition || (loadProgress + progress / 100) / 2 !== 1);
   const terrainOnClick = useCallback(() => {
     if (true) {
       dispatch(updateSelectedKey(null));
@@ -94,7 +89,7 @@ export const CanvasRouter = () => {
     !showAuthorizeButton ||
     ['/settings', '/errors', '/console'].includes(path) ||
     hideDesignScene ||
-    hideConfigureScene;
+    showLoader;
   const configureKeyboardIsSelectable = useAppSelector(
     getConfigureKeyboardIsSelectable,
   );
