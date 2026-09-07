@@ -31,7 +31,8 @@ export class UnsupportedKeycodesVersionError extends KeycodesVersionProtocolErro
   }
 }
 
-export const SUPPORTED_KEYCODES_VERSION = 0x00000008;
+export const MINIMUM_SUPPORTED_KEYCODES_VERSION = 0x00000008;
+export const MAXIMUM_SUPPORTED_KEYCODES_VERSION = 0x00000009;
 
 export const formatKeycodesVersion = (version: number) =>
   `0x${version.toString(16).padStart(8, '0')}`;
@@ -68,7 +69,10 @@ export const decodeKeycodesVersion = (result: number[]) => {
       result,
     );
   }
-  if (version !== SUPPORTED_KEYCODES_VERSION) {
+  if (
+    version < MINIMUM_SUPPORTED_KEYCODES_VERSION ||
+    version > MAXIMUM_SUPPORTED_KEYCODES_VERSION
+  ) {
     throw new UnsupportedKeycodesVersionError(version, result);
   }
   return version;
