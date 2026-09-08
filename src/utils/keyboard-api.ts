@@ -762,7 +762,13 @@ export class KeyboardAPI {
     const buffer = Array.from(await this.getByteBuffer());
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
-    if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
+    
+    // Check if response matches expected command echo
+    // Some keyboards (e.g., RK-R65) may return responses with variations in format
+    const commandEchoMatch = eqArr(commandBytes.slice(1), bufferCommandBytes);
+    const isAlternateFormat = buffer.length >= 2 && buffer[1] === command;
+    
+    if (!commandEchoMatch && !isAlternateFormat) {
       console.error(
         `Command for ${this.kbAddr}:`,
         commandBytes,
