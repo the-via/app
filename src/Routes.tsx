@@ -15,8 +15,12 @@ import {HIDConsole} from './components/panes/hid-console';
 import styled from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
-  *:focus {
+  *:focus:not(:focus-visible) {
     outline: none;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color_accent, #6666ff);
+    outline-offset: 2px;
   }
 `;
 

@@ -20,13 +20,18 @@ export const ComboKeycap = (props: any) => {
     label,
     canvasRef,
     onClick,
+    onKeyDown,
     onPointerDown,
     onPointerOver,
     onPointerOut,
     disabled,
+    ariaLabel,
+    rovingTabIndex,
+    containerRef,
     ...otherProps
   } = props;
   const [r1, r2] = normalizedRects;
+  const isInteractive = !disabled && props.mode !== DisplayMode.ConfigureColors;
   return (
     <>
       <KeycapContainer {...otherProps}>
@@ -36,6 +41,12 @@ export const ComboKeycap = (props: any) => {
           onPointerDown={onPointerDown}
           onPointerOver={onPointerOver}
           onPointerOut={onPointerOut}
+          onKeyDown={onKeyDown}
+          ref={containerRef}
+          role={isInteractive ? 'button' : undefined}
+          tabIndex={isInteractive ? rovingTabIndex ?? 0 : undefined}
+          aria-label={ariaLabel}
+          aria-pressed={isInteractive ? !!props.selected : undefined}
           style={{
             cursor: !disabled ? 'pointer' : 'initial',
             position: 'relative',
