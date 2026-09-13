@@ -192,6 +192,35 @@ const ExtendedHID = {
 
     readP = promisify((arg: any) => this.read(arg));
 
+    // Like read(), but gives up after `ms` and removes its waiter so a
+    // report that never comes cannot wedge the command queue. Used by the
+    // resync loop in KeyboardAPI._hidCommand.
+    readWithTimeout(ms: number): Promise<Uint8Array> {
+      return new Promise((res, rej) => {
+        this.fastForwardGlobalBuffer(lastWriteTimestamp);
+        if (globalBuffer[this.path].length > 0) {
+          res(globalBuffer[this.path].shift()?.message as Uint8Array);
+          return;
+        }
+        let settled = false;
+        const waiter = (data: Uint8Array) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          res(data);
+        };
+        const timer = setTimeout(() => {
+          if (settled) return;
+          settled = true;
+          eventWaitBuffer[this.path] = eventWaitBuffer[this.path].filter(
+            (w) => w !== waiter,
+          );
+          rej(new Error(`HID read timed out after ${ms}ms`));
+        }, ms);
+        eventWaitBuffer[this.path].push(waiter);
+      });
+    }
+
     // The idea is discard any messages that have happened before the time a command was issued
     // since time-travel is not possible yet...
     fastForwardGlobalBuffer(time: number) {

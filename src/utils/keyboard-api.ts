@@ -16,6 +16,11 @@ export {KeyboardValue} from './keyboard-values';
 // VIA Command IDs
 
 const COMMAND_START = 0x00; // This is really a HID Report ID
+// MYVIA resync tuning (see _hidCommand). Round trips on a healthy board are
+// 3-25ms, so 250ms is generous without stalling the UI on a dead command.
+const RESYNC_MAX_STALE_READS = 4;
+const RESYNC_READ_TIMEOUT_MS = 250;
+const HID_UNHANDLED_COMMAND = 0xff; // QMK via.c id_unhandled
 const PER_KEY_RGB_CHANNEL_COMMAND = [0, 1];
 
 enum APICommand {
@@ -759,8 +764,40 @@ export class KeyboardAPI {
 
     await this.getHID().write(paddedArray);
 
-    const buffer = Array.from(await this.getByteBuffer());
-    const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
+    // MYVIA resync: the stock implementation reads exactly one report and
+    // throws on an echo mismatch, never draining the stale reply. One stray
+    // report (a second tab, a concurrent rescan) then shifts every following
+    // response by one until the page is reloaded (the-via/app#228).
+    // Here we discard replies that clearly belong to another command and
+    // read again, bounded by RESYNC_MAX_STALE_READS and a per-read timeout.
+    // A reply starting with 0xFF (QMK id_unhandled) is a real answer to this
+    // command and is still treated as an error immediately.
+    let buffer = Array.from(await this.getByteBuffer());
+    let bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
+    let staleReads = 0;
+    while (
+      !eqArr(commandBytes.slice(1), bufferCommandBytes) &&
+      buffer[0] !== HID_UNHANDLED_COMMAND &&
+      staleReads < RESYNC_MAX_STALE_READS
+    ) {
+      staleReads++;
+      console.warn(
+        `Stale HID report for ${this.kbAddr}, resyncing (${staleReads}/${RESYNC_MAX_STALE_READS})`,
+        'expected:',
+        commandBytes.slice(1),
+        'got:',
+        buffer,
+      );
+      try {
+        buffer = Array.from(
+          await this.getHID().readWithTimeout(RESYNC_READ_TIMEOUT_MS),
+        );
+      } catch (e) {
+        // Nothing else arrived: the mismatched report was the only answer.
+        break;
+      }
+      bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
+    }
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
       console.error(
