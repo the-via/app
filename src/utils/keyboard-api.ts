@@ -179,8 +179,11 @@ type HIDAddress = string;
 type Layer = number;
 type Row = number;
 type Column = number;
+type GetCustomMenuValueOptions = {
+  reportErrors?: boolean;
+};
 type CommandQueueArgs =
-  [number, Array<number>, string | undefined] | (() => Promise<void>);
+  [number, Array<number>, string | undefined, boolean] | (() => Promise<void>);
 type CommandQueueEntry = {
   res: (val?: any) => void;
   rej: (error?: any) => void;
@@ -403,11 +406,15 @@ export class KeyboardAPI {
     await this.hidCommand(APICommand.DYNAMIC_KEYMAP_SET_ENCODER, bytes);
   }
 
-  async getCustomMenuValue(commandBytes: number[]): Promise<number[]> {
+  async getCustomMenuValue(
+    commandBytes: number[],
+    {reportErrors = true}: GetCustomMenuValueOptions = {},
+  ): Promise<number[]> {
     const res = await this.hidCommand(
       APICommand.CUSTOM_MENU_GET_VALUE,
       commandBytes,
       'CUSTOM_MENU_GET_VALUE',
+      reportErrors,
     );
     return res.slice(0 + commandBytes.length);
   }
@@ -686,12 +693,13 @@ export class KeyboardAPI {
     command: Command,
     bytes: Array<number> = [],
     commandName?: string,
+    reportErrors = true,
   ): Promise<number[]> {
     return new Promise((res, rej) => {
       this.commandQueueWrapper.commandQueue.push({
         res,
         rej,
-        args: [command, bytes, commandName],
+        args: [command, bytes, commandName, reportErrors],
       });
       if (!this.commandQueueWrapper.isFlushing) {
         this.flushQueue();
@@ -716,13 +724,16 @@ export class KeyboardAPI {
           const ans = await this._hidCommand(...args);
           res(ans);
         } catch (e: any) {
-          const deviceInfo = extractDeviceInfo(this.getHID());
-          store.dispatch(
-            logAppError({
-              message: getMessageFromError(e),
-              deviceInfo,
-            }),
-          );
+          const reportErrors = args[3];
+          if (reportErrors) {
+            const deviceInfo = extractDeviceInfo(this.getHID());
+            store.dispatch(
+              logAppError({
+                message: getMessageFromError(e),
+                deviceInfo,
+              }),
+            );
+          }
           rej(e);
         }
       }
@@ -750,6 +761,7 @@ export class KeyboardAPI {
     command: Command,
     bytes: Array<number> = [],
     commandName?: string,
+    reportErrors = true,
   ): Promise<any> {
     const commandBytes = [...[COMMAND_START, command], ...bytes];
     const paddedArray = new Array(33).fill(0);
@@ -763,22 +775,24 @@ export class KeyboardAPI {
     const bufferCommandBytes = buffer.slice(0, commandBytes.length - 1);
     logCommand(this.kbAddr, commandBytes, buffer);
     if (!eqArr(commandBytes.slice(1), bufferCommandBytes)) {
-      console.error(
-        `Command for ${this.kbAddr}:`,
-        commandBytes,
-        'Bad Resp:',
-        buffer,
-      );
+      if (reportErrors) {
+        console.error(
+          `Command for ${this.kbAddr}:`,
+          commandBytes,
+          'Bad Resp:',
+          buffer,
+        );
 
-      const deviceInfo = extractDeviceInfo(this.getHID());
-      store.dispatch(
-        logKeyboardAPIError({
-          commandName: commandName ?? APICommandValueToName[command],
-          commandBytes: commandBytes.slice(1),
-          responseBytes: buffer,
-          deviceInfo,
-        }),
-      );
+        const deviceInfo = extractDeviceInfo(this.getHID());
+        store.dispatch(
+          logKeyboardAPIError({
+            commandName: commandName ?? APICommandValueToName[command],
+            commandBytes: commandBytes.slice(1),
+            responseBytes: buffer,
+            deviceInfo,
+          }),
+        );
+      }
 
       throw new Error('Receiving incorrect response for command');
     }

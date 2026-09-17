@@ -85,7 +85,9 @@ export const loadDefinitionName =
     const [, channelId, ...command] = name.content;
 
     try {
-      const result = await api.getCustomMenuValue([channelId, ...command]);
+      const result = await api.getCustomMenuValue([channelId, ...command], {
+        reportErrors: false,
+      });
       const selectedOption = result.slice(1)[0];
 
       if (Number.isInteger(selectedOption)) {
