@@ -1,0 +1,28 @@
+{
+	admin off
+	persist_config off
+	auto_https off
+	servers :8080 {
+		protocols h1 h2c
+	}
+	log {
+		level WARN
+	}
+}
+
+:8080 {
+	root /app
+
+	log {
+		level WARN
+	}
+
+	header Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; base-uri 'self'; connect-src 'self' blob: https://www.gstatic.com/draco/ https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; manifest-src 'self'; worker-src blob: 'self';"
+
+	@paths path /debug /design /errors /settings /test
+	handle @paths {
+		try_files {path} /index.html
+	}
+
+	file_server
+}
