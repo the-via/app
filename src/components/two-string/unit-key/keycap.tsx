@@ -182,6 +182,13 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     idx,
   } = props;
   const macroData = label && getMacroData(label);
+  const ariaLabel = label
+    ? label.tooltipLabel ||
+      label.centerLabel ||
+      (typeof label.label === 'string' ? label.label : undefined) ||
+      [label.topLabel, label.bottomLabel].filter(Boolean).join(' ') ||
+      undefined
+    : undefined;
   const [overflowsTexture, setOverflowsTexture] = useState(false);
   // Hold state for hovered and clicked events
   const [hovered, hover] = useState(false);
@@ -304,9 +311,29 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     idx,
     mode,
   ]);
+
+  const isInteractive = !disabled && props.mode !== DisplayMode.ConfigureColors;
+  const onKeyDown = useCallback(
+    (evt: React.KeyboardEvent) => {
+      if (!isInteractive) {
+        return;
+      }
+      if (evt.key === 'Enter' || evt.key === ' ') {
+        evt.preventDefault();
+        onClick(evt as unknown as React.MouseEvent);
+      }
+    },
+    [isInteractive, onClick],
+  );
+
   return shouldRotate ? (
     <EncoderKey
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      isInteractive={isInteractive}
+      ariaLabel={ariaLabel}
+      rovingTabIndex={props.rovingTabIndex}
+      containerRef={props.containerRef}
       size={textureWidth * CSSVarObject.keyWidth}
       style={{
         transform: `translate(${
@@ -326,6 +353,8 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
     <ComboKeycap
       {...props}
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      ariaLabel={ariaLabel}
       onPointerDown={onPointerDown}
       onPointerOver={onPointerOver}
       onPointerOut={onPointerOut}
@@ -356,6 +385,12 @@ export const Keycap: React.FC<TwoStringKeycapProps> = React.memo((props) => {
         onPointerDown={onPointerDown}
         onPointerOver={onPointerOver}
         onPointerOut={onPointerOut}
+        onKeyDown={onKeyDown}
+        ref={props.containerRef}
+        role={isInteractive ? 'button' : undefined}
+        tabIndex={isInteractive ? props.rovingTabIndex ?? 0 : undefined}
+        aria-label={ariaLabel}
+        aria-pressed={isInteractive ? !!selected : undefined}
         style={{
           transform: `translate(${
             CSSVarObject.keyWidth / 2 +

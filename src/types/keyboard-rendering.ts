@@ -92,6 +92,8 @@ export type KeycapSharedProps<T> = {
 
 export type TwoStringKeycapProps = {
   clipPath: null | string;
+  containerRef?: (el: HTMLDivElement | null) => void;
+  rovingTabIndex?: number;
 } & KeycapSharedProps<React.MouseEvent<Element, MouseEvent>>;
 
 export type ThreeFiberKeycapProps = {
