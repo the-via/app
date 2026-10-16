@@ -36,6 +36,7 @@ import portuguese from './keymap_portuguese';
 import portuguese_mac_iso from './keymap_portuguese_mac_iso';
 import romanian from './keymap_romanian';
 import russian from './keymap_russian';
+import diktor_mac from './keymap_diktor_mac';
 import serbian from './keymap_serbian';
 import serbian_latin from './keymap_serbian_latin';
 import slovak from './keymap_slovak';
@@ -384,6 +385,14 @@ export const keymapExtras: Record<string, KeymapExtra> = {
     isANSI: true,
     locales: ['ru', 'ru-RU'],
     keycodeLUT: russian,
+  },
+  keymap_diktor_mac: {
+    label: 'Russian (Diktor, macOS)',
+    prefix: '',
+    sendstring: '',
+    isANSI: true,
+    locales: ['ru', 'ru-RU'],
+    keycodeLUT: diktor_mac,
   },
   keymap_serbian: {
     label: 'Serbian (Cyrillic)',
