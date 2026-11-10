@@ -46,6 +46,60 @@ import {
 import {keymapExtras} from 'src/utils/keymap-extras';
 import {getNextKey} from 'src/utils/keyboard-rendering';
 import {useTranslation} from 'react-i18next';
+import {
+  buildSearchIndex,
+  searchKeycodes,
+  SearchResult,
+} from '../../../utils/keycode-search';
+
+const SEARCH_CATEGORY: IKeycodeMenu = {
+  id: 'search',
+  label: 'Search',
+  keycodes: [],
+};
+
+const SearchInput = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border_color_icon);
+  background: var(--bg_control);
+  color: var(--color_label-highlighted);
+  &:focus {
+    border-color: var(--color_accent);
+  }
+`;
+
+const SearchHint = styled.div`
+  color: var(--color_label);
+  text-align: center;
+  padding: 20px;
+`;
+
+const SearchBox: FC<{value: string; onChange: (v: string) => void}> = ({
+  value,
+  onChange,
+}) => {
+  const {t} = useTranslation();
+  const dispatch = useAppDispatch();
+  // Typing must not trigger global hotkeys (e.g. key remapping shortcuts).
+  useEffect(() => () => void dispatch(enableGlobalHotKeys()), []);
+  return (
+    <SearchInput
+      autoFocus
+      type="text"
+      value={value}
+      placeholder={t('Search keys…')}
+      onChange={(e) => onChange(e.target.value)}
+      onFocus={() => dispatch(disableGlobalHotKeys())}
+      onBlur={() => dispatch(enableGlobalHotKeys())}
+    />
+  );
+};
+
 const KeycodeList = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, 64px);
@@ -184,6 +238,7 @@ export const KeycodePane: FC = () => {
   const [selectedCategory, setSelectedCategory] = useState(
     KeycodeCategories[0].id,
   );
+  const [searchQuery, setSearchQuery] = useState('');
   const [mouseOverDesc, setMouseOverDesc] = useState<string | null>(null);
   const [showKeyTextInputModal, setShowKeyTextInputModal] = useState(false);
 
@@ -222,6 +277,35 @@ export const KeycodePane: FC = () => {
     );
   };
 
+  // Search covers exactly the keycodes VIA shows for this keyboard: the
+  // enabled categories, with the same special cases as renderSelectedCategory.
+  const searchIndex = useMemo(() => {
+    const pool = getEnabledMenus().flatMap(({id, keycodes}): IKeycode[] => {
+      if (id === 'macro' && !macros.isFeatureSupported) return [];
+      if (id === 'custom') {
+        return (selectedDefinition.customKeycodes ?? []).map((k, idx) => ({
+          ...k,
+          code: `CUSTOM(${idx})`,
+        }));
+      }
+      return keycodes;
+    });
+    return buildSearchIndex(pool, ({code}) => {
+      const lut = keycodeLUT?.[code];
+      return lut ? [lut.name, lut.title ?? ''] : [];
+    });
+  }, [
+    KeycodeCategories,
+    selectedDefinition,
+    macros.isFeatureSupported,
+    keycodeLUT,
+  ]);
+
+  const searchResults: SearchResult[] = useMemo(
+    () => searchKeycodes(searchIndex, searchQuery),
+    [searchIndex, searchQuery],
+  );
+
   const renderMacroError = () => {
     return (
       <ErrorMessage>
@@ -236,7 +320,7 @@ export const KeycodePane: FC = () => {
     const {t} = useTranslation();
     return (
       <MenuContainer>
-        {getEnabledMenus().map(({id, label}) => (
+        {[...getEnabledMenus(), SEARCH_CATEGORY].map(({id, label}) => (
           <SubmenuRow
             $selected={id === selectedCategory}
             onClick={() => setSelectedCategory(id)}
@@ -329,10 +413,30 @@ export const KeycodePane: FC = () => {
     keycodes: IKeycode[],
     selectedCategory: string,
   ) => {
-    const keycodeListItems = keycodes.map((keycode, i) =>
+    const keycodeListItems = (keycodes ?? []).map((keycode, i) =>
       renderKeycode(keycode, i),
     );
     switch (selectedCategory) {
+      case 'search': {
+        // Each result carries its match score (0-100) if we want to show it.
+        return (
+          <>
+            <SearchBox value={searchQuery} onChange={setSearchQuery} />
+            {searchResults.length === 0 ? (
+              <SearchHint>{t('No keys found')}</SearchHint>
+            ) : (
+              <KeycodeList>
+                {searchResults
+                  .map(({keycode}, i) => renderKeycode(keycode, i))
+                  // Unfiltered, this acts as the "all keys" view.
+                  .concat(
+                    searchQuery.trim() === '' ? [renderCustomKeycode()] : [],
+                  )}
+              </KeycodeList>
+            )}
+          </>
+        );
+      }
       case 'macro': {
         return !macros.isFeatureSupported ? (
           renderMacroError()
