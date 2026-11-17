@@ -4,8 +4,8 @@ export const Button = styled.div`
   display: flex;
   transition: transform 0.2s ease-out;
   user-select: none;
-  color: #717070;
-  border: 1px #717070 solid;
+  color: var(--color_button, #717070);
+  border: 1px var(--color_button, #717070) solid;
   width: 45px;
   height: 45px;
   padding: 2px;

@@ -77,7 +77,7 @@ const DesignErrorMessage = styled(ErrorMessage)`
 
 const DesignWarningMessage = styled(ErrorMessage)`
   margin: 0;
-  color: gold;
+  color: var(--color_warning, gold);
   font-style: italic;
 `;
 

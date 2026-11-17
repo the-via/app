@@ -1,16 +1,21 @@
 import {THEMES} from 'src/utils/themes';
 
+export const isNordTheme = (themeName: string) => themeName === 'NORD';
+
 export const updateCSSVariables = (themeName: keyof typeof THEMES) => {
   const selectedTheme = THEMES[themeName] || THEMES['OLIVIA_DARK'];
+  const root = document.documentElement;
 
-  document.documentElement.style.setProperty(
-    '--color_accent',
-    selectedTheme.accent.c,
-  );
-  document.documentElement.style.setProperty(
-    '--color_inside-accent',
-    selectedTheme.accent.t,
-  );
+  if (isNordTheme(themeName)) {
+    // Nord UI colors (incl. per-mode accent) come from app.global.css
+    root.dataset.themeFamily = 'nord';
+    root.style.removeProperty('--color_accent');
+    root.style.removeProperty('--color_inside-accent');
+    return;
+  }
+  delete root.dataset.themeFamily;
+  root.style.setProperty('--color_accent', selectedTheme.accent.c);
+  root.style.setProperty('--color_inside-accent', selectedTheme.accent.t);
 };
 
 export const getRandomColor = () =>

@@ -74,7 +74,7 @@ export const ConfigureFlexCell = styled(SinglePaneFlexCell)`
 
 export const CategoryIconContainer = styled.span<{$selected?: boolean}>`
   position: relative;
-  color: var(--color_inside-accent);
+  color: var(--color_icon-top, var(--color_inside-accent));
   height: 35px;
   cursor: pointer;
   display: flex;

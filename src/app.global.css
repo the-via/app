@@ -109,6 +109,77 @@ html[data-theme-mode='light'] {
   );
 }
 
+/* Nord UI palette (https://www.nordtheme.com/docs/colors-and-palettes).
+   Applied for the NORD keycap theme in both modes; all pairs checked for WCAG AA
+   (4.5:1 text, 3:1 icons/borders). */
+html[data-theme-family='nord'][data-theme-mode='dark'] {
+  --color_label: #b8c4d8;
+  --color_label-highlighted: #eceff4;
+  --color_button: #b8c4d8;
+  --border_color_icon: #97a4bc;
+  --border_color_cell: #97a4bc;
+  --bg_icon: #b8c4d8;
+  --bg_icon-highlighted: #eceff4;
+  --color_icon-highlighted: #2e3440;
+  --color_icon_highlighted: #2e3440;
+  --bg_menu: #3b4252;
+  --color_control: #434c5e;
+  --bg_control: #434c5e;
+  --bg_outside-accent: #434c5e;
+  --bg_control_disabled: #434c5e;
+  --bg_control-highlighted: #d8dee9;
+  --color_control-highlighted: #2e3440;
+  --color_dark_grey: #434c5e;
+  --color_error: #f5b0b7;
+  --color_warning: #ebcb8b;
+  --color_icon-top: #eceff4;
+  --color_icon-idle: #b8c4d8;
+  --color_accent: #94ccdc;
+  --color_inside-accent: #2e3440;
+  --bg_gradient: linear-gradient(#2e3440, #3b4252);
+  --gradient: var(--bg_gradient);
+}
+html[data-theme-family='nord'][data-theme-mode='light'] {
+  --color_label: #4c566a;
+  --color_label-highlighted: #2e3440;
+  --color_button: #4c566a;
+  --border_color_icon: #6b7790;
+  --border_color_cell: #6b7790;
+  --bg_icon: #4c566a;
+  --bg_icon-highlighted: #2e3440;
+  --color_icon-highlighted: #eceff4;
+  --color_icon_highlighted: #eceff4;
+  --bg_menu: #e5e9f0;
+  --color_control: #e5e9f0;
+  --color_control-disabled: #e5e9f0;
+  --bg_control: #d8dee9;
+  --bg_outside-accent: #e5e9f0;
+  --bg_control-highlighted: #eceff4;
+  --color_control-highlighted: #2e3440;
+  --color_dark_grey: #d8dee9;
+  --color_error: #a63a47;
+  --color_warning: #7a5a00;
+  --color_icon-top: #2e3440;
+  --color_icon-idle: #4c566a;
+  --color_accent: #34627f;
+  --color_inside-accent: #eceff4;
+  --bg_gradient: linear-gradient(#e5e9f0, #eceff4);
+  --gradient: var(--bg_gradient);
+}
+html[data-theme-family='nord'][data-theme-mode='dark'] body,
+html[data-theme-family='nord'][data-theme-mode='dark'] h2,
+html[data-theme-family='nord'][data-theme-mode='dark'] a {
+  color: #eceff4;
+}
+html[data-theme-family='nord'][data-theme-mode='light'] body,
+html[data-theme-family='nord'][data-theme-mode='light'] h2,
+html[data-theme-family='nord'][data-theme-mode='light'] a {
+  color: #2e3440;
+}
+html[data-theme-family='nord'] a {
+  opacity: 1;
+}
+
 #root {
   background: var(--bg_gradient);
   display: flex;
