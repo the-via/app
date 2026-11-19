@@ -157,9 +157,22 @@ export const EncoderKey = (props: {
   size: number;
   style: React.CSSProperties;
   onClick: (evt: React.MouseEvent) => void;
+  onKeyDown?: (evt: React.KeyboardEvent) => void;
+  isInteractive?: boolean;
+  ariaLabel?: string;
+  rovingTabIndex?: number;
+  containerRef?: (el: HTMLDivElement | null) => void;
 }) => {
   return (
-    <EncoderKeyContainer onClick={props.onClick} style={props.style}>
+    <EncoderKeyContainer
+      onClick={props.onClick}
+      onKeyDown={props.onKeyDown}
+      ref={props.containerRef}
+      role={props.isInteractive ? 'button' : undefined}
+      tabIndex={props.isInteractive ? props.rovingTabIndex ?? 0 : undefined}
+      aria-label={props.ariaLabel ?? 'Encoder'}
+      style={props.style}
+    >
       <EncoderKeyContent2
         $size={props.size && +props.size}
         $innerPadding={(5 * props.size) / 52}
