@@ -24,7 +24,7 @@ const CharacterStreamContainer = styled.div`
 const KeycodeSequenceLabel = styled.div`
   display: inline-flex;
   user-select: none;
-  color: #717070;
+  color: var(--color_button, #717070);
   padding: 6px 4px;
   text-overflow: ellipsis;
   min-width: 30px;
@@ -97,7 +97,7 @@ export const KeycodeSequenceWait = styled.div`
   display: inline-flex;
   font-weight: bold;
   user-select: none;
-  color: #717070;
+  color: var(--color_button, #717070);
   text-overflow: ellipsis;
   min-width: 30px;
   text-align: center;

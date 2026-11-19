@@ -9,6 +9,14 @@ export type Theme = {
 
 export const THEMES = {
   ...{
+    // Nord (https://www.nordtheme.com/docs/colors-and-palettes) keycap colorway.
+    // Mid-tone Polar Night caps so they stay distinct on both the light and dark UI;
+    // the UI palette itself is in app.global.css, keyed on data-theme-family='nord'.
+    NORD: {
+      alpha: {c: '#4C566A', t: '#ECEFF4'},
+      mod: {c: '#3B4252', t: '#88C0D0'},
+      accent: {c: '#456488', t: '#ECEFF4'},
+    },
     OLIVIA_DARK: {
       alpha: {
         c: '#363434',
